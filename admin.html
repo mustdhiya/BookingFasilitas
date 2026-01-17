@@ -1,0 +1,1934 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Panel - Lab Psikologi UMKT</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  
+  <!-- Google Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+
+  <style>
+    :root {
+      --primary: #2180b4;
+      --primary-soft: rgba(33,128,180,0.18);
+      --primary-strong: #136392;
+      --danger: #e63946;
+      --success: #2a9d8f;
+      --warning: #f59e0b;
+      --info: #3b82f6;
+      --bg-dark: #050816;
+      --glass-bg: rgba(255, 255, 255, 0.08);
+      --border-glass: rgba(255, 255, 255, 0.2);
+      --text-main: #f8fafc;
+      --text-muted: #cbd5f5;
+      --radius-lg: 18px;
+      --transition-fast: 0.18s ease;
+      --shadow-soft: 0 18px 45px rgba(0,0,0,0.55);
+      --shadow-focus: 0 0 0 3px rgba(148, 163, 253, 0.4);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text-main);
+      background: radial-gradient(circle at top left, #7c2d12 0, transparent 55%),
+                  radial-gradient(circle at bottom right, #1e3a8a 0, transparent 55%),
+                  radial-gradient(circle at center, #0c0a09 0, #0c0a09 60%, #000 100%);
+      overflow-x: hidden;
+    }
+
+    /* ===== NAVIGATION BAR ===== */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(12,10,9,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(251,146,60,0.2);
+      padding: 12px 0;
+    }
+
+    .nav-container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .nav-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: conic-gradient(from 160deg, #f97316, #dc2626, #7c2d12, #f97316);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+      color: #0b1220;
+    }
+
+    .nav-text {
+      display: flex;
+      flex-direction: column;
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #e5e7eb;
+    }
+    .nav-text span:nth-child(2) {
+      font-weight: 600;
+      color: #fdba74;
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .admin-badge {
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      background: linear-gradient(135deg, rgba(249,115,22,0.3), rgba(220,38,38,0.3));
+      color: #fdba74;
+      border: 1px solid rgba(251,146,60,0.4);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-nav {
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all var(--transition-fast);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(124,45,18,0.2);
+      color: #fdba74;
+      border: 1px solid rgba(251,146,60,0.4);
+    }
+
+    .btn-nav:hover {
+      background: rgba(124,45,18,0.35);
+      border-color: #fb923c;
+      transform: translateY(-1px);
+    }
+
+    /* ===== MAIN CONTAINER ===== */
+    .main-container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 32px 24px 60px;
+    }
+
+    .page-header {
+      margin-bottom: 28px;
+    }
+
+    .page-header h1 {
+      font-size: 28px;
+      font-weight: 600;
+      color: #fef3c7;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .page-header p {
+      font-size: 14px;
+      color: #d4d4d8;
+    }
+
+    /* ===== MODULE SELECTOR ===== */
+    .module-selector {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .module-card {
+      padding: 18px 20px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(12,10,9,0.9), rgba(12,10,9,0.7));
+      border: 2px solid rgba(251,146,60,0.25);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .module-card:hover {
+      transform: translateY(-2px);
+      border-color: #fb923c;
+      box-shadow: 0 12px 32px rgba(249,115,22,0.4);
+    }
+
+    .module-card.active {
+      border-color: #fb923c;
+      background: linear-gradient(135deg, rgba(249,115,22,0.25), rgba(220,38,38,0.15));
+      box-shadow: 0 8px 24px rgba(249,115,22,0.6);
+    }
+
+    .module-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .module-icon .material-icons {
+      font-size: 28px;
+    }
+
+    .module-icon.orange {
+      background: linear-gradient(135deg, rgba(249,115,22,0.3), rgba(251,146,60,0.3));
+      color: #fdba74;
+    }
+
+    .module-icon.red {
+      background: linear-gradient(135deg, rgba(220,38,38,0.3), rgba(239,68,68,0.3));
+      color: #fca5a5;
+    }
+
+    .module-icon.blue {
+      background: linear-gradient(135deg, rgba(59,130,246,0.3), rgba(96,165,250,0.3));
+      color: #93c5fd;
+    }
+
+    .module-icon.green {
+      background: linear-gradient(135deg, rgba(34,197,94,0.3), rgba(52,211,153,0.3));
+      color: #86efac;
+    }
+
+    .module-info {
+      flex: 1;
+    }
+
+    .module-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fef3c7;
+      margin-bottom: 3px;
+    }
+
+    .module-desc {
+      font-size: 11px;
+      color: #a8a29e;
+    }
+
+    /* ===== CONTENT SECTIONS ===== */
+    .content-section {
+      display: none;
+    }
+
+    .content-section.active {
+      display: block;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== PANEL ===== */
+    .panel {
+      padding: 24px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(12,10,9,0.9), rgba(12,10,9,0.7));
+      border: 1px solid rgba(251,146,60,0.3);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      margin-bottom: 20px;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px dashed rgba(251,146,60,0.3);
+    }
+
+    .panel-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fef3c7;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-title .material-icons {
+      font-size: 20px;
+      color: #fdba74;
+    }
+
+    /* ===== KPI CARDS ===== */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+
+    .kpi-card {
+      padding: 20px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(12,10,9,0.8), rgba(12,10,9,0.6));
+      border: 1px solid rgba(251,146,60,0.3);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: all var(--transition-fast);
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      border-color: #fb923c;
+      box-shadow: 0 8px 24px rgba(249,115,22,0.4);
+    }
+
+    .kpi-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .kpi-icon .material-icons {
+      font-size: 32px;
+    }
+
+    .kpi-icon.orange {
+      background: linear-gradient(135deg, rgba(249,115,22,0.25), rgba(251,146,60,0.25));
+      color: #fdba74;
+    }
+
+    .kpi-icon.red {
+      background: linear-gradient(135deg, rgba(220,38,38,0.25), rgba(239,68,68,0.25));
+      color: #fca5a5;
+    }
+
+    .kpi-icon.blue {
+      background: linear-gradient(135deg, rgba(59,130,246,0.25), rgba(96,165,250,0.25));
+      color: #93c5fd;
+    }
+
+    .kpi-icon.green {
+      background: linear-gradient(135deg, rgba(34,197,94,0.25), rgba(52,211,153,0.25));
+      color: #86efac;
+    }
+
+    .kpi-info {
+      flex: 1;
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      color: #a8a29e;
+      margin-bottom: 4px;
+    }
+
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #fef3c7;
+      line-height: 1;
+    }
+
+    .kpi-change {
+      font-size: 11px;
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .kpi-change.positive {
+      color: #86efac;
+    }
+
+    .kpi-change.negative {
+      color: #fca5a5;
+    }
+
+    /* ===== TABS ===== */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid rgba(251,146,60,0.2);
+      overflow-x: auto;
+    }
+
+    .tab {
+      padding: 10px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #a8a29e;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      border-bottom: 2px solid transparent;
+      transition: all var(--transition-fast);
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tab:hover {
+      color: #fdba74;
+    }
+
+    .tab.active {
+      color: #fdba74;
+      border-bottom-color: #fb923c;
+    }
+
+    .tab .material-icons {
+      font-size: 18px;
+    }
+
+    /* ===== TABLE ===== */
+    .table-container {
+      overflow-x: auto;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .table th,
+    .table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid rgba(251,146,60,0.15);
+    }
+
+    .table th {
+      font-size: 11px;
+      font-weight: 600;
+      color: #a8a29e;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .table td {
+      font-size: 12px;
+      color: #e7e5e4;
+    }
+
+    .table tbody tr {
+      transition: all var(--transition-fast);
+    }
+
+    .table tbody tr:hover {
+      background: rgba(249,115,22,0.08);
+    }
+
+    .status-badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 500;
+      white-space: nowrap;
+      display: inline-block;
+    }
+
+    .status-pending {
+      background: rgba(245,158,11,0.2);
+      color: #fbbf24;
+      border: 1px solid rgba(245,158,11,0.5);
+    }
+
+    .status-approved {
+      background: rgba(34,197,94,0.2);
+      color: #86efac;
+      border: 1px solid rgba(34,197,94,0.5);
+    }
+
+    .status-declined {
+      background: rgba(239,68,68,0.2);
+      color: #fca5a5;
+      border: 1px solid rgba(239,68,68,0.5);
+    }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all var(--transition-fast);
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #f97316, #fb923c);
+      color: #0c0a09;
+      box-shadow: 0 6px 18px rgba(249,115,22,0.6);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(249,115,22,0.8);
+    }
+
+    .btn-success {
+      background: rgba(34,197,94,0.2);
+      color: #86efac;
+      border: 1px solid rgba(34,197,94,0.5);
+    }
+
+    .btn-success:hover {
+      background: rgba(34,197,94,0.3);
+      border-color: #86efac;
+    }
+
+    .btn-danger {
+      background: rgba(239,68,68,0.2);
+      color: #fca5a5;
+      border: 1px solid rgba(239,68,68,0.5);
+    }
+
+    .btn-danger:hover {
+      background: rgba(239,68,68,0.3);
+      border-color: #fca5a5;
+    }
+
+    .btn-secondary {
+      background: rgba(120,113,108,0.2);
+      color: #d6d3d1;
+      border: 1px solid rgba(168,162,158,0.4);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(120,113,108,0.3);
+      border-color: #a8a29e;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-icon {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border-radius: 8px;
+    }
+
+    /* ===== FILTER BAR ===== */
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      padding: 16px;
+      border-radius: 12px;
+      background: rgba(12,10,9,0.6);
+      border: 1px solid rgba(251,146,60,0.25);
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+      min-width: 180px;
+    }
+
+    .filter-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: #a8a29e;
+    }
+
+    .filter-select,
+    .filter-input {
+      background: rgba(12,10,9,0.9);
+      border-radius: 8px;
+      border: 1px solid rgba(251,146,60,0.4);
+      padding: 8px 10px;
+      font-size: 12px;
+      color: var(--text-main);
+      outline: none;
+      transition: all var(--transition-fast);
+    }
+
+    .filter-select:focus,
+    .filter-input:focus {
+      border-color: #fb923c;
+      box-shadow: var(--shadow-focus);
+    }
+
+    /* ===== FORM STYLES ===== */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #e7e5e4;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .form-label .material-icons {
+      font-size: 16px;
+      color: #a8a29e;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      background: rgba(12,10,9,0.9);
+      border-radius: 10px;
+      border: 1px solid rgba(251,146,60,0.4);
+      padding: 10px 12px;
+      font-size: 13px;
+      color: var(--text-main);
+      outline: none;
+      transition: all var(--transition-fast);
+      font-family: inherit;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      border-color: #fb923c;
+      box-shadow: var(--shadow-focus);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    /* ===== ACTION LIST ===== */
+    .action-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .action-item {
+      padding: 14px;
+      border-radius: 12px;
+      background: rgba(12,10,9,0.6);
+      border: 1px solid rgba(251,146,60,0.25);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      transition: all var(--transition-fast);
+    }
+
+    .action-item:hover {
+      background: rgba(12,10,9,0.8);
+      border-color: #fb923c;
+    }
+
+    .action-info {
+      flex: 1;
+    }
+
+    .action-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: #fef3c7;
+      margin-bottom: 4px;
+    }
+
+    .action-meta {
+      font-size: 11px;
+      color: #a8a29e;
+    }
+
+    /* ===== GRID LAYOUT ===== */
+    .grid-2col {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 1200px) {
+      .grid-2col {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    /* ===== STOCK BADGE ===== */
+    .stock-badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 500;
+    }
+
+    .stock-high {
+      background: rgba(34,197,94,0.2);
+      color: #86efac;
+      border: 1px solid rgba(34,197,94,0.4);
+    }
+
+    .stock-medium {
+      background: rgba(245,158,11,0.2);
+      color: #fbbf24;
+      border: 1px solid rgba(245,158,11,0.4);
+    }
+
+    .stock-low {
+      background: rgba(239,68,68,0.2);
+      color: #fca5a5;
+      border: 1px solid rgba(239,68,68,0.4);
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-container">
+    <a href="#" class="nav-brand">
+      <div class="nav-logo">A</div>
+      <div class="nav-text">
+        <span>Admin Panel</span>
+        <span>Lab Psikologi UMKT</span>
+      </div>
+    </a>
+
+    <div class="nav-actions">
+      <div class="admin-badge">
+        <span class="material-icons" style="font-size: 16px;">verified_user</span>
+        Administrator
+      </div>
+      <a href="index.html" class="btn-nav">
+        <span class="material-icons">exit_to_app</span>
+        Logout
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN CONTAINER -->
+<main class="main-container">
+  <div class="page-header">
+    <h1>
+      <span class="material-icons">admin_panel_settings</span>
+      Admin Dashboard
+    </h1>
+    <p>Kelola seluruh aktivitas laboratorium psikologi dari satu tempat.</p>
+  </div>
+
+  <!-- MODULE SELECTOR -->
+  <div class="module-selector">
+    <div class="module-card active" data-module="dashboard">
+      <div class="module-icon orange">
+        <span class="material-icons">dashboard</span>
+      </div>
+      <div class="module-info">
+        <div class="module-title">Dashboard & KPI</div>
+        <div class="module-desc">Overview & action items</div>
+      </div>
+    </div>
+
+    <div class="module-card" data-module="peminjaman">
+      <div class="module-icon red">
+        <span class="material-icons">assignment</span>
+      </div>
+      <div class="module-info">
+        <div class="module-title">Manajemen Peminjaman</div>
+        <div class="module-desc">Ruangan & alat tes</div>
+      </div>
+    </div>
+
+    <div class="module-card" data-module="master">
+      <div class="module-icon blue">
+        <span class="material-icons">storage</span>
+      </div>
+      <div class="module-info">
+        <div class="module-title">Master Data</div>
+        <div class="module-desc">Ruangan, alat, jadwal blok</div>
+      </div>
+    </div>
+
+    <div class="module-card" data-module="praktikum">
+      <div class="module-icon green">
+        <span class="material-icons">school</span>
+      </div>
+      <div class="module-info">
+        <div class="module-title">Praktikum & Variabel</div>
+        <div class="module-desc">Jadwal & penelitian</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 1: DASHBOARD & KPI ===== -->
+  <div class="content-section active" id="section-dashboard">
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-icon orange">
+          <span class="material-icons">meeting_room</span>
+        </div>
+        <div class="kpi-info">
+          <div class="kpi-label">Peminjaman Ruangan (Bulan Ini)</div>
+          <div class="kpi-value">47</div>
+          <div class="kpi-change positive">
+            <span class="material-icons" style="font-size: 14px;">trending_up</span>
+            +12% vs bulan lalu
+          </div>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon red">
+          <span class="material-icons">science</span>
+        </div>
+        <div class="kpi-info">
+          <div class="kpi-label">Peminjaman Alat Tes (Bulan Ini)</div>
+          <div class="kpi-value">23</div>
+          <div class="kpi-change positive">
+            <span class="material-icons" style="font-size: 14px;">trending_up</span>
+            +8% vs bulan lalu
+          </div>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon blue">
+          <span class="material-icons">groups</span>
+        </div>
+        <div class="kpi-info">
+          <div class="kpi-label">Peserta Praktikum Terdaftar</div>
+          <div class="kpi-value">142</div>
+          <div class="kpi-change positive">
+            <span class="material-icons" style="font-size: 14px;">trending_up</span>
+            +18% vs bulan lalu
+          </div>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon green">
+          <span class="material-icons">auto_stories</span>
+        </div>
+        <div class="kpi-info">
+          <div class="kpi-label">Variabel Aktif & Request Pending</div>
+          <div class="kpi-value">18 / 5</div>
+          <div class="kpi-change negative">
+            <span class="material-icons" style="font-size: 14px;">trending_down</span>
+            -5% vs bulan lalu
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Items -->
+    <div class="grid-2col">
+      <div class="panel">
+        <div class="panel-header">
+          <h3 class="panel-title">
+            <span class="material-icons">notification_important</span>
+            Butuh Tindakan Segera
+          </h3>
+        </div>
+
+        <div class="action-list">
+          <div class="action-item">
+            <div class="action-info">
+              <div class="action-title">Peminjaman Ruangan: Lab Psikometri</div>
+              <div class="action-meta">
+                Peminjam: Muhammad Rizki • 22 Jan 2026, 09:00 - 11:00 • 
+                <span class="status-badge status-pending">Pending</span>
+              </div>
+            </div>
+            <div class="btn-group">
+              <button class="btn btn-success">
+                <span class="material-icons">check</span>
+                Approve
+              </button>
+              <button class="btn btn-danger">
+                <span class="material-icons">close</span>
+                Decline
+              </button>
+            </div>
+          </div>
+
+          <div class="action-item">
+            <div class="action-info">
+              <div class="action-title">Peminjaman Alat: WAIS-IV (10 lembar)</div>
+              <div class="action-meta">
+                Peminjam: Siti Aisyah • Total: Rp 500.000 • 
+                <span class="status-badge status-pending">Pending</span>
+              </div>
+            </div>
+            <div class="btn-group">
+              <button class="btn btn-success">
+                <span class="material-icons">check</span>
+                Approve
+              </button>
+              <button class="btn btn-danger">
+                <span class="material-icons">close</span>
+                Decline
+              </button>
+            </div>
+          </div>
+
+          <div class="action-item" style="border-color: rgba(245,158,11,0.4);">
+            <div class="action-info">
+              <div class="action-title">Praktikum Wawancara - Sesi 2</div>
+              <div class="action-meta">
+                25 Jan 2026, 10:00 - 12:00 • 
+                <span class="status-badge" style="background: rgba(245,158,11,0.2); color: #fbbf24; border-color: rgba(245,158,11,0.5);">
+                  24 / 25 slot
+                </span>
+              </div>
+            </div>
+            <button class="btn btn-secondary">
+              <span class="material-icons">visibility</span>
+              Lihat Peserta
+            </button>
+          </div>
+
+          <div class="action-item" style="border-color: rgba(239,68,68,0.4);">
+            <div class="action-info">
+              <div class="action-title">Variabel: Self-Efficacy & Prokrastinasi</div>
+              <div class="action-meta">
+                Bidang: Psikologi Sosial • 
+                <span class="status-badge stock-low">Slot: 5 / 5 (Penuh)</span>
+              </div>
+            </div>
+            <button class="btn btn-secondary">
+              <span class="material-icons">edit</span>
+              Tambah Slot
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h3 class="panel-title">
+            <span class="material-icons">trending_up</span>
+            Statistik Quick View
+          </h3>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div style="padding: 14px; border-radius: 10px; background: rgba(249,115,22,0.1); border: 1px solid rgba(251,146,60,0.3);">
+            <div style="font-size: 11px; color: #a8a29e; margin-bottom: 8px;">Ruangan Tersibuk Bulan Ini</div>
+            <div style="font-size: 16px; font-weight: 600; color: #fef3c7;">Lab Psikometri</div>
+            <div style="font-size: 12px; color: #d6d3d1; margin-top: 4px;">18 peminjaman • 72% occupancy</div>
+          </div>
+
+          <div style="padding: 14px; border-radius: 10px; background: rgba(220,38,38,0.1); border: 1px solid rgba(239,68,68,0.3);">
+            <div style="font-size: 11px; color: #a8a29e; margin-bottom: 8px;">Alat Tes Terpopuler</div>
+            <div style="font-size: 16px; font-weight: 600; color: #fef3c7;">WAIS-IV</div>
+            <div style="font-size: 12px; color: #d6d3d1; margin-top: 4px;">12 peminjaman • Total: Rp 6.000.000</div>
+          </div>
+
+          <div style="padding: 14px; border-radius: 10px; background: rgba(59,130,246,0.1); border: 1px solid rgba(96,165,250,0.3);">
+            <div style="font-size: 11px; color: #a8a29e; margin-bottom: 8px;">Praktikum dengan Attendance Tertinggi</div>
+            <div style="font-size: 16px; font-weight: 600; color: #fef3c7;">Praktikum Inteligensi</div>
+            <div style="font-size: 12px; color: #d6d3d1; margin-top: 4px;">Rata-rata: 92% • 3 sesi terselenggara</div>
+          </div>
+
+          <div style="padding: 14px; border-radius: 10px; background: rgba(34,197,94,0.1); border: 1px solid rgba(52,211,153,0.3);">
+            <div style="font-size: 11px; color: #a8a29e; margin-bottom: 8px;">Variabel dengan Request Terbanyak</div>
+            <div style="font-size: 16px; font-weight: 600; color: #fef3c7;">Regulasi Emosi Remaja</div>
+            <div style="font-size: 12px; color: #d6d3d1; margin-top: 4px;">8 request approved • Bidang: Klinis</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 2: MANAJEMEN PEMINJAMAN ===== -->
+  <div class="content-section" id="section-peminjaman">
+    <div class="panel">
+      <div class="panel-header">
+        <h3 class="panel-title">
+          <span class="material-icons">assignment</span>
+          Manajemen Peminjaman
+        </h3>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" data-tab="tab-ruangan-admin">
+          <span class="material-icons">meeting_room</span>
+          Ruangan
+        </button>
+        <button class="tab" data-tab="tab-alat-admin">
+          <span class="material-icons">science</span>
+          Alat Tes
+        </button>
+      </div>
+
+      <!-- Tab: Ruangan -->
+      <div class="tab-content active" id="tab-ruangan-admin">
+        <div class="filter-bar">
+          <div class="filter-group">
+            <label class="filter-label">Status</label>
+            <select class="filter-select">
+              <option value="">Semua Status</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="declined">Declined</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">Ruangan</label>
+            <select class="filter-select">
+              <option value="">Semua Ruangan</option>
+              <option value="1">Lab Psikometri</option>
+              <option value="2">Lab Klinis</option>
+              <option value="3">Lab Perkembangan</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">Tanggal Dari</label>
+            <input type="date" class="filter-input" />
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">Tanggal Sampai</label>
+            <input type="date" class="filter-input" />
+          </div>
+
+          <button class="btn btn-primary" style="align-self: flex-end;">
+            <span class="material-icons">search</span>
+            Filter
+          </button>
+        </div>
+
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Peminjam</th>
+                <th>Ruangan</th>
+                <th>Tanggal</th>
+                <th>Waktu</th>
+                <th>Peserta</th>
+                <th>Status</th>
+                <th>Catatan</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Muhammad Rizki</td>
+                <td>Lab Psikometri</td>
+                <td>22 Jan 2026</td>
+                <td>09:00 - 11:00</td>
+                <td>25</td>
+                <td><span class="status-badge status-pending">Pending</span></td>
+                <td>
+                  <input type="text" class="form-input" placeholder="Tambah catatan..." style="width: 150px; padding: 6px 8px;" />
+                </td>
+                <td>
+                  <div class="btn-group">
+                    <button class="btn btn-success btn-icon" title="Approve">
+                      <span class="material-icons" style="font-size: 16px;">check</span>
+                    </button>
+                    <button class="btn btn-danger btn-icon" title="Decline">
+                      <span class="material-icons" style="font-size: 16px;">close</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>Siti Nurhaliza</td>
+                <td>Lab Klinis</td>
+                <td>20 Jan 2026</td>
+                <td>14:00 - 16:00</td>
+                <td>15</td>
+                <td><span class="status-badge status-approved">Approved</span></td>
+                <td style="font-size: 11px; color: #a8a29e;">OK</td>
+                <td>
+                  <button class="btn btn-secondary btn-icon" title="Lihat Detail">
+                    <span class="material-icons" style="font-size: 16px;">visibility</span>
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td>Ahmad Fauzi</td>
+                <td>Lab Perkembangan</td>
+                <td>18 Jan 2026</td>
+                <td>10:00 - 12:00</td>
+                <td>20</td>
+                <td><span class="status-badge status-declined">Declined</span></td>
+                <td style="font-size: 11px; color: #fca5a5;">Bentrok jadwal rutin</td>
+                <td>
+                  <button class="btn btn-secondary btn-icon" title="Lihat Detail">
+                    <span class="material-icons" style="font-size: 16px;">visibility</span>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab: Alat Tes -->
+      <div class="tab-content" id="tab-alat-admin" style="display: none;">
+        <div class="filter-bar">
+          <div class="filter-group">
+            <label class="filter-label">Status</label>
+            <select class="filter-select">
+              <option value="">Semua Status</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="returned">Returned</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">Alat Tes</label>
+            <select class="filter-select">
+              <option value="">Semua Alat</option>
+              <option value="wais">WAIS-IV</option>
+              <option value="mmpi">MMPI-2</option>
+              <option value="mbti">MBTI</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">Tanggal Pinjam</label>
+            <input type="date" class="filter-input" />
+          </div>
+
+          <button class="btn btn-primary" style="align-self: flex-end;">
+            <span class="material-icons">search</span>
+            Filter
+          </button>
+        </div>
+
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Peminjam</th>
+                <th>Alat Tes</th>
+                <th>Jumlah</th>
+                <th>Total Biaya</th>
+                <th>Tanggal Pinjam</th>
+                <th>Tanggal Kembali</th>
+                <th>Pembayaran</th>
+                <th>Stock</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Siti Aisyah</td>
+                <td>WAIS-IV</td>
+                <td>10 lembar</td>
+                <td>Rp 500.000</td>
+                <td>20 Jan 2026</td>
+                <td>22 Jan 2026</td>
+                <td><span class="status-badge status-pending">Belum</span></td>
+                <td><span class="stock-badge stock-medium">Sisa: 8</span></td>
+                <td><span class="status-badge status-pending">Pending</span></td>
+                <td>
+                  <div class="btn-group">
+                    <button class="btn btn-success btn-icon" title="Approve">
+                      <span class="material-icons" style="font-size: 16px;">check</span>
+                    </button>
+                    <button class="btn btn-danger btn-icon" title="Decline">
+                      <span class="material-icons" style="font-size: 16px;">close</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>Budi Santoso</td>
+                <td>MMPI-2</td>
+                <td>5 lembar</td>
+                <td>Rp 225.000</td>
+                <td>15 Jan 2026</td>
+                <td>17 Jan 2026</td>
+                <td><span class="status-badge status-approved">Lunas</span></td>
+                <td><span class="stock-badge stock-high">Sisa: 15</span></td>
+                <td><span class="status-badge status-approved">Approved</span></td>
+                <td>
+                  <button class="btn btn-secondary" style="padding: 6px 12px;">
+                    <span class="material-icons" style="font-size: 14px;">assignment_return</span>
+                    Mark Returned
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td>Lina Wijaya</td>
+                <td>MBTI</td>
+                <td>15 lembar</td>
+                <td>Rp 450.000</td>
+                <td>10 Jan 2026</td>
+                <td>12 Jan 2026</td>
+                <td><span class="status-badge status-approved">Lunas</span></td>
+                <td><span class="stock-badge stock-low">Sisa: 3</span></td>
+                <td><span class="status-badge status-approved">Returned</span></td>
+                <td>
+                  <button class="btn btn-secondary btn-icon" title="Lihat Detail">
+                    <span class="material-icons" style="font-size: 16px;">visibility</span>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 3: MASTER DATA ===== -->
+  <div class="content-section" id="section-master">
+    <div class="panel">
+      <div class="panel-header">
+        <h3 class="panel-title">
+          <span class="material-icons">storage</span>
+          Master Data & Jadwal Blok
+        </h3>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" data-tab="tab-ruangan-master">
+          <span class="material-icons">meeting_room</span>
+          Ruangan
+        </button>
+        <button class="tab" data-tab="tab-alat-master">
+          <span class="material-icons">science</span>
+          Alat Tes
+        </button>
+        <button class="tab" data-tab="tab-blocking">
+          <span class="material-icons">event_busy</span>
+          Jadwal Blok
+        </button>
+      </div>
+
+      <!-- Tab: Master Ruangan -->
+      <div class="tab-content active" id="tab-ruangan-master">
+        <div style="margin-bottom: 16px;">
+          <button class="btn btn-primary">
+            <span class="material-icons">add</span>
+            Tambah Ruangan Baru
+          </button>
+        </div>
+
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Kode</th>
+                <th>Nama Ruangan</th>
+                <th>Kapasitas</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>R001</td>
+                <td>Lab Psikometri</td>
+                <td>40 orang</td>
+                <td><span class="status-badge status-approved">Aktif</span></td>
+                <td>
+                  <div class="btn-group">
+                    <button class="btn btn-secondary btn-icon" title="Edit">
+                      <span class="material-icons" style="font-size: 16px;">edit</span>
+                    </button>
+                    <button class="btn btn-danger btn-icon" title="Nonaktifkan">
+                      <span class="material-icons" style="font-size: 16px;">block</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>R002</td>
+                <td>Lab Psikologi Klinis</td>
+                <td>30 orang</td>
+                <td><span class="status-badge status-approved">Aktif</span></td>
+                <td>
+                  <div class="btn-group">
+                    <button class="btn btn-secondary btn-icon" title="Edit">
+                      <span class="material-icons" style="font-size: 16px;">edit</span>
+                    </button>
+                    <button class="btn btn-danger btn-icon" title="Nonaktifkan">
+                      <span class="material-icons" style="font-size: 16px;">block</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>R003</td>
+                <td>Lab Perkembangan</td>
+                <td>25 orang</td>
+                <td><span class="status-badge status-approved">Aktif</span></td>
+                <td>
+                  <div class="btn-group">
+                    <button class="btn btn-secondary btn-icon" title="Edit">
+                      <span class="material-icons" style="font-size: 16px;">edit</span>
+                    </button>
+                    <button class="btn btn-danger btn-icon" title="Nonaktifkan">
+                      <span class="material-icons" style="font-size: 16px;">block</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab: Master Alat Tes -->
+      <div class="tab-content" id="tab-alat-master" style="display: none;">
+        <div style="margin-bottom: 16px;">
+          <button class="btn btn-primary">
+            <span class="material-icons">add</span>
+            Tambah Alat Tes Baru
+          </button>
+        </div>
+
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Kode</th>
+                <th>Nama Alat Tes</th>
+                <th>Harga / Lembar</th>
+                <th>Stock</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>AT001</td>
+                <td>WAIS-IV</td>
+                <td>Rp 50.000</td>
+                <td>
+                  <span class="stock-badge stock-medium">18</span>
+                  <button class="btn btn-secondary" style="padding: 4px 10px; margin-left: 8px; font-size: 10px;">
+                    <span class="material-icons" style="font-size: 12px;">edit</span>
+                    Adjust
+                  </button>
+                </td>
+                <td><span class="status-badge status-approved">Aktif</span></td>
+                <td>
+                  <div class="btn-group">
+                    <button class="btn btn-secondary btn-icon" title="Edit">
+                      <span class="material-icons" style="font-size: 16px;">edit</span>
+                    </button>
+                    <button class="btn btn-danger btn-icon" title="Nonaktifkan">
+                      <span class="material-icons" style="font-size: 16px;">block</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>AT002</td>
+                <td>MMPI-2</td>
+                <td>Rp 45.000</td>
+                <td>
+                  <span class="stock-badge stock-high">25</span>
+                  <button class="btn btn-secondary" style="padding: 4px 10px; margin-left: 8px; font-size: 10px;">
+                    <span class="material-icons" style="font-size: 12px;">edit</span>
+                    Adjust
+                  </button>
+                </td>
+                <td><span class="status-badge status-approved">Aktif</span></td>
+                <td>
+                  <div class="btn-group">
+                    <button class="btn btn-secondary btn-icon" title="Edit">
+                      <span class="material-icons" style="font-size: 16px;">edit</span>
+                    </button>
+                    <button class="btn btn-danger btn-icon" title="Nonaktifkan">
+                      <span class="material-icons" style="font-size: 16px;">block</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>AT003</td>
+                <td>MBTI</td>
+                <td>Rp 30.000</td>
+                <td>
+                  <span class="stock-badge stock-low">5</span>
+                  <button class="btn btn-secondary" style="padding: 4px 10px; margin-left: 8px; font-size: 10px;">
+                    <span class="material-icons" style="font-size: 12px;">edit</span>
+                    Adjust
+                  </button>
+                </td>
+                <td><span class="status-badge status-approved">Aktif</span></td>
+                <td>
+                  <div class="btn-group">
+                    <button class="btn btn-secondary btn-icon" title="Edit">
+                      <span class="material-icons" style="font-size: 16px;">edit</span>
+                    </button>
+                    <button class="btn btn-danger btn-icon" title="Nonaktifkan">
+                      <span class="material-icons" style="font-size: 16px;">block</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab: Jadwal Blok -->
+      <div class="tab-content" id="tab-blocking" style="display: none;">
+        <div style="margin-bottom: 16px;">
+          <button class="btn btn-primary">
+            <span class="material-icons">add</span>
+            Tambah Jadwal Blok Baru
+          </button>
+        </div>
+
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Nama Kegiatan</th>
+                <th>Jenis Blok</th>
+                <th>Periode</th>
+                <th>Ruangan / Alat</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Pengadaan Alat Tes Baru</td>
+                <td><span class="status-badge status-pending">Blok Alat</span></td>
+                <td>Minggu 1-2, Januari 2026</td>
+                <td>WAIS-IV, MMPI-2</td>
+                <td><span class="status-badge status-approved">Aktif</span></td>
+                <td>
+                  <div class="btn-group">
+                    <button class="btn btn-secondary btn-icon" title="Edit">
+                      <span class="material-icons" style="font-size: 16px;">edit</span>
+                    </button>
+                    <button class="btn btn-danger btn-icon" title="Hapus">
+                      <span class="material-icons" style="font-size: 16px;">delete</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>UKOM (Ujian Kompetensi Mahasiswa)</td>
+                <td><span class="status-badge" style="background: rgba(59,130,246,0.2); color: #93c5fd; border-color: rgba(59,130,246,0.5);">Blok Ruangan</span></td>
+                <td>Minggu 2, Januari 2026</td>
+                <td>Lab Psikometri</td>
+                <td><span class="status-badge status-approved">Aktif</span></td>
+                <td>
+                  <div class="btn-group">
+                    <button class="btn btn-secondary btn-icon" title="Edit">
+                      <span class="material-icons" style="font-size: 16px;">edit</span>
+                    </button>
+                    <button class="btn btn-danger btn-icon" title="Hapus">
+                      <span class="material-icons" style="font-size: 16px;">delete</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>Praktikum Inventory (Rutin)</td>
+                <td><span class="status-badge" style="background: rgba(59,130,246,0.2); color: #93c5fd; border-color: rgba(59,130,246,0.5);">Blok Ruangan</span></td>
+                <td>Setiap Rabu, 13:00 - 15:30</td>
+                <td>Lab Perkembangan</td>
+                <td><span class="status-badge status-approved">Aktif</span></td>
+                <td>
+                  <div class="btn-group">
+                    <button class="btn btn-secondary btn-icon" title="Edit">
+                      <span class="material-icons" style="font-size: 16px;">edit</span>
+                    </button>
+                    <button class="btn btn-danger btn-icon" title="Hapus">
+                      <span class="material-icons" style="font-size: 16px;">delete</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 4: PRAKTIKUM & VARIABEL ===== -->
+  <div class="content-section" id="section-praktikum">
+    <div class="panel">
+      <div class="panel-header">
+        <h3 class="panel-title">
+          <span class="material-icons">school</span>
+          Manajemen Praktikum & Variabel Penelitian
+        </h3>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" data-tab="tab-jadwal-praktikum">
+          <span class="material-icons">event</span>
+          Jadwal Praktikum
+        </button>
+        <button class="tab" data-tab="tab-peserta">
+          <span class="material-icons">groups</span>
+          Peserta Praktikum
+        </button>
+        <button class="tab" data-tab="tab-variabel-list">
+          <span class="material-icons">auto_stories</span>
+          Variabel Penelitian
+        </button>
+        <button class="tab" data-tab="tab-request-variabel">
+          <span class="material-icons">assignment_ind</span>
+          Request Variabel
+        </button>
+      </div>
+
+      <!-- Tab: Jadwal Praktikum -->
+      <div class="tab-content active" id="tab-jadwal-praktikum">
+        <div style="margin-bottom: 16px;">
+          <button class="btn btn-primary">
+            <span class="material-icons">add</span>
+            Buat Jadwal Baru
+          </button>
+        </div>
+
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Tipe Praktikum</th>
+                <th>Dosen</th>
+                <th>Tanggal & Jam</th>
+                <th>Ruangan</th>
+                <th>Kapasitas</th>
+                <th>Terdaftar</th>
+                <th>Waitlist</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Praktikum Inteligensi - Sesi 3</td>
+                <td>Dr. Ahmad Fauzi, M.Psi</td>
+                <td>22 Jan 2026, 09:00 - 11:30</td>
+                <td>Lab Psikometri</td>
+                <td>40</td>
+                <td>12</td>
+                <td>0</td>
+                <td>
+                  <div class="btn-group">
+                    <button class="btn btn-secondary btn-icon" title="Lihat Peserta">
+                      <span class="material-icons" style="font-size: 16px;">visibility</span>
+                    </button>
+                    <button class="btn btn-secondary btn-icon" title="Edit">
+                      <span class="material-icons" style="font-size: 16px;">edit</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>Praktikum Inventory - Sesi 5</td>
+                <td>Prof. Dr. Siti Rahmah</td>
+                <td>24 Jan 2026, 13:00 - 15:30</td>
+                <td>Lab Perkembangan</td>
+                <td>30</td>
+                <td>28</td>
+                <td>3</td>
+                <td>
+                  <div class="btn-group">
+                    <button class="btn btn-secondary btn-icon" title="Lihat Peserta">
+                      <span class="material-icons" style="font-size: 16px;">visibility</span>
+                    </button>
+                    <button class="btn btn-secondary btn-icon" title="Edit">
+                      <span class="material-icons" style="font-size: 16px;">edit</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>Praktikum Wawancara - Sesi 2</td>
+                <td>Dr. Budi Santoso, M.Psi</td>
+                <td>25 Jan 2026, 10:00 - 12:00</td>
+                <td>Lab Klinis</td>
+                <td>25</td>
+                <td>25</td>
+                <td>5</td>
+                <td>
+                  <div class="btn-group">
+                    <button class="btn btn-secondary btn-icon" title="Lihat Peserta">
+                      <span class="material-icons" style="font-size: 16px;">visibility</span>
+                    </button>
+                    <button class="btn btn-secondary btn-icon" title="Edit">
+                      <span class="material-icons" style="font-size: 16px;">edit</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab: Peserta Praktikum -->
+      <div class="tab-content" id="tab-peserta" style="display: none;">
+        <div style="margin-bottom: 16px;">
+          <div class="form-group" style="max-width: 400px;">
+            <label class="form-label">Pilih Jadwal Praktikum</label>
+            <select class="form-select">
+              <option value="">-- Pilih Jadwal --</option>
+              <option value="1">Praktikum Inteligensi - Sesi 3 (22 Jan 2026)</option>
+              <option value="2">Praktikum Inventory - Sesi 5 (24 Jan 2026)</option>
+              <option value="3">Praktikum Wawancara - Sesi 2 (25 Jan 2026)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Nama Mahasiswa</th>
+                <th>NIM</th>
+                <th>Status</th>
+                <th>Kehadiran (%)</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Muhammad Rizki</td>
+                <td>2023123456</td>
+                <td><span class="status-badge status-approved">Approved</span></td>
+                <td>85%</td>
+                <td>
+                  <button class="btn btn-success" style="padding: 6px 12px;">
+                    <span class="material-icons" style="font-size: 14px;">check</span>
+                    Tandai Hadir
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td>Siti Aisyah</td>
+                <td>2023123457</td>
+                <td><span class="status-badge status-approved">Approved</span></td>
+                <td>90%</td>
+                <td>
+                  <button class="btn btn-success" style="padding: 6px 12px;">
+                    <span class="material-icons" style="font-size: 14px;">check</span>
+                    Tandai Hadir
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td>Ahmad Fauzi</td>
+                <td>2023123458</td>
+                <td><span class="status-badge status-pending">Waitlist</span></td>
+                <td>-</td>
+                <td>
+                  <button class="btn btn-secondary" style="padding: 6px 12px;">
+                    <span class="material-icons" style="font-size: 14px;">arrow_upward</span>
+                    Promosikan
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab: Variabel Penelitian -->
+      <div class="tab-content" id="tab-variabel-list" style="display: none;">
+        <div style="margin-bottom: 16px;">
+          <button class="btn btn-primary">
+            <span class="material-icons">add</span>
+            Tambah Variabel Baru
+          </button>
+        </div>
+
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Nama Variabel</th>
+                <th>Bidang Fokus</th>
+                <th>Dosen Pembimbing</th>
+                <th>Kuota</th>
+                <th>Slot Terpakai</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Pengaruh Self-Efficacy terhadap Prokrastinasi</td>
+                <td>Psikologi Sosial</td>
+                <td>Prof. Dr. Siti Rahmah</td>
+                <td>5</td>
+                <td>3</td>
+                <td><span class="status-badge status-approved">Aktif</span></td>
+                <td>
+                  <div class="btn-group">
+                    <button class="btn btn-secondary btn-icon" title="Edit">
+                      <span class="material-icons" style="font-size: 16px;">edit</span>
+                    </button>
+                    <button class="btn btn-danger btn-icon" title="Nonaktifkan">
+                      <span class="material-icons" style="font-size: 16px;">block</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>Regulasi Emosi pada Remaja dengan Kecemasan</td>
+                <td>Psikologi Klinis</td>
+                <td>Dr. Lina Wijaya, M.Psi</td>
+                <td>5</td>
+                <td>5</td>
+                <td><span class="status-badge" style="background: rgba(239,68,68,0.2); color: #fca5a5; border-color: rgba(239,68,68,0.5);">Penuh</span></td>
+                <td>
+                  <div class="btn-group">
+                    <button class="btn btn-secondary btn-icon" title="Edit">
+                      <span class="material-icons" style="font-size: 16px;">edit</span>
+                    </button>
+                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 11px;">
+                      <span class="material-icons" style="font-size: 14px;">add</span>
+                      Tambah Slot
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>Motivasi Kerja dan Kepuasan Karyawan</td>
+                <td>Psikologi Industri</td>
+                <td>Dr. Ahmad Fauzi, M.Psi</td>
+                <td>4</td>
+                <td>2</td>
+                <td><span class="status-badge status-approved">Aktif</span></td>
+                <td>
+                  <div class="btn-group">
+                    <button class="btn btn-secondary btn-icon" title="Edit">
+                      <span class="material-icons" style="font-size: 16px;">edit</span>
+                    </button>
+                    <button class="btn btn-danger btn-icon" title="Nonaktifkan">
+                      <span class="material-icons" style="font-size: 16px;">block</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab: Request Variabel -->
+      <div class="tab-content" id="tab-request-variabel" style="display: none;">
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Mahasiswa</th>
+                <th>NIM</th>
+                <th>Variabel</th>
+                <th>Tanggal Request</th>
+                <th>Lampiran</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Muhammad Rizki</td>
+                <td>2023123456</td>
+                <td>Self-Efficacy & Prokrastinasi</td>
+                <td>15 Jan 2026</td>
+                <td>
+                  <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 11px;">
+                    <span class="material-icons" style="font-size: 14px;">description</span>
+                    Proposal
+                  </button>
+                </td>
+                <td><span class="status-badge status-pending">Pending</span></td>
+                <td>
+                  <div class="btn-group">
+                    <button class="btn btn-success btn-icon" title="Approve">
+                      <span class="material-icons" style="font-size: 16px;">check</span>
+                    </button>
+                    <button class="btn btn-danger btn-icon" title="Decline">
+                      <span class="material-icons" style="font-size: 16px;">close</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td>Siti Aisyah</td>
+                <td>2023123457</td>
+                <td>Regulasi Emosi Remaja</td>
+                <td>10 Des 2025</td>
+                <td>
+                  <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 11px;">
+                    <span class="material-icons" style="font-size: 14px;">description</span>
+                    Proposal
+                  </button>
+                </td>
+                <td><span class="status-badge status-approved">Approved</span></td>
+                <td>
+                  <button class="btn btn-secondary btn-icon" title="Lihat Detail">
+                    <span class="material-icons" style="font-size: 16px;">visibility</span>
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td>Ahmad Fauzi</td>
+                <td>2023123458</td>
+                <td>Motivasi Kerja & Kepuasan</td>
+                <td>8 Jan 2026</td>
+                <td>
+                  <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 11px;">
+                    <span class="material-icons" style="font-size: 14px;">description</span>
+                    Proposal
+                  </button>
+                </td>
+                <td><span class="status-badge status-declined">Declined</span></td>
+                <td>
+                  <button class="btn btn-secondary btn-icon" title="Lihat Detail">
+                    <span class="material-icons" style="font-size: 16px;">visibility</span>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  // ===== MODULE NAVIGATION =====
+  const moduleCards = document.querySelectorAll('.module-card');
+  const contentSections = document.querySelectorAll('.content-section');
+
+  moduleCards.forEach(card => {
+    card.addEventListener('click', () => {
+      const targetModule = card.dataset.module;
+      
+      moduleCards.forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      
+      contentSections.forEach(section => {
+        section.classList.remove('active');
+        if (section.id === `section-${targetModule}`) {
+          section.classList.add('active');
+        }
+      });
+    });
+  });
+
+  // ===== TAB NAVIGATION =====
+  const tabs = document.querySelectorAll('.tab');
+  const tabContents = document.querySelectorAll('.tab-content');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const targetTab = tab.dataset.tab;
+      
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      
+      tabContents.forEach(content => {
+        content.style.display = 'none';
+        if (content.id === targetTab) {
+          content.style.display = 'block';
+        }
+      });
+    });
+  });
+
+  // ===== APPROVE/DECLINE BUTTONS =====
+  document.querySelectorAll('.btn-success').forEach(btn => {
+    if (btn.textContent.includes('Approve')) {
+      btn.addEventListener('click', () => {
+        if (confirm('Approve request ini?')) {
+          alert('Request berhasil diapprove! Notifikasi email telah dikirim ke peminjam.');
+        }
+      });
+    }
+  });
+
+  document.querySelectorAll('.btn-danger').forEach(btn => {
+    if (btn.textContent.includes('Decline')) {
+      btn.addEventListener('click', () => {
+        const reason = prompt('Alasan decline (akan dikirim ke peminjam):');
+        if (reason) {
+          alert('Request berhasil di-decline. Email notifikasi dengan alasan telah dikirim.');
+        }
+      });
+    }
+  });
+</script>
+
+</body>
+</html>
