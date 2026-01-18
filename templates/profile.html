@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Profil & Keamanan - Lab Psikologi UMKT</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  
+  <!-- Google Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+
+  <style>
+    :root {
+      --primary: #2180b4;
+      --primary-soft: rgba(33,128,180,0.18);
+      --primary-strong: #136392;
+      --danger: #e63946;
+      --success: #2a9d8f;
+      --warning: #f59e0b;
+      --bg-dark: #050816;
+      --glass-bg: rgba(255, 255, 255, 0.08);
+      --border-glass: rgba(255, 255, 255, 0.2);
+      --text-main: #f8fafc;
+      --text-muted: #cbd5f5;
+      --radius-lg: 18px;
+      --transition-fast: 0.18s ease;
+      --shadow-soft: 0 18px 45px rgba(0,0,0,0.55);
+      --shadow-focus: 0 0 0 3px rgba(148, 163, 253, 0.4);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text-main);
+      background: radial-gradient(circle at top left, #1d4ed8 0, transparent 55%),
+                  radial-gradient(circle at bottom right, #0f766e 0, transparent 55%),
+                  radial-gradient(circle at center, #020617 0, #020617 60%, #000 100%);
+      overflow-x: hidden;
+    }
+
+    /* ===== NAVIGATION BAR ===== */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(15,23,42,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(148, 163, 253, 0.2);
+      padding: 12px 0;
+    }
+
+    .nav-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .nav-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: conic-gradient(from 160deg, #38bdf8, #a855f7, #f97316, #38bdf8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+      color: #0b1220;
+    }
+
+    .nav-text {
+      display: flex;
+      flex-direction: column;
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #e5e7eb;
+    }
+    .nav-text span:nth-child(2) {
+      font-weight: 600;
+      color: #c7d2fe;
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn-nav {
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all var(--transition-fast);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(79,70,229,0.15);
+      color: #c7d2fe;
+      border: 1px solid rgba(148,163,253,0.5);
+    }
+
+    .btn-nav:hover {
+      background: rgba(79,70,229,0.25);
+      border-color: #a5b4fc;
+      transform: translateY(-1px);
+    }
+
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.7);
+      border: 1px solid rgba(148,163,253,0.4);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .user-menu:hover {
+      background: rgba(15,23,42,0.9);
+      border-color: #a5b4fc;
+    }
+
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #a855f7, #f97316);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      font-size: 11px;
+    }
+    .user-info span:first-child {
+      font-weight: 600;
+      color: #e5edff;
+    }
+    .user-info span:last-child {
+      color: #9ca3af;
+      font-size: 10px;
+    }
+
+    /* ===== MAIN CONTAINER ===== */
+    .profile-container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 32px 24px 60px;
+    }
+
+    .profile-header {
+      margin-bottom: 32px;
+    }
+
+    .profile-header h1 {
+      font-size: 28px;
+      font-weight: 600;
+      color: #e5edff;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .profile-header p {
+      font-size: 14px;
+      color: #9ca3af;
+    }
+
+    /* ===== PROFILE GRID ===== */
+    .profile-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 980px) {
+      .profile-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    /* ===== PROFILE CARD ===== */
+    .profile-card {
+      padding: 24px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(15,23,42,0.9), rgba(15,23,42,0.7));
+      border: 1px solid rgba(148,163,253,0.3);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .profile-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 14px;
+      border-bottom: 1px dashed rgba(148,163,253,0.3);
+    }
+
+    .profile-card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #e5edff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .profile-card-title .material-icons {
+      font-size: 20px;
+      color: #93c5fd;
+    }
+
+    .btn-edit {
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid rgba(148,163,253,0.5);
+      background: rgba(79,70,229,0.15);
+      color: #c7d2fe;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all var(--transition-fast);
+    }
+
+    .btn-edit:hover {
+      background: rgba(79,70,229,0.25);
+      border-color: #a5b4fc;
+    }
+
+    .btn-edit .material-icons {
+      font-size: 16px;
+    }
+
+    /* Avatar Section */
+    .avatar-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar-large {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #a855f7, #f97316);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 42px;
+      font-weight: 700;
+      color: #fff;
+      border: 4px solid rgba(148,163,253,0.3);
+      box-shadow: 0 10px 30px rgba(168,85,247,0.5);
+    }
+
+    .avatar-info {
+      text-align: center;
+    }
+
+    .avatar-info h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #e5edff;
+      margin-bottom: 4px;
+    }
+
+    .avatar-info p {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    .role-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 500;
+      background: rgba(37,99,235,0.2);
+      color: #93c5fd;
+      border: 1px solid rgba(59,130,246,0.4);
+      margin-top: 6px;
+    }
+
+    .role-badge .material-icons {
+      font-size: 14px;
+    }
+
+    /* Form Styles */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #e5e7eb;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .form-label .material-icons {
+      font-size: 16px;
+      color: #9ca3af;
+    }
+
+    .form-input {
+      background: rgba(15,23,42,0.9);
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 253, 0.45);
+      padding: 10px 12px;
+      font-size: 13px;
+      color: var(--text-main);
+      outline: none;
+      transition: all var(--transition-fast);
+    }
+
+    .form-input:focus {
+      border-color: #a5b4fc;
+      box-shadow: var(--shadow-focus);
+      background: rgba(15,23,42,0.96);
+      transform: translateY(-0.5px);
+    }
+
+    .form-input:disabled {
+      background: rgba(15,23,42,0.5);
+      color: #6b7280;
+      cursor: not-allowed;
+      border-color: rgba(148,163,253,0.2);
+    }
+
+    .form-input::placeholder {
+      color: #6b7280;
+    }
+
+    .form-helper {
+      font-size: 11px;
+      color: #9ca3af;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .form-helper .material-icons {
+      font-size: 14px;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      padding: 10px 20px;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(135deg, #2563eb, #38bdf8);
+      color: #f9fafb;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 10px 25px rgba(37,99,235,0.7);
+      transition: all var(--transition-fast);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 34px rgba(37,99,235,0.9);
+    }
+
+    .btn-primary .material-icons {
+      font-size: 18px;
+    }
+
+    .btn-secondary {
+      padding: 10px 20px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,253,0.5);
+      background: transparent;
+      color: #c7d2fe;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all var(--transition-fast);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(79,70,229,0.15);
+      border-color: #a5b4fc;
+    }
+
+    .btn-danger {
+      padding: 10px 20px;
+      border-radius: 999px;
+      border: 1px solid rgba(239,68,68,0.5);
+      background: rgba(220,38,38,0.15);
+      color: #fca5a5;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all var(--transition-fast);
+    }
+
+    .btn-danger:hover {
+      background: rgba(220,38,38,0.25);
+      border-color: #f87171;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* Security Section */
+    .security-warning {
+      padding: 12px;
+      border-radius: 10px;
+      background: rgba(245,158,11,0.1);
+      border: 1px solid rgba(245,158,11,0.4);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 12px;
+      color: #fbbf24;
+      line-height: 1.5;
+    }
+
+    .security-warning .material-icons {
+      font-size: 18px;
+      color: #fbbf24;
+    }
+
+    /* Login History */
+    .login-history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .login-item {
+      padding: 12px;
+      border-radius: 10px;
+      background: rgba(15,23,42,0.6);
+      border: 1px solid rgba(148,163,253,0.25);
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .login-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: rgba(37,99,235,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .login-icon .material-icons {
+      font-size: 20px;
+      color: #93c5fd;
+    }
+
+    .login-info {
+      flex: 1;
+    }
+
+    .login-info-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: #e5edff;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .login-info-meta {
+      font-size: 11px;
+      color: #9ca3af;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .login-info-meta .material-icons {
+      font-size: 14px;
+    }
+
+    .login-status {
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .status-success {
+      background: rgba(34,197,94,0.2);
+      color: #86efac;
+      border: 1px solid rgba(34,197,94,0.4);
+    }
+
+    .status-failed {
+      background: rgba(239,68,68,0.2);
+      color: #fca5a5;
+      border: 1px solid rgba(239,68,68,0.4);
+    }
+
+    /* Alert */
+    .alert {
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 12px;
+      margin-bottom: 14px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .alert .material-icons {
+      font-size: 18px;
+    }
+
+    .alert.success {
+      background: rgba(22,163,74,0.13);
+      border: 1px solid rgba(34,197,94,0.5);
+      color: #bbf7d0;
+    }
+
+    .alert.error {
+      background: rgba(220,38,38,0.14);
+      border: 1px solid rgba(239,68,68,0.5);
+      color: #fecaca;
+    }
+
+    .alert.info {
+      background: rgba(37,99,235,0.13);
+      border: 1px solid rgba(59,130,246,0.5);
+      color: #bfdbfe;
+    }
+
+    /* Animations */
+    .fade-in {
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-brand">
+      <div class="nav-logo">Ψ</div>
+      <div class="nav-text">
+        <span>Lab Psikologi</span>
+        <span>UMKT</span>
+      </div>
+    </a>
+
+    <div class="nav-actions">
+      <a href="index.html" class="btn-nav">
+        <span class="material-icons">dashboard</span>
+        Dashboard
+      </a>
+      <div class="user-menu">
+        <div class="user-avatar">M</div>
+        <div class="user-info">
+          <span>Mahasiswa Demo</span>
+          <span>Mahasiswa</span>
+        </div>
+        <span class="material-icons" style="font-size: 18px; color: #9ca3af;">expand_more</span>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN CONTAINER -->
+<main class="profile-container">
+  <div class="profile-header fade-in">
+    <h1>
+      <span class="material-icons">person</span>
+      Profil & Keamanan Akun
+    </h1>
+    <p>Kelola informasi pribadi, keamanan akun, dan pantau aktivitas login Anda.</p>
+  </div>
+
+  <!-- PROFILE GRID -->
+  <div class="profile-grid fade-in">
+    <!-- LEFT: Avatar & Basic Info -->
+    <div class="profile-card">
+      <div class="profile-card-header">
+        <h3 class="profile-card-title">
+          <span class="material-icons">badge</span>
+          Informasi Akun
+        </h3>
+      </div>
+
+      <div class="avatar-section">
+        <div class="avatar-large">M</div>
+        <div class="avatar-info">
+          <h3>Mahasiswa Demo</h3>
+          <p>mahasiswa@umkt.ac.id</p>
+          <div class="role-badge">
+            <span class="material-icons">school</span>
+            Mahasiswa
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="form-label">
+          <span class="material-icons">event</span>
+          Terdaftar sejak
+        </div>
+        <div class="form-input" disabled>
+          15 Januari 2024
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="form-label">
+          <span class="material-icons">check_circle</span>
+          Status Akun
+        </div>
+        <div class="form-input" disabled>
+          Aktif
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Edit Profile Form -->
+    <div class="profile-card">
+      <div class="profile-card-header">
+        <h3 class="profile-card-title">
+          <span class="material-icons">edit</span>
+          Informasi Pribadi
+        </h3>
+        <button class="btn-edit" onclick="toggleEditMode()">
+          <span class="material-icons">edit</span>
+          <span id="edit-btn-text">Edit</span>
+        </button>
+      </div>
+
+      <div id="alert-profile" class="alert"></div>
+
+      <form id="profile-form">
+        <div class="form-group">
+          <label class="form-label" for="profile-fullname">
+            <span class="material-icons">person_outline</span>
+            Nama Lengkap
+          </label>
+          <input
+            type="text"
+            id="profile-fullname"
+            class="form-input"
+            value="Mahasiswa Demo"
+            disabled
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="profile-email">
+            <span class="material-icons">email</span>
+            Email
+          </label>
+          <input
+            type="email"
+            id="profile-email"
+            class="form-input"
+            value="mahasiswa@umkt.ac.id"
+            disabled
+          />
+          <div class="form-helper">
+            <span class="material-icons">info</span>
+            Email tidak dapat diubah. Hubungi admin jika perlu perubahan.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="profile-nim">
+            <span class="material-icons">badge</span>
+            NIM / NIP
+          </label>
+          <input
+            type="text"
+            id="profile-nim"
+            class="form-input"
+            value="2023123456"
+            disabled
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="profile-instansi">
+            <span class="material-icons">business</span>
+            Instansi
+          </label>
+          <input
+            type="text"
+            id="profile-instansi"
+            class="form-input"
+            value="UMKT - Fakultas Psikologi"
+            disabled
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="profile-phone">
+            <span class="material-icons">phone</span>
+            Nomor HP
+          </label>
+          <input
+            type="tel"
+            id="profile-phone"
+            class="form-input"
+            value="+62 812-3456-7890"
+            disabled
+          />
+        </div>
+
+        <div class="form-actions" id="form-actions" style="display: none;">
+          <button type="submit" class="btn-primary">
+            <span class="material-icons">save</span>
+            Simpan Perubahan
+          </button>
+          <button type="button" class="btn-secondary" onclick="cancelEdit()">
+            <span class="material-icons">close</span>
+            Batal
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- SECURITY SECTION -->
+  <div class="profile-card fade-in">
+    <div class="profile-card-header">
+      <h3 class="profile-card-title">
+        <span class="material-icons">lock</span>
+        Keamanan Akun
+      </h3>
+    </div>
+
+    <div class="security-warning">
+      <span class="material-icons">warning</span>
+      <div>
+        <strong>Jaga kerahasiaan password Anda.</strong> Jangan bagikan password ke siapapun. 
+        Admin tidak akan pernah meminta password Anda.
+      </div>
+    </div>
+
+    <div id="alert-security" class="alert"></div>
+
+    <form id="security-form">
+      <div class="form-group">
+        <label class="form-label" for="old-password">
+          <span class="material-icons">lock_open</span>
+          Password Lama
+        </label>
+        <input
+          type="password"
+          id="old-password"
+          class="form-input"
+          placeholder="Masukkan password lama"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="new-password">
+          <span class="material-icons">vpn_key</span>
+          Password Baru
+        </label>
+        <input
+          type="password"
+          id="new-password"
+          class="form-input"
+          placeholder="Minimal 8 karakter"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="confirm-password">
+          <span class="material-icons">check_circle_outline</span>
+          Konfirmasi Password Baru
+        </label>
+        <input
+          type="password"
+          id="confirm-password"
+          class="form-input"
+          placeholder="Ulangi password baru"
+        />
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">
+          <span class="material-icons">vpn_key</span>
+          Ubah Password
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- LOGIN HISTORY -->
+  <div class="profile-card fade-in">
+    <div class="profile-card-header">
+      <h3 class="profile-card-title">
+        <span class="material-icons">history</span>
+        Riwayat Login
+      </h3>
+      <span class="role-badge">
+        <span class="material-icons">info</span>
+        5 Terakhir
+      </span>
+    </div>
+
+    <div class="login-history-list" id="login-history">
+      <!-- Simulasi data -->
+      <div class="login-item">
+        <div class="login-icon">
+          <span class="material-icons">computer</span>
+        </div>
+        <div class="login-info">
+          <div class="login-info-title">
+            Desktop - Windows 11
+            <span class="login-status status-success">Berhasil</span>
+          </div>
+          <div class="login-info-meta">
+            <span class="material-icons">schedule</span>
+            17 Jan 2026, 21:43 WIT
+            <span>•</span>
+            <span class="material-icons">location_on</span>
+            Samarinda, Kalimantan Timur
+            <span>•</span>
+            IP: 103.157.xxx.xxx
+          </div>
+        </div>
+      </div>
+
+      <div class="login-item">
+        <div class="login-icon">
+          <span class="material-icons">phone_android</span>
+        </div>
+        <div class="login-info">
+          <div class="login-info-title">
+            Mobile - Android 14
+            <span class="login-status status-success">Berhasil</span>
+          </div>
+          <div class="login-info-meta">
+            <span class="material-icons">schedule</span>
+            16 Jan 2026, 14:22 WIT
+            <span>•</span>
+            <span class="material-icons">location_on</span>
+            Samarinda, Kalimantan Timur
+            <span>•</span>
+            IP: 103.157.xxx.xxx
+          </div>
+        </div>
+      </div>
+
+      <div class="login-item">
+        <div class="login-icon">
+          <span class="material-icons">tablet_mac</span>
+        </div>
+        <div class="login-info">
+          <div class="login-info-title">
+            Tablet - iPad OS
+            <span class="login-status status-success">Berhasil</span>
+          </div>
+          <div class="login-info-meta">
+            <span class="material-icons">schedule</span>
+            15 Jan 2026, 09:15 WIT
+            <span>•</span>
+            <span class="material-icons">location_on</span>
+            Balikpapan, Kalimantan Timur
+            <span>•</span>
+            IP: 103.157.xxx.xxx
+          </div>
+        </div>
+      </div>
+
+      <div class="login-item">
+        <div class="login-icon">
+          <span class="material-icons">computer</span>
+        </div>
+        <div class="login-info">
+          <div class="login-info-title">
+            Desktop - macOS
+            <span class="login-status status-success">Berhasil</span>
+          </div>
+          <div class="login-info-meta">
+            <span class="material-icons">schedule</span>
+            14 Jan 2026, 18:30 WIT
+            <span>•</span>
+            <span class="material-icons">location_on</span>
+            Samarinda, Kalimantan Timur
+            <span>•</span>
+            IP: 103.157.xxx.xxx
+          </div>
+        </div>
+      </div>
+
+      <div class="login-item">
+        <div class="login-icon">
+          <span class="material-icons">phone_android</span>
+        </div>
+        <div class="login-info">
+          <div class="login-info-title">
+            Mobile - iOS 17
+            <span class="login-status status-failed">Gagal</span>
+          </div>
+          <div class="login-info-meta">
+            <span class="material-icons">schedule</span>
+            13 Jan 2026, 22:10 WIT
+            <span>•</span>
+            <span class="material-icons">location_on</span>
+            Unknown Location
+            <span>•</span>
+            IP: 182.253.xxx.xxx
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-helper" style="margin-top: 14px;">
+      <span class="material-icons">info</span>
+      Jika Anda melihat aktivitas mencurigakan, segera ubah password dan hubungi admin.
+    </div>
+  </div>
+</main>
+
+<script>
+  let isEditMode = false;
+
+  // Toggle Edit Mode
+  function toggleEditMode() {
+    isEditMode = !isEditMode;
+    const inputs = [
+      document.getElementById('profile-fullname'),
+      document.getElementById('profile-nim'),
+      document.getElementById('profile-instansi'),
+      document.getElementById('profile-phone')
+    ];
+
+    const editBtnText = document.getElementById('edit-btn-text');
+    const formActions = document.getElementById('form-actions');
+
+    if (isEditMode) {
+      inputs.forEach(input => input.disabled = false);
+      editBtnText.textContent = 'Mode Edit';
+      formActions.style.display = 'flex';
+    } else {
+      inputs.forEach(input => input.disabled = true);
+      editBtnText.textContent = 'Edit';
+      formActions.style.display = 'none';
+    }
+  }
+
+  function cancelEdit() {
+    toggleEditMode();
+    // Reset values (simulasi)
+    document.getElementById('profile-fullname').value = 'Mahasiswa Demo';
+    document.getElementById('profile-nim').value = '2023123456';
+    document.getElementById('profile-instansi').value = 'UMKT - Fakultas Psikologi';
+    document.getElementById('profile-phone').value = '+62 812-3456-7890';
+    hideAlert('alert-profile');
+  }
+
+  // Profile Form Submit
+  document.getElementById('profile-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    const fullname = document.getElementById('profile-fullname').value.trim();
+    const nim = document.getElementById('profile-nim').value.trim();
+    const instansi = document.getElementById('profile-instansi').value.trim();
+    const phone = document.getElementById('profile-phone').value.trim();
+
+    if (!fullname || !nim || !instansi || !phone) {
+      showAlert('alert-profile', 'Semua field harus diisi.', 'error');
+      return;
+    }
+
+    // Simulasi API call
+    showAlert('alert-profile', 'Profil berhasil diperbarui!', 'success');
+    
+    setTimeout(() => {
+      toggleEditMode();
+      hideAlert('alert-profile');
+    }, 1500);
+  });
+
+  // Security Form Submit
+  document.getElementById('security-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    hideAlert('alert-security');
+
+    const oldPassword = document.getElementById('old-password').value;
+    const newPassword = document.getElementById('new-password').value;
+    const confirmPassword = document.getElementById('confirm-password').value;
+
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      showAlert('alert-security', 'Semua field password harus diisi.', 'error');
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      showAlert('alert-security', 'Password baru minimal 8 karakter.', 'error');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      showAlert('alert-security', 'Password baru dan konfirmasi tidak cocok.', 'error');
+      return;
+    }
+
+    // Simulasi: old password harus "password123"
+    if (oldPassword !== 'password123') {
+      showAlert('alert-security', 'Password lama salah.', 'error');
+      return;
+    }
+
+    showAlert('alert-security', 'Password berhasil diubah! Silakan login kembali dengan password baru.', 'success');
+
+    // Reset form
+    setTimeout(() => {
+      document.getElementById('security-form').reset();
+      hideAlert('alert-security');
+    }, 2000);
+  });
+
+  // Alert Functions
+  function showAlert(alertId, message, type) {
+    const alertBox = document.getElementById(alertId);
+    let icon = 'info';
+    
+    if (type === 'success') icon = 'check_circle';
+    if (type === 'error') icon = 'error';
+    
+    alertBox.innerHTML = `
+      <span class="material-icons">${icon}</span>
+      <span>${message}</span>
+    `;
+    alertBox.className = 'alert ' + type;
+    alertBox.style.display = 'flex';
+  }
+
+  function hideAlert(alertId) {
+    const alertBox = document.getElementById(alertId);
+    alertBox.style.display = 'none';
+  }
+</script>
+
+</body>
+</html>

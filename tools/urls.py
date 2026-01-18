@@ -1,0 +1,14 @@
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from . import views
+
+app_name = 'tools'
+
+router = DefaultRouter()
+router.register(r'list', views.ToolViewSet, basename='tool')
+router.register(r'rentals', views.ToolRentalViewSet, basename='rental')
+router.register(r'blocks', views.ToolBlockScheduleViewSet, basename='block')
+
+urlpatterns = [
+    path('', include(router.urls)),
+]

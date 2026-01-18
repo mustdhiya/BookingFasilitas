@@ -15,8 +15,37 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+from django.views.generic import TemplateView
+
+# HTML page views
+from accounts.views import LoginPageView, ProfilePageView
+from rooms.views import RoomBookingPageView
+from practicum.views import PracticumPageView
 
 urlpatterns = [
+    # Admin
     path('admin/', admin.site.urls),
+    
+    # HTML Pages
+    path('', TemplateView.as_view(template_name='index.html'), name='home'),
+    path('login/', LoginPageView.as_view(), name='login'),
+    path('profile/', ProfilePageView.as_view(), name='profile'),
+    path('peminjaman/', RoomBookingPageView.as_view(), name='peminjaman'),
+    path('praktikum/', PracticumPageView.as_view(), name='praktikum'),
+    path('admin-panel/', TemplateView.as_view(template_name='admin.html'), name='admin_panel'),
+    
+    # API endpoints
+    path('api/accounts/', include('accounts.urls')),
+    path('api/rooms/', include('rooms.urls')),
+    path('api/tools/', include('tools.urls')),
+    path('api/practicum/', include('practicum.urls')),
+    path('api/research/', include('research.urls')),
 ]
+
+# Serve media files in development
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
