@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <!-- Meta Tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sistem Manajemen Peminjaman Ruangan & Alat Praktikum Laboratorium Psikologi UMKT">
+    <meta name="theme-color" content="#0D93B1">
+    
+    <!-- Title -->
+    <title>{% block title %}Lab Psikologi UMKT - Sistem Booking Fasilitas{% endblock %}</title>
+    
+    <!-- Dark Mode Script - Must be BEFORE any content to prevent flicker -->
+    <script>
+        // Check localStorage or system preference
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom Tailwind Config -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class', // Enable class-based dark mode
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': {
+                            50: '#f0f8fb',
+                            100: '#e0f1f7',
+                            200: '#c1e3ef',
+                            300: '#a2d5e7',
+                            400: '#5ebdd4',
+                            500: '#0D93B1',  // Main brand color
+                            600: '#0a7a96',
+                            700: '#086078',
+                            800: '#064859',
+                            900: '#043840',
+                        },
+                        'secondary': {
+                            50: '#faf9f7',
+                            100: '#f5f3ef',
+                            200: '#ebe7df',
+                            300: '#e1dbcf',
+                            400: '#d1c5af',
+                            500: '#c1af8f',
+                            600: '#a39973',
+                            700: '#856f5c',
+                            800: '#674f45',
+                            900: '#49352e',
+                        },
+                        'light-bg': '#F8F8F8',
+                        'dark-text': '#1f2937',
+                        'border-light': '#e5e7eb',
+                    },
+                    fontFamily: {
+                        'sans': ['Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'sans-serif'],
+                    },
+                    spacing: {
+                        '128': '32rem',
+                        '144': '36rem',
+                    },
+                    borderRadius: {
+                        'xl': '0.75rem',
+                        '2xl': '1rem',
+                    },
+                    boxShadow: {
+                        'soft': '0 1px 3px 0 rgba(13, 147, 177, 0.1)',
+                        'medium': '0 4px 6px -1px rgba(13, 147, 177, 0.1)',
+                        'hard': '0 10px 15px -3px rgba(13, 147, 177, 0.2)',
+                    },
+                },
+            },
+        }
+    </script>
+    
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Additional Styles -->
+    <style>
+        * {
+            font-family: 'Inter', 'Poppins', sans-serif;
+        }
+        
+        /* Smooth transitions for dark mode [web:229] */
+        * {
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            @apply bg-gray-100 dark:bg-slate-800;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            @apply bg-primary-500 hover:bg-primary-600;
+            border-radius: 4px;
+        }
+        
+        /* Material Icons sizing */
+        .material-icons,
+        .material-icons-outlined,
+        .material-icons-round {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            user-select: none;
+        }
+        
+        .material-icons.small { font-size: 18px; }
+        .material-icons.medium { font-size: 24px; }
+        .material-icons.large { font-size: 32px; }
+        .material-icons.xl { font-size: 48px; }
+        
+        /* Button base styles */
+        .btn-primary {
+            @apply bg-primary-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-600 active:bg-primary-700 transition-all duration-200 cursor-pointer shadow-soft hover:shadow-medium disabled:opacity-50 disabled:cursor-not-allowed dark:bg-primary-600 dark:hover:bg-primary-700;
+        }
+        
+        .btn-secondary {
+            @apply bg-gray-200 text-dark-text px-6 py-2 rounded-lg font-medium hover:bg-gray-300 active:bg-gray-400 transition-all duration-200 cursor-pointer shadow-soft hover:shadow-medium disabled:opacity-50 disabled:cursor-not-allowed dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600;
+        }
+        
+        .btn-outline {
+            @apply border-2 border-primary-500 text-primary-500 px-6 py-2 rounded-lg font-medium hover:bg-primary-50 active:bg-primary-100 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed dark:border-primary-400 dark:text-primary-400 dark:hover:bg-primary-900/30;
+        }
+        
+        .btn-danger {
+            @apply bg-red-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-red-600 active:bg-red-700 transition-all duration-200 cursor-pointer shadow-soft hover:shadow-medium disabled:opacity-50 disabled:cursor-not-allowed dark:bg-red-600 dark:hover:bg-red-700;
+        }
+        
+        .btn-success {
+            @apply bg-green-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-green-600 active:bg-green-700 transition-all duration-200 cursor-pointer shadow-soft hover:shadow-medium disabled:opacity-50 disabled:cursor-not-allowed dark:bg-green-600 dark:hover:bg-green-700;
+        }
+        
+        /* Form input styles */
+        .form-input {
+            @apply w-full px-4 py-2 border-2 border-border-light rounded-lg focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all duration-200 text-dark-text placeholder-gray-400 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200 dark:placeholder-slate-400 dark:focus:border-primary-400 dark:focus:ring-primary-800;
+        }
+        
+        .form-input:disabled {
+            @apply bg-gray-100 cursor-not-allowed opacity-60 dark:bg-slate-900;
+        }
+        
+        .form-label {
+            @apply block text-sm font-medium text-dark-text mb-2 dark:text-slate-300;
+        }
+        
+        .form-error {
+            @apply text-red-500 text-sm mt-1 dark:text-red-400;
+        }
+        
+        .form-help {
+            @apply text-gray-500 text-xs mt-1 dark:text-slate-400;
+        }
+        
+        /* Card styles */
+        .card {
+            @apply bg-white rounded-xl shadow-soft hover:shadow-medium transition-all duration-200 border border-border-light dark:bg-slate-800 dark:border-slate-700;
+        }
+        
+        .card-header {
+            @apply px-6 py-4 border-b border-border-light dark:border-slate-700;
+        }
+        
+        .card-body {
+            @apply px-6 py-4;
+        }
+        
+        .card-footer {
+            @apply px-6 py-4 border-t border-border-light bg-light-bg rounded-b-xl dark:bg-slate-900 dark:border-slate-700;
+        }
+        
+        /* Alert styles */
+        .alert {
+            @apply px-4 py-3 rounded-lg border-l-4 flex items-start gap-3;
+        }
+        
+        .alert-success {
+            @apply bg-green-50 border-l-green-500 text-green-800 dark:bg-green-900/20 dark:text-green-300;
+        }
+        
+        .alert-error {
+            @apply bg-red-50 border-l-red-500 text-red-800 dark:bg-red-900/20 dark:text-red-300;
+        }
+        
+        .alert-warning {
+            @apply bg-yellow-50 border-l-yellow-500 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300;
+        }
+        
+        .alert-info {
+            @apply bg-primary-50 border-l-primary-500 text-primary-800 dark:bg-primary-900/20 dark:text-primary-300;
+        }
+        
+        /* Badge styles */
+        .badge {
+            @apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium;
+        }
+        
+        .badge-primary {
+            @apply bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300;
+        }
+        
+        .badge-success {
+            @apply bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300;
+        }
+        
+        .badge-warning {
+            @apply bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300;
+        }
+        
+        .badge-danger {
+            @apply bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300;
+        }
+        
+        /* Dark Mode Toggle Animation [web:232] */
+        #theme-toggle-icon {
+            transition: transform 0.5s ease, opacity 0.3s ease;
+        }
+        
+        /* Loading spinner */
+        .spinner {
+            @apply inline-block animate-spin;
+        }
+        
+        /* Animations */
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        .animate-slide-in-down {
+            animation: slideInDown 0.3s ease-out;
+        }
+        
+        .animate-slide-in-up {
+            animation: slideInUp 0.3s ease-out;
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        /* Responsive helpers */
+        @media (max-width: 640px) {
+            .hide-mobile { display: none; }
+        }
+        
+        @media (min-width: 641px) {
+            .show-mobile { display: none; }
+        }
+        
+        /* Link styles */
+        a {
+            @apply text-primary-500 hover:text-primary-600 transition-colors duration-200 dark:text-primary-400 dark:hover:text-primary-300;
+        }
+        
+        a.no-link {
+            @apply text-inherit hover:text-inherit no-underline;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-light-bg text-dark-text dark:bg-slate-900 dark:text-slate-200">
+    <!-- Navigation Bar -->
+    <nav class="bg-white dark:bg-slate-800 shadow-soft sticky top-0 z-50 border-b border-border-light dark:border-slate-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo/Brand -->
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center justify-center w-10 h-10 bg-primary-500 dark:bg-primary-600 rounded-lg">
+                        <span class="material-icons text-white text-sm">psychology</span>
+                    </div>
+                    <div class="hidden sm:block">
+                        <h1 class="text-lg font-bold text-primary-500 dark:text-primary-400">Lab Psikologi</h1>
+                        <p class="text-xs text-gray-500 dark:text-slate-400">UMKT Balikpapan</p>
+                    </div>
+                </div>
+                
+                <!-- Navigation Links (Desktop) -->
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="/" class="text-gray-600 dark:text-slate-300 hover:text-primary-500 dark:hover:text-primary-400 transition-colors duration-200 flex items-center gap-2">
+                        <span class="material-icons-outlined text-sm">home</span>
+                        <span>Beranda</span>
+                    </a>
+                    <a href="/peminjaman/" class="text-gray-600 dark:text-slate-300 hover:text-primary-500 dark:hover:text-primary-400 transition-colors duration-200 flex items-center gap-2">
+                        <span class="material-icons-outlined text-sm">event_available</span>
+                        <span>Peminjaman</span>
+                    </a>
+                    <a href="/praktikum/" class="text-gray-600 dark:text-slate-300 hover:text-primary-500 dark:hover:text-primary-400 transition-colors duration-200 flex items-center gap-2">
+                        <span class="material-icons-outlined text-sm">school</span>
+                        <span>Praktikum</span>
+                    </a>
+                    <a href="/profile/" class="text-gray-600 dark:text-slate-300 hover:text-primary-500 dark:hover:text-primary-400 transition-colors duration-200 flex items-center gap-2">
+                        <span class="material-icons-outlined text-sm">person</span>
+                        <span>Profil</span>
+                    </a>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex items-center gap-3">
+                    <!-- Dark Mode Toggle Button [web:226][web:230] -->
+                    <button onclick="toggleTheme()" class="p-2 text-gray-600 dark:text-slate-300 hover:text-primary-500 dark:hover:text-primary-400 hover:bg-light-bg dark:hover:bg-slate-700 rounded-lg transition-all duration-200" id="theme-toggle" title="Toggle Dark Mode">
+                        <span class="material-icons text-xl" id="theme-toggle-icon">
+                            light_mode
+                        </span>
+                    </button>
+                    
+                    <!-- Notifications (if logged in) -->
+                    {% if user.is_authenticated %}
+                    <button class="relative p-2 text-gray-600 dark:text-slate-300 hover:text-primary-500 dark:hover:text-primary-400 hover:bg-light-bg dark:hover:bg-slate-700 rounded-lg transition-all duration-200" id="notification-btn">
+                        <span class="material-icons-outlined">notifications</span>
+                        <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                    </button>
+                    {% endif %}
+                    
+                    <!-- User Menu / Login Button -->
+                    <div class="relative" id="user-menu">
+                        {% if user.is_authenticated %}
+                        <button class="flex items-center gap-2 p-2 hover:bg-light-bg dark:hover:bg-slate-700 rounded-lg transition-all duration-200" id="user-menu-btn">
+                            <img src="{% if user.avatar %}{{ user.avatar.url }}{% else %}https://ui-avatars.com/api/?name={{ user.get_full_name }}&background=0D93B1&color=fff{% endif %}" 
+                                 alt="{{ user.get_full_name }}" 
+                                 class="w-8 h-8 rounded-full object-cover ring-2 ring-primary-500 dark:ring-primary-400">
+                            <span class="hidden sm:inline text-sm font-medium text-dark-text dark:text-slate-200">{{ user.first_name }}</span>
+                            <span class="material-icons text-gray-600 dark:text-slate-400 text-sm">expand_more</span>
+                        </button>
+                        
+                        <!-- Dropdown Menu -->
+                        <div class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-lg shadow-hard border border-border-light dark:border-slate-700" id="user-menu-dropdown">
+                            <a href="/profile/" class="block px-4 py-2 text-sm text-dark-text dark:text-slate-200 hover:bg-light-bg dark:hover:bg-slate-700 flex items-center gap-2 rounded-t-lg">
+                                <span class="material-icons text-primary-500 dark:text-primary-400 text-sm">person</span>
+                                Profil Saya
+                            </a>
+                            <a href="/profile/" class="block px-4 py-2 text-sm text-dark-text dark:text-slate-200 hover:bg-light-bg dark:hover:bg-slate-700 flex items-center gap-2">
+                                <span class="material-icons text-primary-500 dark:text-primary-400 text-sm">security</span>
+                                Keamanan
+                            </a>
+                            {% if user.role in 'laboran,dosen' %}
+                            <a href="/admin-panel/" class="block px-4 py-2 text-sm text-dark-text dark:text-slate-200 hover:bg-light-bg dark:hover:bg-slate-700 flex items-center gap-2">
+                                <span class="material-icons text-primary-500 dark:text-primary-400 text-sm">admin_panel_settings</span>
+                                Panel Admin
+                            </a>
+                            {% endif %}
+                            <hr class="my-2 border-border-light dark:border-slate-700">
+                            <button onclick="logout()" class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 rounded-b-lg">
+                                <span class="material-icons text-red-600 dark:text-red-400 text-sm">logout</span>
+                                Logout
+                            </button>
+                        </div>
+                        {% else %}
+                        <div class="flex gap-2">
+                            <a href="/login/" class="btn-outline text-sm flex items-center gap-1">
+                                <span class="material-icons-outlined text-sm">login</span>
+                                <span class="hidden sm:inline">Login</span>
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Mobile Menu Toggle -->
+                    <button class="md:hidden p-2 text-gray-600 dark:text-slate-300 hover:text-primary-500 dark:hover:text-primary-400 hover:bg-light-bg dark:hover:bg-slate-700 rounded-lg transition-all duration-200" id="mobile-menu-btn">
+                        <span class="material-icons">menu</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Navigation -->
+        <div class="hidden md:hidden border-t border-border-light dark:border-slate-700" id="mobile-menu">
+            <div class="px-4 py-4 space-y-2">
+                <a href="/" class="block px-4 py-2 text-gray-600 dark:text-slate-300 hover:bg-light-bg dark:hover:bg-slate-700 hover:text-primary-500 dark:hover:text-primary-400 rounded-lg transition-colors duration-200 flex items-center gap-2">
+                    <span class="material-icons-outlined text-sm">home</span>
+                    <span>Beranda</span>
+                </a>
+                <a href="/peminjaman/" class="block px-4 py-2 text-gray-600 dark:text-slate-300 hover:bg-light-bg dark:hover:bg-slate-700 hover:text-primary-500 dark:hover:text-primary-400 rounded-lg transition-colors duration-200 flex items-center gap-2">
+                    <span class="material-icons-outlined text-sm">event_available</span>
+                    <span>Peminjaman</span>
+                </a>
+                <a href="/praktikum/" class="block px-4 py-2 text-gray-600 dark:text-slate-300 hover:bg-light-bg dark:hover:bg-slate-700 hover:text-primary-500 dark:hover:text-primary-400 rounded-lg transition-colors duration-200 flex items-center gap-2">
+                    <span class="material-icons-outlined text-sm">school</span>
+                    <span>Praktikum</span>
+                </a>
+                <a href="/profile/" class="block px-4 py-2 text-gray-600 dark:text-slate-300 hover:bg-light-bg dark:hover:bg-slate-700 hover:text-primary-500 dark:hover:text-primary-400 rounded-lg transition-colors duration-200 flex items-center gap-2">
+                    <span class="material-icons-outlined text-sm">person</span>
+                    <span>Profil</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Messages/Alerts -->
+    {% if messages %}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 space-y-2" id="messages-container">
+        {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %} animate-slide-in-down">
+            <span class="material-icons text-sm">{% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}</span>
+            <div>
+                <p class="font-medium">{{ message }}</p>
+            </div>
+            <button onclick="this.parentElement.remove()" class="ml-auto p-1 hover:bg-white dark:hover:bg-slate-700 rounded">
+                <span class="material-icons text-sm">close</span>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Main Content -->
+    <main class="min-h-screen">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-white dark:bg-slate-800 border-t border-border-light dark:border-slate-700 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <!-- About -->
+                <div>
+                    <h3 class="font-bold text-dark-text dark:text-slate-200 mb-4 flex items-center gap-2">
+                        <span class="material-icons text-primary-500 dark:text-primary-400">psychology</span>
+                        Lab Psikologi UMKT
+                    </h3>
+                    <p class="text-sm text-gray-600 dark:text-slate-400">Sistem manajemen peminjaman ruangan dan alat praktikum untuk mendukung pembelajaran efektif.</p>
+                </div>
+                
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="font-semibold text-dark-text dark:text-slate-200 mb-4">Navigasi</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="/" class="text-gray-600 dark:text-slate-400 hover:text-primary-500 dark:hover:text-primary-400">Beranda</a></li>
+                        <li><a href="/peminjaman/" class="text-gray-600 dark:text-slate-400 hover:text-primary-500 dark:hover:text-primary-400">Peminjaman</a></li>
+                        <li><a href="/praktikum/" class="text-gray-600 dark:text-slate-400 hover:text-primary-500 dark:hover:text-primary-400">Praktikum</a></li>
+                        <li><a href="/profile/" class="text-gray-600 dark:text-slate-400 hover:text-primary-500 dark:hover:text-primary-400">Profil</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Support -->
+                <div>
+                    <h4 class="font-semibold text-dark-text dark:text-slate-200 mb-4">Bantuan</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="text-gray-600 dark:text-slate-400 hover:text-primary-500 dark:hover:text-primary-400">FAQ</a></li>
+                        <li><a href="#" class="text-gray-600 dark:text-slate-400 hover:text-primary-500 dark:hover:text-primary-400">Dokumentasi</a></li>
+                        <li><a href="#" class="text-gray-600 dark:text-slate-400 hover:text-primary-500 dark:hover:text-primary-400">Hubungi Kami</a></li>
+                        <li><a href="#" class="text-gray-600 dark:text-slate-400 hover:text-primary-500 dark:hover:text-primary-400">Report Bug</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Contact -->
+                <div>
+                    <h4 class="font-semibold text-dark-text dark:text-slate-200 mb-4">Kontak</h4>
+                    <ul class="space-y-2 text-sm text-gray-600 dark:text-slate-400">
+                        <li class="flex items-start gap-2">
+                            <span class="material-icons text-primary-500 dark:text-primary-400 text-sm flex-shrink-0">location_on</span>
+                            <span>Balikpapan, Kalimantan Timur</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="material-icons text-primary-500 dark:text-primary-400 text-sm flex-shrink-0">email</span>
+                            <span>lab@umkt.ac.id</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="material-icons text-primary-500 dark:text-primary-400 text-sm flex-shrink-0">phone</span>
+                            <span>+62-xxx-xxx-xxxx</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <hr class="border-border-light dark:border-slate-700 mb-8">
+            
+            <!-- Bottom Footer -->
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-600 dark:text-slate-400">
+                <p>&copy; 2024-2026 Lab Psikologi UMKT. Semua hak cipta dilindungi.</p>
+                <div class="flex gap-6">
+                    <a href="#" class="hover:text-primary-500 dark:hover:text-primary-400">Kebijakan Privasi</a>
+                    <a href="#" class="hover:text-primary-500 dark:hover:text-primary-400">Syarat & Ketentuan</a>
+                    <a href="#" class="hover:text-primary-500 dark:hover:text-primary-400">Sitemap</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Scripts -->
+    <script>
+        // Dark Mode Toggle Function [web:192][web:228][web:231]
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-toggle-icon');
+            
+            if (html.classList.contains('dark')) {
+                // Switch to light mode
+                html.classList.remove('dark');
+                localStorage.theme = 'light';
+                icon.textContent = 'light_mode';
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                // Switch to dark mode
+                html.classList.add('dark');
+                localStorage.theme = 'dark';
+                icon.textContent = 'dark_mode';
+                icon.style.transform = 'rotate(0deg)';
+            }
+            
+            // Reset transform after animation
+            setTimeout(() => {
+                icon.style.transform = 'rotate(0deg)';
+            }, 500);
+        }
+        
+        // Initialize theme icon on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            const icon = document.getElementById('theme-toggle-icon');
+            if (document.documentElement.classList.contains('dark')) {
+                icon.textContent = 'dark_mode';
+            } else {
+                icon.textContent = 'light_mode';
+            }
+        });
+        
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-btn')?.addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+        
+        // User menu toggle
+        document.getElementById('user-menu-btn')?.addEventListener('click', function() {
+            const dropdown = document.getElementById('user-menu-dropdown');
+            dropdown.classList.toggle('hidden');
+        });
+        
+        // Close user menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const userMenu = document.getElementById('user-menu');
+            if (userMenu && !userMenu.contains(event.target)) {
+                document.getElementById('user-menu-dropdown')?.classList.add('hidden');
+            }
+        });
+        
+        // Logout function
+        function logout() {
+            if (confirm('Apakah Anda yakin ingin logout?')) {
+                fetch('/api/accounts/logout/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '',
+                        'Content-Type': 'application/json',
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        window.location.href = '/login/';
+                    }
+                });
+            }
+        }
+        
+        // Auto-hide alerts after 5 seconds
+        document.querySelectorAll('#messages-container .alert').forEach(alert => {
+            setTimeout(() => {
+                alert.classList.add('animate-fade-out');
+                setTimeout(() => alert.remove(), 300);
+            }, 5000);
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

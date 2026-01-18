@@ -1,1312 +1,501 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <title>Peminjaman & Riwayat - Lab Psikologi UMKT</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+{% extends "base.html" %}
+{% load static %}
 
-  <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  
-  <!-- Google Material Icons -->
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+{% block title %}Peminjaman & Riwayat - Lab Psikologi UMKT{% endblock %}
 
-  <style>
-    :root {
-      --primary: #2180b4;
-      --primary-soft: rgba(33,128,180,0.18);
-      --primary-strong: #136392;
-      --danger: #e63946;
-      --success: #2a9d8f;
-      --warning: #f59e0b;
-      --bg-dark: #050816;
-      --glass-bg: rgba(255, 255, 255, 0.08);
-      --border-glass: rgba(255, 255, 255, 0.2);
-      --text-main: #f8fafc;
-      --text-muted: #cbd5f5;
-      --radius-lg: 18px;
-      --transition-fast: 0.18s ease;
-      --shadow-soft: 0 18px 45px rgba(0,0,0,0.55);
-      --shadow-focus: 0 0 0 3px rgba(148, 163, 253, 0.4);
-    }
+{% block content %}
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
-    body {
-      min-height: 100vh;
-      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: var(--text-main);
-      background: radial-gradient(circle at top left, #1d4ed8 0, transparent 55%),
-                  radial-gradient(circle at bottom right, #0f766e 0, transparent 55%),
-                  radial-gradient(circle at center, #020617 0, #020617 60%, #000 100%);
-      overflow-x: hidden;
-    }
-
-    /* ===== NAVIGATION BAR ===== */
-    .navbar {
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      background: rgba(15,23,42,0.85);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(148, 163, 253, 0.2);
-      padding: 12px 0;
-    }
-
-    .nav-container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 0 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .nav-brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-    }
-
-    .nav-logo {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      background: conic-gradient(from 160deg, #38bdf8, #a855f7, #f97316, #38bdf8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 18px;
-      color: #0b1220;
-    }
-
-    .nav-text {
-      display: flex;
-      flex-direction: column;
-      font-size: 11px;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      color: #e5e7eb;
-    }
-    .nav-text span:nth-child(2) {
-      font-weight: 600;
-      color: #c7d2fe;
-    }
-
-    .nav-actions {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .btn-nav {
-      padding: 8px 16px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      border: none;
-      transition: all var(--transition-fast);
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(79,70,229,0.15);
-      color: #c7d2fe;
-      border: 1px solid rgba(148,163,253,0.5);
-    }
-
-    .btn-nav:hover {
-      background: rgba(79,70,229,0.25);
-      border-color: #a5b4fc;
-      transform: translateY(-1px);
-    }
-
-    /* ===== MAIN CONTAINER ===== */
-    .main-container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 32px 24px 60px;
-    }
-
-    .page-header {
-      margin-bottom: 28px;
-    }
-
-    .page-header h1 {
-      font-size: 28px;
-      font-weight: 600;
-      color: #e5edff;
-      margin-bottom: 6px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .page-header p {
-      font-size: 14px;
-      color: #9ca3af;
-    }
-
-    /* ===== MODULE SELECTOR (Card Navigation) ===== */
-    .module-selector {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 16px;
-      margin-bottom: 32px;
-    }
-
-    .module-card {
-      padding: 18px 20px;
-      border-radius: 16px;
-      background: linear-gradient(135deg, rgba(15,23,42,0.9), rgba(15,23,42,0.7));
-      border: 2px solid rgba(148,163,253,0.25);
-      cursor: pointer;
-      transition: all var(--transition-fast);
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .module-card:hover {
-      transform: translateY(-2px);
-      border-color: #a5b4fc;
-      box-shadow: 0 12px 32px rgba(37,99,235,0.4);
-    }
-
-    .module-card.active {
-      border-color: #60a5fa;
-      background: linear-gradient(135deg, rgba(37,99,235,0.25), rgba(59,130,246,0.15));
-      box-shadow: 0 8px 24px rgba(37,99,235,0.6);
-    }
-
-    .module-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .module-icon .material-icons {
-      font-size: 28px;
-    }
-
-    .module-icon.blue {
-      background: linear-gradient(135deg, rgba(37,99,235,0.3), rgba(59,130,246,0.3));
-      color: #93c5fd;
-    }
-
-    .module-icon.green {
-      background: linear-gradient(135deg, rgba(34,197,94,0.3), rgba(52,211,153,0.3));
-      color: #86efac;
-    }
-
-    .module-icon.purple {
-      background: linear-gradient(135deg, rgba(168,85,247,0.3), rgba(192,132,252,0.3));
-      color: #d8b4fe;
-    }
-
-    .module-info {
-      flex: 1;
-    }
-
-    .module-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: #e5edff;
-      margin-bottom: 3px;
-    }
-
-    .module-desc {
-      font-size: 11px;
-      color: #9ca3af;
-    }
-
-    /* ===== CONTENT SECTIONS ===== */
-    .content-section {
-      display: none;
-    }
-
-    .content-section.active {
-      display: block;
-      animation: fadeIn 0.3s ease-out;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ===== CARD PANEL ===== */
-    .panel {
-      padding: 24px;
-      border-radius: 18px;
-      background: linear-gradient(135deg, rgba(15,23,42,0.9), rgba(15,23,42,0.7));
-      border: 1px solid rgba(148,163,253,0.3);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-      margin-bottom: 20px;
-    }
-
-    .panel-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 18px;
-      padding-bottom: 14px;
-      border-bottom: 1px dashed rgba(148,163,253,0.3);
-    }
-
-    .panel-title {
-      font-size: 16px;
-      font-weight: 600;
-      color: #e5edff;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .panel-title .material-icons {
-      font-size: 20px;
-      color: #93c5fd;
-    }
-
-    /* ===== GRID LAYOUT ===== */
-    .grid-2col {
-      display: grid;
-      grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
-      gap: 20px;
-    }
-
-    @media (max-width: 980px) {
-      .grid-2col {
-        grid-template-columns: minmax(0, 1fr);
-      }
-    }
-
-    /* ===== FORM STYLES ===== */
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      margin-bottom: 14px;
-    }
-
-    .form-label {
-      font-size: 12px;
-      font-weight: 500;
-      color: #e5e7eb;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .form-label .material-icons {
-      font-size: 16px;
-      color: #9ca3af;
-    }
-
-    .form-label .required {
-      color: #f87171;
-    }
-
-    .form-input,
-    .form-select,
-    .form-textarea {
-      background: rgba(15,23,42,0.9);
-      border-radius: 10px;
-      border: 1px solid rgba(148, 163, 253, 0.45);
-      padding: 10px 12px;
-      font-size: 13px;
-      color: var(--text-main);
-      outline: none;
-      transition: all var(--transition-fast);
-      font-family: inherit;
-    }
-
-    .form-input:focus,
-    .form-select:focus,
-    .form-textarea:focus {
-      border-color: #a5b4fc;
-      box-shadow: var(--shadow-focus);
-      background: rgba(15,23,42,0.96);
-      transform: translateY(-0.5px);
-    }
-
-    .form-textarea {
-      resize: vertical;
-      min-height: 80px;
-    }
-
-    .form-helper {
-      font-size: 11px;
-      color: #9ca3af;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    /* ===== BUTTONS ===== */
-    .btn {
-      padding: 10px 20px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: all var(--transition-fast);
-      text-decoration: none;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #2563eb, #38bdf8);
-      color: #f9fafb;
-      box-shadow: 0 10px 25px rgba(37,99,235,0.7);
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 14px 34px rgba(37,99,235,0.9);
-    }
-
-    .btn-secondary {
-      background: rgba(79,70,229,0.15);
-      color: #c7d2fe;
-      border: 1px solid rgba(148,163,253,0.5);
-    }
-
-    .btn-secondary:hover {
-      background: rgba(79,70,229,0.25);
-      border-color: #a5b4fc;
-    }
-
-    .btn-group {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    /* ===== ALERT ===== */
-    .alert {
-      padding: 12px 14px;
-      border-radius: 10px;
-      font-size: 12px;
-      margin-bottom: 14px;
-      display: none;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .alert .material-icons {
-      font-size: 18px;
-    }
-
-    .alert.success {
-      background: rgba(22,163,74,0.13);
-      border: 1px solid rgba(34,197,94,0.5);
-      color: #bbf7d0;
-    }
-
-    .alert.error {
-      background: rgba(220,38,38,0.14);
-      border: 1px solid rgba(239,68,68,0.5);
-      color: #fecaca;
-    }
-
-    .alert.warning {
-      background: rgba(245,158,11,0.13);
-      border: 1px solid rgba(245,158,11,0.5);
-      color: #fbbf24;
-    }
-
-    .alert.info {
-      background: rgba(37,99,235,0.13);
-      border: 1px solid rgba(59,130,246,0.5);
-      color: #bfdbfe;
-    }
-
-    /* ===== CALENDAR / AVAILABILITY ===== */
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-
-    .calendar-day {
-      aspect-ratio: 1;
-      border-radius: 8px;
-      background: rgba(15,23,42,0.6);
-      border: 1px solid rgba(148,163,253,0.25);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      color: #e5e7eb;
-      cursor: pointer;
-      transition: all var(--transition-fast);
-    }
-
-    .calendar-day:hover {
-      background: rgba(37,99,235,0.2);
-      border-color: #60a5fa;
-    }
-
-    .calendar-day.blocked {
-      background: rgba(220,38,38,0.2);
-      border-color: rgba(239,68,68,0.5);
-      color: #fca5a5;
-      cursor: not-allowed;
-    }
-
-    .calendar-day.booked {
-      background: rgba(245,158,11,0.2);
-      border-color: rgba(245,158,11,0.5);
-      color: #fbbf24;
-    }
-
-    .calendar-day.available {
-      background: rgba(34,197,94,0.2);
-      border-color: rgba(34,197,94,0.5);
-      color: #86efac;
-    }
-
-    /* ===== LIST ITEMS ===== */
-    .list-item {
-      padding: 12px;
-      border-radius: 10px;
-      background: rgba(15,23,42,0.6);
-      border: 1px solid rgba(148,163,253,0.25);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 10px;
-    }
-
-    .list-info {
-      flex: 1;
-    }
-
-    .list-title {
-      font-size: 13px;
-      font-weight: 500;
-      color: #e5edff;
-      margin-bottom: 4px;
-    }
-
-    .list-meta {
-      font-size: 11px;
-      color: #9ca3af;
-    }
-
-    .status-badge {
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-size: 10px;
-      font-weight: 500;
-      white-space: nowrap;
-    }
-
-    .status-pending {
-      background: rgba(245,158,11,0.2);
-      color: #fbbf24;
-      border: 1px solid rgba(245,158,11,0.5);
-    }
-
-    .status-approved {
-      background: rgba(34,197,94,0.2);
-      color: #86efac;
-      border: 1px solid rgba(34,197,94,0.5);
-    }
-
-    .status-declined {
-      background: rgba(239,68,68,0.2);
-      color: #fca5a5;
-      border: 1px solid rgba(239,68,68,0.5);
-    }
-
-    /* ===== PROGRESS STEPPER ===== */
-    .progress-stepper {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 24px;
-      padding: 0 12px;
-    }
-
-    .step {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      position: relative;
-      flex: 1;
-    }
-
-    .step:not(:last-child)::after {
-      content: '';
-      position: absolute;
-      top: 16px;
-      left: 50%;
-      width: 100%;
-      height: 2px;
-      background: rgba(148,163,253,0.2);
-      z-index: -1;
-    }
-
-    .step.active:not(:last-child)::after {
-      background: linear-gradient(90deg, #60a5fa, rgba(148,163,253,0.2));
-    }
-
-    .step-circle {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: rgba(15,23,42,0.8);
-      border: 2px solid rgba(148,163,253,0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 600;
-      color: #9ca3af;
-      transition: all var(--transition-fast);
-    }
-
-    .step.active .step-circle {
-      background: linear-gradient(135deg, #2563eb, #38bdf8);
-      border-color: #60a5fa;
-      color: #fff;
-      box-shadow: 0 6px 18px rgba(37,99,235,0.6);
-    }
-
-    .step.completed .step-circle {
-      background: rgba(34,197,94,0.3);
-      border-color: #86efac;
-      color: #86efac;
-    }
-
-    .step-label {
-      font-size: 10px;
-      color: #9ca3af;
-      text-align: center;
-    }
-
-    .step.active .step-label {
-      color: #93c5fd;
-      font-weight: 500;
-    }
-
-    /* ===== TABS ===== */
-    .tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
-      border-bottom: 2px solid rgba(148,163,253,0.2);
-      overflow-x: auto;
-    }
-
-    .tab {
-      padding: 10px 18px;
-      font-size: 13px;
-      font-weight: 500;
-      color: #9ca3af;
-      cursor: pointer;
-      border: none;
-      background: transparent;
-      border-bottom: 2px solid transparent;
-      transition: all var(--transition-fast);
-      white-space: nowrap;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .tab:hover {
-      color: #c7d2fe;
-    }
-
-    .tab.active {
-      color: #93c5fd;
-      border-bottom-color: #60a5fa;
-    }
-
-    .tab .material-icons {
-      font-size: 18px;
-    }
-
-    /* ===== TABLE ===== */
-    .table-container {
-      overflow-x: auto;
-    }
-
-    .table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .table th,
-    .table td {
-      padding: 12px;
-      text-align: left;
-      border-bottom: 1px solid rgba(148,163,253,0.15);
-    }
-
-    .table th {
-      font-size: 11px;
-      font-weight: 600;
-      color: #9ca3af;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .table td {
-      font-size: 12px;
-      color: #e5e7eb;
-    }
-
-    .table tbody tr {
-      transition: all var(--transition-fast);
-    }
-
-    .table tbody tr:hover {
-      background: rgba(37,99,235,0.08);
-    }
-
-    .table-actions {
-      display: flex;
-      gap: 6px;
-    }
-
-    .btn-icon {
-      width: 28px;
-      height: 28px;
-      border-radius: 6px;
-      border: 1px solid rgba(148,163,253,0.4);
-      background: rgba(79,70,229,0.15);
-      color: #c7d2fe;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all var(--transition-fast);
-    }
-
-    .btn-icon:hover {
-      background: rgba(79,70,229,0.25);
-      border-color: #a5b4fc;
-      transform: translateY(-1px);
-    }
-
-    .btn-icon .material-icons {
-      font-size: 16px;
-    }
-
-    /* ===== SUMMARY PANEL (Sticky) ===== */
-    .summary-panel {
-      position: sticky;
-      top: 80px;
-      padding: 18px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, rgba(37,99,235,0.15), rgba(59,130,246,0.1));
-      border: 1px solid rgba(148,163,253,0.4);
-    }
-
-    .summary-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: #e5edff;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .summary-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px dashed rgba(148,163,253,0.2);
-      font-size: 12px;
-    }
-
-    .summary-item:last-child {
-      border-bottom: none;
-      padding-top: 12px;
-      font-size: 14px;
-      font-weight: 600;
-      color: #93c5fd;
-    }
-
-    .summary-label {
-      color: #9ca3af;
-    }
-
-    .summary-value {
-      color: #e5edff;
-      font-weight: 500;
-    }
-
-    /* Empty State */
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-      color: #6b7280;
-      font-size: 13px;
-    }
-
-    .empty-state .material-icons {
-      font-size: 48px;
-      margin-bottom: 12px;
-      color: #4b5563;
-    }
-
-  </style>
-</head>
-<body>
-
-<!-- NAVBAR -->
-<nav class="navbar">
-  <div class="nav-container">
-    <a href="index.html" class="nav-brand">
-      <div class="nav-logo">Ψ</div>
-      <div class="nav-text">
-        <span>Lab Psikologi</span>
-        <span>UMKT</span>
-      </div>
-    </a>
-
-    <div class="nav-actions">
-      <a href="index.html" class="btn-nav">
-        <span class="material-icons">dashboard</span>
-        Dashboard
-      </a>
-      <a href="profil.html" class="btn-nav">
-        <span class="material-icons">person</span>
-        Profil
-      </a>
-    </div>
-  </div>
-</nav>
-
-<!-- MAIN CONTAINER -->
-<main class="main-container">
-  <div class="page-header">
-    <h1>
-      <span class="material-icons">apps</span>
+  {# ===== HEADER ===== #}
+  <header class="space-y-2">
+    <h1 class="text-2xl sm:text-3xl font-semibold text-slate-900 flex items-center gap-3">
+      <span class="material-icons text-primary-600">apps</span>
       Peminjaman & Riwayat
     </h1>
-    <p>Pilih modul untuk mengajukan peminjaman atau melihat riwayat aktivitas Anda.</p>
+    <p class="text-sm text-slate-500">
+      Pilih modul untuk mengajukan peminjaman atau melihat riwayat aktivitas Anda.
+    </p>
+  </header>
+
+  {# ===== MODULE SELECTOR ===== #}
+  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="group cursor-pointer" onclick="switchModule('room')">
+      <div id="card-room" class="rounded-xl border-2 border-primary-300 bg-gradient-to-br from-primary-50 to-white p-5 hover:shadow-lg hover:border-primary-400 transition">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 rounded-lg bg-primary-100 flex items-center justify-center group-hover:bg-primary-200 transition flex-shrink-0">
+            <span class="material-icons text-2xl text-primary-600">meeting_room</span>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-base font-semibold text-slate-900 mb-1">Peminjaman Ruangan</h3>
+            <p class="text-xs text-slate-500">Booking ruangan lab dengan buffer otomatis</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="group cursor-pointer" onclick="switchModule('tool')">
+      <div id="card-tool" class="rounded-xl border-2 border-slate-200 bg-white p-5 hover:shadow-md hover:border-slate-300 transition">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+            <span class="material-icons text-2xl text-emerald-600">science</span>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-base font-semibold text-slate-900 mb-1">Peminjaman Alat Tes</h3>
+            <p class="text-xs text-slate-500">12-step form dengan invoice & tracking</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="group cursor-pointer" onclick="switchModule('history')">
+      <div id="card-history" class="rounded-xl border-2 border-slate-200 bg-white p-5 hover:shadow-md hover:border-slate-300 transition">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
+            <span class="material-icons text-2xl text-purple-600">history</span>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-base font-semibold text-slate-900 mb-1">Riwayat & Dokumen</h3>
+            <p class="text-xs text-slate-500">Lihat semua aktivitas peminjaman</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- MODULE SELECTOR (Card Navigation) -->
-  <div class="module-selector">
-    <div class="module-card active" data-module="ruangan">
-      <div class="module-icon blue">
-        <span class="material-icons">meeting_room</span>
-      </div>
-      <div class="module-info">
-        <div class="module-title">Peminjaman Ruangan</div>
-        <div class="module-desc">Booking ruangan lab dengan validasi otomatis</div>
-      </div>
-    </div>
-
-    <div class="module-card" data-module="alat">
-      <div class="module-icon green">
-        <span class="material-icons">science</span>
-      </div>
-      <div class="module-info">
-        <div class="module-title">Peminjaman Alat Tes</div>
-        <div class="module-desc">12-step form dengan invoice & tracking</div>
-      </div>
-    </div>
-
-    <div class="module-card" data-module="riwayat">
-      <div class="module-icon purple">
-        <span class="material-icons">history</span>
-      </div>
-      <div class="module-info">
-        <div class="module-title">Riwayat & Dokumen</div>
-        <div class="module-desc">Lihat semua aktivitas dan download dokumen</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== CONTENT SECTION 1: PEMINJAMAN RUANGAN ===== -->
-  <div class="content-section active" id="section-ruangan">
-    <div class="grid-2col">
-      <!-- LEFT: Form -->
-      <div class="panel">
-        <div class="panel-header">
-          <h3 class="panel-title">
-            <span class="material-icons">edit_note</span>
+  {# ===== CONTENT SECTION: PEMINJAMAN RUANGAN ===== #}
+  <div id="section-room" class="module-section">
+    <div class="grid lg:grid-cols-[1fr_400px] gap-6">
+      {# LEFT: FORM PEMINJAMAN #}
+      <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6 space-y-6">
+        <div class="pb-4 border-b border-slate-100">
+          <h3 class="text-lg font-semibold text-slate-900 flex items-center gap-2">
+            <span class="material-icons text-primary-600">edit_note</span>
             Form Peminjaman Ruangan
           </h3>
         </div>
 
-        <div id="alert-ruangan" class="alert"></div>
+        <div id="alert-room" class="hidden rounded-xl px-4 py-3 text-sm"></div>
 
-        <form id="form-ruangan">
-          <div class="form-group">
-            <label class="form-label">
-              <span class="material-icons">meeting_room</span>
-              Pilih Ruangan <span class="required">*</span>
+        <form method="post" action="#" class="space-y-4" id="room-form" onsubmit="handleRoomSubmit(event)">
+          {% csrf_token %}
+
+          <div class="space-y-1.5">
+            <label for="room" class="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+              <span class="material-icons text-base">meeting_room</span>
+              Pilih Ruangan
+              <span class="text-rose-500">*</span>
             </label>
-            <select class="form-select" id="room-select" required>
+            <select id="room" name="room" required class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 transition">
               <option value="">-- Pilih Ruangan --</option>
-              <option value="1">Lab Psikometri (Kap: 40 orang)</option>
-              <option value="2">Lab Psikologi Klinis (Kap: 30 orang)</option>
-              <option value="3">Lab Perkembangan (Kap: 25 orang)</option>
-              <option value="4">Ruang Asesmen Individual (Kap: 2 orang)</option>
+              <option value="1" data-capacity="40">Lab Psikometri (Kapasitas: 40 orang)</option>
+              <option value="2" data-capacity="30">Lab Psikologi Klinis (Kapasitas: 30 orang)</option>
+              <option value="3" data-capacity="25">Lab Perkembangan (Kapasitas: 25 orang)</option>
+              <option value="4" data-capacity="2">Ruang Asesmen Individual (Kapasitas: 2 orang)</option>
             </select>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">
-              <span class="material-icons">calendar_today</span>
-              Tanggal Peminjaman <span class="required">*</span>
+          <div class="space-y-1.5">
+            <label for="date" class="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+              <span class="material-icons text-base">calendar_today</span>
+              Tanggal Peminjaman
+              <span class="text-rose-500">*</span>
             </label>
-            <input type="date" class="form-input" id="room-date" required />
+            <input type="date" id="date" name="date" required min="2026-01-18" class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 transition" />
           </div>
 
-          <div class="grid-2col" style="gap: 12px;">
-            <div class="form-group">
-              <label class="form-label">
-                <span class="material-icons">schedule</span>
-                Jam Mulai <span class="required">*</span>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div class="space-y-1.5">
+              <label for="start_time" class="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+                <span class="material-icons text-base">schedule</span>
+                Jam Mulai
+                <span class="text-rose-500">*</span>
               </label>
-              <input type="time" class="form-input" id="room-start" required />
+              <input type="time" id="start_time" name="start_time" required class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 transition" />
             </div>
 
-            <div class="form-group">
-              <label class="form-label">
-                <span class="material-icons">schedule</span>
-                Jam Selesai <span class="required">*</span>
+            <div class="space-y-1.5">
+              <label for="end_time" class="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+                <span class="material-icons text-base">access_time</span>
+                Jam Selesai
+                <span class="text-rose-500">*</span>
               </label>
-              <input type="time" class="form-input" id="room-end" required />
+              <input type="time" id="end_time" name="end_time" required class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 transition" />
             </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">
-              <span class="material-icons">groups</span>
-              Jumlah Peserta <span class="required">*</span>
+          <div class="space-y-1.5">
+            <label for="participants" class="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+              <span class="material-icons text-base">groups</span>
+              Jumlah Peserta
+              <span class="text-rose-500">*</span>
             </label>
-            <input type="number" class="form-input" id="room-participants" min="1" placeholder="contoh: 20" required />
-            <div class="form-helper">
-              <span class="material-icons">info</span>
-              Pastikan tidak melebihi kapasitas ruangan
-            </div>
+            <input type="number" id="participants" name="participants" min="1" required placeholder="contoh: 20" class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 transition" />
+            <p class="flex items-center gap-1 text-xs text-slate-500">
+              <span class="material-icons text-xs">info</span>
+              Pastikan tidak melebihi kapasitas ruangan yang dipilih
+            </p>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">
-              <span class="material-icons">description</span>
-              Keperluan <span class="required">*</span>
+          <div class="space-y-1.5">
+            <label for="purpose" class="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+              <span class="material-icons text-base">description</span>
+              Keperluan
+              <span class="text-rose-500">*</span>
             </label>
-            <textarea class="form-textarea" id="room-purpose" placeholder="Jelaskan tujuan peminjaman ruangan..." required></textarea>
+            <textarea id="purpose" name="purpose" rows="4" required placeholder="Jelaskan tujuan peminjaman ruangan (contoh: Praktikum Psikometri, Penelitian Kelompok, dll.)" class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 transition resize-none"></textarea>
           </div>
 
-          <div class="btn-group">
-            <button type="button" class="btn btn-secondary" onclick="checkRoomAvailability()">
-              <span class="material-icons">search</span>
+          <div class="flex flex-wrap gap-3 pt-2">
+            <button type="button" onclick="checkAvailability()" class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-sm px-5 py-2.5 transition">
+              <span class="material-icons text-base">search</span>
               Cek Ketersediaan
             </button>
-            <button type="submit" class="btn btn-primary">
-              <span class="material-icons">send</span>
+            <button type="submit" class="inline-flex items-center gap-1.5 rounded-full bg-primary-500 hover:bg-primary-600 text-white font-semibold text-sm px-5 py-2.5 shadow-md hover:shadow-lg transition">
+              <span class="material-icons text-base">send</span>
               Kirim Permohonan
             </button>
           </div>
         </form>
       </div>
 
-      <!-- RIGHT: Info Ketersediaan -->
-      <div>
-        <div class="panel">
-          <div class="panel-header">
-            <h3 class="panel-title">
-              <span class="material-icons">event_available</span>
-              Info Ketersediaan
-            </h3>
-          </div>
-
-          <div class="form-helper" style="margin-bottom: 12px;">
-            <span class="material-icons">info</span>
-            Kalender bulan ini - Klik tanggal untuk detail
-          </div>
-
-          <div class="calendar-grid">
-            <div class="calendar-day available">1</div>
-            <div class="calendar-day available">2</div>
-            <div class="calendar-day blocked">3</div>
-            <div class="calendar-day booked">4</div>
-            <div class="calendar-day available">5</div>
-            <div class="calendar-day available">6</div>
-            <div class="calendar-day available">7</div>
-            <div class="calendar-day available">8</div>
-            <div class="calendar-day blocked">9</div>
-            <div class="calendar-day available">10</div>
-            <div class="calendar-day booked">11</div>
-            <div class="calendar-day available">12</div>
-            <div class="calendar-day available">13</div>
-            <div class="calendar-day available">14</div>
-          </div>
-
-          <div class="form-helper" style="display: flex; gap: 14px; flex-wrap: wrap; margin-top: 12px;">
-            <span style="display: flex; align-items: center; gap: 4px;">
-              <span style="width: 12px; height: 12px; border-radius: 3px; background: rgba(34,197,94,0.3); border: 1px solid rgba(34,197,94,0.5);"></span>
-              Tersedia
-            </span>
-            <span style="display: flex; align-items: center; gap: 4px;">
-              <span style="width: 12px; height: 12px; border-radius: 3px; background: rgba(245,158,11,0.3); border: 1px solid rgba(245,158,11,0.5);"></span>
-              Terbooking
-            </span>
-            <span style="display: flex; align-items: center; gap: 4px;">
-              <span style="width: 12px; height: 12px; border-radius: 3px; background: rgba(220,38,38,0.3); border: 1px solid rgba(239,68,68,0.5);"></span>
-              Blok Rutin
-            </span>
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-header">
-            <h3 class="panel-title">
-              <span class="material-icons">list_alt</span>
-              Permohonan Terakhir
-            </h3>
-          </div>
-
-          <div class="list-item">
-            <div class="list-info">
-              <div class="list-title">Lab Psikometri</div>
-              <div class="list-meta">15 Jan 2026, 09:00 - 11:00</div>
-            </div>
-            <span class="status-badge status-approved">Disetujui</span>
-          </div>
-
-          <div class="list-item">
-            <div class="list-info">
-              <div class="list-title">Lab Klinis</div>
-              <div class="list-meta">12 Jan 2026, 14:00 - 16:00</div>
-            </div>
-            <span class="status-badge status-pending">Pending</span>
-          </div>
-
-          <div class="list-item">
-            <div class="list-info">
-              <div class="list-title">Lab Perkembangan</div>
-              <div class="list-meta">10 Jan 2026, 10:00 - 12:00</div>
-            </div>
-            <span class="status-badge status-declined">Ditolak</span>
-          </div>
-        </div>
-      </div>
+      {# RIGHT: CALENDAR & INFO #}
+      {% include 'pemCalendarinclude.html' %}
     </div>
   </div>
 
-  <!-- ===== CONTENT SECTION 2: PEMINJAMAN ALAT TES ===== -->
-  <div class="content-section" id="section-alat">
-    <div class="panel">
-      <div class="panel-header">
-        <h3 class="panel-title">
-          <span class="material-icons">science</span>
+  {# ===== CONTENT SECTION: PEMINJAMAN ALAT TES (12-STEP WIZARD) ===== #}
+  <div id="section-tool" class="module-section hidden">
+    <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6 space-y-6">
+      <div class="pb-4 border-b border-slate-100">
+        <h3 class="text-lg font-semibold text-slate-900 flex items-center gap-2">
+          <span class="material-icons text-primary-600">science</span>
           Form Peminjaman Alat Tes (12 Langkah)
         </h3>
       </div>
 
-      <!-- Progress Stepper -->
-      <div class="progress-stepper">
-        <div class="step active">
-          <div class="step-circle">1</div>
-          <div class="step-label">Data</div>
+      {# Progress Stepper #}
+      <div class="flex items-center justify-between px-4">
+        <div class="flex flex-col items-center gap-2 relative flex-1">
+          <div id="step-circle-1" class="w-8 h-8 rounded-full bg-primary-500 border-2 border-primary-500 flex items-center justify-center text-white text-xs font-semibold z-10">1</div>
+          <span class="text-[10px] text-slate-600 font-medium">Data</span>
+          <div class="absolute top-4 left-1/2 w-full h-0.5 bg-slate-200 -z-10"></div>
         </div>
-        <div class="step">
-          <div class="step-circle">2</div>
-          <div class="step-label">Dokumen</div>
+        <div class="flex flex-col items-center gap-2 relative flex-1">
+          <div id="step-circle-2" class="w-8 h-8 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-slate-400 text-xs font-semibold z-10">2</div>
+          <span class="text-[10px] text-slate-400">Alat</span>
+          <div class="absolute top-4 left-1/2 w-full h-0.5 bg-slate-200 -z-10"></div>
         </div>
-        <div class="step">
-          <div class="step-circle">3</div>
-          <div class="step-label">Alat</div>
+        <div class="flex flex-col items-center gap-2 relative flex-1">
+          <div id="step-circle-3" class="w-8 h-8 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-slate-400 text-xs font-semibold z-10">3</div>
+          <span class="text-[10px] text-slate-400">Waktu</span>
+          <div class="absolute top-4 left-1/2 w-full h-0.5 bg-slate-200 -z-10"></div>
         </div>
-        <div class="step">
-          <div class="step-circle">4</div>
-          <div class="step-label">Waktu</div>
+        <div class="flex flex-col items-center gap-2 relative flex-1">
+          <div id="step-circle-4" class="w-8 h-8 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-slate-400 text-xs font-semibold z-10">4</div>
+          <span class="text-[10px] text-slate-400">Pembayaran</span>
+          <div class="absolute top-4 left-1/2 w-full h-0.5 bg-slate-200 -z-10"></div>
         </div>
-        <div class="step">
-          <div class="step-circle">5</div>
-          <div class="step-label">Review</div>
+        <div class="flex flex-col items-center gap-2 relative flex-1">
+          <div id="step-circle-5" class="w-8 h-8 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-slate-400 text-xs font-semibold z-10">5</div>
+          <span class="text-[10px] text-slate-400">Review</span>
         </div>
       </div>
 
-      <div id="alert-alat" class="alert"></div>
+      <div id="alert-tool" class="hidden rounded-xl px-4 py-3 text-sm"></div>
 
-      <div class="grid-2col">
-        <!-- LEFT: Multi-step Form -->
-        <div>
-          <form id="form-alat">
-            <!-- Step 1-3: Data Peminjam -->
-            <div class="wizard-step active" id="step-1">
-              <h4 style="font-size: 15px; color: #e5edff; margin-bottom: 14px; font-weight: 600;">Step 1-3: Data Peminjam</h4>
-              
-              <div class="form-group">
-                <label class="form-label">
-                  <span class="material-icons">person</span>
-                  Nama Peminjam <span class="required">*</span>
+      {# WIZARD FORM #}
+      <div class="grid lg:grid-cols-[1fr_320px] gap-6">
+        {# LEFT: Form Steps #}
+        <form id="tool-form" onsubmit="handleToolSubmit(event)" class="space-y-4">
+          {% csrf_token %}
+
+          {# STEP 1: Data Peminjam #}
+          <div id="wizard-step-1" class="wizard-step space-y-4">
+            <h4 class="text-base font-semibold text-slate-900 pb-2 border-b border-slate-100">Step 1-3: Data Peminjam</h4>
+            
+            <div class="space-y-1.5">
+              <label class="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+                <span class="material-icons text-base">person</span>
+                Nama Peminjam
+                <span class="text-rose-500">*</span>
+              </label>
+              <input type="text" id="tool-name" value="Mahasiswa Demo" required class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-700" readonly />
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+                <span class="material-icons text-base">business</span>
+                Instansi
+                <span class="text-rose-500">*</span>
+              </label>
+              <select id="tool-instansi" required class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 transition">
+                <option value="">-- Pilih Instansi --</option>
+                <option value="umkt">UMKT</option>
+                <option value="non-umkt">Non-UMKT</option>
+              </select>
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+                <span class="material-icons text-base">label</span>
+                Tujuan Peminjaman
+                <span class="text-rose-500">*</span>
+              </label>
+              <select id="tool-purpose" required class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 transition">
+                <option value="">-- Pilih Tujuan --</option>
+                <option value="seleksi-dosen">Seleksi Dosen UMKT</option>
+                <option value="seleksi-karyawan">Seleksi Karyawan non-UMKT</option>
+                <option value="pelatihan">Pelatihan Alat Tes Internal</option>
+                <option value="penelitian">Penelitian Individu/Kelompok</option>
+                <option value="lainnya">Kegiatan Lainnya</option>
+              </select>
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+                <span class="material-icons text-base">upload_file</span>
+                Upload Surat Kegiatan
+                <span class="text-rose-500">*</span>
+              </label>
+              <input type="file" id="tool-letter" accept=".pdf,.jpg,.png" required class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900" />
+              <p class="flex items-center gap-1 text-xs text-slate-500">
+                <span class="material-icons text-xs">info</span>
+                Format: PDF, JPG, PNG (Max: 2MB)
+              </p>
+            </div>
+
+            <div class="pt-2">
+              <button type="button" onclick="nextStep(2)" class="inline-flex items-center gap-1.5 rounded-full bg-primary-500 hover:bg-primary-600 text-white font-semibold text-sm px-5 py-2.5 shadow-md hover:shadow-lg transition">
+                Lanjut
+                <span class="material-icons text-base">arrow_forward</span>
+              </button>
+            </div>
+          </div>
+
+          {# STEP 2: Pilih Alat Tes #}
+          <div id="wizard-step-2" class="wizard-step hidden space-y-4">
+            <h4 class="text-base font-semibold text-slate-900 pb-2 border-b border-slate-100">Step 5-8: Pilih Alat Tes</h4>
+            
+            <div class="rounded-lg bg-primary-50 border border-primary-200 px-4 py-2">
+              <p class="text-sm font-semibold text-primary-700">Alat Tes #1</p>
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+                <span class="material-icons text-base">science</span>
+                Nama Alat Tes
+                <span class="text-rose-500">*</span>
+              </label>
+              <select id="tool-test" onchange="updatePrice()" required class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 transition">
+                <option value="">-- Pilih Alat Tes --</option>
+                <option value="wais" data-price="50000">WAIS-IV (Rp 50.000/lembar)</option>
+                <option value="mmpi" data-price="45000">MMPI-2 (Rp 45.000/lembar)</option>
+                <option value="mbti" data-price="30000">MBTI (Rp 30.000/lembar)</option>
+              </select>
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+                <span class="material-icons text-base">numbers</span>
+                Jumlah (lembar)
+                <span class="text-rose-500">*</span>
+              </label>
+              <input type="number" id="tool-qty" onchange="updatePrice()" min="1" required placeholder="contoh: 10" class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 transition" />
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+                <span class="material-icons text-base">checklist</span>
+                Komponen yang Dipinjam
+              </label>
+              <div class="flex flex-wrap gap-4 pt-2">
+                <label class="inline-flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="rounded border-slate-300 text-primary-600" />
+                  <span class="text-sm text-slate-700">Buku Tes</span>
                 </label>
-                <input type="text" class="form-input" id="alat-nama" placeholder="Auto-fill dari profil" value="Mahasiswa Demo" required />
+                <label class="inline-flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="rounded border-slate-300 text-primary-600" />
+                  <span class="text-sm text-slate-700">Lembar Jawaban (LJ)</span>
+                </label>
+                <label class="inline-flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" class="rounded border-slate-300 text-primary-600" />
+                  <span class="text-sm text-slate-700">Norma</span>
+                </label>
               </div>
+            </div>
 
-              <div class="form-group">
-                <label class="form-label">
-                  <span class="material-icons">business</span>
-                  Instansi <span class="required">*</span>
-                </label>
-                <select class="form-select" id="alat-instansi" required>
-                  <option value="">-- Pilih Instansi --</option>
-                  <option value="umkt">UMKT</option>
-                  <option value="non-umkt">Non-UMKT</option>
-                </select>
-              </div>
+            <div class="flex gap-3 pt-2">
+              <button type="button" onclick="prevStep(1)" class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-sm px-5 py-2.5 transition">
+                <span class="material-icons text-base">arrow_back</span>
+                Kembali
+              </button>
+              <button type="button" onclick="nextStep(3)" class="inline-flex items-center gap-1.5 rounded-full bg-primary-500 hover:bg-primary-600 text-white font-semibold text-sm px-5 py-2.5 shadow-md hover:shadow-lg transition">
+                Lanjut
+                <span class="material-icons text-base">arrow_forward</span>
+              </button>
+            </div>
+          </div>
 
-              <div class="form-group">
-                <label class="form-label">
-                  <span class="material-icons">label</span>
-                  Tujuan Peminjaman <span class="required">*</span>
-                </label>
-                <select class="form-select" id="alat-tujuan" required>
-                  <option value="">-- Pilih Tujuan --</option>
-                  <option value="seleksi-dosen">Seleksi Dosen UMKT</option>
-                  <option value="seleksi-karyawan">Seleksi Karyawan non-UMKT</option>
-                  <option value="pelatihan">Pelatihan Alat Tes Internal</option>
-                  <option value="penelitian">Penelitian Individu/Kelompok</option>
-                  <option value="lainnya">Kegiatan Lainnya</option>
-                </select>
-              </div>
+          {# STEP 3: Lama Peminjaman #}
+          <div id="wizard-step-3" class="wizard-step hidden space-y-4">
+            <h4 class="text-base font-semibold text-slate-900 pb-2 border-b border-slate-100">Step 9: Lama Peminjaman</h4>
+            
+            <div class="space-y-1.5">
+              <label class="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+                <span class="material-icons text-base">calendar_today</span>
+                Tanggal Mulai
+                <span class="text-rose-500">*</span>
+              </label>
+              <input type="date" id="tool-start" onchange="calculateDuration()" required min="2026-01-18" class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 transition" />
+            </div>
 
-              <div class="form-group">
-                <label class="form-label">
-                  <span class="material-icons">upload_file</span>
-                  Upload Surat Kegiatan <span class="required">*</span>
-                </label>
-                <input type="file" class="form-input" id="alat-surat" accept=".pdf,.jpg,.png" required />
-                <div class="form-helper">
-                  <span class="material-icons">info</span>
-                  Format: PDF, JPG, PNG (Max: 2MB)
+            <div class="space-y-1.5">
+              <label class="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+                <span class="material-icons text-base">event</span>
+                Tanggal Selesai
+                <span class="text-rose-500">*</span>
+              </label>
+              <input type="date" id="tool-end" onchange="calculateDuration()" required min="2026-01-18" class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 transition" />
+              <p class="flex items-center gap-1 text-xs text-slate-500">
+                <span class="material-icons text-xs">info</span>
+                Durasi: <strong id="duration-display" class="text-primary-600">0 hari</strong>
+              </p>
+            </div>
+
+            <div class="flex gap-3 pt-2">
+              <button type="button" onclick="prevStep(2)" class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-sm px-5 py-2.5 transition">
+                <span class="material-icons text-base">arrow_back</span>
+                Kembali
+              </button>
+              <button type="button" onclick="nextStep(4)" class="inline-flex items-center gap-1.5 rounded-full bg-primary-500 hover:bg-primary-600 text-white font-semibold text-sm px-5 py-2.5 shadow-md hover:shadow-lg transition">
+                Lanjut
+                <span class="material-icons text-base">arrow_forward</span>
+              </button>
+            </div>
+          </div>
+
+          {# STEP 4: Pembayaran & Perjanjian #}
+          <div id="wizard-step-4" class="wizard-step hidden space-y-4">
+            <h4 class="text-base font-semibold text-slate-900 pb-2 border-b border-slate-100">Step 10-11: Pembayaran & Perjanjian</h4>
+            
+            <div class="space-y-1.5">
+              <label class="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+                <span class="material-icons text-base">payments</span>
+                Waktu Pembayaran
+                <span class="text-rose-500">*</span>
+              </label>
+              <select id="tool-payment" required class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 transition">
+                <option value="">-- Pilih Waktu --</option>
+                <option value="before">Sebelum Peminjaman</option>
+                <option value="after">Sesudah Peminjaman</option>
+              </select>
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+                <span class="material-icons text-base">description</span>
+                Surat Perjanjian
+                <span class="text-rose-500">*</span>
+              </label>
+              <button type="button" class="mb-2 inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-sm px-4 py-2 transition">
+                <span class="material-icons text-base">download</span>
+                Download Template Perjanjian
+              </button>
+              <input type="file" id="tool-agreement" accept=".pdf" required class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900" />
+              <p class="flex items-center gap-1 text-xs text-slate-500">
+                <span class="material-icons text-xs">info</span>
+                Upload surat perjanjian yang sudah ditandatangani (PDF)
+              </p>
+            </div>
+
+            <div class="flex gap-3 pt-2">
+              <button type="button" onclick="prevStep(3)" class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-sm px-5 py-2.5 transition">
+                <span class="material-icons text-base">arrow_back</span>
+                Kembali
+              </button>
+              <button type="button" onclick="nextStep(5)" class="inline-flex items-center gap-1.5 rounded-full bg-primary-500 hover:bg-primary-600 text-white font-semibold text-sm px-5 py-2.5 shadow-md hover:shadow-lg transition">
+                Lanjut ke Review
+                <span class="material-icons text-base">arrow_forward</span>
+              </button>
+            </div>
+          </div>
+
+          {# STEP 5: Review & Submit #}
+          <div id="wizard-step-5" class="wizard-step hidden space-y-4">
+            <h4 class="text-base font-semibold text-slate-900 pb-2 border-b border-slate-100">Step 12: Review & Submit</h4>
+            
+            <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 space-y-2">
+              <p class="text-xs font-medium text-slate-500 uppercase mb-3">Ringkasan Peminjaman</p>
+              <div class="space-y-1.5 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-slate-600">Peminjam:</span>
+                  <strong class="text-slate-900">Mahasiswa Demo</strong>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-600">Instansi:</span>
+                  <strong class="text-slate-900" id="review-instansi">-</strong>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-600">Tujuan:</span>
+                  <strong class="text-slate-900" id="review-purpose">-</strong>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-600">Alat Tes:</span>
+                  <strong class="text-slate-900" id="review-test">-</strong>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-600">Durasi:</span>
+                  <strong class="text-slate-900" id="review-duration">-</strong>
+                </div>
+                <div class="flex justify-between pt-2 border-t border-slate-200">
+                  <span class="text-slate-700 font-semibold">Total Biaya:</span>
+                  <strong class="text-primary-600 text-base" id="review-total">Rp 0</strong>
                 </div>
               </div>
-
-              <div class="btn-group">
-                <button type="button" class="btn btn-primary" onclick="nextStep(2)">
-                  Lanjut
-                  <span class="material-icons">arrow_forward</span>
-                </button>
-              </div>
             </div>
 
-            <!-- Step 5-8: Pilih Alat -->
-            <div class="wizard-step" id="step-2" style="display: none;">
-              <h4 style="font-size: 15px; color: #e5edff; margin-bottom: 14px; font-weight: 600;">Step 5-8: Pilih Alat Tes</h4>
-              
-              <div style="padding: 14px; border-radius: 10px; background: rgba(37,99,235,0.1); border: 1px solid rgba(59,130,246,0.3); margin-bottom: 16px;">
-                <strong style="color: #93c5fd;">Alat Tes #1</strong>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">
-                  <span class="material-icons">science</span>
-                  Nama Alat Tes <span class="required">*</span>
-                </label>
-                <select class="form-select" id="alat-tes-1" required>
-                  <option value="">-- Pilih Alat Tes --</option>
-                  <option value="wais" data-price="50000">WAIS-IV (Rp 50.000/lembar)</option>
-                  <option value="mmpi" data-price="45000">MMPI-2 (Rp 45.000/lembar)</option>
-                  <option value="mbti" data-price="30000">MBTI (Rp 30.000/lembar)</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">
-                  <span class="material-icons">numbers</span>
-                  Jumlah (lembar) <span class="required">*</span>
-                </label>
-                <input type="number" class="form-input" id="alat-qty-1" min="1" placeholder="contoh: 10" required />
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">
-                  <span class="material-icons">checklist</span>
-                  Komponen yang Dipinjam
-                </label>
-                <div style="display: flex; gap: 14px; flex-wrap: wrap; padding: 10px 0;">
-                  <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-                    <input type="checkbox" /> Buku Tes
-                  </label>
-                  <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-                    <input type="checkbox" /> Lembar Jawaban (LJ)
-                  </label>
-                  <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-                    <input type="checkbox" /> Norma
-                  </label>
-                </div>
-              </div>
-
-              <div class="btn-group">
-                <button type="button" class="btn btn-secondary" onclick="prevStep(1)">
-                  <span class="material-icons">arrow_back</span>
-                  Kembali
-                </button>
-                <button type="button" class="btn btn-primary" onclick="nextStep(3)">
-                  Lanjut
-                  <span class="material-icons">arrow_forward</span>
-                </button>
-              </div>
+            <div class="flex gap-3 pt-2">
+              <button type="button" onclick="prevStep(4)" class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-sm px-5 py-2.5 transition">
+                <span class="material-icons text-base">arrow_back</span>
+                Kembali
+              </button>
+              <button type="submit" class="inline-flex items-center gap-1.5 rounded-full bg-primary-500 hover:bg-primary-600 text-white font-semibold text-sm px-5 py-2.5 shadow-md hover:shadow-lg transition">
+                <span class="material-icons text-base">send</span>
+                Kirim Permohonan
+              </button>
             </div>
+          </div>
+        </form>
 
-            <!-- Step 9: Lama Peminjaman -->
-            <div class="wizard-step" id="step-3" style="display: none;">
-              <h4 style="font-size: 15px; color: #e5edff; margin-bottom: 14px; font-weight: 600;">Step 9: Lama Peminjaman</h4>
-              
-              <div class="form-group">
-                <label class="form-label">
-                  <span class="material-icons">calendar_today</span>
-                  Tanggal Mulai <span class="required">*</span>
-                </label>
-                <input type="date" class="form-input" id="alat-start-date" required />
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">
-                  <span class="material-icons">event</span>
-                  Tanggal Selesai <span class="required">*</span>
-                </label>
-                <input type="date" class="form-input" id="alat-end-date" required />
-                <div class="form-helper">
-                  <span class="material-icons">info</span>
-                  Durasi: <strong id="loan-duration">0 hari</strong>
-                </div>
-              </div>
-
-              <div class="btn-group">
-                <button type="button" class="btn btn-secondary" onclick="prevStep(2)">
-                  <span class="material-icons">arrow_back</span>
-                  Kembali
-                </button>
-                <button type="button" class="btn btn-primary" onclick="nextStep(4)">
-                  Lanjut
-                  <span class="material-icons">arrow_forward</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Step 10-11: Pembayaran & Perjanjian -->
-            <div class="wizard-step" id="step-4" style="display: none;">
-              <h4 style="font-size: 15px; color: #e5edff; margin-bottom: 14px; font-weight: 600;">Step 10-11: Pembayaran & Perjanjian</h4>
-              
-              <div class="form-group">
-                <label class="form-label">
-                  <span class="material-icons">payments</span>
-                  Waktu Pembayaran <span class="required">*</span>
-                </label>
-                <select class="form-select" id="alat-payment" required>
-                  <option value="">-- Pilih Waktu --</option>
-                  <option value="before">Sebelum Peminjaman</option>
-                  <option value="after">Sesudah Peminjaman</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">
-                  <span class="material-icons">description</span>
-                  Surat Perjanjian <span class="required">*</span>
-                </label>
-                <button type="button" class="btn btn-secondary" style="margin-bottom: 10px;">
-                  <span class="material-icons">download</span>
-                  Download Template Perjanjian
-                </button>
-                <input type="file" class="form-input" id="alat-perjanjian" accept=".pdf" required />
-                <div class="form-helper">
-                  <span class="material-icons">info</span>
-                  Upload surat perjanjian yang sudah ditandatangani (PDF)
-                </div>
-              </div>
-
-              <div class="btn-group">
-                <button type="button" class="btn btn-secondary" onclick="prevStep(3)">
-                  <span class="material-icons">arrow_back</span>
-                  Kembali
-                </button>
-                <button type="button" class="btn btn-primary" onclick="nextStep(5)">
-                  Lanjut ke Review
-                  <span class="material-icons">arrow_forward</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Step 12: Review & Submit -->
-            <div class="wizard-step" id="step-5" style="display: none;">
-              <h4 style="font-size: 15px; color: #e5edff; margin-bottom: 14px; font-weight: 600;">Step 12: Review & Submit</h4>
-              
-              <div style="padding: 16px; border-radius: 12px; background: rgba(15,23,42,0.6); border: 1px solid rgba(148,163,253,0.3); margin-bottom: 16px;">
-                <p style="font-size: 12px; color: #9ca3af; margin-bottom: 12px;">Ringkasan Peminjaman:</p>
-                <ul style="list-style: none; padding: 0; font-size: 12px; color: #e5e7eb; line-height: 1.8;">
-                  <li><strong>Peminjam:</strong> Mahasiswa Demo</li>
-                  <li><strong>Instansi:</strong> UMKT</li>
-                  <li><strong>Tujuan:</strong> Penelitian Individu</li>
-                  <li><strong>Alat:</strong> WAIS-IV (10 lembar)</li>
-                  <li><strong>Durasi:</strong> 15 Jan - 17 Jan 2026 (3 hari)</li>
-                  <li><strong>Total Biaya:</strong> <strong style="color: #93c5fd;">Rp 500.000</strong></li>
-                </ul>
-              </div>
-
-              <div class="btn-group">
-                <button type="button" class="btn btn-secondary" onclick="prevStep(4)">
-                  <span class="material-icons">arrow_back</span>
-                  Kembali
-                </button>
-                <button type="submit" class="btn btn-primary">
-                  <span class="material-icons">send</span>
-                  Kirim Permohonan
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-
-        <!-- RIGHT: Summary Panel (Sticky) -->
-        <div>
-          <div class="summary-panel">
-            <div class="summary-title">
-              <span class="material-icons">receipt</span>
+        {# RIGHT: Summary Panel #}
+        <div class="hidden lg:block">
+          <div class="sticky top-24 rounded-xl bg-gradient-to-br from-primary-50 to-blue-50 border border-primary-200 p-5 space-y-4">
+            <h4 class="text-sm font-semibold text-slate-900 flex items-center gap-2">
+              <span class="material-icons text-base text-primary-600">receipt</span>
               Ringkasan Biaya
-            </div>
-            <div class="summary-item">
-              <span class="summary-label">Alat Tes #1:</span>
-              <span class="summary-value">Rp 0</span>
-            </div>
-            <div class="summary-item">
-              <span class="summary-label">Alat Tes #2:</span>
-              <span class="summary-value">Rp 0</span>
-            </div>
-            <div class="summary-item">
-              <span class="summary-label">Durasi:</span>
-              <span class="summary-value">0 hari</span>
-            </div>
-            <div class="summary-item">
-              <span class="summary-label">TOTAL:</span>
-              <span class="summary-value">Rp 0</span>
+            </h4>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between pb-2 border-b border-primary-100">
+                <span class="text-slate-600">Alat Tes:</span>
+                <strong id="summary-test" class="text-slate-900">-</strong>
+              </div>
+              <div class="flex justify-between pb-2 border-b border-primary-100">
+                <span class="text-slate-600">Jumlah:</span>
+                <strong id="summary-qty" class="text-slate-900">0 lembar</strong>
+              </div>
+              <div class="flex justify-between pb-2 border-b border-primary-100">
+                <span class="text-slate-600">Harga/lembar:</span>
+                <strong id="summary-price" class="text-slate-900">Rp 0</strong>
+              </div>
+              <div class="flex justify-between pb-2 border-b border-primary-100">
+                <span class="text-slate-600">Durasi:</span>
+                <strong id="summary-duration" class="text-slate-900">0 hari</strong>
+              </div>
+              <div class="flex justify-between pt-2">
+                <span class="text-slate-900 font-semibold">TOTAL:</span>
+                <strong id="summary-total" class="text-primary-600 text-lg">Rp 0</strong>
+              </div>
             </div>
           </div>
         </div>
@@ -1314,307 +503,147 @@
     </div>
   </div>
 
-  <!-- ===== CONTENT SECTION 3: RIWAYAT & DOKUMEN ===== -->
-  <div class="content-section" id="section-riwayat">
-    <div class="panel">
-      <div class="panel-header">
-        <h3 class="panel-title">
-          <span class="material-icons">history</span>
-          Riwayat & Dokumen
-        </h3>
-      </div>
-
-      <!-- Tabs -->
-      <div class="tabs">
-        <button class="tab active" data-tab="tab-ruangan">
-          <span class="material-icons">meeting_room</span>
-          Ruangan
-        </button>
-        <button class="tab" data-tab="tab-alat-tes">
-          <span class="material-icons">science</span>
-          Alat Tes
-        </button>
-        <button class="tab" data-tab="tab-praktikum">
-          <span class="material-icons">school</span>
-          Praktikum
-        </button>
-        <button class="tab" data-tab="tab-penelitian">
-          <span class="material-icons">auto_stories</span>
-          Penelitian
-        </button>
-      </div>
-
-      <!-- Tab Content: Ruangan -->
-      <div class="tab-content active" id="tab-ruangan">
-        <div class="table-container">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Tanggal</th>
-                <th>Ruangan</th>
-                <th>Waktu</th>
-                <th>Status</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>15 Jan 2026</td>
-                <td>Lab Psikometri</td>
-                <td>09:00 - 11:00</td>
-                <td><span class="status-badge status-approved">Disetujui</span></td>
-                <td class="table-actions">
-                  <button class="btn-icon" title="Lihat Detail">
-                    <span class="material-icons">visibility</span>
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>12 Jan 2026</td>
-                <td>Lab Klinis</td>
-                <td>14:00 - 16:00</td>
-                <td><span class="status-badge status-pending">Pending</span></td>
-                <td class="table-actions">
-                  <button class="btn-icon" title="Lihat Detail">
-                    <span class="material-icons">visibility</span>
-                  </button>
-                  <button class="btn-icon" title="Batalkan">
-                    <span class="material-icons">cancel</span>
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>10 Jan 2026</td>
-                <td>Lab Perkembangan</td>
-                <td>10:00 - 12:00</td>
-                <td><span class="status-badge status-declined">Ditolak</span></td>
-                <td class="table-actions">
-                  <button class="btn-icon" title="Lihat Detail">
-                    <span class="material-icons">visibility</span>
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Tab Content: Alat Tes -->
-      <div class="tab-content" id="tab-alat-tes" style="display: none;">
-        <div class="table-container">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Tanggal Pinjam</th>
-                <th>Alat Tes</th>
-                <th>Jumlah</th>
-                <th>Total Biaya</th>
-                <th>Status</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>12 Jan 2026</td>
-                <td>WAIS-IV</td>
-                <td>10 lembar</td>
-                <td>Rp 500.000</td>
-                <td><span class="status-badge status-pending">Pending</span></td>
-                <td class="table-actions">
-                  <button class="btn-icon" title="Lihat Invoice">
-                    <span class="material-icons">receipt</span>
-                  </button>
-                  <button class="btn-icon" title="Lihat Perjanjian">
-                    <span class="material-icons">description</span>
-                  </button>
-                </td>
-              </tr>
-              <tr>
-                <td>5 Jan 2026</td>
-                <td>MMPI-2</td>
-                <td>5 lembar</td>
-                <td>Rp 225.000</td>
-                <td><span class="status-badge status-approved">Disetujui</span></td>
-                <td class="table-actions">
-                  <button class="btn-icon" title="Download Invoice">
-                    <span class="material-icons">download</span>
-                  </button>
-                  <button class="btn-icon" title="Status Pengembalian">
-                    <span class="material-icons">assignment_return</span>
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Tab Content: Praktikum -->
-      <div class="tab-content" id="tab-praktikum" style="display: none;">
-        <div class="empty-state">
-          <span class="material-icons">school</span>
-          <p>Belum ada riwayat praktikum.</p>
-        </div>
-      </div>
-
-      <!-- Tab Content: Penelitian -->
-      <div class="tab-content" id="tab-penelitian" style="display: none;">
-        <div class="empty-state">
-          <span class="material-icons">auto_stories</span>
-          <p>Belum ada variabel penelitian yang diajukan.</p>
-        </div>
-      </div>
-    </div>
-  </div>
+  {# ===== CONTENT SECTION: RIWAYAT ===== #}
+  {% include 'pemriwayatinclude.html' %}
 
 </main>
 
 <script>
-  // ===== MODULE NAVIGATION =====
-  const moduleCards = document.querySelectorAll('.module-card');
-  const contentSections = document.querySelectorAll('.content-section');
+  let currentToolStep = 1;
+  let toolPrice = 0;
+  let toolQty = 0;
 
-  moduleCards.forEach(card => {
-    card.addEventListener('click', () => {
-      const targetModule = card.dataset.module;
-      
-      // Update active card
-      moduleCards.forEach(c => c.classList.remove('active'));
-      card.classList.add('active');
-      
-      // Show target section
-      contentSections.forEach(section => {
-        section.classList.remove('active');
-        if (section.id === `section-${targetModule}`) {
-          section.classList.add('active');
-        }
-      });
+  // Module Switcher
+  function switchModule(moduleName) {
+    document.querySelectorAll('.module-section').forEach(s => s.classList.add('hidden'));
+    document.querySelectorAll('[id^="card-"]').forEach(c => {
+      c.classList.remove('border-primary-300', 'bg-gradient-to-br', 'from-primary-50', 'to-white');
+      c.classList.add('border-slate-200', 'bg-white');
     });
-  });
 
-  // ===== TAB NAVIGATION (Riwayat) =====
-  const tabs = document.querySelectorAll('.tab');
-  const tabContents = document.querySelectorAll('.tab-content');
-
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      const targetTab = tab.dataset.tab;
-      
-      // Update active tab
-      tabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      
-      // Show target content
-      tabContents.forEach(content => {
-        content.style.display = 'none';
-        if (content.id === targetTab) {
-          content.style.display = 'block';
-        }
-      });
-    });
-  });
-
-  // ===== FORM RUANGAN =====
-  function checkRoomAvailability() {
-    const room = document.getElementById('room-select').value;
-    const date = document.getElementById('room-date').value;
-    const start = document.getElementById('room-start').value;
-    const end = document.getElementById('room-end').value;
-
-    if (!room || !date || !start || !end) {
-      showAlert('alert-ruangan', 'Mohon lengkapi data ruangan, tanggal, dan waktu terlebih dahulu.', 'warning');
-      return;
-    }
-
-    // Simulasi validasi
-    showAlert('alert-ruangan', 'Ruangan tersedia! Tidak ada konflik dengan peminjaman lain.', 'success');
+    const sectionMap = { 'room': 'section-room', 'tool': 'section-tool', 'history': 'section-history' };
+    document.getElementById(sectionMap[moduleName]).classList.remove('hidden');
+    
+    const card = document.getElementById(`card-${moduleName}`);
+    card.classList.remove('border-slate-200', 'bg-white');
+    card.classList.add('border-primary-300', 'bg-gradient-to-br', 'from-primary-50', 'to-white');
   }
 
-  document.getElementById('form-ruangan').addEventListener('submit', (e) => {
-    e.preventDefault();
+  // Wizard Navigation
+  function nextStep(step) {
+    if (step === 5) updateReviewSummary();
     
-    const room = document.getElementById('room-select').value;
-    const date = document.getElementById('room-date').value;
-    const start = document.getElementById('room-start').value;
-    const end = document.getElementById('room-end').value;
-    const participants = document.getElementById('room-participants').value;
-    const purpose = document.getElementById('room-purpose').value;
-
-    if (!room || !date || !start || !end || !participants || !purpose) {
-      showAlert('alert-ruangan', 'Semua field harus diisi.', 'error');
-      return;
-    }
-
-    showAlert('alert-ruangan', 'Permohonan peminjaman ruangan berhasil dikirim! Menunggu approval admin.', 'success');
+    document.querySelectorAll('.wizard-step').forEach(s => s.classList.add('hidden'));
+    document.getElementById(`wizard-step-${step}`).classList.remove('hidden');
     
-    setTimeout(() => {
-      document.getElementById('form-ruangan').reset();
-      hideAlert('alert-ruangan');
-    }, 2000);
-  });
-
-  // ===== WIZARD NAVIGATION (Alat Tes) =====
-  function nextStep(stepNumber) {
-    const currentStep = document.querySelector('.wizard-step.active');
-    const nextStep = document.getElementById(`step-${stepNumber}`);
-    
-    if (currentStep) currentStep.classList.remove('active');
-    currentStep.style.display = 'none';
-    
-    nextStep.classList.add('active');
-    nextStep.style.display = 'block';
-    
-    // Update stepper
-    document.querySelectorAll('.step').forEach((step, index) => {
-      if (index < stepNumber) {
-        step.classList.add('completed');
-        step.classList.remove('active');
-      } else if (index === stepNumber - 1) {
-        step.classList.add('active');
-        step.classList.remove('completed');
+    for (let i = 1; i <= 5; i++) {
+      const circle = document.getElementById(`step-circle-${i}`);
+      if (i < step) {
+        circle.className = 'w-8 h-8 rounded-full bg-emerald-500 border-2 border-emerald-500 flex items-center justify-center text-white text-xs font-semibold z-10';
+        circle.innerHTML = '✓';
+      } else if (i === step) {
+        circle.className = 'w-8 h-8 rounded-full bg-primary-500 border-2 border-primary-500 flex items-center justify-center text-white text-xs font-semibold z-10';
+        circle.textContent = i;
       } else {
-        step.classList.remove('active', 'completed');
+        circle.className = 'w-8 h-8 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center text-slate-400 text-xs font-semibold z-10';
+        circle.textContent = i;
       }
-    });
+    }
+    currentToolStep = step;
   }
 
-  function prevStep(stepNumber) {
-    nextStep(stepNumber);
+  function prevStep(step) {
+    nextStep(step);
   }
 
-  document.getElementById('form-alat').addEventListener('submit', (e) => {
+  // Price Calculator
+  function updatePrice() {
+    const testSelect = document.getElementById('tool-test');
+    const qtyInput = document.getElementById('tool-qty');
+    
+    if (testSelect.value && qtyInput.value) {
+      toolPrice = parseInt(testSelect.options[testSelect.selectedIndex].dataset.price);
+      toolQty = parseInt(qtyInput.value);
+      const total = toolPrice * toolQty;
+      
+      document.getElementById('summary-test').textContent = testSelect.options[testSelect.selectedIndex].text.split('(')[0].trim();
+      document.getElementById('summary-qty').textContent = `${toolQty} lembar`;
+      document.getElementById('summary-price').textContent = `Rp ${toolPrice.toLocaleString('id-ID')}`;
+      document.getElementById('summary-total').textContent = `Rp ${total.toLocaleString('id-ID')}`;
+    }
+  }
+
+  // Duration Calculator
+  function calculateDuration() {
+    const start = document.getElementById('tool-start').value;
+    const end = document.getElementById('tool-end').value;
+    
+    if (start && end) {
+      const days = Math.ceil((new Date(end) - new Date(start)) / (1000 * 60 * 60 * 24)) + 1;
+      document.getElementById('duration-display').textContent = `${days} hari`;
+      document.getElementById('summary-duration').textContent = `${days} hari`;
+    }
+  }
+
+  // Update Review Summary
+  function updateReviewSummary() {
+    document.getElementById('review-instansi').textContent = document.getElementById('tool-instansi').value.toUpperCase();
+    document.getElementById('review-purpose').textContent = document.getElementById('tool-purpose').options[document.getElementById('tool-purpose').selectedIndex].text;
+    document.getElementById('review-test').textContent = document.getElementById('tool-test').options[document.getElementById('tool-test').selectedIndex].text;
+    document.getElementById('review-duration').textContent = `${document.getElementById('tool-start').value} - ${document.getElementById('tool-end').value}`;
+    document.getElementById('review-total').textContent = document.getElementById('summary-total').textContent;
+  }
+
+  // Room Form Submit
+  function handleRoomSubmit(e) {
     e.preventDefault();
-    showAlert('alert-alat', 'Permohonan peminjaman alat tes berhasil dikirim! Invoice akan dikirim ke email Anda.', 'success');
-    
-    setTimeout(() => {
-      document.getElementById('form-alat').reset();
-      hideAlert('alert-alat');
-      nextStep(1); // Reset to step 1
-    }, 2500);
-  });
+    const participants = parseInt(document.getElementById('participants').value);
+    const roomSelect = document.getElementById('room');
+    const capacity = parseInt(roomSelect.options[roomSelect.selectedIndex].dataset.capacity);
 
-  // ===== ALERT FUNCTIONS =====
-  function showAlert(alertId, message, type) {
-    const alertBox = document.getElementById(alertId);
-    let icon = 'info';
-    
-    if (type === 'success') icon = 'check_circle';
-    if (type === 'error') icon = 'error';
-    if (type === 'warning') icon = 'warning';
-    
-    alertBox.innerHTML = `
-      <span class="material-icons">${icon}</span>
-      <span>${message}</span>
-    `;
-    alertBox.className = 'alert ' + type;
-    alertBox.style.display = 'flex';
+    if (participants > capacity) {
+      showAlert('alert-room', `Jumlah peserta (${participants}) melebihi kapasitas ruangan (${capacity} orang).`, 'error');
+      return false;
+    }
+
+    showAlert('alert-room', '✓ Permohonan berhasil dikirim! (Simulasi)', 'success');
+    setTimeout(() => document.getElementById('room-form').reset(), 2000);
   }
 
-  function hideAlert(alertId) {
-    const alertBox = document.getElementById(alertId);
-    alertBox.style.display = 'none';
+  // Tool Form Submit
+  function handleToolSubmit(e) {
+    e.preventDefault();
+    showAlert('alert-tool', '✓ Permohonan peminjaman alat tes berhasil dikirim! Invoice akan dikirim ke email Anda.', 'success');
+    setTimeout(() => {
+      document.getElementById('tool-form').reset();
+      nextStep(1);
+    }, 2500);
+  }
+
+  // Utility Functions
+  function checkAvailability() {
+    showAlert('alert-room', '✓ Ruangan tersedia! Tidak ada konflik dengan peminjaman lain.', 'success');
+  }
+
+  function selectDate(dateStr) {
+    document.getElementById('date').value = dateStr;
+    showAlert('alert-room', `Tanggal ${dateStr} dipilih. Silakan lengkapi data lainnya.`, 'info');
+  }
+
+  function showAlert(id, message, type) {
+    const alertBox = document.getElementById(id);
+    const colors = {
+      success: 'bg-emerald-50 border-emerald-200 text-emerald-800',
+      error: 'bg-rose-50 border-rose-200 text-rose-800',
+      warning: 'bg-amber-50 border-amber-200 text-amber-800',
+      info: 'bg-blue-50 border-blue-200 text-blue-800'
+    };
+    
+    alertBox.textContent = message;
+    alertBox.className = `rounded-xl px-4 py-3 text-sm border ${colors[type] || colors.info}`;
+    alertBox.classList.remove('hidden');
+    setTimeout(() => alertBox.classList.add('hidden'), 5000);
   }
 </script>
 
-</body>
-</html>
+{% endblock content %}

@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Lab Psikologi UMKT{% endblock %}
+
+{% block content %}
+
+<main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+  {# ===== HEADER ===== #}
+  <header class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <p class="text-xs font-semibold tracking-wide text-primary-600 uppercase">
+        Dashboard Utama
+      </p>
+      <h1 class="text-2xl sm:text-3xl font-semibold text-slate-900">
+        Selamat datang kembali,
+        <span class="text-primary-600">
+          {{ user.get_full_name|default:user.username }}
+        </span> 👋
+      </h1>
+      <p class="mt-1 text-sm text-slate-500">
+        Ringkasan peminjaman ruangan, alat tes, praktikum, dan variabel penelitian Anda.
+      </p>
+    </div>
+
+    <div class="flex flex-wrap gap-2">
+      <a href="{% url 'rooms:booking_create' %}"
+         class="inline-flex items-center gap-1.5 rounded-full border border-primary-100 bg-white px-4 py-2 text-xs font-semibold text-primary-700 shadow-sm hover:bg-primary-50 transition">
+        <span class="material-icons text-sm">add_circle</span>
+        <span>Peminjaman Baru</span>
+      </a>
+      <a href="{% url 'profile:detail' %}"
+         class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 transition">
+        <span class="material-icons text-sm">person</span>
+        <span>Profil Saya</span>
+      </a>
+    </div>
+  </header>
+
+  {# ===== TOP STATS ===== #}
+  <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <!-- Ruangan -->
+    <div class="rounded-2xl border border-slate-100 bg-white shadow-sm p-4 flex flex-col gap-2">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center">
+            <span class="material-icons text-base">meeting_room</span>
+          </div>
+          <p class="text-[11px] font-medium text-slate-500 uppercase tracking-wide">
+            Ruangan
+          </p>
+        </div>
+        <span class="text-[11px] text-slate-400">Bulan ini</span>
+      </div>
+      <p class="text-2xl font-semibold text-slate-900">
+        {{ stats.rooms_count|default:"0" }}
+      </p>
+      <p class="text-[11px] text-slate-500">
+        Total peminjaman ruangan yang Anda ajukan.
+      </p>
+    </div>
+
+    <!-- Alat Tes -->
+    <div class="rounded-2xl border border-slate-100 bg-white shadow-sm p-4 flex flex-col gap-2">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <span class="material-icons text-base">science</span>
+          </div>
+          <p class="text-[11px] font-medium text-slate-500 uppercase tracking-wide">
+            Alat Tes
+          </p>
+        </div>
+        <span class="text-[11px] text-slate-400">Aktif</span>
+      </div>
+      <p class="text-2xl font-semibold text-slate-900">
+        {{ stats.tools_active|default:"0" }}
+      </p>
+      <p class="text-[11px] text-slate-500">
+        Peminjaman alat tes yang masih berjalan.
+      </p>
+    </div>
+
+    <!-- Praktikum -->
+    <div class="rounded-2xl border border-slate-100 bg-white shadow-sm p-4 flex flex-col gap-2">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+            <span class="material-icons text-base">event</span>
+          </div>
+          <p class="text-[11px] font-medium text-slate-500 uppercase tracking-wide">
+            Praktikum
+          </p>
+        </div>
+        <span class="text-[11px] text-slate-400">Semester ini</span>
+      </div>
+      <p class="text-2xl font-semibold text-slate-900">
+        {{ stats.practicum_registered|default:"0" }}
+      </p>
+      <p class="text-[11px] text-slate-500">
+        Sesi praktikum yang Anda ikuti.
+      </p>
+    </div>
+
+    <!-- Variabel Penelitian -->
+    <div class="rounded-2xl border border-slate-100 bg-white shadow-sm p-4 flex flex-col gap-2">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+            <span class="material-icons text-base">psychology</span>
+          </div>
+          <p class="text-[11px] font-medium text-slate-500 uppercase tracking-wide">
+            Variabel
+          </p>
+        </div>
+        <span class="text-[11px] text-slate-400">Aktif</span>
+      </div>
+      <p class="text-2xl font-semibold text-slate-900">
+        {{ stats.research_active|default:"0" }}
+      </p>
+      <p class="text-[11px] text-slate-500">
+        Variabel penelitian dengan bimbingan aktif.
+      </p>
+    </div>
+  </section>
+
+  {# ===== QUICK ACTIONS ===== #}
+  <section class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+    <!-- Ruangan -->
+    <a href="{% url 'rooms:booking_list' %}"
+       class="group rounded-2xl border border-slate-100 bg-white shadow-sm hover:shadow-lg hover:border-primary-200 transition p-5 flex flex-col gap-3">
+      <div class="w-11 h-11 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center">
+        <span class="material-icons">meeting_room</span>
+      </div>
+      <h3 class="text-sm font-semibold text-slate-900">Peminjaman Ruangan</h3>
+      <p class="text-xs text-slate-500">
+        Lihat dan kelola semua pengajuan peminjaman ruangan Anda.
+      </p>
+      <span class="mt-auto text-xs font-medium text-primary-600 flex items-center gap-1">
+        Buka halaman
+        <span class="material-icons text-sm group-hover:translate-x-0.5 transition">arrow_forward</span>
+      </span>
+    </a>
+
+    <!-- Alat Tes -->
+    <a href="{% url 'tools:rental_list' %}"
+       class="group rounded-2xl border border-slate-100 bg-white shadow-sm hover:shadow-lg hover:border-emerald-200 transition p-5 flex flex-col gap-3">
+      <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+        <span class="material-icons">science</span>
+      </div>
+      <h3 class="text-sm font-semibold text-slate-900">Peminjaman Alat Tes</h3>
+      <p class="text-xs text-slate-500">
+        Pantau status peminjaman alat tes dan jadwal pengembalian.
+      </p>
+      <span class="mt-auto text-xs font-medium text-emerald-600 flex items-center gap-1">
+        Buka halaman
+        <span class="material-icons text-sm group-hover:translate-x-0.5 transition">arrow_forward</span>
+      </span>
+    </a>
+
+    <!-- Praktikum -->
+    <a href="{% url 'practicum:schedule_list' %}"
+       class="group rounded-2xl border border-slate-100 bg-white shadow-sm hover:shadow-lg hover:border-indigo-200 transition p-5 flex flex-col gap-3">
+      <div class="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+        <span class="material-icons">event</span>
+      </div>
+      <h3 class="text-sm font-semibold text-slate-900">Jadwal Praktikum</h3>
+      <p class="text-xs text-slate-500">
+        Cek jadwal dan status kehadiran Anda di setiap sesi praktikum.
+      </p>
+      <span class="mt-auto text-xs font-medium text-indigo-600 flex items-center gap-1">
+        Lihat jadwal
+        <span class="material-icons text-sm group-hover:translate-x-0.5 transition">arrow_forward</span>
+      </span>
+    </a>
+
+    <!-- Variabel Penelitian -->
+    <a href="{% url 'research:request_list' %}"
+       class="group rounded-2xl border border-slate-100 bg-white shadow-sm hover:shadow-lg hover:border-amber-200 transition p-5 flex flex-col gap-3">
+      <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+        <span class="material-icons">psychology</span>
+      </div>
+      <h3 class="text-sm font-semibold text-slate-900">Variabel Penelitian</h3>
+      <p class="text-xs text-slate-500">
+        Lihat status request variabel dan riwayat sesi bimbingan.
+      </p>
+      <span class="mt-auto text-xs font-medium text-amber-600 flex items-center gap-1">
+        Lihat variabel
+        <span class="material-icons text-sm group-hover:translate-x-0.5 transition">arrow_forward</span>
+      </span>
+    </a>
+  </section>
+
+  {# ===== MAIN PANELS: AKTIVITAS & NOTIF ===== #}
+  <section class="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)]">
+
+    {# Aktivitas Terakhir #}
+    <div class="rounded-2xl border border-slate-100 bg-white shadow-sm p-5 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div>
+          <h2 class="text-sm font-semibold text-slate-900">Aktivitas Terakhir</h2>
+          <p class="text-xs text-slate-500">
+            Aktivitas terbaru peminjaman, praktikum, dan penelitian.
+          </p>
+        </div>
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-medium bg-primary-50 text-primary-700 border border-primary-100">
+          Terbaru
+        </span>
+      </div>
+
+      {% if activities %}
+        <div class="space-y-3 text-xs">
+          {% for item in activities %}
+            <div class="flex items-start justify-between gap-3 rounded-xl border border-slate-100 bg-slate-50/70 px-3 py-2.5">
+              <div class="space-y-0.5">
+                <p class="font-medium text-slate-900">
+                  {{ item.title }}
+                </p>
+                <p class="text-[11px] text-slate-500">
+                  {{ item.subtitle }}
+                </p>
+              </div>
+              <span class="text-[10px] px-2.5 py-1 rounded-full font-semibold
+                {% if item.status == 'approved' %}
+                  bg-emerald-50 text-emerald-700 border border-emerald-100
+                {% elif item.status == 'pending' %}
+                  bg-amber-50 text-amber-700 border border-amber-100
+                {% elif item.status == 'rejected' %}
+                  bg-rose-50 text-rose-700 border border-rose-100
+                {% else %}
+                  bg-slate-50 text-slate-700 border border-slate-100
+                {% endif %}
+              ">
+                {{ item.status_label }}
+              </span>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="py-10 text-center text-xs text-slate-400">
+          Belum ada aktivitas terbaru.
+        </div>
+      {% endif %}
+    </div>
+
+    {# Notifikasi Penting #}
+    <div class="rounded-2xl border border-slate-100 bg-white shadow-sm p-5 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div>
+          <h2 class="text-sm font-semibold text-slate-900">Notifikasi Penting</h2>
+          <p class="text-xs text-slate-500">
+            Pengingat pengembalian, request pending, dan jadwal bimbingan.
+          </p>
+        </div>
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-medium bg-slate-50 text-slate-700 border border-slate-100">
+          {{ notifications|length|default:"0" }} notifikasi
+        </span>
+      </div>
+
+      {% if notifications %}
+        <div class="space-y-3 text-xs">
+          {% for notif in notifications %}
+            <div class="rounded-xl border px-3 py-2.5
+              {% if notif.type == 'warning' %}
+                border-amber-100 bg-amber-50/70 text-amber-800
+              {% elif notif.type == 'info' %}
+                border-blue-100 bg-blue-50/70 text-blue-800
+              {% elif notif.type == 'success' %}
+                border-emerald-100 bg-emerald-50/70 text-emerald-800
+              {% else %}
+                border-slate-100 bg-slate-50/70 text-slate-800
+              {% endif %}
+            ">
+              <p class="font-semibold text-[11px] mb-0.5">
+                {{ notif.title }}
+              </p>
+              <p>
+                {{ notif.message }}
+              </p>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="py-10 text-center text-xs text-slate-400">
+          Tidak ada notifikasi penting saat ini.
+        </div>
+      {% endif %}
+    </div>
+  </section>
+
+</main>
+
+{% endblock content %}

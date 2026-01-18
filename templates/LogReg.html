@@ -1,477 +1,145 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <title>Lab Psikologi UMKT - Login & Register</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+{% extends "base.html" %}
+{% load static %}
 
-  <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+{% block title %}Login & Register - Lab Psikologi UMKT{% endblock %}
 
-  <style>
-    :root {
-      --primary: #2180b4;
-      --primary-soft: rgba(33,128,180,0.18);
-      --primary-strong: #136392;
-      --danger: #e63946;
-      --success: #2a9d8f;
-      --bg-dark: #050816;
-      --glass-bg: rgba(255, 255, 255, 0.08);
-      --border-glass: rgba(255, 255, 255, 0.2);
-      --text-main: #f8fafc;
-      --text-muted: #cbd5f5;
-      --radius-lg: 18px;
-      --transition-fast: 0.18s ease;
-      --shadow-soft: 0 18px 45px rgba(0,0,0,0.55);
-      --shadow-focus: 0 0 0 1px rgba(148, 163, 253, 0.5);
-    }
+{% block content %}
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      min-height: 100vh;
-      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        sans-serif;
-      color: var(--text-main);
-      background: radial-gradient(circle at top left, #1d4ed8 0, transparent 55%),
-                  radial-gradient(circle at bottom right, #0f766e 0, transparent 55%),
-                  radial-gradient(circle at center, #020617 0, #020617 60%, #000 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-
-    .auth-shell {
-      width: 100%;
-      max-width: 980px;
-      display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-      gap: 32px;
-      align-items: stretch;
-      background: radial-gradient(circle at top left, rgba(15,23,42,0.6) 0, transparent 60%),
-                  radial-gradient(circle at bottom, rgba(15,23,42,0.7) 0, transparent 55%);
-      border-radius: 28px;
-      padding: 24px 24px 24px 28px;
-      border: 1px solid rgba(148, 163, 253, 0.12);
-      box-shadow: var(--shadow-soft);
-      backdrop-filter: blur(26px);
-    }
-
-    @media (max-width: 880px) {
-      .auth-shell {
-        grid-template-columns: minmax(0, 1fr);
-        padding: 20px;
-      }
-      .hero-side {
-        display: none;
-      }
-    }
-
-    /* Left: branding / hero */
-    .hero-side {
-      padding: 12px 16px 12px 4px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 18px;
-    }
-
-    .logo-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 6px 14px;
-      border-radius: 999px;
-      background: rgba(15,23,42,0.65);
-      border: 1px solid rgba(148, 163, 253, 0.4);
-      box-shadow: 0 10px 30px rgba(15,23,42,0.75);
-    }
-
-    .logo-mark {
-      width: 26px;
-      height: 26px;
-      border-radius: 12px;
-      background: conic-gradient(from 160deg, #38bdf8, #a855f7, #f97316, #38bdf8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 14px;
-      color: #0b1220;
-    }
-
-    .logo-text {
-      display: flex;
-      flex-direction: column;
-      font-size: 11px;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: #e5e7eb;
-    }
-
-    .logo-text span:nth-child(2) {
-      font-weight: 600;
-      color: #c7d2fe;
-    }
-
-    .hero-title {
-      font-size: 26px;
-      font-weight: 600;
-      line-height: 1.35;
-      color: #e5edff;
-    }
-
-    .hero-highlight {
-      color: #7dd3fc;
-    }
-
-    .hero-subtitle {
-      font-size: 14px;
-      color: var(--text-muted);
-      max-width: 360px;
-      line-height: 1.6;
-    }
-
-    .hero-pill-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    .hero-pill {
-      font-size: 11px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 253, 0.4);
-      color: #e5e7eb;
-      background: radial-gradient(circle at top left, rgba(79,70,229,0.7), transparent 65%);
-    }
-
-    .hero-meta {
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px dashed rgba(148,163,253,0.35);
-      font-size: 11px;
-      color: #9ca3af;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      justify-content: flex-start;
-    }
-    .hero-meta strong {
-      color: #c7d2fe;
-    }
-
-    /* Right: auth card */
-    .auth-card {
-      background: linear-gradient(135deg, rgba(15,23,42,0.92), rgba(15,23,42,0.75));
-      border-radius: 24px;
-      border: 1px solid var(--border-glass);
-      padding: 20px 20px 18px;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.55);
-    }
-
-    .auth-tabs {
-      display: flex;
-      border-radius: 999px;
-      background: radial-gradient(circle at top left, rgba(15,23,42,0.85) 0, rgba(15,23,42,0.55) 50%, transparent 100%);
-      padding: 4px;
-      gap: 4px;
-      margin-bottom: 16px;
-    }
-
-    .auth-tab {
-      flex: 1;
-      border-radius: 999px;
-      padding: 8px 0;
-      border: none;
-      background: transparent;
-      color: #9ca3af;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      position: relative;
-      transition: background var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
-    }
-
-    .auth-tab.active {
-      color: #e5edff;
-      background: radial-gradient(circle at top left, rgba(129,140,248,0.8), rgba(37,99,235,0.95));
-      box-shadow: 0 6px 18px rgba(30,64,175,0.8);
-      transform: translateY(-1px);
-    }
-
-    .auth-header {
-      margin-bottom: 6px;
-    }
-    .auth-header h2 {
-      font-size: 20px;
-      font-weight: 600;
-      margin-bottom: 2px;
-    }
-    .auth-header p {
-      font-size: 12px;
-      color: #9ca3af;
-    }
-
-    .auth-body {
-      flex: 1;
-      margin-top: 12px;
-    }
-
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    label {
-      font-size: 12px;
-      color: #e5e7eb;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    label span.helper {
-      font-size: 11px;
-      color: #9ca3af;
-      font-weight: 400;
-    }
-
-    input[type="text"],
-    input[type="email"],
-    input[type="password"],
-    select {
-      background: rgba(15,23,42,0.9);
-      border-radius: 10px;
-      border: 1px solid rgba(148, 163, 253, 0.45);
-      padding: 10px 11px;
-      font-size: 13px;
-      color: var(--text-main);
-      outline: none;
-      transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast), transform var(--transition-fast);
-    }
-
-    input::placeholder {
-      color: #6b7280;
-    }
-
-    input:focus,
-    select:focus {
-      border-color: #a5b4fc;
-      box-shadow: var(--shadow-focus);
-      background: rgba(15,23,42,0.96);
-      transform: translateY(-0.5px);
-    }
-
-    .checkbox-row {
-      display: flex;
-      gap: 8px;
-      align-items: flex-start;
-      margin-top: 4px;
-    }
-    .checkbox-row input {
-      margin-top: 2px;
-      cursor: pointer;
-    }
-    .checkbox-row label {
-      font-size: 11px;
-      color: #cbd5f5;
-      cursor: pointer;
-    }
-
-    .actions-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 4px;
-      font-size: 11px;
-    }
-
-    .actions-row a {
-      color: #93c5fd;
-      text-decoration: none;
-      cursor: pointer;
-    }
-    .actions-row a:hover {
-      text-decoration: underline;
-    }
-
-    .btn-primary {
-      margin-top: 6px;
-      padding: 9px 12px;
-      border-radius: 999px;
-      border: none;
-      background: linear-gradient(135deg, #2563eb, #38bdf8);
-      color: #f9fafb;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      box-shadow: 0 10px 25px rgba(37,99,235,0.7);
-      transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 14px 34px rgba(37,99,235,0.9);
-      background: linear-gradient(135deg, #1d4ed8, #22c1c3);
-    }
-
-    .btn-primary:active {
-      transform: translateY(0);
-      box-shadow: 0 6px 18px rgba(15,23,42,0.8);
-    }
-
-    .btn-secondary {
-      margin-top: 2px;
-      padding: 7px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,253,0.7);
-      background: transparent;
-      color: #c7d2fe;
-      font-size: 11px;
-      cursor: pointer;
-      transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
-    }
-
-    .btn-secondary:hover {
-      background: rgba(79,70,229,0.18);
-      border-color: #a5b4fc;
-    }
-
-    .alert {
-      border-radius: 10px;
-      padding: 8px 10px;
-      font-size: 11px;
-      margin-bottom: 8px;
-      display: none;
-    }
-
-    .alert.error {
-      background: rgba(220, 38, 38, 0.14);
-      border: 1px solid rgba(239, 68, 68, 0.8);
-      color: #fecaca;
-    }
-
-    .alert.success {
-      background: rgba(22,163,74,0.13);
-      border: 1px solid rgba(34,197,94,0.9);
-      color: #bbf7d0;
-    }
-
-    .foot-note {
-      margin-top: 10px;
-      font-size: 11px;
-      color: #9ca3af;
-      text-align: center;
-    }
-
-    /* small fade animation */
-    .fade-in {
-      animation: fadeIn 0.25s ease-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-  </style>
-</head>
-<body>
-
-<div class="auth-shell">
-  <!-- LEFT / HERO -->
-  <aside class="hero-side">
-    <div class="logo-pill">
-      <div class="logo-mark">Ψ</div>
-      <div class="logo-text">
-        <span>Laboratorium Psikologi</span>
-        <span>UMKT</span>
+<div class="min-h-[calc(100vh-80px)] flex items-center justify-center px-4 py-8">
+  <div class="w-full max-w-6xl grid lg:grid-cols-[1.1fr_0.9fr] gap-8 items-stretch">
+    
+    {# ========== LEFT SIDE: HERO/BRANDING ========== #}
+    <aside class="hidden lg:flex flex-col justify-center gap-6 px-6 py-8 rounded-3xl bg-gradient-to-br from-primary-50 via-light-bg to-white dark:from-slate-800 dark:via-slate-900 dark:to-slate-800 border border-primary-100 dark:border-slate-700 shadow-lg">
+      
+      <!-- Logo Pill -->
+      <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white dark:bg-slate-800 border border-primary-200 dark:border-slate-600 shadow-sm w-fit">
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 dark:from-primary-500 dark:to-primary-700 flex items-center justify-center text-white font-bold text-sm">
+          Ψ
+        </div>
+        <div class="flex flex-col text-[10px] uppercase tracking-wide">
+          <span class="text-slate-500 dark:text-slate-400 font-medium">Laboratorium Psikologi</span>
+          <span class="text-primary-700 dark:text-primary-400 font-semibold">UMKT</span>
+        </div>
       </div>
-    </div>
 
-    <h1 class="hero-title">
-      Portal <span class="hero-highlight">Peminjaman Ruangan & Alat</span> Lab Psikologi.
-    </h1>
-    <p class="hero-subtitle">
-      Satu pintu untuk peminjaman ruangan, alat tes, jadwal praktikum, dan bimbingan penelitian. 
-      Rapi, terdata, dan transparan untuk mahasiswa, dosen, dan laboran.
-    </p>
+      <!-- Hero Title -->
+      <div class="space-y-4">
+        <h1 class="text-3xl font-semibold text-slate-900 dark:text-slate-100 leading-tight">
+          Portal <span class="text-primary-600 dark:text-primary-400">Peminjaman Ruangan & Alat</span> Lab Psikologi.
+        </h1>
+        <p class="text-sm text-slate-600 dark:text-slate-300 max-w-md leading-relaxed">
+          Satu pintu untuk peminjaman ruangan, alat tes, jadwal praktikum, dan bimbingan penelitian. 
+          Rapi, terdata, dan transparan untuk mahasiswa, dosen, dan laboran.
+        </p>
+      </div>
 
-    <div class="hero-pill-grid">
-      <span class="hero-pill">5-Minute Buffer Otomatis</span>
-      <span class="hero-pill">Tracking Peminjaman Real-time</span>
-      <span class="hero-pill">Invoice & Sertifikat PDF</span>
-      <span class="hero-pill">Approval Berbasis Role</span>
-    </div>
+      <!-- Feature Pills -->
+      <div class="flex flex-wrap gap-2">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-700">
+          <span class="material-icons text-sm">check_circle</span>
+          5-Minute Buffer Otomatis
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700">
+          <span class="material-icons text-sm">track_changes</span>
+          Tracking Real-time
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-700">
+          <span class="material-icons text-sm">description</span>
+          Invoice & Sertifikat PDF
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700">
+          <span class="material-icons text-sm">verified_user</span>
+          Approval Berbasis Role
+        </span>
+      </div>
 
-    <div class="hero-meta">
-      <span><strong>Framework:</strong> Django + REST API</span>
-      <span>•</span>
-      <span><strong>Untuk:</strong> Prodi S1 Psikologi UMKT</span>
-    </div>
-  </aside>
+      <!-- Meta Info -->
+      <div class="pt-4 border-t border-primary-100 dark:border-slate-700 flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+        <span><strong class="text-slate-700 dark:text-slate-300">Framework:</strong> Django + REST API</span>
+        <span class="text-slate-300 dark:text-slate-600">•</span>
+        <span><strong class="text-slate-700 dark:text-slate-300">Untuk:</strong> Prodi S1 Psikologi UMKT</span>
+      </div>
+    </aside>
 
-  <!-- RIGHT / AUTH CARD -->
-  <section class="auth-card">
-    <div class="auth-tabs" role="tablist" aria-label="Authentication tabs">
-      <button id="tab-login" class="auth-tab active" type="button" role="tab" aria-selected="true" aria-controls="panel-login">
-        Masuk
-      </button>
-      <button id="tab-register" class="auth-tab" type="button" role="tab" aria-selected="false" aria-controls="panel-register">
-        Daftar Akun
-      </button>
-    </div>
+    {# ========== RIGHT SIDE: AUTH CARD ========== #}
+    <section class="rounded-3xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl p-6 sm:p-8 flex flex-col">
+      
+      <!-- Tabs -->
+      <div class="flex rounded-full bg-slate-100 dark:bg-slate-700 p-1 gap-1 mb-6">
+        <button 
+          id="tab-login" 
+          type="button"
+          class="tab-btn flex-1 rounded-full px-4 py-2 text-sm font-semibold transition bg-white dark:bg-slate-600 text-slate-900 dark:text-slate-100 shadow-sm"
+          data-tab="login">
+          Masuk
+        </button>
+        <button 
+          id="tab-register" 
+          type="button"
+          class="tab-btn flex-1 rounded-full px-4 py-2 text-sm font-semibold transition text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+          data-tab="register">
+          Daftar Akun
+        </button>
+      </div>
 
-    <div class="auth-header">
-      <h2 id="auth-title">Selamat datang kembali 👋</h2>
-      <p id="auth-subtitle">Masuk dengan akun lab untuk mengelola peminjaman dan jadwal praktikum.</p>
-    </div>
+      <!-- Header -->
+      <div class="mb-6">
+        <h2 id="auth-title" class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-1">
+          Selamat datang kembali 👋
+        </h2>
+        <p id="auth-subtitle" class="text-sm text-slate-500 dark:text-slate-400">
+          Masuk dengan akun lab untuk mengelola peminjaman dan jadwal praktikum.
+        </p>
+      </div>
 
-    <div id="alert-box" class="alert" role="alert"></div>
+      <!-- Django Messages -->
+      {% if messages %}
+        <div class="mb-4 space-y-2">
+          {% for message in messages %}
+            <div class="rounded-xl px-4 py-3 text-sm border
+              {% if message.tags == 'success' %}
+                bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-700 text-emerald-800 dark:text-emerald-300
+              {% elif message.tags == 'error' %}
+                bg-rose-50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-700 text-rose-800 dark:text-rose-300
+              {% elif message.tags == 'warning' %}
+                bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-700 text-amber-800 dark:text-amber-300
+              {% else %}
+                bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700 text-blue-800 dark:text-blue-300
+              {% endif %}
+            " role="alert">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
 
-    <div class="auth-body">
-      <!-- LOGIN PANEL -->
-      <div id="panel-login" role="tabpanel" aria-labelledby="tab-login">
-        <form id="login-form" novalidate>
-          <div class="field">
-            <label for="login-identifier">
+      <!-- Alert Box (Client-side) -->
+      <div id="alert-box" class="hidden rounded-xl px-4 py-3 text-sm mb-4"></div>
+
+      {# ========== LOGIN PANEL ========== #}
+      <div id="panel-login" class="flex-1">
+        <form method="post" action="{% url 'accounts:login' %}" class="space-y-4" novalidate>
+          {% csrf_token %}
+          
+          <div class="space-y-1.5">
+            <label for="login-identifier" class="block text-sm font-medium text-slate-700 dark:text-slate-300">
               Email / Username
             </label>
             <input
               type="text"
               id="login-identifier"
-              name="identifier"
+              name="username"
               placeholder="contoh: mhs001 atau user@umkt.ac.id"
               autocomplete="username"
               required
+              class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900 transition"
             />
           </div>
 
-          <div class="field">
-            <label for="login-password">
-              Password
-              <span class="helper">Simulasi: gunakan <strong>password123</strong></span>
+          <div class="space-y-1.5">
+            <label for="login-password" class="flex items-center justify-between text-sm font-medium text-slate-700 dark:text-slate-300">
+              <span>Password</span>
+              <span class="text-xs text-slate-400 dark:text-slate-500 font-normal">Min. 8 karakter</span>
             </label>
             <input
               type="password"
@@ -480,46 +148,54 @@
               placeholder="Masukkan password"
               autocomplete="current-password"
               required
+              class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900 transition"
             />
           </div>
 
-          <div class="actions-row">
-            <div>
-              <a href="javascript:void(0)" onclick="showForgotInfo()">Lupa password?</a>
-            </div>
-            <div>
-              <span>Belum punya akun? </span>
-              <a href="#" id="go-register-link">Daftar</a>
+          <div class="flex items-center justify-between text-xs">
+            <a href="#" onclick="showForgotPasswordAlert(); return false;" class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium">
+              Lupa password?
+            </a>
+            <div class="text-slate-500 dark:text-slate-400">
+              Belum punya akun?
+              <a href="#" id="go-register-link" class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium ml-1">
+                Daftar
+              </a>
             </div>
           </div>
 
-          <button type="submit" class="btn-primary">
-            Masuk ke Sistem
-            <span aria-hidden="true">↗</span>
+          <button 
+            type="submit"
+            class="w-full rounded-full bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 dark:hover:bg-primary-700 text-white font-semibold text-sm px-6 py-3 shadow-md hover:shadow-lg transition flex items-center justify-center gap-2">
+            <span>Masuk ke Sistem</span>
+            <span class="material-icons text-base">login</span>
           </button>
         </form>
       </div>
 
-      <!-- REGISTER PANEL -->
-      <div id="panel-register" role="tabpanel" aria-labelledby="tab-register" hidden>
-        <form id="register-form" novalidate>
-          <div class="field">
-            <label for="reg-fullname">
+      {# ========== REGISTER PANEL ========== #}
+      <div id="panel-register" class="hidden flex-1">
+        <form method="post" action="{% url 'accounts:register' %}" class="space-y-3.5" novalidate>
+          {% csrf_token %}
+
+          <div class="space-y-1.5">
+            <label for="reg-fullname" class="block text-sm font-medium text-slate-700 dark:text-slate-300">
               Nama Lengkap
             </label>
             <input
               type="text"
               id="reg-fullname"
-              name="fullname"
+              name="full_name"
               placeholder="Nama lengkap sesuai identitas"
               required
+              class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900 transition"
             />
           </div>
 
-          <div class="field">
-            <label for="reg-email">
-              Email
-              <span class="helper">Gunakan email aktif</span>
+          <div class="space-y-1.5">
+            <label for="reg-email" class="flex items-center justify-between text-sm font-medium text-slate-700 dark:text-slate-300">
+              <span>Email</span>
+              <span class="text-xs text-slate-400 dark:text-slate-500 font-normal">Gunakan email aktif</span>
             </label>
             <input
               type="email"
@@ -528,36 +204,41 @@
               placeholder="contoh: nama@umkt.ac.id"
               autocomplete="email"
               required
+              class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900 transition"
             />
           </div>
 
-          <div class="field">
-            <label for="reg-nimnip">
-              NIM / NIP (opsional)
-              <span class="helper">Dapat diisi belakangan</span>
+          <div class="space-y-1.5">
+            <label for="reg-nimnip" class="flex items-center justify-between text-sm font-medium text-slate-700 dark:text-slate-300">
+              <span>NIM / NIP</span>
+              <span class="text-xs text-slate-400 dark:text-slate-500 font-normal">(Opsional)</span>
             </label>
             <input
               type="text"
               id="reg-nimnip"
-              name="nimnip"
+              name="nim_nip"
               placeholder="contoh: 2023123456 atau 1988xxxx"
+              class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900 transition"
             />
           </div>
 
-          <div class="field">
-            <label for="reg-role">
-              Peran
-              <span class="helper">Default mahasiswa/eksternal</span>
+          <div class="space-y-1.5">
+            <label for="reg-role" class="flex items-center justify-between text-sm font-medium text-slate-700 dark:text-slate-300">
+              <span>Peran</span>
+              <span class="text-xs text-slate-400 dark:text-slate-500 font-normal">Default mahasiswa</span>
             </label>
-            <select id="reg-role" name="role">
+            <select
+              id="reg-role"
+              name="role"
+              class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900 transition">
               <option value="mahasiswa" selected>Mahasiswa</option>
               <option value="dosen">Dosen</option>
               <option value="eksternal">Eksternal</option>
             </select>
           </div>
 
-          <div class="field">
-            <label for="reg-password">
+          <div class="space-y-1.5">
+            <label for="reg-password" class="block text-sm font-medium text-slate-700 dark:text-slate-300">
               Password
             </label>
             <input
@@ -567,11 +248,12 @@
               placeholder="Minimal 8 karakter"
               autocomplete="new-password"
               required
+              class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900 transition"
             />
           </div>
 
-          <div class="field">
-            <label for="reg-password-confirm">
+          <div class="space-y-1.5">
+            <label for="reg-password-confirm" class="block text-sm font-medium text-slate-700 dark:text-slate-300">
               Konfirmasi Password
             </label>
             <input
@@ -581,176 +263,166 @@
               placeholder="Ulangi password"
               autocomplete="new-password"
               required
+              class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900 transition"
             />
           </div>
 
-          <div class="checkbox-row">
-            <input type="checkbox" id="reg-agree" />
-            <label for="reg-agree">
+          <div class="flex items-start gap-2 pt-1">
+            <input 
+              type="checkbox" 
+              id="reg-agree" 
+              name="agree"
+              required
+              class="mt-0.5 rounded border-slate-300 dark:border-slate-600 text-primary-600 dark:text-primary-500 focus:ring-primary-500 dark:bg-slate-700"
+            />
+            <label for="reg-agree" class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed cursor-pointer">
               Saya menyetujui ketentuan pemakaian laboratorium dan kebijakan peminjaman yang berlaku.
             </label>
           </div>
 
-          <button type="submit" class="btn-primary">
-            Daftar Akun Baru
+          <button 
+            type="submit"
+            class="w-full rounded-full bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 dark:hover:bg-primary-700 text-white font-semibold text-sm px-6 py-3 shadow-md hover:shadow-lg transition flex items-center justify-center gap-2">
+            <span>Daftar Akun Baru</span>
+            <span class="material-icons text-base">person_add</span>
           </button>
 
-          <button type="button" class="btn-secondary" id="back-to-login-btn">
+          <button 
+            type="button"
+            id="back-to-login-btn"
+            class="w-full rounded-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-medium text-sm px-6 py-2.5 transition">
             Sudah punya akun? Masuk
           </button>
         </form>
       </div>
-    </div>
 
-    <p class="foot-note">
-      Simulasi UI/UX – integrasi backend (Django) dilakukan lewat endpoint API (login & register).
-    </p>
-  </section>
+      <!-- Footer Note -->
+      <p class="mt-6 text-center text-xs text-slate-400 dark:text-slate-500">
+        Sistem terintegrasi dengan Django REST Framework untuk manajemen lab yang lebih efisien.
+      </p>
+    </section>
+
+  </div>
 </div>
 
 <script>
-  const tabLogin = document.getElementById("tab-login");
-  const tabRegister = document.getElementById("tab-register");
-  const panelLogin = document.getElementById("panel-login");
-  const panelRegister = document.getElementById("panel-register");
-  const authTitle = document.getElementById("auth-title");
-  const authSubtitle = document.getElementById("auth-subtitle");
-  const alertBox = document.getElementById("alert-box");
-  const goRegisterLink = document.getElementById("go-register-link");
-  const backToLoginBtn = document.getElementById("back-to-login-btn");
-
-  function showAlert(message, type = "error") {
-    alertBox.textContent = message;
-    alertBox.className = "alert " + type + " fade-in";
-    alertBox.style.display = "block";
+  // Forgot password alert
+  function showForgotPasswordAlert() {
+    const alertBox = document.getElementById('alert-box');
+    alertBox.textContent = '🔐 Fitur lupa password sedang dalam pengembangan. Untuk sementara, hubungi admin lab: admin@umkt.ac.id';
+    alertBox.className = 'rounded-xl px-4 py-3 text-sm mb-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 text-blue-800 dark:text-blue-300';
+    alertBox.classList.remove('hidden');
+    
+    setTimeout(() => {
+      alertBox.classList.add('hidden');
+    }, 6000);
   }
 
-  function hideAlert() {
-    alertBox.style.display = "none";
-    alertBox.textContent = "";
-  }
+  // Tab switching
+  const tabLogin = document.getElementById('tab-login');
+  const tabRegister = document.getElementById('tab-register');
+  const panelLogin = document.getElementById('panel-login');
+  const panelRegister = document.getElementById('panel-register');
+  const authTitle = document.getElementById('auth-title');
+  const authSubtitle = document.getElementById('auth-subtitle');
+  const goRegisterLink = document.getElementById('go-register-link');
+  const backToLoginBtn = document.getElementById('back-to-login-btn');
 
   function switchToLogin() {
-    tabLogin.classList.add("active");
-    tabRegister.classList.remove("active");
-    tabLogin.setAttribute("aria-selected", "true");
-    tabRegister.setAttribute("aria-selected", "false");
-    panelLogin.hidden = false;
-    panelRegister.hidden = true;
-    authTitle.textContent = "Selamat datang kembali 👋";
-    authSubtitle.textContent = "Masuk dengan akun lab untuk mengelola peminjaman dan jadwal praktikum.";
-    hideAlert();
+    // Check dark mode
+    const isDark = document.documentElement.classList.contains('dark');
+    
+    // Active tab styling
+    tabLogin.classList.add('bg-white', 'shadow-sm');
+    if (isDark) {
+      tabLogin.classList.add('dark:bg-slate-600', 'text-slate-100');
+      tabLogin.classList.remove('text-slate-600', 'dark:text-slate-400');
+    } else {
+      tabLogin.classList.add('text-slate-900');
+      tabLogin.classList.remove('text-slate-600');
+    }
+    
+    // Inactive tab styling
+    tabRegister.classList.remove('bg-white', 'shadow-sm', 'text-slate-900', 'dark:bg-slate-600', 'text-slate-100');
+    tabRegister.classList.add('text-slate-600', 'dark:text-slate-400', 'hover:text-slate-900', 'dark:hover:text-slate-200');
+
+    panelLogin.classList.remove('hidden');
+    panelRegister.classList.add('hidden');
+
+    authTitle.textContent = 'Selamat datang kembali 👋';
+    authSubtitle.textContent = 'Masuk dengan akun lab untuk mengelola peminjaman dan jadwal praktikum.';
   }
 
   function switchToRegister() {
-    tabRegister.classList.add("active");
-    tabLogin.classList.remove("active");
-    tabRegister.setAttribute("aria-selected", "true");
-    tabLogin.setAttribute("aria-selected", "false");
-    panelRegister.hidden = false;
-    panelLogin.hidden = true;
-    authTitle.textContent = "Buat akun lab Anda";
-    authSubtitle.textContent = "Daftar sebagai mahasiswa/dosen/eksternal untuk mengakses seluruh modul sistem.";
-    hideAlert();
+    // Check dark mode
+    const isDark = document.documentElement.classList.contains('dark');
+    
+    // Active tab styling
+    tabRegister.classList.add('bg-white', 'shadow-sm');
+    if (isDark) {
+      tabRegister.classList.add('dark:bg-slate-600', 'text-slate-100');
+      tabRegister.classList.remove('text-slate-600', 'dark:text-slate-400');
+    } else {
+      tabRegister.classList.add('text-slate-900');
+      tabRegister.classList.remove('text-slate-600');
+    }
+    
+    // Inactive tab styling
+    tabLogin.classList.remove('bg-white', 'shadow-sm', 'text-slate-900', 'dark:bg-slate-600', 'text-slate-100');
+    tabLogin.classList.add('text-slate-600', 'dark:text-slate-400', 'hover:text-slate-900', 'dark:hover:text-slate-200');
+
+    panelRegister.classList.remove('hidden');
+    panelLogin.classList.add('hidden');
+
+    authTitle.textContent = 'Buat akun lab Anda';
+    authSubtitle.textContent = 'Daftar sebagai mahasiswa/dosen/eksternal untuk mengakses seluruh modul sistem.';
   }
 
-  tabLogin.addEventListener("click", (e) => {
-    e.preventDefault();
-    switchToLogin();
-  });
-
-  tabRegister.addEventListener("click", (e) => {
+  tabLogin.addEventListener('click', switchToLogin);
+  tabRegister.addEventListener('click', switchToRegister);
+  goRegisterLink.addEventListener('click', (e) => {
     e.preventDefault();
     switchToRegister();
   });
+  backToLoginBtn.addEventListener('click', switchToLogin);
 
-  goRegisterLink.addEventListener("click", (e) => {
-    e.preventDefault();
-    switchToRegister();
-  });
+  // Client-side form validation
+  const registerForm = document.querySelector('#panel-register form');
+  if (registerForm) {
+    registerForm.addEventListener('submit', (e) => {
+      const password = document.getElementById('reg-password').value;
+      const confirmPassword = document.getElementById('reg-password-confirm').value;
+      const agree = document.getElementById('reg-agree').checked;
+      const alertBox = document.getElementById('alert-box');
+      const isDark = document.documentElement.classList.contains('dark');
 
-  if (backToLoginBtn) {
-    backToLoginBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      switchToLogin();
+      if (password.length < 8) {
+        e.preventDefault();
+        alertBox.textContent = 'Password minimal 8 karakter.';
+        alertBox.className = 'rounded-xl px-4 py-3 text-sm mb-4 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-700 text-rose-800 dark:text-rose-300';
+        alertBox.classList.remove('hidden');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        e.preventDefault();
+        alertBox.textContent = 'Konfirmasi password tidak sama.';
+        alertBox.className = 'rounded-xl px-4 py-3 text-sm mb-4 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-700 text-rose-800 dark:text-rose-300';
+        alertBox.classList.remove('hidden');
+        return;
+      }
+
+      if (!agree) {
+        e.preventDefault();
+        alertBox.textContent = 'Anda harus menyetujui ketentuan pemakaian laboratorium.';
+        alertBox.className = 'rounded-xl px-4 py-3 text-sm mb-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 text-amber-800 dark:text-amber-300';
+        alertBox.classList.remove('hidden');
+        return;
+      }
+
+      alertBox.classList.add('hidden');
     });
   }
-
-  function showForgotInfo() {
-    showAlert(
-      "Fitur lupa password akan dihubungkan ke email peminjam melalui sistem Django. Untuk simulasi ini, gunakan password: password123.",
-      "success"
-    );
-  }
-
-  // Simulasi LOGIN
-  const loginForm = document.getElementById("login-form");
-  loginForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    hideAlert();
-
-    const identifier = document.getElementById("login-identifier").value.trim();
-    const password = document.getElementById("login-password").value.trim();
-
-    if (!identifier || !password) {
-      showAlert("Mohon isi email/username dan password.", "error");
-      return;
-    }
-
-    // Simulasi: password harus "password123"
-    if (password !== "password123") {
-      showAlert("Email/username atau password salah. Coba lagi.", "error");
-      return;
-    }
-
-    showAlert("Login berhasil! Mengarahkan ke dashboard...", "success");
-
-    setTimeout(() => {
-      window.location.href = "index.html";
-    }, 900);
-  });
-
-  // Simulasi REGISTER
-  const registerForm = document.getElementById("register-form");
-  registerForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    hideAlert();
-
-    const fullname = document.getElementById("reg-fullname").value.trim();
-    const email = document.getElementById("reg-email").value.trim();
-    const password = document.getElementById("reg-password").value;
-    const confirmPass = document.getElementById("reg-password-confirm").value;
-    const agree = document.getElementById("reg-agree").checked;
-
-    if (!fullname || !email || !password || !confirmPass) {
-      showAlert("Semua field wajib diisi kecuali NIM/NIP.", "error");
-      return;
-    }
-
-    if (password.length < 8) {
-      showAlert("Password minimal 8 karakter.", "error");
-      return;
-    }
-
-    if (password !== confirmPass) {
-      showAlert("Konfirmasi password tidak sama.", "error");
-      return;
-    }
-
-    if (!agree) {
-      showAlert("Anda harus menyetujui ketentuan pemakaian laboratorium.", "error");
-      return;
-    }
-
-    showAlert("Registrasi berhasil! Silakan login dengan email dan password Anda.", "success");
-
-    setTimeout(() => {
-      switchToLogin();
-      // Optionally pre-fill login identifier
-      document.getElementById("login-identifier").value = email;
-    }, 900);
-  });
 </script>
 
-</body>
-</html>
+{% endblock content %}

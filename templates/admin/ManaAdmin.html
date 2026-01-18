@@ -1,0 +1,925 @@
+{# ===== SECTION 4: PRAKTIKUM & VARIABEL (UPGRADED UX) ===== #}
+<div id="admin-section-praktikum" class="admin-module-section hidden">
+  <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6 space-y-6">
+    <div class="flex items-center justify-between">
+      <h3 class="text-lg font-semibold text-slate-900 flex items-center gap-2">
+        <span class="material-icons text-emerald-600">school</span>
+        Manajemen Praktikum & Variabel Penelitian
+      </h3>
+      <div class="flex gap-2">
+        <button onclick="exportData('praktikum')" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-sm px-3 py-1.5 transition">
+          <span class="material-icons text-base">download</span>
+          Export
+        </button>
+      </div>
+    </div>
+
+    {# Tabs #}
+    <div class="flex gap-2 border-b border-slate-200 overflow-x-auto">
+      <button onclick="switchPraktikumTab('jadwal')" id="praktikum-tab-jadwal" class="praktikum-tab px-4 py-2.5 text-sm font-medium text-primary-600 border-b-2 border-primary-600 transition whitespace-nowrap">
+        <span class="material-icons text-base mr-1.5 align-middle">event</span>
+        Jadwal Praktikum
+      </button>
+      <button onclick="switchPraktikumTab('peserta')" id="praktikum-tab-peserta" class="praktikum-tab px-4 py-2.5 text-sm font-medium text-slate-500 border-b-2 border-transparent hover:text-slate-700 transition whitespace-nowrap">
+        <span class="material-icons text-base mr-1.5 align-middle">groups</span>
+        Peserta
+      </button>
+      <button onclick="switchPraktikumTab('variabel')" id="praktikum-tab-variabel" class="praktikum-tab px-4 py-2.5 text-sm font-medium text-slate-500 border-b-2 border-transparent hover:text-slate-700 transition whitespace-nowrap">
+        <span class="material-icons text-base mr-1.5 align-middle">auto_stories</span>
+        Variabel Penelitian
+      </button>
+      <button onclick="switchPraktikumTab('request')" id="praktikum-tab-request" class="praktikum-tab px-4 py-2.5 text-sm font-medium text-slate-500 border-b-2 border-transparent hover:text-slate-700 transition whitespace-nowrap">
+        <span class="material-icons text-base mr-1.5 align-middle">assignment_ind</span>
+        Request Variabel
+      </button>
+    </div>
+
+    {# ========== TAB 1: JADWAL PRAKTIKUM ========== #}
+    <div id="praktikum-content-jadwal" class="praktikum-content">
+      
+      {# Action Bar #}
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div class="flex gap-2">
+          <button onclick="openJadwalModal('create')" class="inline-flex items-center gap-1.5 rounded-lg bg-primary-500 hover:bg-primary-600 text-white font-semibold text-sm px-4 py-2 transition shadow-sm">
+            <span class="material-icons text-base">add</span>
+            Buat Jadwal Baru
+          </button>
+          <button onclick="bulkAction('jadwal')" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-sm px-4 py-2 transition">
+            <span class="material-icons text-base">checklist</span>
+            Bulk Action
+          </button>
+        </div>
+        
+        {# Search & Filter #}
+        <div class="flex gap-2">
+          <div class="relative">
+            <input type="text" placeholder="Cari praktikum..." class="rounded-lg border border-slate-200 pl-9 pr-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 w-64" />
+            <span class="material-icons absolute left-2.5 top-2.5 text-slate-400 text-base">search</span>
+          </div>
+          <select class="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500">
+            <option>Semua Tipe</option>
+            <option>Inteligensi</option>
+            <option>Inventory</option>
+            <option>Wawancara</option>
+            <option>Konseling</option>
+          </select>
+        </div>
+      </div>
+
+      {# Table #}
+      <div class="overflow-x-auto border border-slate-200 rounded-lg">
+        <table class="w-full">
+          <thead class="bg-slate-50">
+            <tr>
+              <th class="px-4 py-3 text-left">
+                <input type="checkbox" class="rounded border-slate-300 text-primary-600 focus:ring-primary-500" />
+              </th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase">Tipe Praktikum</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase">Dosen Pengampu</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase">Jadwal</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-700 uppercase">Ruangan</th>
+              <th class="px-4 py-3 text-center text-xs font-semibold text-slate-700 uppercase">Kapasitas</th>
+              <th class="px-4 py-3 text-center text-xs font-semibold text-slate-700 uppercase">Terdaftar</th>
+              <th class="px-4 py-3 text-center text-xs font-semibold text-slate-700 uppercase">Waitlist</th>
+              <th class="px-4 py-3 text-center text-xs font-semibold text-slate-700 uppercase">Status</th>
+              <th class="px-4 py-3 text-center text-xs font-semibold text-slate-700 uppercase">Aksi</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-slate-100">
+            
+            {# Row 1 - Available #}
+            <tr class="hover:bg-slate-50 transition group">
+              <td class="px-4 py-3">
+                <input type="checkbox" class="rounded border-slate-300 text-primary-600 focus:ring-primary-500" />
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                    <span class="material-icons text-blue-600 text-base">psychology</span>
+                  </div>
+                  <div>
+                    <p class="text-sm font-medium text-slate-900">Praktikum Inteligensi</p>
+                    <p class="text-xs text-slate-500">Sesi 3 - Semester Genap 2025/2026</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-xs font-semibold">AF</div>
+                  <div>
+                    <p class="text-sm text-slate-900">Dr. Ahmad Fauzi</p>
+                    <p class="text-xs text-slate-500">M.Psi</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-3">
+                <div class="space-y-1">
+                  <p class="text-sm text-slate-900 flex items-center gap-1">
+                    <span class="material-icons text-xs text-slate-400">event</span>
+                    22 Jan 2026
+                  </p>
+                  <p class="text-xs text-slate-500 flex items-center gap-1">
+                    <span class="material-icons text-xs text-slate-400">schedule</span>
+                    09:00 - 11:30
+                  </p>
+                </div>
+              </td>
+              <td class="px-4 py-3">
+                <span class="inline-flex items-center gap-1 text-sm text-slate-700">
+                  <span class="material-icons text-xs text-slate-400">meeting_room</span>
+                  Lab Psikometri
+                </span>
+              </td>
+              <td class="px-4 py-3 text-center">
+                <span class="text-sm font-medium text-slate-900">40</span>
+              </td>
+              <td class="px-4 py-3 text-center">
+                <div class="flex flex-col items-center">
+                  <span class="text-sm font-semibold text-emerald-600">12</span>
+                  <div class="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden mt-1">
+                    <div class="h-full bg-emerald-500 rounded-full" style="width: 30%"></div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-3 text-center">
+                <span class="text-sm text-slate-500">0</span>
+              </td>
+              <td class="px-4 py-3 text-center">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>
+                  Aktif
+                </span>
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button onclick="viewPeserta(1)" class="w-8 h-8 rounded-lg border border-slate-200 bg-white hover:bg-blue-50 hover:border-blue-300 flex items-center justify-center transition" title="Lihat Peserta">
+                    <span class="material-icons text-sm text-slate-600">visibility</span>
+                  </button>
+                  <button onclick="openJadwalModal('edit', 1)" class="w-8 h-8 rounded-lg border border-slate-200 bg-white hover:bg-amber-50 hover:border-amber-300 flex items-center justify-center transition" title="Edit">
+                    <span class="material-icons text-sm text-slate-600">edit</span>
+                  </button>
+                  <button onclick="confirmDelete('jadwal', 1, 'Praktikum Inteligensi - Sesi 3')" class="w-8 h-8 rounded-lg border border-slate-200 bg-white hover:bg-rose-50 hover:border-rose-300 flex items-center justify-center transition" title="Hapus">
+                    <span class="material-icons text-sm text-rose-600">delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            {# Row 2 - Almost Full #}
+            <tr class="hover:bg-slate-50 transition group">
+              <td class="px-4 py-3">
+                <input type="checkbox" class="rounded border-slate-300 text-primary-600 focus:ring-primary-500" />
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+                    <span class="material-icons text-amber-600 text-base">inventory</span>
+                  </div>
+                  <div>
+                    <p class="text-sm font-medium text-slate-900">Praktikum Inventory</p>
+                    <p class="text-xs text-slate-500">Sesi 5 - Semester Genap 2025/2026</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white text-xs font-semibold">SR</div>
+                  <div>
+                    <p class="text-sm text-slate-900">Prof. Dr. Siti Rahmah</p>
+                    <p class="text-xs text-slate-500">M.Psi</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-3">
+                <div class="space-y-1">
+                  <p class="text-sm text-slate-900 flex items-center gap-1">
+                    <span class="material-icons text-xs text-slate-400">event</span>
+                    24 Jan 2026
+                  </p>
+                  <p class="text-xs text-slate-500 flex items-center gap-1">
+                    <span class="material-icons text-xs text-slate-400">schedule</span>
+                    13:00 - 15:30
+                  </p>
+                </div>
+              </td>
+              <td class="px-4 py-3">
+                <span class="inline-flex items-center gap-1 text-sm text-slate-700">
+                  <span class="material-icons text-xs text-slate-400">meeting_room</span>
+                  Lab Perkembangan
+                </span>
+              </td>
+              <td class="px-4 py-3 text-center">
+                <span class="text-sm font-medium text-slate-900">30</span>
+              </td>
+              <td class="px-4 py-3 text-center">
+                <div class="flex flex-col items-center">
+                  <span class="text-sm font-semibold text-amber-600">28</span>
+                  <div class="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden mt-1">
+                    <div class="h-full bg-amber-500 rounded-full" style="width: 93%"></div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-3 text-center">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">3</span>
+              </td>
+              <td class="px-4 py-3 text-center">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5"></span>
+                  Hampir Penuh
+                </span>
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button onclick="viewPeserta(2)" class="w-8 h-8 rounded-lg border border-slate-200 bg-white hover:bg-blue-50 hover:border-blue-300 flex items-center justify-center transition" title="Lihat Peserta">
+                    <span class="material-icons text-sm text-slate-600">visibility</span>
+                  </button>
+                  <button onclick="openJadwalModal('edit', 2)" class="w-8 h-8 rounded-lg border border-slate-200 bg-white hover:bg-amber-50 hover:border-amber-300 flex items-center justify-center transition" title="Edit">
+                    <span class="material-icons text-sm text-slate-600">edit</span>
+                  </button>
+                  <button onclick="confirmDelete('jadwal', 2, 'Praktikum Inventory - Sesi 5')" class="w-8 h-8 rounded-lg border border-slate-200 bg-white hover:bg-rose-50 hover:border-rose-300 flex items-center justify-center transition" title="Hapus">
+                    <span class="material-icons text-sm text-rose-600">delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            {# Row 3 - Full #}
+            <tr class="hover:bg-slate-50 transition group">
+              <td class="px-4 py-3">
+                <input type="checkbox" class="rounded border-slate-300 text-primary-600 focus:ring-primary-500" />
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0">
+                    <span class="material-icons text-rose-600 text-base">forum</span>
+                  </div>
+                  <div>
+                    <p class="text-sm font-medium text-slate-900">Praktikum Wawancara</p>
+                    <p class="text-xs text-slate-500">Sesi 2 - Semester Genap 2025/2026</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-xs font-semibold">BS</div>
+                  <div>
+                    <p class="text-sm text-slate-900">Dr. Budi Santoso</p>
+                    <p class="text-xs text-slate-500">M.Psi</p>
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-3">
+                <div class="space-y-1">
+                  <p class="text-sm text-slate-900 flex items-center gap-1">
+                    <span class="material-icons text-xs text-slate-400">event</span>
+                    25 Jan 2026
+                  </p>
+                  <p class="text-xs text-slate-500 flex items-center gap-1">
+                    <span class="material-icons text-xs text-slate-400">schedule</span>
+                    10:00 - 12:00
+                  </p>
+                </div>
+              </td>
+              <td class="px-4 py-3">
+                <span class="inline-flex items-center gap-1 text-sm text-slate-700">
+                  <span class="material-icons text-xs text-slate-400">meeting_room</span>
+                  Lab Klinis
+                </span>
+              </td>
+              <td class="px-4 py-3 text-center">
+                <span class="text-sm font-medium text-slate-900">25</span>
+              </td>
+              <td class="px-4 py-3 text-center">
+                <div class="flex flex-col items-center">
+                  <span class="text-sm font-semibold text-rose-600">25</span>
+                  <div class="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden mt-1">
+                    <div class="h-full bg-rose-500 rounded-full" style="width: 100%"></div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-3 text-center">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">5</span>
+              </td>
+              <td class="px-4 py-3 text-center">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                  <span class="w-1.5 h-1.5 rounded-full bg-rose-500 mr-1.5"></span>
+                  Penuh
+                </span>
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button onclick="viewPeserta(3)" class="w-8 h-8 rounded-lg border border-slate-200 bg-white hover:bg-blue-50 hover:border-blue-300 flex items-center justify-center transition" title="Lihat Peserta">
+                    <span class="material-icons text-sm text-slate-600">visibility</span>
+                  </button>
+                  <button onclick="openJadwalModal('edit', 3)" class="w-8 h-8 rounded-lg border border-slate-200 bg-white hover:bg-amber-50 hover:border-amber-300 flex items-center justify-center transition" title="Edit">
+                    <span class="material-icons text-sm text-slate-600">edit</span>
+                  </button>
+                  <button onclick="confirmDelete('jadwal', 3, 'Praktikum Wawancara - Sesi 2')" class="w-8 h-8 rounded-lg border border-slate-200 bg-white hover:bg-rose-50 hover:border-rose-300 flex items-center justify-center transition" title="Hapus">
+                    <span class="material-icons text-sm text-rose-600">delete</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {# Pagination #}
+      <div class="flex items-center justify-between mt-4">
+        <p class="text-sm text-slate-600">Menampilkan <span class="font-medium">1-3</span> dari <span class="font-medium">15</span> jadwal</p>
+        <div class="flex gap-1">
+          <button class="w-8 h-8 rounded border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center transition">
+            <span class="material-icons text-sm text-slate-600">chevron_left</span>
+          </button>
+          <button class="w-8 h-8 rounded border border-primary-500 bg-primary-50 text-primary-600 font-medium text-sm">1</button>
+          <button class="w-8 h-8 rounded border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-medium text-sm">2</button>
+          <button class="w-8 h-8 rounded border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-medium text-sm">3</button>
+          <button class="w-8 h-8 rounded border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center transition">
+            <span class="material-icons text-sm text-slate-600">chevron_right</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    {# ========== TAB 2: PESERTA ========== #}
+    <div id="praktikum-content-peserta" class="praktikum-content hidden">
+      <div class="text-center py-12">
+        <div class="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
+          <span class="material-icons text-4xl text-slate-400">groups</span>
+        </div>
+        <h4 class="text-lg font-semibold text-slate-900 mb-2">Pilih Jadwal Praktikum</h4>
+        <p class="text-sm text-slate-500 mb-4">Klik "Lihat Peserta" pada jadwal untuk melihat daftar peserta</p>
+        <button onclick="switchPraktikumTab('jadwal')" class="inline-flex items-center gap-1.5 rounded-lg bg-primary-500 hover:bg-primary-600 text-white font-medium text-sm px-4 py-2 transition">
+          <span class="material-icons text-base">arrow_back</span>
+          Kembali ke Jadwal
+        </button>
+      </div>
+    </div>
+
+    {# ========== TAB 3: VARIABEL PENELITIAN ========== #}
+    <div id="praktikum-content-variabel" class="praktikum-content hidden">
+      
+      {# Action Bar #}
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <button onclick="openVariabelModal('create')" class="inline-flex items-center gap-1.5 rounded-lg bg-primary-500 hover:bg-primary-600 text-white font-semibold text-sm px-4 py-2 transition shadow-sm">
+          <span class="material-icons text-base">add</span>
+          Tambah Variabel Baru
+        </button>
+        
+        <div class="flex gap-2">
+          <input type="text" placeholder="Cari variabel..." class="rounded-lg border border-slate-200 px-3 py-2 text-sm w-64" />
+          <select class="rounded-lg border border-slate-200 px-3 py-2 text-sm">
+            <option>Semua Bidang</option>
+            <option>Psikologi Klinis</option>
+            <option>Psikologi Sosial</option>
+            <option>Psikologi Industri</option>
+            <option>Psikologi Pendidikan</option>
+          </select>
+        </div>
+      </div>
+
+      {# Grid Cards #}
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        
+        {# Card 1 - Available #}
+        <div class="group rounded-xl border-2 border-slate-200 bg-white hover:border-emerald-300 hover:shadow-lg transition p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="w-12 h-12 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+              <span class="material-icons text-emerald-600 text-xl">auto_stories</span>
+            </div>
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+              Tersedia
+            </span>
+          </div>
+          
+          <h4 class="text-base font-semibold text-slate-900 mb-2 line-clamp-2">Pengaruh Self-Efficacy terhadap Prokrastinasi</h4>
+          
+          <div class="space-y-2 mb-4">
+            <div class="flex items-center gap-2 text-sm text-slate-600">
+              <span class="material-icons text-xs text-slate-400">category</span>
+              <span>Psikologi Sosial</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm text-slate-600">
+              <span class="material-icons text-xs text-slate-400">person</span>
+              <span>Prof. Dr. Siti Rahmah</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <span class="material-icons text-xs text-slate-400">group</span>
+              <div class="flex-1">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-xs text-slate-600">Slot: <span class="font-semibold text-emerald-600">3 / 5</span></span>
+                  <span class="text-xs text-slate-500">60%</span>
+                </div>
+                <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-emerald-500 rounded-full" style="width: 60%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button onclick="openVariabelModal('edit', 1)" class="flex-1 inline-flex items-center justify-center gap-1 rounded-lg border border-slate-200 bg-white hover:bg-amber-50 hover:border-amber-300 text-slate-700 font-medium text-sm px-3 py-2 transition">
+              <span class="material-icons text-sm">edit</span>
+              Edit
+            </button>
+            <button onclick="confirmDelete('variabel', 1, 'Self-Efficacy & Prokrastinasi')" class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-rose-50 hover:border-rose-300 w-10 h-10 transition">
+              <span class="material-icons text-sm text-rose-600">delete</span>
+            </button>
+          </div>
+        </div>
+
+        {# Card 2 - Full #}
+        <div class="group rounded-xl border-2 border-rose-200 bg-rose-50/30 hover:border-rose-300 hover:shadow-lg transition p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="w-12 h-12 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0">
+              <span class="material-icons text-rose-600 text-xl">auto_stories</span>
+            </div>
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-800 border border-rose-300">
+              Penuh
+            </span>
+          </div>
+          
+          <h4 class="text-base font-semibold text-slate-900 mb-2 line-clamp-2">Regulasi Emosi pada Remaja dengan Kecemasan</h4>
+          
+          <div class="space-y-2 mb-4">
+            <div class="flex items-center gap-2 text-sm text-slate-600">
+              <span class="material-icons text-xs text-slate-400">category</span>
+              <span>Psikologi Klinis</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm text-slate-600">
+              <span class="material-icons text-xs text-slate-400">person</span>
+              <span>Dr. Lina Wijaya, M.Psi</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <span class="material-icons text-xs text-slate-400">group</span>
+              <div class="flex-1">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-xs text-slate-600">Slot: <span class="font-semibold text-rose-600">5 / 5</span></span>
+                  <span class="text-xs text-slate-500">100%</span>
+                </div>
+                <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-rose-500 rounded-full" style="width: 100%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button onclick="addSlotVariabel(2)" class="flex-1 inline-flex items-center justify-center gap-1 rounded-lg border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-medium text-sm px-3 py-2 transition">
+              <span class="material-icons text-sm">add</span>
+              Tambah Slot
+            </button>
+            <button onclick="openVariabelModal('edit', 2)" class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-amber-50 hover:border-amber-300 w-10 h-10 transition">
+              <span class="material-icons text-sm text-slate-600">edit</span>
+            </button>
+          </div>
+        </div>
+
+        {# Card 3 - Available #}
+        <div class="group rounded-xl border-2 border-slate-200 bg-white hover:border-emerald-300 hover:shadow-lg transition p-5">
+          <div class="flex items-start justify-between mb-3">
+            <div class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+              <span class="material-icons text-blue-600 text-xl">auto_stories</span>
+            </div>
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+              Tersedia
+            </span>
+          </div>
+          
+          <h4 class="text-base font-semibold text-slate-900 mb-2 line-clamp-2">Motivasi Kerja dan Kepuasan Karyawan</h4>
+          
+          <div class="space-y-2 mb-4">
+            <div class="flex items-center gap-2 text-sm text-slate-600">
+              <span class="material-icons text-xs text-slate-400">category</span>
+              <span>Psikologi Industri</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm text-slate-600">
+              <span class="material-icons text-xs text-slate-400">person</span>
+              <span>Dr. Ahmad Fauzi, M.Psi</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <span class="material-icons text-xs text-slate-400">group</span>
+              <div class="flex-1">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-xs text-slate-600">Slot: <span class="font-semibold text-blue-600">2 / 4</span></span>
+                  <span class="text-xs text-slate-500">50%</span>
+                </div>
+                <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-blue-500 rounded-full" style="width: 50%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button onclick="openVariabelModal('edit', 3)" class="flex-1 inline-flex items-center justify-center gap-1 rounded-lg border border-slate-200 bg-white hover:bg-amber-50 hover:border-amber-300 text-slate-700 font-medium text-sm px-3 py-2 transition">
+              <span class="material-icons text-sm">edit</span>
+              Edit
+            </button>
+            <button onclick="confirmDelete('variabel', 3, 'Motivasi Kerja & Kepuasan')" class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-rose-50 hover:border-rose-300 w-10 h-10 transition">
+              <span class="material-icons text-sm text-rose-600">delete</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# ========== TAB 4: REQUEST VARIABEL ========== #}
+    <div id="praktikum-content-request" class="praktikum-content hidden">
+      <div class="space-y-4">
+        
+        {# Request Card 1 - Pending #}
+        <div class="rounded-lg border-2 border-amber-200 bg-amber-50/30 p-5">
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+              <span class="material-icons text-amber-600 text-xl">assignment_ind</span>
+            </div>
+            
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex-1">
+                  <h4 class="text-base font-semibold text-slate-900 mb-1">Request Variabel: Self-Efficacy & Prokrastinasi</h4>
+                  <p class="text-sm text-slate-600">Mahasiswa: <span class="font-medium">Muhammad Rizki</span> (2023123456)</p>
+                </div>
+                <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300">
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-2"></span>
+                  Pending Review
+                </span>
+              </div>
+
+              <div class="grid sm:grid-cols-3 gap-3 mb-4">
+                <div class="flex items-center gap-2 text-sm text-slate-600">
+                  <span class="material-icons text-xs text-slate-400">event</span>
+                  <span>15 Jan 2026</span>
+                </div>
+                <div class="flex items-center gap-2 text-sm text-slate-600">
+                  <span class="material-icons text-xs text-slate-400">category</span>
+                  <span>Psikologi Sosial</span>
+                </div>
+                <div class="flex items-center gap-2 text-sm text-slate-600">
+                  <span class="material-icons text-xs text-slate-400">person</span>
+                  <span>Prof. Dr. Siti Rahmah</span>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-3">
+                <button onclick="viewProposal(1)" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-sm px-3 py-2 transition">
+                  <span class="material-icons text-sm">description</span>
+                  Lihat Proposal
+                </button>
+                <button onclick="approveRequest(1, 'variabel')" class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm px-4 py-2 transition">
+                  <span class="material-icons text-sm">check</span>
+                  Approve
+                </button>
+                <button onclick="confirmDecline('request', 1, 'Muhammad Rizki')" class="inline-flex items-center gap-1.5 rounded-lg bg-rose-500 hover:bg-rose-600 text-white font-semibold text-sm px-4 py-2 transition">
+                  <span class="material-icons text-sm">close</span>
+                  Decline
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {# Request Card 2 - Approved #}
+        <div class="rounded-lg border border-emerald-200 bg-emerald-50/20 p-5">
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+              <span class="material-icons text-emerald-600 text-xl">check_circle</span>
+            </div>
+            
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex-1">
+                  <h4 class="text-base font-semibold text-slate-900 mb-1">Request Variabel: Regulasi Emosi Remaja</h4>
+                  <p class="text-sm text-slate-600">Mahasiswa: <span class="font-medium">Siti Aisyah</span> (2023123457)</p>
+                </div>
+                <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                  <span class="material-icons text-xs mr-1">check</span>
+                  Approved
+                </span>
+              </div>
+
+              <div class="grid sm:grid-cols-3 gap-3 mb-3">
+                <div class="flex items-center gap-2 text-sm text-slate-600">
+                  <span class="material-icons text-xs text-slate-400">event</span>
+                  <span>10 Des 2025</span>
+                </div>
+                <div class="flex items-center gap-2 text-sm text-slate-600">
+                  <span class="material-icons text-xs text-slate-400">category</span>
+                  <span>Psikologi Klinis</span>
+                </div>
+                <div class="flex items-center gap-2 text-sm text-slate-600">
+                  <span class="material-icons text-xs text-slate-400">person</span>
+                  <span>Dr. Lina Wijaya</span>
+                </div>
+              </div>
+
+              <p class="text-xs text-emerald-600">✓ Disetujui pada 11 Des 2025 oleh Admin</p>
+            </div>
+          </div>
+        </div>
+
+        {# Request Card 3 - Declined #}
+        <div class="rounded-lg border border-rose-200 bg-rose-50/20 p-5">
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0">
+              <span class="material-icons text-rose-600 text-xl">cancel</span>
+            </div>
+            
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex-1">
+                  <h4 class="text-base font-semibold text-slate-900 mb-1">Request Variabel: Motivasi Kerja & Kepuasan</h4>
+                  <p class="text-sm text-slate-600">Mahasiswa: <span class="font-medium">Ahmad Fauzi</span> (2023123458)</p>
+                </div>
+                <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-rose-100 text-rose-800 border border-rose-300">
+                  <span class="material-icons text-xs mr-1">close</span>
+                  Declined
+                </span>
+              </div>
+
+              <div class="grid sm:grid-cols-3 gap-3 mb-3">
+                <div class="flex items-center gap-2 text-sm text-slate-600">
+                  <span class="material-icons text-xs text-slate-400">event</span>
+                  <span>8 Jan 2026</span>
+                </div>
+                <div class="flex items-center gap-2 text-sm text-slate-600">
+                  <span class="material-icons text-xs text-slate-400">category</span>
+                  <span>Psikologi Industri</span>
+                </div>
+                <div class="flex items-center gap-2 text-sm text-slate-600">
+                  <span class="material-icons text-xs text-slate-400">person</span>
+                  <span>Dr. Ahmad Fauzi</span>
+                </div>
+              </div>
+
+              <p class="text-xs text-rose-600">✗ Ditolak pada 9 Jan 2026: Kuota variabel sudah penuh</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ========== MODALS ========== #}
+
+{# Modal: Delete Confirmation #}
+<div id="modal-delete-confirm" class="hidden fixed inset-0 z-50 overflow-y-auto">
+  <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+    {# Backdrop #}
+    <div onclick="closeModal('modal-delete-confirm')" class="fixed inset-0 transition-opacity bg-slate-900 bg-opacity-75 backdrop-blur-sm" aria-hidden="true"></div>
+
+    {# Center Modal #}
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+    {# Modal Content #}
+    <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+      <div class="bg-white px-6 pt-6 pb-4">
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0 w-12 h-12 rounded-full bg-rose-100 flex items-center justify-center">
+            <span class="material-icons text-rose-600 text-2xl">warning</span>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-lg font-semibold text-slate-900 mb-2">Konfirmasi Hapus</h3>
+            <p class="text-sm text-slate-600 mb-1">Apakah Anda yakin ingin menghapus:</p>
+            <p id="delete-item-name" class="text-sm font-semibold text-slate-900 mb-3">-</p>
+            <div class="rounded-lg bg-rose-50 border border-rose-200 p-3">
+              <p class="text-xs text-rose-800 flex items-start gap-2">
+                <span class="material-icons text-sm mt-0.5">info</span>
+                <span>Data yang sudah dihapus tidak dapat dikembalikan. Pastikan Anda telah mempertimbangkan dampaknya.</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-slate-50 px-6 py-4 flex gap-3 justify-end border-t border-slate-200">
+        <button onclick="closeModal('modal-delete-confirm')" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-medium text-sm px-4 py-2.5 transition">
+          <span class="material-icons text-sm">close</span>
+          Batal
+        </button>
+        <button id="btn-confirm-delete" onclick="executeDelete()" class="inline-flex items-center gap-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm px-5 py-2.5 transition shadow-sm">
+          <span class="material-icons text-sm">delete</span>
+          Ya, Hapus
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# Modal: Decline Confirmation #}
+<div id="modal-decline-confirm" class="hidden fixed inset-0 z-50 overflow-y-auto">
+  <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+    <div onclick="closeModal('modal-decline-confirm')" class="fixed inset-0 transition-opacity bg-slate-900 bg-opacity-75 backdrop-blur-sm" aria-hidden="true"></div>
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+    <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+      <div class="bg-white px-6 pt-6 pb-4">
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0 w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
+            <span class="material-icons text-amber-600 text-2xl">block</span>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-lg font-semibold text-slate-900 mb-2">Decline Request</h3>
+            <p class="text-sm text-slate-600 mb-3">Request dari: <span id="decline-requester-name" class="font-semibold text-slate-900">-</span></p>
+            
+            <label class="block text-sm font-medium text-slate-700 mb-2">
+              Alasan Penolakan <span class="text-rose-600">*</span>
+            </label>
+            <textarea id="decline-reason" rows="4" class="w-full rounded-lg border border-slate-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 px-3 py-2 text-sm" placeholder="Jelaskan alasan penolakan (akan dikirim ke mahasiswa via email)"></textarea>
+            
+            <p class="text-xs text-slate-500 mt-2">
+              <span class="material-icons text-xs align-middle">info</span>
+              Email notifikasi otomatis akan dikirim ke mahasiswa
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-slate-50 px-6 py-4 flex gap-3 justify-end border-t border-slate-200">
+        <button onclick="closeModal('modal-decline-confirm')" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-medium text-sm px-4 py-2.5 transition">
+          Batal
+        </button>
+        <button id="btn-confirm-decline" onclick="executeDecline()" class="inline-flex items-center gap-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-semibold text-sm px-5 py-2.5 transition shadow-sm">
+          <span class="material-icons text-sm">send</span>
+          Kirim Penolakan
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# Modal: Create/Edit Jadwal (Placeholder) #}
+<div id="modal-jadwal-form" class="hidden fixed inset-0 z-50 overflow-y-auto">
+  <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+    <div onclick="closeModal('modal-jadwal-form')" class="fixed inset-0 transition-opacity bg-slate-900 bg-opacity-75 backdrop-blur-sm"></div>
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+
+    <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+      <div class="bg-white px-6 pt-6 pb-4">
+        <h3 class="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+          <span class="material-icons text-primary-600">event</span>
+          <span id="jadwal-modal-title">Buat Jadwal Praktikum Baru</span>
+        </h3>
+        
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-2">Tipe Praktikum</label>
+            <select class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+              <option>Praktikum Inteligensi</option>
+              <option>Praktikum Inventory</option>
+              <option>Praktikum Wawancara</option>
+              <option>Praktikum Konseling</option>
+            </select>
+          </div>
+          
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-2">Tanggal</label>
+              <input type="date" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-2">Dosen Pengampu</label>
+              <select class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm">
+                <option>Dr. Ahmad Fauzi, M.Psi</option>
+                <option>Prof. Dr. Siti Rahmah</option>
+                <option>Dr. Budi Santoso, M.Psi</option>
+              </select>
+            </div>
+          </div>
+
+          <p class="text-sm text-slate-500 italic">Form lengkap akan ditambahkan...</p>
+        </div>
+      </div>
+      
+      <div class="bg-slate-50 px-6 py-4 flex gap-3 justify-end border-t border-slate-200">
+        <button onclick="closeModal('modal-jadwal-form')" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-medium text-sm px-4 py-2.5 transition">
+          Batal
+        </button>
+        <button class="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white font-semibold text-sm px-5 py-2.5 transition shadow-sm">
+          <span class="material-icons text-sm">save</span>
+          Simpan
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Global variables for delete/decline actions
+  let deleteAction = { type: '', id: null, name: '' };
+  let declineAction = { type: '', id: null, name: '' };
+
+  // Tab Switching
+  function switchPraktikumTab(tab) {
+    document.querySelectorAll('.praktikum-tab').forEach(t => {
+      t.classList.remove('text-primary-600', 'border-primary-600');
+      t.classList.add('text-slate-500', 'border-transparent');
+    });
+    document.getElementById(`praktikum-tab-${tab}`).classList.remove('text-slate-500', 'border-transparent');
+    document.getElementById(`praktikum-tab-${tab}`).classList.add('text-primary-600', 'border-primary-600');
+
+    document.querySelectorAll('.praktikum-content').forEach(c => c.classList.add('hidden'));
+    document.getElementById(`praktikum-content-${tab}`).classList.remove('hidden');
+  }
+
+  // Modal Controls
+  function closeModal(modalId) {
+    document.getElementById(modalId).classList.add('hidden');
+    document.body.style.overflow = 'auto';
+  }
+
+  function openModal(modalId) {
+    document.getElementById(modalId).classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  // Delete Confirmation
+  function confirmDelete(type, id, name) {
+    deleteAction = { type, id, name };
+    document.getElementById('delete-item-name').textContent = name;
+    openModal('modal-delete-confirm');
+  }
+
+  function executeDelete() {
+    console.log('Deleting:', deleteAction);
+    alert(`${deleteAction.type} "${deleteAction.name}" berhasil dihapus!`);
+    closeModal('modal-delete-confirm');
+    // TODO: Implement actual delete logic
+  }
+
+  // Decline Confirmation
+  function confirmDecline(type, id, name) {
+    declineAction = { type, id, name };
+    document.getElementById('decline-requester-name').textContent = name;
+    document.getElementById('decline-reason').value = '';
+    openModal('modal-decline-confirm');
+  }
+
+  function executeDecline() {
+    const reason = document.getElementById('decline-reason').value.trim();
+    if (!reason) {
+      alert('Alasan penolakan harus diisi!');
+      return;
+    }
+    console.log('Declining:', declineAction, 'Reason:', reason);
+    alert(`Request dari "${declineAction.name}" berhasil ditolak.\nAlasan: ${reason}\n\nEmail notifikasi telah dikirim.`);
+    closeModal('modal-decline-confirm');
+    // TODO: Implement actual decline logic
+  }
+
+  // Jadwal Modal
+  function openJadwalModal(mode, id = null) {
+    const title = mode === 'create' ? 'Buat Jadwal Praktikum Baru' : 'Edit Jadwal Praktikum';
+    document.getElementById('jadwal-modal-title').textContent = title;
+    openModal('modal-jadwal-form');
+  }
+
+  // Variabel Modal (Placeholder)
+  function openVariabelModal(mode, id = null) {
+    alert(`${mode === 'create' ? 'Create' : 'Edit'} Variabel Modal (will be implemented)`);
+  }
+
+  // Other Actions
+  function viewPeserta(id) {
+    alert(`Viewing participants for jadwal #${id}`);
+    switchPraktikumTab('peserta');
+  }
+
+  function addSlotVariabel(id) {
+    const slots = prompt('Tambah berapa slot untuk variabel ini?', '1');
+    if (slots && parseInt(slots) > 0) {
+      alert(`${slots} slot berhasil ditambahkan ke variabel #${id}`);
+    }
+  }
+
+  function approveRequest(id, type) {
+    if (confirm(`Approve ${type} request #${id}?`)) {
+      alert(`Request #${id} berhasil diapprove! Email notifikasi telah dikirim.`);
+    }
+  }
+
+  function viewProposal(id) {
+    alert(`Opening proposal document for request #${id}`);
+  }
+
+  function exportData(module) {
+    alert(`Exporting ${module} data...`);
+  }
+
+  function bulkAction(module) {
+    alert(`Bulk action for ${module} (select items first)`);
+  }
+
+  // Close modal on ESC key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('[id^="modal-"]').forEach(modal => {
+        if (!modal.classList.contains('hidden')) {
+          closeModal(modal.id);
+        }
+      });
+    }
+  });
+</script>

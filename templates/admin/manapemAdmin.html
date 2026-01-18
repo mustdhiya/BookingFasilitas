@@ -1,0 +1,715 @@
+{# ===== SECTION 2: MANAJEMEN PEMINJAMAN (UPGRADED UX) ===== #}
+<div id="admin-section-peminjaman" class="admin-module-section hidden">
+  <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6 space-y-6">
+    <div class="flex items-center justify-between">
+      <h3 class="text-lg font-semibold text-slate-900 flex items-center gap-2">
+        <span class="material-icons text-rose-600">assignment</span>
+        Manajemen Peminjaman
+      </h3>
+      <div class="flex gap-2">
+        <button onclick="exportData('peminjaman')" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-sm px-3 py-1.5 transition">
+          <span class="material-icons text-base">download</span>
+          Export
+        </button>
+        <button onclick="printReport('peminjaman')" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-sm px-3 py-1.5 transition">
+          <span class="material-icons text-base">print</span>
+          Print
+        </button>
+      </div>
+    </div>
+
+    {# Stats Cards #}
+    <div class="grid sm:grid-cols-4 gap-3">
+      <div class="rounded-lg border border-amber-200 bg-amber-50 p-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs text-amber-600 mb-1">Pending Review</p>
+            <p class="text-2xl font-bold text-amber-900">8</p>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center">
+            <span class="material-icons text-amber-600">schedule</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs text-emerald-600 mb-1">Approved</p>
+            <p class="text-2xl font-bold text-emerald-900">47</p>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
+            <span class="material-icons text-emerald-600">check_circle</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="rounded-lg border border-blue-200 bg-blue-50 p-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs text-blue-600 mb-1">Sedang Berlangsung</p>
+            <p class="text-2xl font-bold text-blue-900">12</p>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+            <span class="material-icons text-blue-600">timelapse</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-xs text-slate-600 mb-1">Total Bulan Ini</p>
+            <p class="text-2xl font-bold text-slate-900">70</p>
+          </div>
+          <div class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
+            <span class="material-icons text-slate-600">analytics</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# Tabs #}
+    <div class="flex gap-2 border-b border-slate-200 overflow-x-auto">
+      <button onclick="switchPeminjamanTab('ruangan')" id="peminjaman-tab-ruangan" class="peminjaman-tab px-4 py-2.5 text-sm font-medium text-primary-600 border-b-2 border-primary-600 transition whitespace-nowrap">
+        <span class="material-icons text-base mr-1.5 align-middle">meeting_room</span>
+        Peminjaman Ruangan
+      </button>
+      <button onclick="switchPeminjamanTab('alat')" id="peminjaman-tab-alat" class="peminjaman-tab px-4 py-2.5 text-sm font-medium text-slate-500 border-b-2 border-transparent hover:text-slate-700 transition whitespace-nowrap">
+        <span class="material-icons text-base mr-1.5 align-middle">science</span>
+        Peminjaman Alat Tes
+      </button>
+    </div>
+
+    {# ========== TAB 1: PEMINJAMAN RUANGAN ========== #}
+    <div id="peminjaman-content-ruangan" class="peminjaman-content">
+      
+      {# Filter Bar #}
+      <div class="flex flex-wrap items-center gap-3 mb-4 p-4 rounded-lg bg-slate-50 border border-slate-200">
+        <div class="flex-1 min-w-[200px]">
+          <div class="relative">
+            <input type="text" placeholder="Cari peminjam, ruangan..." class="w-full rounded-lg border border-slate-200 pl-9 pr-3 py-2 text-sm focus:ring-2 focus:ring-primary-500" />
+            <span class="material-icons absolute left-2.5 top-2.5 text-slate-400 text-base">search</span>
+          </div>
+        </div>
+        
+        <select class="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500">
+          <option value="">Semua Status</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="declined">Declined</option>
+          <option value="ongoing">Sedang Berlangsung</option>
+          <option value="completed">Selesai</option>
+        </select>
+        
+        <select class="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500">
+          <option value="">Semua Ruangan</option>
+          <option value="1">Lab Psikometri</option>
+          <option value="2">Lab Klinis</option>
+          <option value="3">Lab Perkembangan</option>
+        </select>
+        
+        <input type="date" class="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500" />
+        
+        <button onclick="applyFilters('ruangan')" class="inline-flex items-center gap-1.5 rounded-lg bg-primary-500 hover:bg-primary-600 text-white font-semibold text-sm px-4 py-2 transition shadow-sm">
+          <span class="material-icons text-base">filter_list</span>
+          Filter
+        </button>
+        
+        <button onclick="resetFilters('ruangan')" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-sm px-3 py-2 transition">
+          <span class="material-icons text-base">refresh</span>
+        </button>
+      </div>
+
+      {# Requests Cards #}
+      <div class="space-y-3">
+        
+        {# Request Card 1 - Pending #}
+        <div class="rounded-xl border-2 border-amber-200 bg-amber-50/30 p-5 hover:shadow-lg transition group">
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
+              <span class="material-icons text-amber-600 text-xl">meeting_room</span>
+            </div>
+            
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 mb-1">
+                    <h4 class="text-base font-semibold text-slate-900">Muhammad Rizki</h4>
+                    <span class="text-xs text-slate-500">•</span>
+                    <span class="text-xs text-slate-500">ID: #PEM-2026-001</span>
+                  </div>
+                  <p class="text-sm text-slate-600">Instansi UMKT - Fakultas Psikologi</p>
+                  <p class="text-xs text-slate-500 mt-1">Tujuan: Penelitian Individu</p>
+                </div>
+                <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300 ml-4">
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-2 animate-pulse"></span>
+                  Pending Review
+                </span>
+              </div>
+
+              <div class="grid sm:grid-cols-4 gap-3 mb-4 p-3 rounded-lg bg-white border border-slate-200">
+                <div class="flex items-center gap-2">
+                  <span class="material-icons text-xs text-slate-400">meeting_room</span>
+                  <div>
+                    <p class="text-xs text-slate-500">Ruangan</p>
+                    <p class="text-sm font-semibold text-slate-900">Lab Psikometri</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="material-icons text-xs text-slate-400">event</span>
+                  <div>
+                    <p class="text-xs text-slate-500">Tanggal</p>
+                    <p class="text-sm font-semibold text-slate-900">22 Jan 2026</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="material-icons text-xs text-slate-400">schedule</span>
+                  <div>
+                    <p class="text-xs text-slate-500">Waktu</p>
+                    <p class="text-sm font-semibold text-slate-900">09:00 - 11:00</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="material-icons text-xs text-slate-400">groups</span>
+                  <div>
+                    <p class="text-xs text-slate-500">Peserta</p>
+                    <p class="text-sm font-semibold text-slate-900">25 orang</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-3 mb-3">
+                <input type="text" placeholder="Tambahkan catatan admin..." class="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500" id="note-room-1" />
+              </div>
+
+              <div class="flex items-center justify-between">
+                <button onclick="viewDetailPeminjamanRuangan(1)" class="inline-flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700 font-medium">
+                  <span class="material-icons text-sm">visibility</span>
+                  Lihat Detail Lengkap
+                </button>
+                
+                <div class="flex gap-2">
+                  <button onclick="approvePeminjamanRuangan(1)" class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm px-4 py-2 transition shadow-sm">
+                    <span class="material-icons text-sm">check</span>
+                    Approve
+                  </button>
+                  <button onclick="declinePeminjamanRuangan(1, 'Muhammad Rizki')" class="inline-flex items-center gap-1.5 rounded-lg bg-rose-500 hover:bg-rose-600 text-white font-semibold text-sm px-4 py-2 transition shadow-sm">
+                    <span class="material-icons text-sm">close</span>
+                    Decline
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {# Request Card 2 - Approved #}
+        <div class="rounded-xl border border-emerald-200 bg-emerald-50/20 p-5 hover:shadow-md transition group">
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
+              <span class="material-icons text-emerald-600 text-xl">check_circle</span>
+            </div>
+            
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 mb-1">
+                    <h4 class="text-base font-semibold text-slate-900">Siti Nurhaliza</h4>
+                    <span class="text-xs text-slate-500">•</span>
+                    <span class="text-xs text-slate-500">ID: #PEM-2026-002</span>
+                  </div>
+                  <p class="text-sm text-slate-600">Instansi UMKT - Fakultas Psikologi</p>
+                  <p class="text-xs text-slate-500 mt-1">Tujuan: Penelitian Kelompok</p>
+                </div>
+                <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300 ml-4">
+                  <span class="material-icons text-xs mr-1">check</span>
+                  Approved
+                </span>
+              </div>
+
+              <div class="grid sm:grid-cols-4 gap-3 mb-3 p-3 rounded-lg bg-white border border-slate-200">
+                <div class="flex items-center gap-2">
+                  <span class="material-icons text-xs text-slate-400">meeting_room</span>
+                  <div>
+                    <p class="text-xs text-slate-500">Ruangan</p>
+                    <p class="text-sm font-semibold text-slate-900">Lab Klinis</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="material-icons text-xs text-slate-400">event</span>
+                  <div>
+                    <p class="text-xs text-slate-500">Tanggal</p>
+                    <p class="text-sm font-semibold text-slate-900">20 Jan 2026</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="material-icons text-xs text-slate-400">schedule</span>
+                  <div>
+                    <p class="text-xs text-slate-500">Waktu</p>
+                    <p class="text-sm font-semibold text-slate-900">14:00 - 16:00</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="material-icons text-xs text-slate-400">groups</span>
+                  <div>
+                    <p class="text-xs text-slate-500">Peserta</p>
+                    <p class="text-sm font-semibold text-slate-900">15 orang</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between text-xs text-emerald-700 bg-emerald-50 px-3 py-2 rounded-lg">
+                <span class="flex items-center gap-1">
+                  <span class="material-icons text-xs">person</span>
+                  Disetujui oleh: Admin • 19 Jan 2026, 10:30
+                </span>
+                <span class="font-medium">Catatan: OK</span>
+              </div>
+
+              <div class="flex items-center justify-between mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button onclick="viewDetailPeminjamanRuangan(2)" class="inline-flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700 font-medium">
+                  <span class="material-icons text-sm">visibility</span>
+                  Lihat Detail
+                </button>
+                
+                <div class="flex gap-2">
+                  <button onclick="downloadSuratApproval(2)" class="inline-flex items-center gap-1 text-sm text-slate-600 hover:text-slate-800 font-medium">
+                    <span class="material-icons text-sm">download</span>
+                    Download Surat
+                  </button>
+                  <button onclick="sendReminderEmail(2)" class="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-medium">
+                    <span class="material-icons text-sm">email</span>
+                    Kirim Reminder
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {# Request Card 3 - Declined #}
+        <div class="rounded-xl border border-rose-200 bg-rose-50/20 p-5 hover:shadow-md transition group">
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0">
+              <span class="material-icons text-rose-600 text-xl">cancel</span>
+            </div>
+            
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 mb-1">
+                    <h4 class="text-base font-semibold text-slate-900">Ahmad Fauzi</h4>
+                    <span class="text-xs text-slate-500">•</span>
+                    <span class="text-xs text-slate-500">ID: #PEM-2026-003</span>
+                  </div>
+                  <p class="text-sm text-slate-600">Instansi UMKT - Fakultas Psikologi</p>
+                  <p class="text-xs text-slate-500 mt-1">Tujuan: Pelatihan Alat Tes Internal</p>
+                </div>
+                <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-rose-100 text-rose-800 border border-rose-300 ml-4">
+                  <span class="material-icons text-xs mr-1">close</span>
+                  Declined
+                </span>
+              </div>
+
+              <div class="grid sm:grid-cols-4 gap-3 mb-3 p-3 rounded-lg bg-white border border-slate-200">
+                <div class="flex items-center gap-2">
+                  <span class="material-icons text-xs text-slate-400">meeting_room</span>
+                  <div>
+                    <p class="text-xs text-slate-500">Ruangan</p>
+                    <p class="text-sm font-semibold text-slate-900">Lab Perkembangan</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="material-icons text-xs text-slate-400">event</span>
+                  <div>
+                    <p class="text-xs text-slate-500">Tanggal</p>
+                    <p class="text-sm font-semibold text-slate-900">18 Jan 2026</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="material-icons text-xs text-slate-400">schedule</span>
+                  <div>
+                    <p class="text-xs text-slate-500">Waktu</p>
+                    <p class="text-sm font-semibold text-slate-900">10:00 - 12:00</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="material-icons text-xs text-slate-400">groups</span>
+                  <div>
+                    <p class="text-xs text-slate-500">Peserta</p>
+                    <p class="text-sm font-semibold text-slate-900">20 orang</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between text-xs text-rose-700 bg-rose-50 px-3 py-2 rounded-lg">
+                <span class="flex items-center gap-1">
+                  <span class="material-icons text-xs">person</span>
+                  Ditolak oleh: Admin • 17 Jan 2026, 15:20
+                </span>
+                <span class="font-medium">Alasan: Bentrok jadwal rutin</span>
+              </div>
+
+              <div class="flex items-center justify-between mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button onclick="viewDetailPeminjamanRuangan(3)" class="inline-flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700 font-medium">
+                  <span class="material-icons text-sm">visibility</span>
+                  Lihat Detail
+                </button>
+                
+                <button onclick="archiveRequest(3)" class="inline-flex items-center gap-1 text-sm text-slate-600 hover:text-slate-800 font-medium">
+                  <span class="material-icons text-sm">archive</span>
+                  Archive
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# Pagination #}
+      <div class="flex items-center justify-between mt-6 pt-4 border-t border-slate-200">
+        <p class="text-sm text-slate-600">Menampilkan <span class="font-medium">1-3</span> dari <span class="font-medium">15</span> permohonan</p>
+        <div class="flex gap-1">
+          <button class="w-8 h-8 rounded border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center transition">
+            <span class="material-icons text-sm text-slate-600">chevron_left</span>
+          </button>
+          <button class="w-8 h-8 rounded border border-primary-500 bg-primary-50 text-primary-600 font-medium text-sm">1</button>
+          <button class="w-8 h-8 rounded border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-medium text-sm">2</button>
+          <button class="w-8 h-8 rounded border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-medium text-sm">3</button>
+          <button class="w-8 h-8 rounded border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center transition">
+            <span class="material-icons text-sm text-slate-600">chevron_right</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    {# ========== TAB 2: PEMINJAMAN ALAT TES ========== #}
+    <div id="peminjaman-content-alat" class="peminjaman-content hidden">
+      
+      {# Filter Bar #}
+      <div class="flex flex-wrap items-center gap-3 mb-4 p-4 rounded-lg bg-slate-50 border border-slate-200">
+        <div class="flex-1 min-w-[200px]">
+          <div class="relative">
+            <input type="text" placeholder="Cari peminjam, alat tes..." class="w-full rounded-lg border border-slate-200 pl-9 pr-3 py-2 text-sm focus:ring-2 focus:ring-primary-500" />
+            <span class="material-icons absolute left-2.5 top-2.5 text-slate-400 text-base">search</span>
+          </div>
+        </div>
+        
+        <select class="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500">
+          <option value="">Semua Status</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="borrowed">Dipinjam</option>
+          <option value="returned">Dikembalikan</option>
+        </select>
+        
+        <select class="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500">
+          <option value="">Semua Alat</option>
+          <option value="1">WAIS-IV</option>
+          <option value="2">MMPI-2</option>
+          <option value="3">MBTI</option>
+        </select>
+        
+        <select class="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500">
+          <option value="">Status Pembayaran</option>
+          <option value="paid">Lunas</option>
+          <option value="unpaid">Belum Bayar</option>
+        </select>
+        
+        <button onclick="applyFilters('alat')" class="inline-flex items-center gap-1.5 rounded-lg bg-primary-500 hover:bg-primary-600 text-white font-semibold text-sm px-4 py-2 transition shadow-sm">
+          <span class="material-icons text-base">filter_list</span>
+          Filter
+        </button>
+        
+        <button onclick="resetFilters('alat')" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-sm px-3 py-2 transition">
+          <span class="material-icons text-base">refresh</span>
+        </button>
+      </div>
+
+      {# Requests Cards #}
+      <div class="space-y-3">
+        
+        {# Request Card 1 - Pending Payment #}
+        <div class="rounded-xl border-2 border-amber-200 bg-amber-50/30 p-5 hover:shadow-lg transition group">
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+              <span class="material-icons text-blue-600 text-xl">science</span>
+            </div>
+            
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 mb-1">
+                    <h4 class="text-base font-semibold text-slate-900">Siti Aisyah</h4>
+                    <span class="text-xs text-slate-500">•</span>
+                    <span class="text-xs text-slate-500">ID: #ALT-2026-001</span>
+                  </div>
+                  <p class="text-sm text-slate-600">Instansi Non-UMKT - PT Konsultan Psikologi</p>
+                  <p class="text-xs text-slate-500 mt-1">Tujuan: Seleksi Karyawan</p>
+                </div>
+                <div class="flex items-center gap-2 ml-4">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300">
+                    Belum Bayar
+                  </span>
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5 animate-pulse"></span>
+                    Pending
+                  </span>
+                </div>
+              </div>
+
+              <div class="grid sm:grid-cols-5 gap-3 mb-4 p-3 rounded-lg bg-white border border-slate-200">
+                <div class="flex items-center gap-2">
+                  <span class="material-icons text-xs text-blue-400">science</span>
+                  <div>
+                    <p class="text-xs text-slate-500">Alat Tes</p>
+                    <p class="text-sm font-semibold text-slate-900">WAIS-IV</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="material-icons text-xs text-slate-400">numbers</span>
+                  <div>
+                    <p class="text-xs text-slate-500">Jumlah</p>
+                    <p class="text-sm font-semibold text-slate-900">10 lembar</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="material-icons text-xs text-slate-400">event</span>
+                  <div>
+                    <p class="text-xs text-slate-500">Tgl Pinjam</p>
+                    <p class="text-sm font-semibold text-slate-900">20 Jan 2026</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="material-icons text-xs text-slate-400">event_repeat</span>
+                  <div>
+                    <p class="text-xs text-slate-500">Tgl Kembali</p>
+                    <p class="text-sm font-semibold text-slate-900">22 Jan 2026</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="material-icons text-xs text-slate-400">inventory</span>
+                  <div>
+                    <p class="text-xs text-slate-500">Stock Sisa</p>
+                    <p class="text-sm font-semibold text-amber-600">8 lembar</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="rounded-lg bg-blue-50 border border-blue-200 p-3 mb-3">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-xs text-blue-600 mb-0.5">Total Biaya Peminjaman</p>
+                    <p class="text-xl font-bold text-blue-900">Rp 500.000</p>
+                    <p class="text-xs text-blue-600 mt-0.5">@ Rp 50.000 × 10 lembar</p>
+                  </div>
+                  <button onclick="viewInvoice(1)" class="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-medium">
+                    <span class="material-icons text-sm">receipt</span>
+                    Lihat Invoice
+                  </button>
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between">
+                <button onclick="viewDetailPeminjamanAlat(1)" class="inline-flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700 font-medium">
+                  <span class="material-icons text-sm">visibility</span>
+                  Lihat Detail & Surat Perjanjian
+                </button>
+                
+                <div class="flex gap-2">
+                  <button onclick="approvePeminjamanAlat(1)" class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm px-4 py-2 transition shadow-sm">
+                    <span class="material-icons text-sm">check</span>
+                    Approve
+                  </button>
+                  <button onclick="declinePeminjamanAlat(1, 'Siti Aisyah')" class="inline-flex items-center gap-1.5 rounded-lg bg-rose-500 hover:bg-rose-600 text-white font-semibold text-sm px-4 py-2 transition shadow-sm">
+                    <span class="material-icons text-sm">close</span>
+                    Decline
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {# Request Card 2 - Approved, Ready to Return #}
+        <div class="rounded-xl border border-emerald-200 bg-emerald-50/20 p-5 hover:shadow-md transition group">
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
+              <span class="material-icons text-purple-600 text-xl">science</span>
+            </div>
+            
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 mb-1">
+                    <h4 class="text-base font-semibold text-slate-900">Budi Santoso</h4>
+                    <span class="text-xs text-slate-500">•</span>
+                    <span class="text-xs text-slate-500">ID: #ALT-2026-002</span>
+                  </div>
+                  <p class="text-sm text-slate-600">Instansi UMKT - Fakultas Psikologi</p>
+                  <p class="text-xs text-slate-500 mt-1">Tujuan: Penelitian Individu</p>
+                </div>
+                <div class="flex items-center gap-2 ml-4">
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                    <span class="material-icons text-xs mr-1">check</span>
+                    Lunas
+                  </span>
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 border border-blue-300">
+                    <span class="material-icons text-xs mr-1">schedule</span>
+                    Dipinjam
+                  </span>
+                </div>
+              </div>
+
+              <div class="grid sm:grid-cols-5 gap-3 mb-4 p-3 rounded-lg bg-white border border-slate-200">
+                <div class="flex items-center gap-2">
+                  <span class="material-icons text-xs text-purple-400">science</span>
+                  <div>
+                    <p class="text-xs text-slate-500">Alat Tes</p>
+                    <p class="text-sm font-semibold text-slate-900">MMPI-2</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="material-icons text-xs text-slate-400">numbers</span>
+                  <div>
+                    <p class="text-xs text-slate-500">Jumlah</p>
+                    <p class="text-sm font-semibold text-slate-900">5 lembar</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="material-icons text-xs text-slate-400">event</span>
+                  <div>
+                    <p class="text-xs text-slate-500">Tgl Pinjam</p>
+                    <p class="text-sm font-semibold text-slate-900">15 Jan 2026</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="material-icons text-xs text-rose-400">event_repeat</span>
+                  <div>
+                    <p class="text-xs text-slate-500">Tgl Kembali</p>
+                    <p class="text-sm font-semibold text-rose-600">17 Jan 2026</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="material-icons text-xs text-slate-400">inventory</span>
+                  <div>
+                    <p class="text-xs text-slate-500">Stock Sisa</p>
+                    <p class="text-sm font-semibold text-emerald-600">15 lembar</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="rounded-lg bg-rose-50 border border-rose-200 p-3 mb-3">
+                <div class="flex items-center gap-2">
+                  <span class="material-icons text-rose-600 text-lg">warning</span>
+                  <div class="flex-1">
+                    <p class="text-sm font-semibold text-rose-900">Jatuh Tempo Pengembalian</p>
+                    <p class="text-xs text-rose-700">Batas pengembalian: 17 Jan 2026 (1 hari yang lalu)</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between">
+                <button onclick="viewDetailPeminjamanAlat(2)" class="inline-flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700 font-medium">
+                  <span class="material-icons text-sm">visibility</span>
+                  Lihat Detail
+                </button>
+                
+                <div class="flex gap-2">
+                  <button onclick="sendReminderReturn(2)" class="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-700 font-medium text-sm px-4 py-2 transition">
+                    <span class="material-icons text-sm">notifications</span>
+                    Kirim Reminder
+                  </button>
+                  <button onclick="markAsReturned(2)" class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm px-4 py-2 transition shadow-sm">
+                    <span class="material-icons text-sm">assignment_return</span>
+                    Mark Returned
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# Pagination #}
+      <div class="flex items-center justify-between mt-6 pt-4 border-t border-slate-200">
+        <p class="text-sm text-slate-600">Menampilkan <span class="font-medium">1-2</span> dari <span class="font-medium">12</span> permohonan</p>
+        <div class="flex gap-1">
+          <button class="w-8 h-8 rounded border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center transition">
+            <span class="material-icons text-sm text-slate-600">chevron_left</span>
+          </button>
+          <button class="w-8 h-8 rounded border border-primary-500 bg-primary-50 text-primary-600 font-medium text-sm">1</button>
+          <button class="w-8 h-8 rounded border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-medium text-sm">2</button>
+          <button class="w-8 h-8 rounded border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center transition">
+            <span class="material-icons text-sm text-slate-600">chevron_right</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Tab Switching
+  function switchPeminjamanTab(tab) {
+    document.querySelectorAll('.peminjaman-tab').forEach(t => {
+      t.classList.remove('text-primary-600', 'border-primary-600');
+      t.classList.add('text-slate-500', 'border-transparent');
+    });
+    document.getElementById(`peminjaman-tab-${tab}`).classList.remove('text-slate-500', 'border-transparent');
+    document.getElementById(`peminjaman-tab-${tab}`).classList.add('text-primary-600', 'border-primary-600');
+
+    document.querySelectorAll('.peminjaman-content').forEach(c => c.classList.add('hidden'));
+    document.getElementById(`peminjaman-content-${tab}`).classList.remove('hidden');
+  }
+
+  // Approve Actions
+  function approvePeminjamanRuangan(id) {
+    const note = document.getElementById(`note-room-${id}`)?.value || '';
+    if (confirm('Approve peminjaman ruangan ini?')) {
+      console.log('Approving room:', id, 'Note:', note);
+      alert('Peminjaman ruangan berhasil diapprove!\nEmail notifikasi telah dikirim ke peminjam.');
+    }
+  }
+
+  function approvePeminjamanAlat(id) {
+    if (confirm('Approve peminjaman alat tes ini?\n\nPastikan pembayaran sudah diterima sebelum approve.')) {
+      console.log('Approving tool:', id);
+      alert('Peminjaman alat tes berhasil diapprove!\nSurat perjanjian peminjaman telah dikirim via email.');
+    }
+  }
+
+  // Decline Actions
+  function declinePeminjamanRuangan(id, name) {
+    openDeclineModal(id, name, 'ruangan');
+  }
+
+  function declinePeminjamanAlat(id, name) {
+    openDeclineModal(id, name, 'alat');
+  }
+
+  function openDeclineModal(id, name, type) {
+    declineAction = { type, id, name };
+    document.getElementById('decline-requester-name').textContent = name;
+    document.getElementById('decline-reason').value = '';
+    openModal('modal-decline-confirm');
+  }
+
+  // Other Actions
+  function viewDetailPeminjamanRuangan(id) { alert(`View detail peminjaman ruangan #${id}`); }
+  function viewDetailPeminjamanAlat(id) { alert(`View detail peminjaman alat #${id}`); }
+  function viewInvoice(id) { alert(`View invoice #${id}`); }
+  function downloadSuratApproval(id) { alert(`Download surat approval #${id}`); }
+  function sendReminderEmail(id) { alert(`Send reminder email for #${id}`); }
+  function sendReminderReturn(id) { alert(`Send return reminder for #${id}`); }
+  function markAsReturned(id) {
+    if (confirm('Konfirmasi alat tes telah dikembalikan?')) {
+      alert('Alat tes berhasil ditandai sebagai returned!\nStock telah dikembalikan.');
+    }
+  }
+  function archiveRequest(id) { alert(`Archive request #${id}`); }
+  function applyFilters(type) { alert(`Apply filters for ${type}`); }
+  function resetFilters(type) { alert(`Reset filters for ${type}`); }
+  function printReport(type) { alert(`Print report for ${type}`); }
+</script>
