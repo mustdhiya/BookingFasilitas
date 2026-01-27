@@ -5,9 +5,21 @@
 
 {% block extra_css %}
 <style>
-  /* Custom gradient background untuk admin panel */
+  /* Custom gradient background untuk admin panel dengan dark mode support */
   body {
     background: linear-gradient(135deg, #fef3c7 0%, #e4d2bf 50%, #fdba74 100%);
+  }
+  
+  /* Dark mode gradient */
+  .dark body {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #3d7eda 100%);
+  }
+  
+  /* Smooth transitions untuk dark mode */
+  .admin-module-section,
+  .admin-card,
+  .module-selector-card {
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
   }
 </style>
 {% endblock %}
@@ -17,17 +29,17 @@
 <main class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
   {# ===== HEADER ===== #}
-  <header class="flex items-center justify-between">
+  <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
     <div>
-      <h1 class="text-2xl sm:text-3xl font-semibold text-slate-900 flex items-center gap-3">
-        <span class="material-icons text-orange-600">admin_panel_settings</span>
+      <h1 class="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-3">
+        <span class="material-icons text-orange-600 dark:text-orange-500">admin_panel_settings</span>
         Admin Dashboard
       </h1>
-      <p class="text-sm text-slate-600 mt-1">
+      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
         Kelola seluruh aktivitas laboratorium psikologi dari satu tempat.
       </p>
     </div>
-    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-100 border border-orange-300 text-orange-800 text-sm font-semibold">
+    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-100 dark:bg-orange-900/30 border border-orange-300 dark:border-orange-700 text-orange-800 dark:text-orange-300 text-sm font-semibold">
       <span class="material-icons text-base">verified_user</span>
       Administrator
     </div>
@@ -35,57 +47,62 @@
 
   {# ===== MODULE SELECTOR ===== #}
   <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    
+    {# Dashboard Module Card #}
     <div class="group cursor-pointer" onclick="switchAdminModule('dashboard')">
-      <div id="admin-card-dashboard" class="rounded-xl border-2 border-orange-300 bg-gradient-to-br from-orange-50 to-white p-5 hover:shadow-lg hover:border-orange-400 transition">
+      <div id="admin-card-dashboard" class="module-selector-card rounded-xl border-2 border-orange-300 dark:border-orange-600 bg-gradient-to-br from-orange-50 to-white dark:from-orange-900/20 dark:to-slate-800 p-5 hover:shadow-lg hover:border-orange-400 dark:hover:border-orange-500 transition">
         <div class="flex items-start gap-4">
-          <div class="w-12 h-12 rounded-lg bg-orange-100 flex items-center justify-center group-hover:bg-orange-200 transition flex-shrink-0">
-            <span class="material-icons text-2xl text-orange-600">dashboard</span>
+          <div class="w-12 h-12 rounded-lg bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center group-hover:bg-orange-200 dark:group-hover:bg-orange-900/60 transition flex-shrink-0">
+            <span class="material-icons text-2xl text-orange-600 dark:text-orange-400">dashboard</span>
           </div>
           <div class="flex-1">
-            <h3 class="text-base font-semibold text-slate-900 mb-1">Dashboard KPI</h3>
-            <p class="text-xs text-slate-500">Overview & action items</p>
+            <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">Dashboard KPI</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Overview & action items</p>
           </div>
         </div>
       </div>
     </div>
 
+    {# Peminjaman Module Card #}
     <div class="group cursor-pointer" onclick="switchAdminModule('peminjaman')">
-      <div id="admin-card-peminjaman" class="rounded-xl border-2 border-slate-200 bg-white p-5 hover:shadow-md hover:border-slate-300 transition">
+      <div id="admin-card-peminjaman" class="module-selector-card rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 transition">
         <div class="flex items-start gap-4">
-          <div class="w-12 h-12 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0">
-            <span class="material-icons text-2xl text-rose-600">assignment</span>
+          <div class="w-12 h-12 rounded-lg bg-rose-100 dark:bg-rose-900/40 flex items-center justify-center group-hover:bg-rose-200 dark:group-hover:bg-rose-900/60 transition flex-shrink-0">
+            <span class="material-icons text-2xl text-rose-600 dark:text-rose-400">assignment</span>
           </div>
           <div class="flex-1">
-            <h3 class="text-base font-semibold text-slate-900 mb-1">Manajemen Peminjaman</h3>
-            <p class="text-xs text-slate-500">Ruangan & alat tes</p>
+            <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">Manajemen Peminjaman</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Ruangan & alat tes</p>
           </div>
         </div>
       </div>
     </div>
 
+    {# Master Data Module Card #}
     <div class="group cursor-pointer" onclick="switchAdminModule('master')">
-      <div id="admin-card-master" class="rounded-xl border-2 border-slate-200 bg-white p-5 hover:shadow-md hover:border-slate-300 transition">
+      <div id="admin-card-master" class="module-selector-card rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 transition">
         <div class="flex items-start gap-4">
-          <div class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-            <span class="material-icons text-2xl text-blue-600">storage</span>
+          <div class="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center group-hover:bg-blue-200 dark:group-hover:bg-blue-900/60 transition flex-shrink-0">
+            <span class="material-icons text-2xl text-blue-600 dark:text-blue-400">storage</span>
           </div>
           <div class="flex-1">
-            <h3 class="text-base font-semibold text-slate-900 mb-1">Master Data</h3>
-            <p class="text-xs text-slate-500">Ruangan, alat, jadwal blok</p>
+            <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">Master Data</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Ruangan, alat, jadwal blok</p>
           </div>
         </div>
       </div>
     </div>
 
+    {# Praktikum Module Card #}
     <div class="group cursor-pointer" onclick="switchAdminModule('praktikum')">
-      <div id="admin-card-praktikum" class="rounded-xl border-2 border-slate-200 bg-white p-5 hover:shadow-md hover:border-slate-300 transition">
+      <div id="admin-card-praktikum" class="module-selector-card rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 transition">
         <div class="flex items-start gap-4">
-          <div class="w-12 h-12 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0">
-            <span class="material-icons text-2xl text-emerald-600">school</span>
+          <div class="w-12 h-12 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center group-hover:bg-emerald-200 dark:group-hover:bg-emerald-900/60 transition flex-shrink-0">
+            <span class="material-icons text-2xl text-emerald-600 dark:text-emerald-400">school</span>
           </div>
           <div class="flex-1">
-            <h3 class="text-base font-semibold text-slate-900 mb-1">Praktikum & Variabel</h3>
-            <p class="text-xs text-slate-500">Jadwal & penelitian</p>
+            <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">Praktikum & Variabel</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Jadwal & penelitian</p>
           </div>
         </div>
       </div>
@@ -107,15 +124,35 @@
 </main>
 
 <script>
-  // Module Switcher
+  // Module Switcher with Dark Mode Support
   function switchAdminModule(moduleName) {
+    // Get current theme
+    const isDark = document.documentElement.classList.contains('dark');
+    
     // Update module cards
     document.querySelectorAll('[id^="admin-card-"]').forEach(card => {
-      card.classList.remove('border-orange-300', 'bg-gradient-to-br', 'from-orange-50', 'to-white');
-      card.classList.add('border-slate-200', 'bg-white');
+      // Remove active classes
+      card.classList.remove('border-orange-300', 'border-orange-600', 'bg-gradient-to-br', 'from-orange-50', 'to-white', 'from-orange-900/20', 'to-slate-800');
+      
+      // Add inactive classes based on theme
+      if (isDark) {
+        card.classList.add('border-slate-700', 'bg-slate-800');
+        card.classList.remove('border-slate-200', 'bg-white');
+      } else {
+        card.classList.add('border-slate-200', 'bg-white');
+        card.classList.remove('border-slate-700', 'bg-slate-800');
+      }
     });
-    document.getElementById(`admin-card-${moduleName}`).classList.remove('border-slate-200', 'bg-white');
-    document.getElementById(`admin-card-${moduleName}`).classList.add('border-orange-300', 'bg-gradient-to-br', 'from-orange-50', 'to-white');
+    
+    // Add active classes to selected card
+    const activeCard = document.getElementById(`admin-card-${moduleName}`);
+    if (isDark) {
+      activeCard.classList.remove('border-slate-700', 'bg-slate-800');
+      activeCard.classList.add('border-orange-600', 'bg-gradient-to-br', 'from-orange-900/20', 'to-slate-800');
+    } else {
+      activeCard.classList.remove('border-slate-200', 'bg-white');
+      activeCard.classList.add('border-orange-300', 'bg-gradient-to-br', 'from-orange-50', 'to-white');
+    }
 
     // Show/hide sections
     document.querySelectorAll('.admin-module-section').forEach(section => section.classList.add('hidden'));
@@ -125,11 +162,12 @@
   // Tab Switchers
   function switchPeminjamanTab(tab) {
     document.querySelectorAll('.peminjaman-tab').forEach(t => {
-      t.classList.remove('text-primary-600', 'border-primary-600');
-      t.classList.add('text-slate-500', 'border-transparent');
+      t.classList.remove('text-primary-600', 'border-primary-600', 'dark:text-primary-400', 'dark:border-primary-400');
+      t.classList.add('text-slate-500', 'border-transparent', 'dark:text-slate-400');
     });
-    document.getElementById(`peminjaman-tab-${tab}`).classList.remove('text-slate-500', 'border-transparent');
-    document.getElementById(`peminjaman-tab-${tab}`).classList.add('text-primary-600', 'border-primary-600');
+    const activeTab = document.getElementById(`peminjaman-tab-${tab}`);
+    activeTab.classList.remove('text-slate-500', 'border-transparent', 'dark:text-slate-400');
+    activeTab.classList.add('text-primary-600', 'border-primary-600', 'dark:text-primary-400', 'dark:border-primary-400');
 
     document.querySelectorAll('.peminjaman-content').forEach(c => c.classList.add('hidden'));
     document.getElementById(`peminjaman-content-${tab}`).classList.remove('hidden');
@@ -137,11 +175,12 @@
 
   function switchMasterTab(tab) {
     document.querySelectorAll('.master-tab').forEach(t => {
-      t.classList.remove('text-primary-600', 'border-primary-600');
-      t.classList.add('text-slate-500', 'border-transparent');
+      t.classList.remove('text-primary-600', 'border-primary-600', 'dark:text-primary-400', 'dark:border-primary-400');
+      t.classList.add('text-slate-500', 'border-transparent', 'dark:text-slate-400');
     });
-    document.getElementById(`master-tab-${tab}`).classList.remove('text-slate-500', 'border-transparent');
-    document.getElementById(`master-tab-${tab}`).classList.add('text-primary-600', 'border-primary-600');
+    const activeTab = document.getElementById(`master-tab-${tab}`);
+    activeTab.classList.remove('text-slate-500', 'border-transparent', 'dark:text-slate-400');
+    activeTab.classList.add('text-primary-600', 'border-primary-600', 'dark:text-primary-400', 'dark:border-primary-400');
 
     document.querySelectorAll('.master-content').forEach(c => c.classList.add('hidden'));
     document.getElementById(`master-content-${tab}`).classList.remove('hidden');
@@ -149,36 +188,152 @@
 
   function switchPraktikumTab(tab) {
     document.querySelectorAll('.praktikum-tab').forEach(t => {
-      t.classList.remove('text-primary-600', 'border-primary-600');
-      t.classList.add('text-slate-500', 'border-transparent');
+      t.classList.remove('text-primary-600', 'border-primary-600', 'dark:text-primary-400', 'dark:border-primary-400');
+      t.classList.add('text-slate-500', 'border-transparent', 'dark:text-slate-400');
     });
-    document.getElementById(`praktikum-tab-${tab}`).classList.remove('text-slate-500', 'border-transparent');
-    document.getElementById(`praktikum-tab-${tab}`).classList.add('text-primary-600', 'border-primary-600');
+    const activeTab = document.getElementById(`praktikum-tab-${tab}`);
+    activeTab.classList.remove('text-slate-500', 'border-transparent', 'dark:text-slate-400');
+    activeTab.classList.add('text-primary-600', 'border-primary-600', 'dark:text-primary-400', 'dark:border-primary-400');
 
     document.querySelectorAll('.praktikum-content').forEach(c => c.classList.add('hidden'));
     document.getElementById(`praktikum-content-${tab}`).classList.remove('hidden');
   }
 
+  // Listen to theme changes and update active card styling
+  function updateCardStylesOnThemeChange() {
+    const isDark = document.documentElement.classList.contains('dark');
+    const activeCard = document.querySelector('[id^="admin-card-"].border-orange-300, [id^="admin-card-"].border-orange-600');
+    
+    if (activeCard) {
+      if (isDark) {
+        activeCard.classList.remove('border-orange-300', 'from-orange-50', 'to-white');
+        activeCard.classList.add('border-orange-600', 'from-orange-900/20', 'to-slate-800');
+      } else {
+        activeCard.classList.remove('border-orange-600', 'from-orange-900/20', 'to-slate-800');
+        activeCard.classList.add('border-orange-300', 'from-orange-50', 'to-white');
+      }
+    }
+    
+    // Update all inactive cards
+    document.querySelectorAll('[id^="admin-card-"]').forEach(card => {
+      if (card === activeCard) return;
+      
+      if (isDark) {
+        card.classList.remove('border-slate-200', 'bg-white');
+        card.classList.add('border-slate-700', 'bg-slate-800');
+      } else {
+        card.classList.remove('border-slate-700', 'bg-slate-800');
+        card.classList.add('border-slate-200', 'bg-white');
+      }
+    });
+  }
+
+  // Observe theme changes
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.attributeName === 'class') {
+        updateCardStylesOnThemeChange();
+      }
+    });
+  });
+
+  // Start observing
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['class']
+  });
+
   // Approve/Decline Actions
   function approveRequest(id, type) {
     if (confirm('Approve request ini?')) {
       alert(`Request ${type} #${id} berhasil diapprove! Notifikasi email telah dikirim.`);
+      // Refresh or update UI
+      location.reload();
     }
   }
 
-  function declineRequest(id, type) {
-    const reason = prompt('Alasan decline (akan dikirim ke peminjam):');
+  function declineRequest(id, type, name = '') {
+    const reason = prompt(`Alasan decline${name ? ' untuk ' + name : ''} (akan dikirim ke peminjam):`);
     if (reason) {
       alert(`Request ${type} #${id} berhasil di-decline. Email notifikasi dengan alasan telah dikirim.`);
+      // Refresh or update UI
+      location.reload();
     }
   }
 
   // Other Actions
-  function viewPeserta(id) { alert(`Viewing participants for praktikum #${id}`); }
-  function addSlot(id) { 
-    const slots = prompt('Tambah berapa slot?');
-    if (slots) alert(`${slots} slot berhasil ditambahkan ke variabel #${id}`);
+  function viewPeserta(id) { 
+    alert(`Viewing participants for praktikum #${id}`);
+    // Navigate to section
+    switchAdminModule('praktikum');
+    switchPraktikumTab('peserta');
   }
+  
+  function addSlot(id) { 
+    const slots = prompt('Tambah berapa slot?', '2');
+    if (slots && !isNaN(slots)) {
+      alert(`${slots} slot berhasil ditambahkan ke variabel #${id}`);
+      location.reload();
+    }
+  }
+
+  function viewDetailRequest(id, type) {
+    alert(`Viewing detail for ${type} request #${id}`);
+  }
+
+  function exportData(section) {
+    alert(`Exporting ${section} data to Excel...`);
+  }
+
+  function printReport(section) {
+    alert(`Printing ${section} report...`);
+    window.print();
+  }
+
+  function refreshDashboard() {
+    if (confirm('Refresh dashboard data?')) {
+      location.reload();
+    }
+  }
+
+  function applyFilters(tab) {
+    alert(`Applying filters for ${tab}...`);
+  }
+
+  function resetFilters(tab) {
+    alert(`Resetting filters for ${tab}...`);
+    location.reload();
+  }
+
+  function viewAllActions() {
+    alert('Viewing all pending actions...');
+  }
+
+  function viewAllActivity() {
+    alert('Viewing all activity history...');
+  }
+
+  function downloadSuratApproval(id) {
+    alert(`Downloading approval letter for request #${id}...`);
+  }
+
+  function sendReminderEmail(id) {
+    if (confirm('Kirim reminder email ke peminjam?')) {
+      alert(`Reminder email sent for request #${id}`);
+    }
+  }
+
+  function archiveRequest(id) {
+    if (confirm('Archive request ini?')) {
+      alert(`Request #${id} telah diarchive`);
+      location.reload();
+    }
+  }
+
+  // Initialize on page load
+  window.addEventListener('DOMContentLoaded', () => {
+    updateCardStylesOnThemeChange();
+  });
 </script>
 
 {% endblock content %}

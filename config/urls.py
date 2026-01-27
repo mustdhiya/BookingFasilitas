@@ -31,6 +31,7 @@ urlpatterns = [
     
     # HTML Pages
     path('', TemplateView.as_view(template_name='index.html'), name='home'),
+    path('dashboard/', TemplateView.as_view(template_name='dashboard.html'), name='home'),
     path('login/', LoginPageView.as_view(), name='login'),
     path('profile/', ProfilePageView.as_view(), name='profile'),
     path('peminjaman/', RoomBookingPageView.as_view(), name='peminjaman'),
