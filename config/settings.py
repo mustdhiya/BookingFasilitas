@@ -92,7 +92,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': config('DB_NAME', default='must1341_psikologilab1_db'),
         'USER': config('DB_USER', default='must1341'),
-        'PASSWORD': config('DB_PASSWORD', default='vEjwWHc1P9P337'),
+        'PASSWORD': config('DB_PASSWORD', default='GdV1k38hD3@lE!'),
         'HOST': config('DB_HOST', default='localhost'),
         'PORT': config('DB_PORT', default='3306'),
     }
@@ -104,7 +104,7 @@ DATABASES = {
 #         'ENGINE': 'django.db.backends.mysql',
 #         'NAME': config('DB_NAME', default='must1341_psikologilab1_db'),
 #         'USER': config('DB_USER', default='must1341'),
-#         'PASSWORD': config('DB_PASSWORD', default='vEjwWHc1P9P337'),
+#         'PASSWORD': config('DB_PASSWORD', default='GdV1k38hD3@lE!'),
 #         'HOST': config('DB_HOST', default='localhost'),
 #         'PORT': config('DB_PORT', default='3306'),
 #     }
