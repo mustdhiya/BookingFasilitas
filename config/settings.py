@@ -90,8 +90,8 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': config('DB_NAME', default='prep8924_psikologilab1_db'),
-        'USER': config('DB_USER', default='prep8924'),
+        'NAME': config('DB_NAME', default='must1341_psikologilab1_db'),
+        'USER': config('DB_USER', default='must1341'),
         'PASSWORD': config('DB_PASSWORD', default='vEjwWHc1P9P337'),
         'HOST': config('DB_HOST', default='localhost'),
         'PORT': config('DB_PORT', default='3306'),
@@ -102,8 +102,8 @@ DATABASES = {
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': config('DB_NAME', default='prep8924_psikologilab1_db'),
-#         'USER': config('DB_USER', default='prep8924'),
+#         'NAME': config('DB_NAME', default='must1341_psikologilab1_db'),
+#         'USER': config('DB_USER', default='must1341'),
 #         'PASSWORD': config('DB_PASSWORD', default='vEjwWHc1P9P337'),
 #         'HOST': config('DB_HOST', default='localhost'),
 #         'PORT': config('DB_PORT', default='3306'),
