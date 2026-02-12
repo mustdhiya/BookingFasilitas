@@ -1,0 +1,31 @@
+# Environment variables
+.env
+.env.local
+.env.production
+.env.*.local
+
+# Database
+*.sqlite3
+db.sqlite3
+
+# Media files
+media/
+
+# Static files
+staticfiles/
+
+# Logs
+logs/
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environment
+venv/
+env/
+ENV/
