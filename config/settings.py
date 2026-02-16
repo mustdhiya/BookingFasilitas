@@ -175,10 +175,10 @@ USE_TZ = True
 # ============================================
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
-
+if (BASE_DIR / 'static').exists():
+    STATICFILES_DIRS = [BASE_DIR / 'static']
+else:
+    STATICFILES_DIRS = []
 
 # ============================================
 # MEDIA FILES CONFIGURATION
@@ -259,23 +259,3 @@ if PRODUCTION_MODE:
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-# ============================================
-# DEVELOPMENT/PRODUCTION MODE INDICATOR
-# ============================================
-if not PRODUCTION_MODE:
-    print("=" * 60)
-    print("🚧 RUNNING IN DEVELOPMENT MODE")
-    print("=" * 60)
-    print(f"Database: SQLite")
-    print(f"Email: Console Backend")
-    print(f"CORS: Allowing localhost")
-    print("=" * 60)
-else:
-    print("=" * 60)
-    print("🚀 RUNNING IN PRODUCTION MODE")
-    print("=" * 60)
-    print(f"Database: MySQL")
-    print(f"Email: SMTP Backend")
-    print(f"Security: Enhanced")
-    print("=" * 60)
