@@ -2,17 +2,17 @@
 <div class="space-y-6">
   
   {# CALENDAR KETERSEDIAAN #}
-  <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5 space-y-4">
+  <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-5 space-y-4">
     
     {# Calendar Header #}
     <div class="flex items-center justify-between">
-      <h3 class="text-base font-semibold text-slate-900">Januari 2026</h3>
+      <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100">Januari 2026</h3>
       <div class="flex gap-2">
-        <button onclick="changeMonth(-1)" class="w-8 h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center transition">
-          <span class="material-icons text-lg text-slate-600">chevron_left</span>
+        <button onclick="changeMonth(-1)" class="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 flex items-center justify-center transition">
+          <span class="material-icons text-lg text-slate-600 dark:text-slate-300">chevron_left</span>
         </button>
-        <button onclick="changeMonth(1)" class="w-8 h-8 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center transition">
-          <span class="material-icons text-lg text-slate-600">chevron_right</span>
+        <button onclick="changeMonth(1)" class="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 flex items-center justify-center transition">
+          <span class="material-icons text-lg text-slate-600 dark:text-slate-300">chevron_right</span>
         </button>
       </div>
     </div>
@@ -20,138 +20,138 @@
     {# Calendar Grid #}
     <div class="space-y-2">
       {# Days Header #}
-      <div class="grid grid-cols-7 gap-px bg-slate-200 rounded-lg overflow-hidden">
-        <div class="bg-white text-center py-2 text-[10px] font-semibold text-slate-500 uppercase">M</div>
-        <div class="bg-white text-center py-2 text-[10px] font-semibold text-slate-500 uppercase">S</div>
-        <div class="bg-white text-center py-2 text-[10px] font-semibold text-slate-500 uppercase">S</div>
-        <div class="bg-white text-center py-2 text-[10px] font-semibold text-slate-500 uppercase">R</div>
-        <div class="bg-white text-center py-2 text-[10px] font-semibold text-slate-500 uppercase">K</div>
-        <div class="bg-white text-center py-2 text-[10px] font-semibold text-slate-500 uppercase">J</div>
-        <div class="bg-white text-center py-2 text-[10px] font-semibold text-slate-500 uppercase">S</div>
+      <div class="grid grid-cols-7 gap-px bg-slate-200 dark:bg-slate-700 rounded-lg overflow-hidden">
+        <div class="bg-white dark:bg-slate-800 text-center py-2 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase">M</div>
+        <div class="bg-white dark:bg-slate-800 text-center py-2 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase">S</div>
+        <div class="bg-white dark:bg-slate-800 text-center py-2 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase">S</div>
+        <div class="bg-white dark:bg-slate-800 text-center py-2 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase">R</div>
+        <div class="bg-white dark:bg-slate-800 text-center py-2 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase">K</div>
+        <div class="bg-white dark:bg-slate-800 text-center py-2 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase">J</div>
+        <div class="bg-white dark:bg-slate-800 text-center py-2 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase">S</div>
       </div>
 
       {# Calendar Days - Borderless Stacked Style #}
       <div class="grid grid-cols-7 gap-px">
         {# Previous Month Days (grayed out) #}
-        <button type="button" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-300 hover:bg-slate-50 rounded-lg transition">27</button>
-        <button type="button" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-300 hover:bg-slate-50 rounded-lg transition">28</button>
-        <button type="button" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-300 hover:bg-slate-50 rounded-lg transition">29</button>
-        <button type="button" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-300 hover:bg-slate-50 rounded-lg transition">30</button>
-        <button type="button" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-300 hover:bg-slate-50 rounded-lg transition">31</button>
+        <button type="button" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-300 dark:text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition">27</button>
+        <button type="button" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-300 dark:text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition">28</button>
+        <button type="button" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-300 dark:text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition">29</button>
+        <button type="button" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-300 dark:text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition">30</button>
+        <button type="button" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-300 dark:text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition">31</button>
 
         {# Current Month Days #}
-        <button type="button" onclick="selectDate('2026-01-01')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 hover:bg-slate-50 rounded-lg transition">1</button>
-        <button type="button" onclick="selectDate('2026-01-02')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 hover:bg-slate-50 rounded-lg transition">2</button>
+        <button type="button" onclick="selectDate('2026-01-01')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition">1</button>
+        <button type="button" onclick="selectDate('2026-01-02')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition">2</button>
         
         {# Week 2 #}
-        <button type="button" onclick="selectDate('2026-01-03')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 hover:bg-slate-50 rounded-lg transition">3</button>
-        <button type="button" onclick="selectDate('2026-01-04')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 hover:bg-slate-50 rounded-lg transition">4</button>
-        <button type="button" onclick="selectDate('2026-01-05')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 hover:bg-slate-50 rounded-lg transition">5</button>
-        <button type="button" onclick="selectDate('2026-01-06')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 hover:bg-slate-50 rounded-lg transition">6</button>
-        <button type="button" onclick="selectDate('2026-01-07')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 hover:bg-slate-50 rounded-lg transition">7</button>
-        <button type="button" onclick="selectDate('2026-01-08')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 hover:bg-slate-50 rounded-lg transition">8</button>
-        <button type="button" onclick="selectDate('2026-01-09')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 hover:bg-slate-50 rounded-lg transition">9</button>
+        <button type="button" onclick="selectDate('2026-01-03')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition">3</button>
+        <button type="button" onclick="selectDate('2026-01-04')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition">4</button>
+        <button type="button" onclick="selectDate('2026-01-05')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition">5</button>
+        <button type="button" onclick="selectDate('2026-01-06')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition">6</button>
+        <button type="button" onclick="selectDate('2026-01-07')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition">7</button>
+        <button type="button" onclick="selectDate('2026-01-08')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition">8</button>
+        <button type="button" onclick="selectDate('2026-01-09')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition">9</button>
 
         {# Week 3 #}
-        <button type="button" onclick="selectDate('2026-01-10')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 hover:bg-slate-50 rounded-lg transition">10</button>
-        <button type="button" onclick="selectDate('2026-01-11')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 hover:bg-slate-50 rounded-lg transition">11</button>
+        <button type="button" onclick="selectDate('2026-01-10')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition">10</button>
+        <button type="button" onclick="selectDate('2026-01-11')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition">11</button>
         
         {# Day 12 - Has event (blue dot) #}
-        <button type="button" onclick="selectDate('2026-01-12')" class="aspect-square flex flex-col items-center justify-center text-xs font-medium text-primary-600 hover:bg-primary-50 rounded-lg transition relative">
+        <button type="button" onclick="selectDate('2026-01-12')" class="aspect-square flex flex-col items-center justify-center text-xs font-medium text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-lg transition relative">
           <span>12</span>
-          <span class="w-1 h-1 rounded-full bg-primary-600 mt-0.5"></span>
+          <span class="w-1 h-1 rounded-full bg-primary-600 dark:bg-primary-400 mt-0.5"></span>
         </button>
         
-        <button type="button" onclick="selectDate('2026-01-13')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 hover:bg-slate-50 rounded-lg transition">13</button>
-        <button type="button" onclick="selectDate('2026-01-14')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 hover:bg-slate-50 rounded-lg transition">14</button>
+        <button type="button" onclick="selectDate('2026-01-13')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition">13</button>
+        <button type="button" onclick="selectDate('2026-01-14')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition">14</button>
         
         {# Day 15 - BLOCKED (Blok Rutin Lab) #}
-        <button type="button" onclick="selectDate('2026-01-15')" class="aspect-square flex items-center justify-center text-xs font-medium text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-lg transition border border-rose-200">15</button>
+        <button type="button" onclick="selectDate('2026-01-15')" class="aspect-square flex items-center justify-center text-xs font-medium text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-900/30 hover:bg-rose-100 dark:hover:bg-rose-800/50 rounded-lg transition border border-rose-200 dark:border-rose-800">15</button>
         
-        <button type="button" onclick="selectDate('2026-01-16')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 hover:bg-slate-50 rounded-lg transition">16</button>
+        <button type="button" onclick="selectDate('2026-01-16')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition">16</button>
 
         {# Week 4 #}
-        <button type="button" onclick="selectDate('2026-01-17')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 hover:bg-slate-50 rounded-lg transition">17</button>
-        <button type="button" onclick="selectDate('2026-01-18')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 hover:bg-slate-50 rounded-lg transition">18</button>
-        <button type="button" onclick="selectDate('2026-01-19')" class="aspect-square flex items-center justify-center text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition border border-emerald-200">19</button>
-        <button type="button" onclick="selectDate('2026-01-20')" class="aspect-square flex items-center justify-center text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition border border-emerald-200">20</button>
+        <button type="button" onclick="selectDate('2026-01-17')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition">17</button>
+        <button type="button" onclick="selectDate('2026-01-18')" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-900 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition">18</button>
+        <button type="button" onclick="selectDate('2026-01-19')" class="aspect-square flex items-center justify-center text-xs font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-800/50 rounded-lg transition border border-emerald-200 dark:border-emerald-800">19</button>
+        <button type="button" onclick="selectDate('2026-01-20')" class="aspect-square flex items-center justify-center text-xs font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-800/50 rounded-lg transition border border-emerald-200 dark:border-emerald-800">20</button>
         
         {# Day 21 - Today (highlighted) #}
-        <button type="button" onclick="selectDate('2026-01-21')" class="aspect-square flex items-center justify-center text-xs font-semibold text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition shadow-sm">21</button>
+        <button type="button" onclick="selectDate('2026-01-21')" class="aspect-square flex items-center justify-center text-xs font-semibold text-white bg-primary-600 dark:bg-primary-500 hover:bg-primary-700 dark:hover:bg-primary-600 rounded-lg transition shadow-sm">21</button>
         
         {# Day 22 - BLOCKED (Kegiatan Rutin Fakultas) #}
-        <button type="button" onclick="selectDate('2026-01-22')" class="aspect-square flex items-center justify-center text-xs font-medium text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-lg transition border border-rose-200">22</button>
+        <button type="button" onclick="selectDate('2026-01-22')" class="aspect-square flex items-center justify-center text-xs font-medium text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-900/30 hover:bg-rose-100 dark:hover:bg-rose-800/50 rounded-lg transition border border-rose-200 dark:border-rose-800">22</button>
         
-        <button type="button" onclick="selectDate('2026-01-23')" class="aspect-square flex items-center justify-center text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition border border-emerald-200">23</button>
+        <button type="button" onclick="selectDate('2026-01-23')" class="aspect-square flex items-center justify-center text-xs font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-800/50 rounded-lg transition border border-emerald-200 dark:border-emerald-800">23</button>
 
         {# Week 5 #}
-        <button type="button" onclick="selectDate('2026-01-24')" class="aspect-square flex items-center justify-center text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition border border-emerald-200">24</button>
-        <button type="button" onclick="selectDate('2026-01-25')" class="aspect-square flex items-center justify-center text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition border border-emerald-200">25</button>
-        <button type="button" onclick="selectDate('2026-01-26')" class="aspect-square flex items-center justify-center text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition border border-emerald-200">26</button>
+        <button type="button" onclick="selectDate('2026-01-24')" class="aspect-square flex items-center justify-center text-xs font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-800/50 rounded-lg transition border border-emerald-200 dark:border-emerald-800">24</button>
+        <button type="button" onclick="selectDate('2026-01-25')" class="aspect-square flex items-center justify-center text-xs font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-800/50 rounded-lg transition border border-emerald-200 dark:border-emerald-800">25</button>
+        <button type="button" onclick="selectDate('2026-01-26')" class="aspect-square flex items-center justify-center text-xs font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-800/50 rounded-lg transition border border-emerald-200 dark:border-emerald-800">26</button>
         
         {# Day 27 - Partially booked #}
-        <button type="button" onclick="selectDate('2026-01-27')" class="aspect-square flex items-center justify-center text-xs font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition border border-amber-200">27</button>
+        <button type="button" onclick="selectDate('2026-01-27')" class="aspect-square flex items-center justify-center text-xs font-medium text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-800/50 rounded-lg transition border border-amber-200 dark:border-amber-800">27</button>
         
-        <button type="button" onclick="selectDate('2026-01-28')" class="aspect-square flex items-center justify-center text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition border border-emerald-200">28</button>
+        <button type="button" onclick="selectDate('2026-01-28')" class="aspect-square flex items-center justify-center text-xs font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-800/50 rounded-lg transition border border-emerald-200 dark:border-emerald-800">28</button>
         
         {# Day 29 - BLOCKED (Maintenance Lab) #}
-        <button type="button" onclick="selectDate('2026-01-29')" class="aspect-square flex items-center justify-center text-xs font-medium text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-lg transition border border-rose-200">29</button>
+        <button type="button" onclick="selectDate('2026-01-29')" class="aspect-square flex items-center justify-center text-xs font-medium text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-900/30 hover:bg-rose-100 dark:hover:bg-rose-800/50 rounded-lg transition border border-rose-200 dark:border-rose-800">29</button>
         
-        <button type="button" onclick="selectDate('2026-01-30')" class="aspect-square flex items-center justify-center text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition border border-emerald-200">30</button>
+        <button type="button" onclick="selectDate('2026-01-30')" class="aspect-square flex items-center justify-center text-xs font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-800/50 rounded-lg transition border border-emerald-200 dark:border-emerald-800">30</button>
 
         {# Week 6 #}
-        <button type="button" onclick="selectDate('2026-01-31')" class="aspect-square flex items-center justify-center text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition border border-emerald-200">31</button>
+        <button type="button" onclick="selectDate('2026-01-31')" class="aspect-square flex items-center justify-center text-xs font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-800/50 rounded-lg transition border border-emerald-200 dark:border-emerald-800">31</button>
         
         {# Next Month Days (grayed out) #}
-        <button type="button" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-300 hover:bg-slate-50 rounded-lg transition">1</button>
-        <button type="button" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-300 hover:bg-slate-50 rounded-lg transition">2</button>
-        <button type="button" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-300 hover:bg-slate-50 rounded-lg transition">3</button>
-        <button type="button" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-300 hover:bg-slate-50 rounded-lg transition">4</button>
-        <button type="button" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-300 hover:bg-slate-50 rounded-lg transition">5</button>
-        <button type="button" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-300 hover:bg-slate-50 rounded-lg transition">6</button>
+        <button type="button" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-300 dark:text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition">1</button>
+        <button type="button" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-300 dark:text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition">2</button>
+        <button type="button" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-300 dark:text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition">3</button>
+        <button type="button" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-300 dark:text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition">4</button>
+        <button type="button" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-300 dark:text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition">5</button>
+        <button type="button" class="aspect-square flex items-center justify-center text-xs font-medium text-slate-300 dark:text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg transition">6</button>
       </div>
 
       {# Legend #}
-      <div class="flex flex-wrap gap-4 text-xs pt-3 border-t border-slate-100">
+      <div class="flex flex-wrap gap-4 text-xs pt-3 border-t border-slate-100 dark:border-slate-700">
         <div class="flex items-center gap-1.5">
-          <span class="w-3 h-3 rounded bg-emerald-100 border border-emerald-300"></span>
-          <span class="text-slate-600">Tersedia</span>
+          <span class="w-3 h-3 rounded bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-300 dark:border-emerald-700"></span>
+          <span class="text-slate-600 dark:text-slate-400">Tersedia</span>
         </div>
         <div class="flex items-center gap-1.5">
-          <span class="w-3 h-3 rounded bg-amber-100 border border-amber-300"></span>
-          <span class="text-slate-600">Terboking</span>
+          <span class="w-3 h-3 rounded bg-amber-100 dark:bg-amber-900/30 border border-amber-300 dark:border-amber-700"></span>
+          <span class="text-slate-600 dark:text-slate-400">Terboking</span>
         </div>
         <div class="flex items-center gap-1.5">
-          <span class="w-3 h-3 rounded bg-rose-100 border border-rose-300"></span>
-          <span class="text-slate-600">Blok Rutin</span>
+          <span class="w-3 h-3 rounded bg-rose-100 dark:bg-rose-900/30 border border-rose-300 dark:border-rose-700"></span>
+          <span class="text-slate-600 dark:text-slate-400">Blok Rutin</span>
         </div>
         <div class="flex items-center gap-1.5">
-          <span class="w-3 h-3 rounded bg-primary-600"></span>
-          <span class="text-slate-600">Hari Ini</span>
+          <span class="w-3 h-3 rounded bg-primary-600 dark:bg-primary-500"></span>
+          <span class="text-slate-600 dark:text-slate-400">Hari Ini</span>
         </div>
       </div>
     </div>
   </div>
 
   {# BLOCKED SCHEDULE - Jadwal yang Sudah Ditempati #}
-  <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5 space-y-4">
-    <h3 class="text-base font-semibold text-slate-900 flex items-center gap-2">
-      <span class="material-icons text-rose-600">block</span>
-      Jadwal Terblokir: <span class="text-rose-600" id="selected-date-display">22 Januari 2026</span>
+  <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-5 space-y-4">
+    <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+      <span class="material-icons text-rose-600 dark:text-rose-400">block</span>
+      Jadwal Terblokir: <span class="text-rose-600 dark:text-rose-400" id="selected-date-display">22 Januari 2026</span>
     </h3>
 
     {# Blocked Schedule List #}
     <div class="space-y-3" id="blocked-schedule-container">
       
       {# Blocked Event 1 - Kegiatan Rutin #}
-      <div class="rounded-lg border border-rose-200 bg-rose-50/50 p-3">
+      <div class="rounded-lg border border-rose-200 dark:border-rose-800 bg-rose-50/50 dark:bg-rose-900/20 p-3">
         <div class="flex items-start gap-3">
-          <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-rose-100 flex items-center justify-center">
-            <span class="material-icons text-rose-600">event_busy</span>
+          <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center">
+            <span class="material-icons text-rose-600 dark:text-rose-400">event_busy</span>
           </div>
           <div class="flex-1 min-w-0">
-            <p class="text-sm font-semibold text-rose-900 mb-1">Kegiatan Rutin Fakultas</p>
-            <div class="space-y-1 text-xs text-rose-700">
+            <p class="text-sm font-semibold text-rose-900 dark:text-rose-300 mb-1">Kegiatan Rutin Fakultas</p>
+            <div class="space-y-1 text-xs text-rose-700 dark:text-rose-400">
               <p class="flex items-center gap-1.5">
                 <span class="material-icons text-xs">schedule</span>
                 08:00 - 17:00 (Sepanjang Hari)
@@ -166,21 +166,21 @@
               </p>
             </div>
           </div>
-          <span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap bg-rose-100 text-rose-800 border border-rose-300">
+          <span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap bg-rose-100 dark:bg-rose-900/50 text-rose-800 dark:text-rose-300 border border-rose-300 dark:border-rose-700">
             Blok Rutin
           </span>
         </div>
       </div>
 
       {# Blocked Event 2 - Maintenance #}
-      <div class="rounded-lg border border-rose-200 bg-rose-50/50 p-3">
+      <div class="rounded-lg border border-rose-200 dark:border-rose-800 bg-rose-50/50 dark:bg-rose-900/20 p-3">
         <div class="flex items-start gap-3">
-          <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-rose-100 flex items-center justify-center">
-            <span class="material-icons text-rose-600">build</span>
+          <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center">
+            <span class="material-icons text-rose-600 dark:text-rose-400">build</span>
           </div>
           <div class="flex-1 min-w-0">
-            <p class="text-sm font-semibold text-rose-900 mb-1">Maintenance Peralatan Lab</p>
-            <div class="space-y-1 text-xs text-rose-700">
+            <p class="text-sm font-semibold text-rose-900 dark:text-rose-300 mb-1">Maintenance Peralatan Lab</p>
+            <div class="space-y-1 text-xs text-rose-700 dark:text-rose-400">
               <p class="flex items-center gap-1.5">
                 <span class="material-icons text-xs">schedule</span>
                 13:00 - 15:00
@@ -195,7 +195,7 @@
               </p>
             </div>
           </div>
-          <span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap bg-rose-100 text-rose-800 border border-rose-300">
+          <span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap bg-rose-100 dark:bg-rose-900/50 text-rose-800 dark:text-rose-300 border border-rose-300 dark:border-rose-700">
             Maintenance
           </span>
         </div>
@@ -205,58 +205,58 @@
 
     {# Empty State - Untuk tanggal yang tidak terblokir #}
     <div id="empty-blocked-schedule" class="hidden text-center py-8">
-      <span class="material-icons text-4xl text-emerald-300 mb-2">check_circle</span>
-      <p class="text-sm font-medium text-slate-700 mb-1">Tanggal ini tersedia</p>
-      <p class="text-xs text-slate-400">Tidak ada blokir jadwal untuk tanggal ini</p>
+      <span class="material-icons text-4xl text-emerald-300 dark:text-emerald-600 mb-2">check_circle</span>
+      <p class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tanggal ini tersedia</p>
+      <p class="text-xs text-slate-400 dark:text-slate-500">Tidak ada blokir jadwal untuk tanggal ini</p>
     </div>
   </div>
 
   {# PERMOHONAN TERAKHIR #}
-  <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5 space-y-4">
-    <h3 class="text-base font-semibold text-slate-900 flex items-center gap-2">
-      <span class="material-icons text-primary-600">list_alt</span>
+  <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-5 space-y-4">
+    <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+      <span class="material-icons text-primary-600 dark:text-primary-400">list_alt</span>
       Permohonan Terakhir Anda
     </h3>
 
     <div class="space-y-2">
-      <div class="rounded-lg border border-slate-100 bg-slate-50/50 p-3 hover:bg-slate-50 transition cursor-pointer" onclick="switchModule('history')">
+      <div class="rounded-lg border border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 p-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition cursor-pointer" onclick="switchModule('history')">
         <div class="flex items-center justify-between gap-3">
           <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium text-slate-900 truncate">Lab Psikometri</p>
-            <p class="text-xs text-slate-500">15 Jan 2026, 09:00 - 11:00</p>
+            <p class="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">Lab Psikometri</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">15 Jan 2026, 09:00 - 11:00</p>
           </div>
-          <span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap bg-emerald-50 text-emerald-700 border border-emerald-200">
+          <span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
             Disetujui
           </span>
         </div>
       </div>
 
-      <div class="rounded-lg border border-slate-100 bg-slate-50/50 p-3 hover:bg-slate-50 transition cursor-pointer" onclick="switchModule('history')">
+      <div class="rounded-lg border border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 p-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition cursor-pointer" onclick="switchModule('history')">
         <div class="flex items-center justify-between gap-3">
           <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium text-slate-900 truncate">Lab Klinis</p>
-            <p class="text-xs text-slate-500">12 Jan 2026, 14:00 - 16:00</p>
+            <p class="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">Lab Klinis</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">12 Jan 2026, 14:00 - 16:00</p>
           </div>
-          <span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap bg-amber-50 text-amber-700 border border-amber-200">
+          <span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
             Pending
           </span>
         </div>
       </div>
 
-      <div class="rounded-lg border border-slate-100 bg-slate-50/50 p-3 hover:bg-slate-50 transition cursor-pointer" onclick="switchModule('history')">
+      <div class="rounded-lg border border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 p-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition cursor-pointer" onclick="switchModule('history')">
         <div class="flex items-center justify-between gap-3">
           <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium text-slate-900 truncate">Lab Perkembangan</p>
-            <p class="text-xs text-slate-500">10 Jan 2026, 10:00 - 12:00</p>
+            <p class="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">Lab Perkembangan</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">10 Jan 2026, 10:00 - 12:00</p>
           </div>
-          <span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap bg-rose-50 text-rose-700 border border-rose-200">
+          <span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
             Ditolak
           </span>
         </div>
       </div>
     </div>
 
-    <button onclick="switchModule('history')" class="w-full text-center text-sm text-primary-600 hover:text-primary-700 font-medium py-2 hover:bg-primary-50 rounded-lg transition">
+    <button onclick="switchModule('history')" class="w-full text-center text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium py-2 hover:bg-primary-50 dark:hover:bg-primary-900/30 rounded-lg transition">
       Lihat Semua Riwayat →
     </button>
   </div>
@@ -337,14 +337,14 @@
     if (schedules.length > 0) {
       // Show blocked schedules
       container.innerHTML = schedules.map(s => `
-        <div class="rounded-lg border border-rose-200 bg-rose-50/50 p-3">
+        <div class="rounded-lg border border-rose-200 dark:border-rose-800 bg-rose-50/50 dark:bg-rose-900/20 p-3">
           <div class="flex items-start gap-3">
-            <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-rose-100 flex items-center justify-center">
-              <span class="material-icons text-rose-600">${s.icon}</span>
+            <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center">
+              <span class="material-icons text-rose-600 dark:text-rose-400">${s.icon}</span>
             </div>
             <div class="flex-1 min-w-0">
-              <p class="text-sm font-semibold text-rose-900 mb-1">${s.title}</p>
-              <div class="space-y-1 text-xs text-rose-700">
+              <p class="text-sm font-semibold text-rose-900 dark:text-rose-300 mb-1">${s.title}</p>
+              <div class="space-y-1 text-xs text-rose-700 dark:text-rose-400">
                 <p class="flex items-center gap-1.5">
                   <span class="material-icons text-xs">schedule</span>
                   ${s.time}
@@ -359,7 +359,7 @@
                 </p>
               </div>
             </div>
-            <span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap bg-rose-100 text-rose-800 border border-rose-300">
+            <span class="inline-flex items-center px-2 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap bg-rose-100 dark:bg-rose-900/50 text-rose-800 dark:text-rose-300 border border-rose-300 dark:border-rose-700">
               ${s.type}
             </span>
           </div>

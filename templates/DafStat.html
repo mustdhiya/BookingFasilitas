@@ -9,11 +9,11 @@
 
   {# ===== HEADER ===== #}
   <header class="space-y-2">
-    <h1 class="text-2xl sm:text-3xl font-semibold text-slate-900 flex items-center gap-3">
-      <span class="material-icons text-primary-600">school</span>
+    <h1 class="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-3">
+      <span class="material-icons text-primary-600 dark:text-primary-400">school</span>
       Praktikum & Penelitian
     </h1>
-    <p class="text-sm text-slate-500">
+    <p class="text-sm text-slate-500 dark:text-slate-400">
       Kelola jadwal praktikum dan variabel penelitian dalam satu tempat.
     </p>
   </header>
@@ -21,28 +21,28 @@
   {# ===== MODULE SELECTOR ===== #}
   <div class="grid sm:grid-cols-2 gap-4">
     <div class="group cursor-pointer" onclick="switchModule('praktikum')">
-      <div id="card-praktikum" class="rounded-xl border-2 border-primary-300 bg-gradient-to-br from-primary-50 to-white p-5 hover:shadow-lg hover:border-primary-400 transition">
+      <div id="card-praktikum" class="rounded-xl border-2 border-primary-300 dark:border-primary-700 bg-gradient-to-br from-primary-50 dark:from-primary-900/30 to-white dark:to-slate-800 p-5 hover:shadow-lg hover:border-primary-400 dark:hover:border-primary-600 transition">
         <div class="flex items-start gap-4">
-          <div class="w-12 h-12 rounded-lg bg-primary-100 flex items-center justify-center group-hover:bg-primary-200 transition flex-shrink-0">
-            <span class="material-icons text-2xl text-primary-600">event_note</span>
+          <div class="w-12 h-12 rounded-lg bg-primary-100 dark:bg-primary-900/50 flex items-center justify-center group-hover:bg-primary-200 dark:group-hover:bg-primary-800/50 transition flex-shrink-0">
+            <span class="material-icons text-2xl text-primary-600 dark:text-primary-400">event_note</span>
           </div>
           <div class="flex-1">
-            <h3 class="text-base font-semibold text-slate-900 mb-1">Jadwal Praktikum</h3>
-            <p class="text-xs text-slate-500">4 tipe praktikum dengan self-registration</p>
+            <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">Jadwal Praktikum</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">4 tipe praktikum dengan self-registration</p>
           </div>
         </div>
       </div>
     </div>
 
     <div class="group cursor-pointer" onclick="switchModule('penelitian')">
-      <div id="card-penelitian" class="rounded-xl border-2 border-slate-200 bg-white p-5 hover:shadow-md hover:border-slate-300 transition">
+      <div id="card-penelitian" class="rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 transition">
         <div class="flex items-start gap-4">
-          <div class="w-12 h-12 rounded-lg bg-orange-100 flex items-center justify-center flex-shrink-0">
-            <span class="material-icons text-2xl text-orange-600">auto_stories</span>
+          <div class="w-12 h-12 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center flex-shrink-0">
+            <span class="material-icons text-2xl text-orange-600 dark:text-orange-400">auto_stories</span>
           </div>
           <div class="flex-1">
-            <h3 class="text-base font-semibold text-slate-900 mb-1">Variabel Penelitian</h3>
-            <p class="text-xs text-slate-500">Request variabel & tracking bimbingan</p>
+            <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">Variabel Penelitian</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Request variabel & tracking bimbingan</p>
           </div>
         </div>
       </div>
@@ -54,10 +54,10 @@
     <div class="grid lg:grid-cols-[1fr_400px] gap-6">
 
       {# LEFT: Jadwal Praktikum List #}
-      <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6 space-y-6">
-        <div class="pb-4 border-b border-slate-100">
-          <h3 class="text-lg font-semibold text-slate-900 flex items-center gap-2">
-            <span class="material-icons text-primary-600">calendar_month</span>
+      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-6 space-y-6">
+        <div class="pb-4 border-b border-slate-100 dark:border-slate-700">
+          <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <span class="material-icons text-primary-600 dark:text-primary-400">calendar_month</span>
             Daftar Jadwal Praktikum
           </h3>
         </div>
@@ -65,7 +65,7 @@
         {# Filter Bar #}
         <div class="flex flex-col sm:flex-row gap-3">
           <div class="flex-1">
-            <select id="praktikum-type" class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 transition">
+            <select id="praktikum-type" class="w-full rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-slate-200 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition">
               <option value="">Semua Tipe Praktikum</option>
               <option value="inteligensi">Praktikum Inteligensi</option>
               <option value="inventory">Praktikum Inventory</option>
@@ -74,8 +74,8 @@
             </select>
           </div>
           <div class="flex gap-2">
-            <input type="date" id="praktikum-date" class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 transition" />
-            <button onclick="filterPraktikum()" class="inline-flex items-center gap-1.5 rounded-lg bg-primary-500 hover:bg-primary-600 text-white font-semibold text-sm px-4 py-2 transition">
+            <input type="date" id="praktikum-date" class="rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-slate-200 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition" />
+            <button onclick="filterPraktikum()" class="inline-flex items-center gap-1.5 rounded-lg bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 dark:hover:bg-primary-700 text-white font-semibold text-sm px-4 py-2 transition">
               <span class="material-icons text-base">search</span>
               Filter
             </button>
@@ -87,33 +87,33 @@
         {# Schedule Cards #}
         <div class="space-y-3" id="praktikum-list">
           {# Card 1 - Available #}
-          <div class="praktikum-card rounded-xl border border-slate-200 bg-white p-4 hover:shadow-md hover:border-primary-200 transition">
+          <div class="praktikum-card rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 hover:shadow-md hover:border-primary-200 dark:hover:border-primary-700 transition">
             <div class="flex items-start justify-between gap-4">
               <div class="flex-1">
-                <h4 class="text-base font-semibold text-slate-900 mb-2 flex items-center gap-2">
-                  <span class="material-icons text-lg text-purple-600">psychology</span>
+                <h4 class="text-base font-semibold text-slate-900 dark:text-slate-100 mb-2 flex items-center gap-2">
+                  <span class="material-icons text-lg text-purple-600 dark:text-purple-400">psychology</span>
                   Praktikum Inteligensi - Sesi 3
                 </h4>
-                <div class="space-y-1.5 text-sm text-slate-600">
+                <div class="space-y-1.5 text-sm text-slate-600 dark:text-slate-400">
                   <div class="flex items-center gap-2">
-                    <span class="material-icons text-base text-slate-400">person</span>
+                    <span class="material-icons text-base text-slate-400 dark:text-slate-500">person</span>
                     <span>Dr. Ahmad Fauzi, M.Psi</span>
                   </div>
                   <div class="flex items-center gap-2">
-                    <span class="material-icons text-base text-slate-400">calendar_today</span>
+                    <span class="material-icons text-base text-slate-400 dark:text-slate-500">calendar_today</span>
                     <span>22 Januari 2026, 09:00 - 11:30</span>
                   </div>
                   <div class="flex items-center gap-2">
-                    <span class="material-icons text-base text-slate-400">meeting_room</span>
+                    <span class="material-icons text-base text-slate-400 dark:text-slate-500">meeting_room</span>
                     <span>Lab Psikometri</span>
                   </div>
                 </div>
               </div>
               <div class="flex flex-col items-end gap-2">
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                   12 / 40 slot
                 </span>
-                <button onclick="daftarPraktikum(1)" class="inline-flex items-center gap-1.5 rounded-full bg-primary-500 hover:bg-primary-600 text-white font-semibold text-sm px-4 py-2 transition">
+                <button onclick="daftarPraktikum(1)" class="inline-flex items-center gap-1.5 rounded-full bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 dark:hover:bg-primary-700 text-white font-semibold text-sm px-4 py-2 transition">
                   <span class="material-icons text-base">person_add</span>
                   Daftar
                 </button>
@@ -122,33 +122,33 @@
           </div>
 
           {# Card 2 - Limited #}
-          <div class="praktikum-card rounded-xl border border-slate-200 bg-white p-4 hover:shadow-md hover:border-primary-200 transition">
+          <div class="praktikum-card rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 hover:shadow-md hover:border-primary-200 dark:hover:border-primary-700 transition">
             <div class="flex items-start justify-between gap-4">
               <div class="flex-1">
-                <h4 class="text-base font-semibold text-slate-900 mb-2 flex items-center gap-2">
-                  <span class="material-icons text-lg text-purple-600">inventory</span>
+                <h4 class="text-base font-semibold text-slate-900 dark:text-slate-100 mb-2 flex items-center gap-2">
+                  <span class="material-icons text-lg text-purple-600 dark:text-purple-400">inventory</span>
                   Praktikum Inventory - Sesi 5
                 </h4>
-                <div class="space-y-1.5 text-sm text-slate-600">
+                <div class="space-y-1.5 text-sm text-slate-600 dark:text-slate-400">
                   <div class="flex items-center gap-2">
-                    <span class="material-icons text-base text-slate-400">person</span>
+                    <span class="material-icons text-base text-slate-400 dark:text-slate-500">person</span>
                     <span>Prof. Dr. Siti Rahmah</span>
                   </div>
                   <div class="flex items-center gap-2">
-                    <span class="material-icons text-base text-slate-400">calendar_today</span>
+                    <span class="material-icons text-base text-slate-400 dark:text-slate-500">calendar_today</span>
                     <span>24 Januari 2026, 13:00 - 15:30</span>
                   </div>
                   <div class="flex items-center gap-2">
-                    <span class="material-icons text-base text-slate-400">meeting_room</span>
+                    <span class="material-icons text-base text-slate-400 dark:text-slate-500">meeting_room</span>
                     <span>Lab Perkembangan</span>
                   </div>
                 </div>
               </div>
               <div class="flex flex-col items-end gap-2">
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
                   28 / 30 slot
                 </span>
-                <button onclick="daftarPraktikum(2)" class="inline-flex items-center gap-1.5 rounded-full bg-primary-500 hover:bg-primary-600 text-white font-semibold text-sm px-4 py-2 transition">
+                <button onclick="daftarPraktikum(2)" class="inline-flex items-center gap-1.5 rounded-full bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 dark:hover:bg-primary-700 text-white font-semibold text-sm px-4 py-2 transition">
                   <span class="material-icons text-base">person_add</span>
                   Daftar
                 </button>
@@ -157,33 +157,33 @@
           </div>
 
           {# Card 3 - Full (Waitlist) #}
-          <div class="praktikum-card rounded-xl border border-slate-200 bg-white p-4 hover:shadow-md hover:border-slate-300 transition opacity-75">
+          <div class="praktikum-card rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 transition opacity-75">
             <div class="flex items-start justify-between gap-4">
               <div class="flex-1">
-                <h4 class="text-base font-semibold text-slate-900 mb-2 flex items-center gap-2">
-                  <span class="material-icons text-lg text-purple-600">record_voice_over</span>
+                <h4 class="text-base font-semibold text-slate-900 dark:text-slate-100 mb-2 flex items-center gap-2">
+                  <span class="material-icons text-lg text-purple-600 dark:text-purple-400">record_voice_over</span>
                   Praktikum Wawancara - Sesi 2
                 </h4>
-                <div class="space-y-1.5 text-sm text-slate-600">
+                <div class="space-y-1.5 text-sm text-slate-600 dark:text-slate-400">
                   <div class="flex items-center gap-2">
-                    <span class="material-icons text-base text-slate-400">person</span>
+                    <span class="material-icons text-base text-slate-400 dark:text-slate-500">person</span>
                     <span>Dr. Budi Santoso, M.Psi</span>
                   </div>
                   <div class="flex items-center gap-2">
-                    <span class="material-icons text-base text-slate-400">calendar_today</span>
+                    <span class="material-icons text-base text-slate-400 dark:text-slate-500">calendar_today</span>
                     <span>25 Januari 2026, 10:00 - 12:00</span>
                   </div>
                   <div class="flex items-center gap-2">
-                    <span class="material-icons text-base text-slate-400">meeting_room</span>
+                    <span class="material-icons text-base text-slate-400 dark:text-slate-500">meeting_room</span>
                     <span>Lab Klinis</span>
                   </div>
                 </div>
               </div>
               <div class="flex flex-col items-end gap-2">
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
                   25 / 25 slot
                 </span>
-                <button onclick="waitlistPraktikum(3)" class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-sm px-4 py-2 transition">
+                <button onclick="waitlistPraktikum(3)" class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-medium text-sm px-4 py-2 transition">
                   <span class="material-icons text-base">playlist_add</span>
                   Waitlist
                 </button>
@@ -192,33 +192,33 @@
           </div>
 
           {# Card 4 - Registered #}
-          <div class="praktikum-card rounded-xl border-2 border-emerald-200 bg-emerald-50/30 p-4">
+          <div class="praktikum-card rounded-xl border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50/30 dark:bg-emerald-900/20 p-4">
             <div class="flex items-start justify-between gap-4">
               <div class="flex-1">
-                <h4 class="text-base font-semibold text-slate-900 mb-2 flex items-center gap-2">
-                  <span class="material-icons text-lg text-emerald-600">support_agent</span>
+                <h4 class="text-base font-semibold text-slate-900 dark:text-slate-100 mb-2 flex items-center gap-2">
+                  <span class="material-icons text-lg text-emerald-600 dark:text-emerald-400">support_agent</span>
                   Praktikum Konseling - Sesi 1
                 </h4>
-                <div class="space-y-1.5 text-sm text-slate-600">
+                <div class="space-y-1.5 text-sm text-slate-600 dark:text-slate-400">
                   <div class="flex items-center gap-2">
-                    <span class="material-icons text-base text-slate-400">person</span>
+                    <span class="material-icons text-base text-slate-400 dark:text-slate-500">person</span>
                     <span>Dr. Lina Wijaya, M.Psi</span>
                   </div>
                   <div class="flex items-center gap-2">
-                    <span class="material-icons text-base text-slate-400">calendar_today</span>
+                    <span class="material-icons text-base text-slate-400 dark:text-slate-500">calendar_today</span>
                     <span>28 Januari 2026, 14:00 - 16:30</span>
                   </div>
                   <div class="flex items-center gap-2">
-                    <span class="material-icons text-base text-slate-400">meeting_room</span>
+                    <span class="material-icons text-base text-slate-400 dark:text-slate-500">meeting_room</span>
                     <span>Lab Konseling</span>
                   </div>
                 </div>
               </div>
               <div class="flex flex-col items-end gap-2">
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                   15 / 20 slot
                 </span>
-                <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-500 text-white font-semibold text-sm px-4 py-2">
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-500 dark:bg-emerald-600 text-white font-semibold text-sm px-4 py-2">
                   <span class="material-icons text-base">check_circle</span>
                   Terdaftar
                 </span>
@@ -230,22 +230,22 @@
 
       {# RIGHT: Praktikum Saya #}
       <div class="space-y-6">
-        <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-5 space-y-4">
-          <h3 class="text-base font-semibold text-slate-900 flex items-center gap-2">
-            <span class="material-icons text-primary-600">assignment_ind</span>
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-5 space-y-4">
+          <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <span class="material-icons text-primary-600 dark:text-primary-400">assignment_ind</span>
             Praktikum Saya
           </h3>
 
           <div class="space-y-3">
             {# Upcoming #}
-            <div class="rounded-lg border border-emerald-200 bg-emerald-50/30 p-3">
+            <div class="rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50/30 dark:bg-emerald-900/20 p-3">
               <div class="flex items-start justify-between gap-2 mb-2">
-                <h4 class="text-sm font-medium text-slate-900">Praktikum Konseling - Sesi 1</h4>
-                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <h4 class="text-sm font-medium text-slate-900 dark:text-slate-100">Praktikum Konseling - Sesi 1</h4>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700">
                   Terdaftar
                 </span>
               </div>
-              <div class="space-y-1 text-xs text-slate-600">
+              <div class="space-y-1 text-xs text-slate-600 dark:text-slate-400">
                 <div class="flex items-center gap-1.5">
                   <span class="material-icons text-xs">calendar_today</span>
                   <span>28 Jan 2026, 14:00 - 16:30</span>
@@ -258,14 +258,14 @@
             </div>
 
             {# Completed #}
-            <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+            <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 p-3">
               <div class="flex items-start justify-between gap-2 mb-2">
-                <h4 class="text-sm font-medium text-slate-700">Praktikum Inventory - Sesi 3</h4>
-                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300">Praktikum Inventory - Sesi 3</h4>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
                   Selesai
                 </span>
               </div>
-              <div class="space-y-1 text-xs text-slate-600 mb-2">
+              <div class="space-y-1 text-xs text-slate-600 dark:text-slate-400 mb-2">
                 <div class="flex items-center gap-1.5">
                   <span class="material-icons text-xs">calendar_today</span>
                   <span>15 Jan 2026, 13:00 - 15:30</span>
@@ -275,21 +275,21 @@
                   <span>Attendance: 90%</span>
                 </div>
               </div>
-              <button onclick="downloadSertifikat(1)" class="w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-primary-200 bg-primary-50 hover:bg-primary-100 text-primary-700 font-medium text-xs px-3 py-1.5 transition">
+              <button onclick="downloadSertifikat(1)" class="w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-primary-200 dark:border-primary-700 bg-primary-50 dark:bg-primary-900/30 hover:bg-primary-100 dark:hover:bg-primary-800/50 text-primary-700 dark:text-primary-300 font-medium text-xs px-3 py-1.5 transition">
                 <span class="material-icons text-sm">download</span>
                 Download Sertifikat
               </button>
             </div>
 
             {# Completed 2 #}
-            <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+            <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 p-3">
               <div class="flex items-start justify-between gap-2 mb-2">
-                <h4 class="text-sm font-medium text-slate-700">Praktikum Inteligensi - Sesi 1</h4>
-                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300">Praktikum Inteligensi - Sesi 1</h4>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
                   Selesai
                 </span>
               </div>
-              <div class="space-y-1 text-xs text-slate-600 mb-2">
+              <div class="space-y-1 text-xs text-slate-600 dark:text-slate-400 mb-2">
                 <div class="flex items-center gap-1.5">
                   <span class="material-icons text-xs">calendar_today</span>
                   <span>10 Jan 2026, 09:00 - 11:30</span>
@@ -299,17 +299,17 @@
                   <span>Attendance: 85%</span>
                 </div>
               </div>
-              <button onclick="downloadSertifikat(2)" class="w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-primary-200 bg-primary-50 hover:bg-primary-100 text-primary-700 font-medium text-xs px-3 py-1.5 transition">
+              <button onclick="downloadSertifikat(2)" class="w-full inline-flex items-center justify-center gap-1.5 rounded-lg border border-primary-200 dark:border-primary-700 bg-primary-50 dark:bg-primary-900/30 hover:bg-primary-100 dark:hover:bg-primary-800/50 text-primary-700 dark:text-primary-300 font-medium text-xs px-3 py-1.5 transition">
                 <span class="material-icons text-sm">download</span>
                 Download Sertifikat
               </button>
             </div>
           </div>
 
-          <div class="pt-3 border-t border-slate-100">
-            <p class="flex items-center gap-1.5 text-xs text-slate-500">
+          <div class="pt-3 border-t border-slate-100 dark:border-slate-700">
+            <p class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
               <span class="material-icons text-xs">info</span>
-              Total praktikum diikuti: <strong class="text-primary-600">3 sesi</strong>
+              Total praktikum diikuti: <strong class="text-primary-600 dark:text-primary-400">3 sesi</strong>
             </p>
           </div>
         </div>
@@ -319,21 +319,21 @@
 
   {# ===== CONTENT SECTION: VARIABEL PENELITIAN ===== #}
   <div id="section-penelitian" class="module-section hidden">
-    <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6 space-y-6">
-      <div class="pb-4 border-b border-slate-100">
-        <h3 class="text-lg font-semibold text-slate-900 flex items-center gap-2">
-          <span class="material-icons text-primary-600">auto_stories</span>
+    <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-6 space-y-6">
+      <div class="pb-4 border-b border-slate-100 dark:border-slate-700">
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+          <span class="material-icons text-primary-600 dark:text-primary-400">auto_stories</span>
           Variabel Penelitian & Bimbingan
         </h3>
       </div>
 
       {# Tabs #}
-      <div class="flex gap-2 border-b border-slate-200">
-        <button onclick="switchPenelitianTab('variabel')" id="tab-variabel" class="penelitian-tab px-4 py-2.5 text-sm font-medium text-primary-600 border-b-2 border-primary-600 transition">
+      <div class="flex gap-2 border-b border-slate-200 dark:border-slate-700">
+        <button onclick="switchPenelitianTab('variabel')" id="tab-variabel" class="penelitian-tab px-4 py-2.5 text-sm font-medium text-primary-600 dark:text-primary-400 border-b-2 border-primary-600 dark:border-primary-400 transition">
           <span class="material-icons text-base mr-1.5 align-middle">list</span>
           Daftar Variabel
         </button>
-        <button onclick="switchPenelitianTab('bimbingan')" id="tab-bimbingan" class="penelitian-tab px-4 py-2.5 text-sm font-medium text-slate-500 border-b-2 border-transparent hover:text-slate-700 transition">
+        <button onclick="switchPenelitianTab('bimbingan')" id="tab-bimbingan" class="penelitian-tab px-4 py-2.5 text-sm font-medium text-slate-500 dark:text-slate-400 border-b-2 border-transparent hover:text-slate-700 dark:hover:text-slate-300 transition">
           <span class="material-icons text-base mr-1.5 align-middle">assignment_turned_in</span>
           Status & Bimbingan
         </button>
@@ -343,7 +343,7 @@
       <div id="content-variabel" class="penelitian-content">
         {# Filter #}
         <div class="flex gap-3 mb-6">
-          <select id="variabel-bidang" class="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 transition">
+          <select id="variabel-bidang" class="flex-1 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-slate-200 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition">
             <option value="">Semua Bidang Fokus</option>
             <option value="klinis">Psikologi Klinis</option>
             <option value="perkembangan">Psikologi Perkembangan</option>
@@ -351,7 +351,7 @@
             <option value="industri">Psikologi Industri & Organisasi</option>
             <option value="pendidikan">Psikologi Pendidikan</option>
           </select>
-          <button onclick="filterVariabel()" class="inline-flex items-center gap-1.5 rounded-lg bg-primary-500 hover:bg-primary-600 text-white font-semibold text-sm px-4 py-2 transition">
+          <button onclick="filterVariabel()" class="inline-flex items-center gap-1.5 rounded-lg bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 dark:hover:bg-primary-700 text-white font-semibold text-sm px-4 py-2 transition">
             <span class="material-icons text-base">search</span>
             Filter
           </button>
@@ -360,22 +360,22 @@
         {# Variable Cards Grid #}
         <div class="grid sm:grid-cols-2 gap-4">
           {# Card 1 #}
-          <div class="variable-card rounded-xl border border-slate-200 bg-white p-4 hover:shadow-md hover:border-primary-200 transition">
+          <div class="variable-card rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 hover:shadow-md hover:border-primary-200 dark:hover:border-primary-700 transition">
             <div class="flex items-start justify-between mb-3">
-              <h4 class="text-sm font-semibold text-slate-900 flex-1">Pengaruh Self-Efficacy terhadap Prokrastinasi</h4>
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-50 text-purple-700 border border-purple-200 whitespace-nowrap ml-2">
+              <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-100 flex-1">Pengaruh Self-Efficacy terhadap Prokrastinasi</h4>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 whitespace-nowrap ml-2">
                 Sosial
               </span>
             </div>
-            <p class="text-xs text-slate-600 mb-3 line-clamp-3">
+            <p class="text-xs text-slate-600 dark:text-slate-400 mb-3 line-clamp-3">
               Penelitian kuantitatif menggunakan skala self-efficacy dan prokrastinasi akademik pada mahasiswa tingkat akhir.
             </p>
-            <div class="flex items-center justify-between pt-3 border-t border-slate-100">
-              <div class="flex items-center gap-1 text-xs text-slate-500">
+            <div class="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-700">
+              <div class="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
                 <span class="material-icons text-xs">person</span>
-                Slot: <strong class="text-emerald-600">3 / 5</strong>
+                Slot: <strong class="text-emerald-600 dark:text-emerald-400">3 / 5</strong>
               </div>
-              <button onclick="requestVariabel(1)" class="inline-flex items-center gap-1 rounded-full bg-primary-500 hover:bg-primary-600 text-white font-semibold text-xs px-3 py-1.5 transition">
+              <button onclick="requestVariabel(1)" class="inline-flex items-center gap-1 rounded-full bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 dark:hover:bg-primary-700 text-white font-semibold text-xs px-3 py-1.5 transition">
                 <span class="material-icons text-xs">send</span>
                 Request
               </button>
@@ -383,22 +383,22 @@
           </div>
 
           {# Card 2 #}
-          <div class="variable-card rounded-xl border border-slate-200 bg-white p-4 hover:shadow-md hover:border-primary-200 transition">
+          <div class="variable-card rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 hover:shadow-md hover:border-primary-200 dark:hover:border-primary-700 transition">
             <div class="flex items-start justify-between mb-3">
-              <h4 class="text-sm font-semibold text-slate-900 flex-1">Regulasi Emosi pada Remaja dengan Kecemasan</h4>
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-50 text-purple-700 border border-purple-200 whitespace-nowrap ml-2">
+              <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-100 flex-1">Regulasi Emosi pada Remaja dengan Kecemasan</h4>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 whitespace-nowrap ml-2">
                 Klinis
               </span>
             </div>
-            <p class="text-xs text-slate-600 mb-3 line-clamp-3">
+            <p class="text-xs text-slate-600 dark:text-slate-400 mb-3 line-clamp-3">
               Studi kualitatif eksplorasi strategi regulasi emosi pada remaja usia 15-18 tahun yang mengalami gejala kecemasan.
             </p>
-            <div class="flex items-center justify-between pt-3 border-t border-slate-100">
-              <div class="flex items-center gap-1 text-xs text-slate-500">
+            <div class="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-700">
+              <div class="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
                 <span class="material-icons text-xs">person</span>
-                Slot: <strong class="text-amber-600">4 / 5</strong>
+                Slot: <strong class="text-amber-600 dark:text-amber-400">4 / 5</strong>
               </div>
-              <button onclick="requestVariabel(2)" class="inline-flex items-center gap-1 rounded-full bg-primary-500 hover:bg-primary-600 text-white font-semibold text-xs px-3 py-1.5 transition">
+              <button onclick="requestVariabel(2)" class="inline-flex items-center gap-1 rounded-full bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 dark:hover:bg-primary-700 text-white font-semibold text-xs px-3 py-1.5 transition">
                 <span class="material-icons text-xs">send</span>
                 Request
               </button>
@@ -406,22 +406,22 @@
           </div>
 
           {# Card 3 - Full #}
-          <div class="variable-card rounded-xl border border-slate-200 bg-slate-50 p-4 opacity-60">
+          <div class="variable-card rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 p-4 opacity-60">
             <div class="flex items-start justify-between mb-3">
-              <h4 class="text-sm font-semibold text-slate-700 flex-1">Motivasi Kerja dan Kepuasan Karyawan</h4>
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-50 text-purple-700 border border-purple-200 whitespace-nowrap ml-2">
+              <h4 class="text-sm font-semibold text-slate-700 dark:text-slate-400 flex-1">Motivasi Kerja dan Kepuasan Karyawan</h4>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 whitespace-nowrap ml-2">
                 Industri
               </span>
             </div>
-            <p class="text-xs text-slate-500 mb-3 line-clamp-3">
+            <p class="text-xs text-slate-500 dark:text-slate-500 mb-3 line-clamp-3">
               Analisis hubungan motivasi intrinsik-ekstrinsik dengan kepuasan kerja pada karyawan perusahaan startup.
             </p>
-            <div class="flex items-center justify-between pt-3 border-t border-slate-100">
-              <div class="flex items-center gap-1 text-xs text-slate-500">
+            <div class="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-700">
+              <div class="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-500">
                 <span class="material-icons text-xs">person</span>
-                Slot: <strong class="text-rose-600">5 / 5</strong>
+                Slot: <strong class="text-rose-600 dark:text-rose-400">5 / 5</strong>
               </div>
-              <button disabled class="inline-flex items-center gap-1 rounded-full bg-slate-300 text-slate-500 font-semibold text-xs px-3 py-1.5 cursor-not-allowed">
+              <button disabled class="inline-flex items-center gap-1 rounded-full bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-500 font-semibold text-xs px-3 py-1.5 cursor-not-allowed">
                 <span class="material-icons text-xs">block</span>
                 Penuh
               </button>
@@ -429,22 +429,22 @@
           </div>
 
           {# Card 4 #}
-          <div class="variable-card rounded-xl border border-slate-200 bg-white p-4 hover:shadow-md hover:border-primary-200 transition">
+          <div class="variable-card rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 hover:shadow-md hover:border-primary-200 dark:hover:border-primary-700 transition">
             <div class="flex items-start justify-between mb-3">
-              <h4 class="text-sm font-semibold text-slate-900 flex-1">Attachment Style & Kesejahteraan Psikologis</h4>
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-50 text-purple-700 border border-purple-200 whitespace-nowrap ml-2">
+              <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-100 flex-1">Attachment Style & Kesejahteraan Psikologis</h4>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 whitespace-nowrap ml-2">
                 Perkembangan
               </span>
             </div>
-            <p class="text-xs text-slate-600 mb-3 line-clamp-3">
+            <p class="text-xs text-slate-600 dark:text-slate-400 mb-3 line-clamp-3">
               Penelitian korelasional gaya kelekatan (secure, anxious, avoidant) dengan tingkat kesejahteraan psikologis dewasa muda.
             </p>
-            <div class="flex items-center justify-between pt-3 border-t border-slate-100">
-              <div class="flex items-center gap-1 text-xs text-slate-500">
+            <div class="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-700">
+              <div class="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
                 <span class="material-icons text-xs">person</span>
-                Slot: <strong class="text-emerald-600">2 / 4</strong>
+                Slot: <strong class="text-emerald-600 dark:text-emerald-400">2 / 4</strong>
               </div>
-              <button onclick="requestVariabel(4)" class="inline-flex items-center gap-1 rounded-full bg-primary-500 hover:bg-primary-600 text-white font-semibold text-xs px-3 py-1.5 transition">
+              <button onclick="requestVariabel(4)" class="inline-flex items-center gap-1 rounded-full bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 dark:hover:bg-primary-700 text-white font-semibold text-xs px-3 py-1.5 transition">
                 <span class="material-icons text-xs">send</span>
                 Request
               </button>
@@ -456,9 +456,9 @@
       {# TAB 2: Status & Bimbingan #}
       <div id="content-bimbingan" class="penelitian-content hidden space-y-6">
         {# Alert Overdue #}
-        <div class="rounded-xl bg-rose-50 border border-rose-200 px-4 py-3 flex items-start gap-3">
-          <span class="material-icons text-rose-600">warning</span>
-          <div class="text-sm text-rose-800">
+        <div class="rounded-xl bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 px-4 py-3 flex items-start gap-3">
+          <span class="material-icons text-rose-600 dark:text-rose-400">warning</span>
+          <div class="text-sm text-rose-800 dark:text-rose-300">
             <strong>Perhatian!</strong> Anda belum melakukan bimbingan sejak <strong>20 Desember 2025</strong> (>1 bulan). 
             Segera jadwalkan sesi bimbingan dengan dosen pembimbing.
           </div>
@@ -466,39 +466,39 @@
 
         {# Request Status Table #}
         <div>
-          <h4 class="text-sm font-semibold text-slate-900 mb-3">Status Request Variabel</h4>
+          <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Status Request Variabel</h4>
           <div class="overflow-x-auto">
             <table class="w-full">
               <thead>
-                <tr class="border-b border-slate-200">
-                  <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Variabel</th>
-                  <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Tanggal</th>
-                  <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Status</th>
-                  <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Aksi</th>
+                <tr class="border-b border-slate-200 dark:border-slate-700">
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Variabel</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Tanggal</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Status</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Aksi</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-100">
-                <tr class="hover:bg-slate-50 transition">
-                  <td class="px-4 py-3 text-sm text-slate-900">Self-Efficacy & Prokrastinasi</td>
-                  <td class="px-4 py-3 text-sm text-slate-600 whitespace-nowrap">15 Jan 2026</td>
+              <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
+                  <td class="px-4 py-3 text-sm text-slate-900 dark:text-slate-200">Self-Efficacy & Prokrastinasi</td>
+                  <td class="px-4 py-3 text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap">15 Jan 2026</td>
                   <td class="px-4 py-3">
-                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">Pending</span>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Pending</span>
                   </td>
                   <td class="px-4 py-3">
-                    <button class="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs px-3 py-1.5 transition">
+                    <button class="inline-flex items-center gap-1 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-medium text-xs px-3 py-1.5 transition">
                       <span class="material-icons text-sm">description</span>
                       Proposal
                     </button>
                   </td>
                 </tr>
-                <tr class="hover:bg-slate-50 transition">
-                  <td class="px-4 py-3 text-sm text-slate-900">Regulasi Emosi Remaja</td>
-                  <td class="px-4 py-3 text-sm text-slate-600 whitespace-nowrap">10 Des 2025</td>
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
+                  <td class="px-4 py-3 text-sm text-slate-900 dark:text-slate-200">Regulasi Emosi Remaja</td>
+                  <td class="px-4 py-3 text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap">10 Des 2025</td>
                   <td class="px-4 py-3">
-                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">Disetujui</span>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">Disetujui</span>
                   </td>
                   <td class="px-4 py-3">
-                    <button class="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs px-3 py-1.5 transition">
+                    <button class="inline-flex items-center gap-1 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-medium text-xs px-3 py-1.5 transition">
                       <span class="material-icons text-sm">description</span>
                       Proposal
                     </button>
@@ -511,26 +511,26 @@
 
         {# Log Bimbingan #}
         <div>
-          <h4 class="text-sm font-semibold text-slate-900 mb-3">Log Bimbingan</h4>
+          <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Log Bimbingan</h4>
           <div class="space-y-3">
             {# Log 1 #}
-            <div class="rounded-lg border border-slate-200 bg-white p-4 flex gap-3">
-              <div class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
-                <span class="material-icons text-purple-600">event</span>
+            <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 flex gap-3">
+              <div class="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
+                <span class="material-icons text-purple-600 dark:text-purple-400">event</span>
               </div>
               <div class="flex-1">
-                <h5 class="text-sm font-medium text-slate-900 mb-1">Bimbingan #5: Review Instrumen Penelitian</h5>
-                <p class="text-xs text-slate-500 mb-2">20 Desember 2025, 10:00 WIT - Prof. Dr. Siti Rahmah</p>
-                <p class="text-xs text-slate-600 mb-3">
+                <h5 class="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">Bimbingan #5: Review Instrumen Penelitian</h5>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">20 Desember 2025, 10:00 WIT - Prof. Dr. Siti Rahmah</p>
+                <p class="text-xs text-slate-600 dark:text-slate-400 mb-3">
                   Diskusi validitas & reliabilitas instrumen. Revisi beberapa item skala self-efficacy. 
                   Perlu penambahan analisis CFA untuk construct validity.
                 </p>
                 <div class="flex gap-2">
-                  <button class="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs px-3 py-1.5 transition">
+                  <button class="inline-flex items-center gap-1 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-medium text-xs px-3 py-1.5 transition">
                     <span class="material-icons text-sm">attach_file</span>
                     Draft Instrumen
                   </button>
-                  <button class="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs px-3 py-1.5 transition">
+                  <button class="inline-flex items-center gap-1 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-medium text-xs px-3 py-1.5 transition">
                     <span class="material-icons text-sm">notes</span>
                     Catatan
                   </button>
@@ -539,18 +539,18 @@
             </div>
 
             {# Log 2 #}
-            <div class="rounded-lg border border-slate-200 bg-white p-4 flex gap-3">
-              <div class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
-                <span class="material-icons text-purple-600">event</span>
+            <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 flex gap-3">
+              <div class="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
+                <span class="material-icons text-purple-600 dark:text-purple-400">event</span>
               </div>
               <div class="flex-1">
-                <h5 class="text-sm font-medium text-slate-900 mb-1">Bimbingan #4: Pembahasan Metodologi</h5>
-                <p class="text-xs text-slate-500 mb-2">5 Desember 2025, 14:00 WIT - Prof. Dr. Siti Rahmah</p>
-                <p class="text-xs text-slate-600 mb-3">
+                <h5 class="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">Bimbingan #4: Pembahasan Metodologi</h5>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">5 Desember 2025, 14:00 WIT - Prof. Dr. Siti Rahmah</p>
+                <p class="text-xs text-slate-600 dark:text-slate-400 mb-3">
                   Finalisasi desain penelitian kuantitatif korelasional. Sampel 150-200 mahasiswa tingkat akhir. 
                   Teknik sampling: purposive sampling dengan kriteria tertentu.
                 </p>
-                <button class="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs px-3 py-1.5 transition">
+                <button class="inline-flex items-center gap-1 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-medium text-xs px-3 py-1.5 transition">
                   <span class="material-icons text-sm">description</span>
                   BAB 3 Draft
                 </button>
@@ -558,18 +558,18 @@
             </div>
 
             {# Log 3 #}
-            <div class="rounded-lg border border-slate-200 bg-white p-4 flex gap-3">
-              <div class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
-                <span class="material-icons text-purple-600">event</span>
+            <div class="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 flex gap-3">
+              <div class="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
+                <span class="material-icons text-purple-600 dark:text-purple-400">event</span>
               </div>
               <div class="flex-1">
-                <h5 class="text-sm font-medium text-slate-900 mb-1">Bimbingan #3: Kajian Literatur</h5>
-                <p class="text-xs text-slate-500 mb-2">20 November 2025, 10:00 WIT - Prof. Dr. Siti Rahmah</p>
-                <p class="text-xs text-slate-600 mb-3">
+                <h5 class="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">Bimbingan #3: Kajian Literatur</h5>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">20 November 2025, 10:00 WIT - Prof. Dr. Siti Rahmah</p>
+                <p class="text-xs text-slate-600 dark:text-slate-400 mb-3">
                   Review kajian teori self-efficacy (Bandura) dan prokrastinasi akademik. 
                   Tambahkan minimal 10 jurnal internasional terbaru (2020-2025).
                 </p>
-                <button class="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs px-3 py-1.5 transition">
+                <button class="inline-flex items-center gap-1 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-medium text-xs px-3 py-1.5 transition">
                   <span class="material-icons text-sm">description</span>
                   BAB 2 Draft
                 </button>
@@ -579,8 +579,8 @@
         </div>
 
         {# Info Banner #}
-        <div class="rounded-lg bg-blue-50 border border-blue-200 px-4 py-3 flex items-start gap-2 text-sm text-blue-800">
-          <span class="material-icons text-blue-600">info</span>
+        <div class="rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 px-4 py-3 flex items-start gap-2 text-sm text-blue-800 dark:text-blue-300">
+          <span class="material-icons text-blue-600 dark:text-blue-400">info</span>
           <span><strong>Tips:</strong> Jadwalkan bimbingan minimal 1x setiap bulan untuk menghindari peringatan overdue.</span>
         </div>
       </div>
@@ -594,11 +594,12 @@
   function switchModule(moduleName) {
     // Update cards
     document.querySelectorAll('[id^="card-"]').forEach(card => {
-      card.classList.remove('border-primary-300', 'bg-gradient-to-br', 'from-primary-50', 'to-white');
-      card.classList.add('border-slate-200', 'bg-white');
+      card.classList.remove('border-primary-300', 'dark:border-primary-700', 'bg-gradient-to-br', 'from-primary-50', 'dark:from-primary-900/30', 'to-white', 'dark:to-slate-800');
+      card.classList.add('border-slate-200', 'dark:border-slate-700', 'bg-white', 'dark:bg-slate-800');
     });
-    document.getElementById(`card-${moduleName}`).classList.remove('border-slate-200', 'bg-white');
-    document.getElementById(`card-${moduleName}`).classList.add('border-primary-300', 'bg-gradient-to-br', 'from-primary-50', 'to-white');
+    const selectedCard = document.getElementById(`card-${moduleName}`);
+    selectedCard.classList.remove('border-slate-200', 'dark:border-slate-700', 'bg-white', 'dark:bg-slate-800');
+    selectedCard.classList.add('border-primary-300', 'dark:border-primary-700', 'bg-gradient-to-br', 'from-primary-50', 'dark:from-primary-900/30', 'to-white', 'dark:to-slate-800');
 
     // Hide all sections
     document.querySelectorAll('.module-section').forEach(section => {
@@ -613,11 +614,12 @@
   function switchPenelitianTab(tab) {
     // Update tabs
     document.querySelectorAll('.penelitian-tab').forEach(t => {
-      t.classList.remove('text-primary-600', 'border-primary-600');
-      t.classList.add('text-slate-500', 'border-transparent');
+      t.classList.remove('text-primary-600', 'dark:text-primary-400', 'border-primary-600', 'dark:border-primary-400');
+      t.classList.add('text-slate-500', 'dark:text-slate-400', 'border-transparent');
     });
-    document.getElementById(`tab-${tab}`).classList.remove('text-slate-500', 'border-transparent');
-    document.getElementById(`tab-${tab}`).classList.add('text-primary-600', 'border-primary-600');
+    const selectedTab = document.getElementById(`tab-${tab}`);
+    selectedTab.classList.remove('text-slate-500', 'dark:text-slate-400', 'border-transparent');
+    selectedTab.classList.add('text-primary-600', 'dark:text-primary-400', 'border-primary-600', 'dark:border-primary-400');
 
     // Update content
     document.querySelectorAll('.penelitian-content').forEach(c => c.classList.add('hidden'));
@@ -669,10 +671,10 @@
   function showAlert(id, message, type) {
     const alertBox = document.getElementById(id);
     const colors = {
-      success: 'bg-emerald-50 border-emerald-200 text-emerald-800',
-      error: 'bg-rose-50 border-rose-200 text-rose-800',
-      warning: 'bg-amber-50 border-amber-200 text-amber-800',
-      info: 'bg-blue-50 border-blue-200 text-blue-800'
+      success: 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300',
+      error: 'bg-rose-50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300',
+      warning: 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300',
+      info: 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300'
     };
     
     alertBox.textContent = message;

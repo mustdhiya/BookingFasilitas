@@ -4,7 +4,7 @@ Django settings for config project.
 
 import os
 from pathlib import Path
-from decouple import config
+from decouple import config, Csv
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -13,8 +13,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-this-in-production')
 DEBUG = config('DEBUG', default=True, cast=bool)
 PRODUCTION_MODE = config('PRODUCTION_MODE', default=False, cast=bool)
-ALLOWED_HOSTS = [host.strip() for host in config('ALLOWED_HOSTS', default='localhost').split(',')]
 
+# Development vs Production
+PRODUCTION_MODE = config('PRODUCTION_MODE', default=False, cast=bool)
+
+# ALLOWED_HOSTS
+if PRODUCTION_MODE:
+    ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
+else:
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # Application definition
 INSTALLED_APPS = [
@@ -39,6 +46,7 @@ INSTALLED_APPS = [
     'practicum',
     'research',
     'core',
+    
 ]
 
 
@@ -73,8 +81,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'django.template.context_processors.media',  # Add this for media files
-                'django.template.context_processors.static',  # Add this for static files
+                'django.template.context_processors.media', 
+                'django.template.context_processors.static', 
             ],
         },
     },

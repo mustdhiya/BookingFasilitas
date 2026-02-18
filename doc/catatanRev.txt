@@ -1,0 +1,13 @@
+Revisi & penambahan fitur:
+Revisi: 
+- alat test saat pemanjaman gk perlu checklist komponen yg dipinjam karna sudah ad biaya tersendiri untuk itu
+- pembayaran nya itu setelah atau sblm akan di infokan sama admin ketika di approved maka akan dikasih tuh code pembaysrsn nya jdi cukup di web invoice saja tidak perlu ad payment gateway
+- jadwal praktikum seharus nya nama dosen nya jg harus di CRUD kan agar bisa di masukkan di jadwal terrkait yg dimana nanti kaitan nya itu di jadwal praktikum dan di jadwal penelitian
+- jadwal tanggal peminjaman ini harus pake rentang trs nanti klo satu hari aj cukup check list dlaam 1 hari
+Penambahan fitur:
+- penambahan sesi Konseling psikolog pembayaran itu di akhir ketika sudah di approved
+- untuk konseling mhs umkt beda dengan non umkt tidak perlu input ruangan tidak perlu masukkan cukup masukkan sesuai pdf aj nanti untuk jadwal nya admin yg masukkan
+- jadwal client ketika sudahvdi approved untuk ruangan bakal di arahkan admin
+- fitur pengembalian alat yg dimana pakai qr akan masuk kedalam link peminjaman masuk ke detail  peminjaman lalu tinnggal klik sudah di kembalikan atau belum admin yg acc udh ap blm nya dan juga ini harus membedakan mana yg pembelian, penyewaan, dan peminjaman
+- untuk pembayaran ini akan ad penagihan khusus nya kek pengembalian nya jg
+- soal konselingnya Nah dari hasil dari konselingnya itu perlu nggak bu akhirnya misal ini sakit ap diagnosis nya ap dari hasil konseling tersebut

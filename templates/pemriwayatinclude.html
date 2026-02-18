@@ -1,22 +1,22 @@
 <div id="section-history" class="module-section hidden">
-  <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6 space-y-6">
+  <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-6 space-y-6">
     
     {# Header #}
-    <div class="pb-4 border-b border-slate-100">
-      <h3 class="text-lg font-semibold text-slate-900 flex items-center gap-2">
-        <span class="material-icons text-primary-600">history</span>
+    <div class="pb-4 border-b border-slate-100 dark:border-slate-700">
+      <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+        <span class="material-icons text-primary-600 dark:text-primary-400">history</span>
         Riwayat Peminjaman
       </h3>
-      <p class="text-sm text-slate-500 mt-1">Lihat semua aktivitas peminjaman Anda dan download dokumen terkait</p>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Lihat semua aktivitas peminjaman Anda dan download dokumen terkait</p>
     </div>
 
     {# Tabs #}
-    <div class="flex gap-2 border-b border-slate-200">
-      <button onclick="switchHistoryTab('room')" id="history-tab-room" class="history-tab px-4 py-2.5 text-sm font-medium text-primary-600 border-b-2 border-primary-600 transition">
+    <div class="flex gap-2 border-b border-slate-200 dark:border-slate-700">
+      <button onclick="switchHistoryTab('room')" id="history-tab-room" class="history-tab px-4 py-2.5 text-sm font-medium text-primary-600 dark:text-primary-400 border-b-2 border-primary-600 dark:border-primary-400 transition">
         <span class="material-icons text-base mr-1.5 align-middle">meeting_room</span>
         Ruangan
       </button>
-      <button onclick="switchHistoryTab('tool')" id="history-tab-tool" class="history-tab px-4 py-2.5 text-sm font-medium text-slate-500 border-b-2 border-transparent hover:text-slate-700 transition">
+      <button onclick="switchHistoryTab('tool')" id="history-tab-tool" class="history-tab px-4 py-2.5 text-sm font-medium text-slate-500 dark:text-slate-400 border-b-2 border-transparent hover:text-slate-700 dark:hover:text-slate-300 transition">
         <span class="material-icons text-base mr-1.5 align-middle">science</span>
         Alat Tes
       </button>
@@ -26,18 +26,18 @@
     <div class="flex flex-col sm:flex-row gap-3">
       <div class="flex-1">
         <div class="relative">
-          <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+          <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-lg">search</span>
           <input
             type="text"
             id="history-search"
             placeholder="Cari berdasarkan nama ruangan/alat, tanggal..."
             onkeyup="filterHistory()"
-            class="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 text-sm text-slate-900 placeholder:text-slate-400 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 transition"
+            class="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition"
           />
         </div>
       </div>
       <div class="flex gap-2">
-        <select id="history-status-filter" onchange="filterHistory()" class="px-3 py-2 rounded-lg border border-slate-200 text-sm text-slate-700 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 transition">
+        <select id="history-status-filter" onchange="filterHistory()" class="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-sm text-slate-700 dark:text-slate-300 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition">
           <option value="">Semua Status</option>
           <option value="approved">Disetujui</option>
           <option value="pending">Pending</option>
@@ -52,82 +52,82 @@
       <div class="overflow-x-auto">
         <table class="w-full">
           <thead>
-            <tr class="border-b border-slate-100">
-              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Tanggal</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Ruangan</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Waktu</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Peserta</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Status</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Aksi</th>
+            <tr class="border-b border-slate-100 dark:border-slate-700">
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Tanggal</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Ruangan</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Waktu</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Peserta</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Status</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Aksi</th>
             </tr>
           </thead>
-          <tbody id="room-history-tbody" class="divide-y divide-slate-100">
-            <tr class="history-row hover:bg-slate-50 transition" data-status="approved">
-              <td class="px-4 py-3 text-sm text-slate-700 whitespace-nowrap">15 Jan 2026</td>
-              <td class="px-4 py-3 text-sm text-slate-900 font-medium">Lab Psikometri</td>
-              <td class="px-4 py-3 text-sm text-slate-700 whitespace-nowrap">09:00 - 11:00</td>
-              <td class="px-4 py-3 text-sm text-slate-700">30 orang</td>
+          <tbody id="room-history-tbody" class="divide-y divide-slate-100 dark:divide-slate-700">
+            <tr class="history-row hover:bg-slate-50 dark:hover:bg-slate-700/50 transition" data-status="approved">
+              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">15 Jan 2026</td>
+              <td class="px-4 py-3 text-sm text-slate-900 dark:text-slate-100 font-medium">Lab Psikometri</td>
+              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">09:00 - 11:00</td>
+              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300">30 orang</td>
               <td class="px-4 py-3">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">Disetujui</span>
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">Disetujui</span>
               </td>
               <td class="px-4 py-3">
                 <div class="flex gap-2">
-                  <button type="button" onclick="viewRoomDetail(1)" class="w-7 h-7 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center transition" title="Lihat Detail">
-                    <span class="material-icons text-base text-slate-600">visibility</span>
+                  <button type="button" onclick="viewRoomDetail(1)" class="w-7 h-7 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 flex items-center justify-center transition" title="Lihat Detail">
+                    <span class="material-icons text-base text-slate-600 dark:text-slate-300">visibility</span>
                   </button>
-                  <button type="button" onclick="downloadBookingProof(1)" class="w-7 h-7 rounded-lg border border-primary-200 bg-primary-50 hover:bg-primary-100 flex items-center justify-center transition" title="Download Bukti">
-                    <span class="material-icons text-base text-primary-600">download</span>
+                  <button type="button" onclick="downloadBookingProof(1)" class="w-7 h-7 rounded-lg border border-primary-200 dark:border-primary-700 bg-primary-50 dark:bg-primary-900/30 hover:bg-primary-100 dark:hover:bg-primary-800/50 flex items-center justify-center transition" title="Download Bukti">
+                    <span class="material-icons text-base text-primary-600 dark:text-primary-400">download</span>
                   </button>
                 </div>
               </td>
             </tr>
 
-            <tr class="history-row hover:bg-slate-50 transition" data-status="pending">
-              <td class="px-4 py-3 text-sm text-slate-700 whitespace-nowrap">12 Jan 2026</td>
-              <td class="px-4 py-3 text-sm text-slate-900 font-medium">Lab Klinis</td>
-              <td class="px-4 py-3 text-sm text-slate-700 whitespace-nowrap">14:00 - 16:00</td>
-              <td class="px-4 py-3 text-sm text-slate-700">25 orang</td>
+            <tr class="history-row hover:bg-slate-50 dark:hover:bg-slate-700/50 transition" data-status="pending">
+              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">12 Jan 2026</td>
+              <td class="px-4 py-3 text-sm text-slate-900 dark:text-slate-100 font-medium">Lab Klinis</td>
+              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">14:00 - 16:00</td>
+              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300">25 orang</td>
               <td class="px-4 py-3">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">Pending</span>
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Pending</span>
               </td>
               <td class="px-4 py-3">
                 <div class="flex gap-2">
-                  <button type="button" onclick="viewRoomDetail(2)" class="w-7 h-7 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center transition" title="Lihat Detail">
-                    <span class="material-icons text-base text-slate-600">visibility</span>
+                  <button type="button" onclick="viewRoomDetail(2)" class="w-7 h-7 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 flex items-center justify-center transition" title="Lihat Detail">
+                    <span class="material-icons text-base text-slate-600 dark:text-slate-300">visibility</span>
                   </button>
-                  <button type="button" onclick="cancelBooking(2, 'room')" class="w-7 h-7 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 flex items-center justify-center transition" title="Batalkan">
-                    <span class="material-icons text-base text-rose-600">cancel</span>
+                  <button type="button" onclick="cancelBooking(2, 'room')" class="w-7 h-7 rounded-lg border border-rose-200 dark:border-rose-700 bg-rose-50 dark:bg-rose-900/30 hover:bg-rose-100 dark:hover:bg-rose-800/50 flex items-center justify-center transition" title="Batalkan">
+                    <span class="material-icons text-base text-rose-600 dark:text-rose-400">cancel</span>
                   </button>
                 </div>
               </td>
             </tr>
 
-            <tr class="history-row hover:bg-slate-50 transition" data-status="rejected">
-              <td class="px-4 py-3 text-sm text-slate-700 whitespace-nowrap">10 Jan 2026</td>
-              <td class="px-4 py-3 text-sm text-slate-900 font-medium">Lab Perkembangan</td>
-              <td class="px-4 py-3 text-sm text-slate-700 whitespace-nowrap">10:00 - 12:00</td>
-              <td class="px-4 py-3 text-sm text-slate-700">20 orang</td>
+            <tr class="history-row hover:bg-slate-50 dark:hover:bg-slate-700/50 transition" data-status="rejected">
+              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">10 Jan 2026</td>
+              <td class="px-4 py-3 text-sm text-slate-900 dark:text-slate-100 font-medium">Lab Perkembangan</td>
+              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">10:00 - 12:00</td>
+              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300">20 orang</td>
               <td class="px-4 py-3">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">Ditolak</span>
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">Ditolak</span>
               </td>
               <td class="px-4 py-3">
-                <button type="button" onclick="viewRoomDetail(3)" class="w-7 h-7 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center transition" title="Lihat Detail">
-                  <span class="material-icons text-base text-slate-600">visibility</span>
+                <button type="button" onclick="viewRoomDetail(3)" class="w-7 h-7 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 flex items-center justify-center transition" title="Lihat Detail">
+                  <span class="material-icons text-base text-slate-600 dark:text-slate-300">visibility</span>
                 </button>
               </td>
             </tr>
 
-            <tr class="history-row hover:bg-slate-50 transition" data-status="completed">
-              <td class="px-4 py-3 text-sm text-slate-700 whitespace-nowrap">5 Jan 2026</td>
-              <td class="px-4 py-3 text-sm text-slate-900 font-medium">Ruang Asesmen</td>
-              <td class="px-4 py-3 text-sm text-slate-700 whitespace-nowrap">13:00 - 15:00</td>
-              <td class="px-4 py-3 text-sm text-slate-700">2 orang</td>
+            <tr class="history-row hover:bg-slate-50 dark:hover:bg-slate-700/50 transition" data-status="completed">
+              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">5 Jan 2026</td>
+              <td class="px-4 py-3 text-sm text-slate-900 dark:text-slate-100 font-medium">Ruang Asesmen</td>
+              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">13:00 - 15:00</td>
+              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300">2 orang</td>
               <td class="px-4 py-3">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">Selesai</span>
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">Selesai</span>
               </td>
               <td class="px-4 py-3">
-                <button type="button" onclick="viewRoomDetail(4)" class="w-7 h-7 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center transition" title="Lihat Detail">
-                  <span class="material-icons text-base text-slate-600">visibility</span>
+                <button type="button" onclick="viewRoomDetail(4)" class="w-7 h-7 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 flex items-center justify-center transition" title="Lihat Detail">
+                  <span class="material-icons text-base text-slate-600 dark:text-slate-300">visibility</span>
                 </button>
               </td>
             </tr>
@@ -137,8 +137,8 @@
 
       {# Empty State #}
       <div id="room-empty-state" class="hidden py-16 text-center">
-        <span class="material-icons text-6xl text-slate-300 mb-3">inbox</span>
-        <p class="text-sm text-slate-400">Tidak ada riwayat peminjaman ruangan</p>
+        <span class="material-icons text-6xl text-slate-300 dark:text-slate-600 mb-3">inbox</span>
+        <p class="text-sm text-slate-400 dark:text-slate-500">Tidak ada riwayat peminjaman ruangan</p>
       </div>
     </div>
 
@@ -147,74 +147,74 @@
       <div class="overflow-x-auto">
         <table class="w-full">
           <thead>
-            <tr class="border-b border-slate-100">
-              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Tanggal</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Alat Tes</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Jumlah</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Total</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Status</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Aksi</th>
+            <tr class="border-b border-slate-100 dark:border-slate-700">
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Tanggal</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Alat Tes</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Jumlah</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Total</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Status</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Aksi</th>
             </tr>
           </thead>
-          <tbody id="tool-history-tbody" class="divide-y divide-slate-100">
-            <tr class="history-row hover:bg-slate-50 transition" data-status="approved">
-              <td class="px-4 py-3 text-sm text-slate-700 whitespace-nowrap">12 Jan 2026</td>
-              <td class="px-4 py-3 text-sm text-slate-900 font-medium">WAIS-IV</td>
-              <td class="px-4 py-3 text-sm text-slate-700">10 lembar</td>
-              <td class="px-4 py-3 text-sm text-slate-900 font-semibold">Rp 500.000</td>
+          <tbody id="tool-history-tbody" class="divide-y divide-slate-100 dark:divide-slate-700">
+            <tr class="history-row hover:bg-slate-50 dark:hover:bg-slate-700/50 transition" data-status="approved">
+              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">12 Jan 2026</td>
+              <td class="px-4 py-3 text-sm text-slate-900 dark:text-slate-100 font-medium">WAIS-IV</td>
+              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300">10 lembar</td>
+              <td class="px-4 py-3 text-sm text-slate-900 dark:text-slate-100 font-semibold">Rp 500.000</td>
               <td class="px-4 py-3">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">Disetujui</span>
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">Disetujui</span>
               </td>
               <td class="px-4 py-3">
                 <div class="flex gap-2">
-                  <button type="button" onclick="viewToolDetail(1)" class="w-7 h-7 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center transition" title="Lihat Detail">
-                    <span class="material-icons text-base text-slate-600">visibility</span>
+                  <button type="button" onclick="viewToolDetail(1)" class="w-7 h-7 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 flex items-center justify-center transition" title="Lihat Detail">
+                    <span class="material-icons text-base text-slate-600 dark:text-slate-300">visibility</span>
                   </button>
-                  <button type="button" onclick="downloadInvoice(1)" class="w-7 h-7 rounded-lg border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 flex items-center justify-center transition" title="Download Invoice">
-                    <span class="material-icons text-base text-emerald-600">receipt</span>
+                  <button type="button" onclick="downloadInvoice(1)" class="w-7 h-7 rounded-lg border border-emerald-200 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-800/50 flex items-center justify-center transition" title="Download Invoice">
+                    <span class="material-icons text-base text-emerald-600 dark:text-emerald-400">receipt</span>
                   </button>
-                  <button type="button" onclick="downloadAgreement(1)" class="w-7 h-7 rounded-lg border border-primary-200 bg-primary-50 hover:bg-primary-100 flex items-center justify-center transition" title="Download Perjanjian">
-                    <span class="material-icons text-base text-primary-600">description</span>
+                  <button type="button" onclick="downloadAgreement(1)" class="w-7 h-7 rounded-lg border border-primary-200 dark:border-primary-700 bg-primary-50 dark:bg-primary-900/30 hover:bg-primary-100 dark:hover:bg-primary-800/50 flex items-center justify-center transition" title="Download Perjanjian">
+                    <span class="material-icons text-base text-primary-600 dark:text-primary-400">description</span>
                   </button>
                 </div>
               </td>
             </tr>
 
-            <tr class="history-row hover:bg-slate-50 transition" data-status="pending">
-              <td class="px-4 py-3 text-sm text-slate-700 whitespace-nowrap">8 Jan 2026</td>
-              <td class="px-4 py-3 text-sm text-slate-900 font-medium">MMPI-2</td>
-              <td class="px-4 py-3 text-sm text-slate-700">5 lembar</td>
-              <td class="px-4 py-3 text-sm text-slate-900 font-semibold">Rp 225.000</td>
+            <tr class="history-row hover:bg-slate-50 dark:hover:bg-slate-700/50 transition" data-status="pending">
+              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">8 Jan 2026</td>
+              <td class="px-4 py-3 text-sm text-slate-900 dark:text-slate-100 font-medium">MMPI-2</td>
+              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300">5 lembar</td>
+              <td class="px-4 py-3 text-sm text-slate-900 dark:text-slate-100 font-semibold">Rp 225.000</td>
               <td class="px-4 py-3">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">Pending</span>
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Pending</span>
               </td>
               <td class="px-4 py-3">
                 <div class="flex gap-2">
-                  <button type="button" onclick="viewToolDetail(2)" class="w-7 h-7 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center transition" title="Lihat Detail">
-                    <span class="material-icons text-base text-slate-600">visibility</span>
+                  <button type="button" onclick="viewToolDetail(2)" class="w-7 h-7 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 flex items-center justify-center transition" title="Lihat Detail">
+                    <span class="material-icons text-base text-slate-600 dark:text-slate-300">visibility</span>
                   </button>
-                  <button type="button" onclick="cancelBooking(2, 'tool')" class="w-7 h-7 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 flex items-center justify-center transition" title="Batalkan">
-                    <span class="material-icons text-base text-rose-600">cancel</span>
+                  <button type="button" onclick="cancelBooking(2, 'tool')" class="w-7 h-7 rounded-lg border border-rose-200 dark:border-rose-700 bg-rose-50 dark:bg-rose-900/30 hover:bg-rose-100 dark:hover:bg-rose-800/50 flex items-center justify-center transition" title="Batalkan">
+                    <span class="material-icons text-base text-rose-600 dark:text-rose-400">cancel</span>
                   </button>
                 </div>
               </td>
             </tr>
 
-            <tr class="history-row hover:bg-slate-50 transition" data-status="completed">
-              <td class="px-4 py-3 text-sm text-slate-700 whitespace-nowrap">3 Jan 2026</td>
-              <td class="px-4 py-3 text-sm text-slate-900 font-medium">MBTI</td>
-              <td class="px-4 py-3 text-sm text-slate-700">15 lembar</td>
-              <td class="px-4 py-3 text-sm text-slate-900 font-semibold">Rp 450.000</td>
+            <tr class="history-row hover:bg-slate-50 dark:hover:bg-slate-700/50 transition" data-status="completed">
+              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">3 Jan 2026</td>
+              <td class="px-4 py-3 text-sm text-slate-900 dark:text-slate-100 font-medium">MBTI</td>
+              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300">15 lembar</td>
+              <td class="px-4 py-3 text-sm text-slate-900 dark:text-slate-100 font-semibold">Rp 450.000</td>
               <td class="px-4 py-3">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">Selesai</span>
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">Selesai</span>
               </td>
               <td class="px-4 py-3">
                 <div class="flex gap-2">
-                  <button type="button" onclick="viewToolDetail(3)" class="w-7 h-7 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center transition" title="Lihat Detail">
-                    <span class="material-icons text-base text-slate-600">visibility</span>
+                  <button type="button" onclick="viewToolDetail(3)" class="w-7 h-7 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 flex items-center justify-center transition" title="Lihat Detail">
+                    <span class="material-icons text-base text-slate-600 dark:text-slate-300">visibility</span>
                   </button>
-                  <button type="button" onclick="downloadInvoice(3)" class="w-7 h-7 rounded-lg border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 flex items-center justify-center transition" title="Download Invoice">
-                    <span class="material-icons text-base text-emerald-600">receipt</span>
+                  <button type="button" onclick="downloadInvoice(3)" class="w-7 h-7 rounded-lg border border-emerald-200 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-800/50 flex items-center justify-center transition" title="Download Invoice">
+                    <span class="material-icons text-base text-emerald-600 dark:text-emerald-400">receipt</span>
                   </button>
                 </div>
               </td>
@@ -225,8 +225,8 @@
 
       {# Empty State #}
       <div id="tool-empty-state" class="hidden py-16 text-center">
-        <span class="material-icons text-6xl text-slate-300 mb-3">science</span>
-        <p class="text-sm text-slate-400">Tidak ada riwayat peminjaman alat tes</p>
+        <span class="material-icons text-6xl text-slate-300 dark:text-slate-600 mb-3">science</span>
+        <p class="text-sm text-slate-400 dark:text-slate-500">Tidak ada riwayat peminjaman alat tes</p>
       </div>
     </div>
 
@@ -235,14 +235,14 @@
 
 {# ===== DETAIL MODAL ===== #}
 <div id="detail-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-  <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-    <div class="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
-      <h3 class="text-lg font-semibold text-slate-900 flex items-center gap-2">
-        <span class="material-icons text-primary-600">info</span>
+  <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div class="sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-4 flex items-center justify-between">
+      <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+        <span class="material-icons text-primary-600 dark:text-primary-400">info</span>
         Detail Peminjaman
       </h3>
-      <button onclick="closeModal()" class="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center transition">
-        <span class="material-icons text-slate-600">close</span>
+      <button onclick="closeModal()" class="w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center justify-center transition">
+        <span class="material-icons text-slate-600 dark:text-slate-400">close</span>
       </button>
     </div>
     <div id="modal-content" class="p-6">
@@ -256,11 +256,12 @@
   function switchHistoryTab(tab) {
     // Update tabs
     document.querySelectorAll('.history-tab').forEach(t => {
-      t.classList.remove('text-primary-600', 'border-primary-600');
-      t.classList.add('text-slate-500', 'border-transparent');
+      t.classList.remove('text-primary-600', 'dark:text-primary-400', 'border-primary-600', 'dark:border-primary-400');
+      t.classList.add('text-slate-500', 'dark:text-slate-400', 'border-transparent');
     });
-    document.getElementById(`history-tab-${tab}`).classList.remove('text-slate-500', 'border-transparent');
-    document.getElementById(`history-tab-${tab}`).classList.add('text-primary-600', 'border-primary-600');
+    const activeTab = document.getElementById(`history-tab-${tab}`);
+    activeTab.classList.remove('text-slate-500', 'dark:text-slate-400', 'border-transparent');
+    activeTab.classList.add('text-primary-600', 'dark:text-primary-400', 'border-primary-600', 'dark:border-primary-400');
 
     // Update content
     document.querySelectorAll('.history-content').forEach(c => c.classList.add('hidden'));
@@ -321,61 +322,61 @@
     
     const data = mockData[id];
     const statusColors = {
-      'Disetujui': 'bg-emerald-50 text-emerald-700 border-emerald-200',
-      'Pending': 'bg-amber-50 text-amber-700 border-amber-200',
-      'Ditolak': 'bg-rose-50 text-rose-700 border-rose-200',
-      'Selesai': 'bg-blue-50 text-blue-700 border-blue-200'
+      'Disetujui': 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
+      'Pending': 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800',
+      'Ditolak': 'bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800',
+      'Selesai': 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800'
     };
     
     document.getElementById('modal-content').innerHTML = `
       <div class="space-y-4">
-        <div class="rounded-xl bg-slate-50 border border-slate-200 p-4">
-          <h4 class="text-sm font-semibold text-slate-900 mb-3">Informasi Peminjaman</h4>
+        <div class="rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4">
+          <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Informasi Peminjaman</h4>
           <dl class="space-y-2 text-sm">
             <div class="flex justify-between">
-              <dt class="text-slate-600">Ruangan:</dt>
-              <dd class="font-medium text-slate-900">${data.room}</dd>
+              <dt class="text-slate-600 dark:text-slate-400">Ruangan:</dt>
+              <dd class="font-medium text-slate-900 dark:text-slate-100">${data.room}</dd>
             </div>
             <div class="flex justify-between">
-              <dt class="text-slate-600">Tanggal:</dt>
-              <dd class="font-medium text-slate-900">${data.date}</dd>
+              <dt class="text-slate-600 dark:text-slate-400">Tanggal:</dt>
+              <dd class="font-medium text-slate-900 dark:text-slate-100">${data.date}</dd>
             </div>
             <div class="flex justify-between">
-              <dt class="text-slate-600">Waktu:</dt>
-              <dd class="font-medium text-slate-900">${data.time}</dd>
+              <dt class="text-slate-600 dark:text-slate-400">Waktu:</dt>
+              <dd class="font-medium text-slate-900 dark:text-slate-100">${data.time}</dd>
             </div>
             <div class="flex justify-between">
-              <dt class="text-slate-600">Jumlah Peserta:</dt>
-              <dd class="font-medium text-slate-900">${data.participants} orang</dd>
+              <dt class="text-slate-600 dark:text-slate-400">Jumlah Peserta:</dt>
+              <dd class="font-medium text-slate-900 dark:text-slate-100">${data.participants} orang</dd>
             </div>
             <div class="flex justify-between">
-              <dt class="text-slate-600">Status:</dt>
+              <dt class="text-slate-600 dark:text-slate-400">Status:</dt>
               <dd><span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${statusColors[data.status]}">${data.status}</span></dd>
             </div>
           </dl>
         </div>
 
-        <div class="rounded-xl bg-slate-50 border border-slate-200 p-4">
-          <h4 class="text-sm font-semibold text-slate-900 mb-2">Keperluan</h4>
-          <p class="text-sm text-slate-700">${data.purpose}</p>
+        <div class="rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4">
+          <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2">Keperluan</h4>
+          <p class="text-sm text-slate-700 dark:text-slate-300">${data.purpose}</p>
         </div>
 
-        <div class="rounded-xl bg-slate-50 border border-slate-200 p-4">
-          <h4 class="text-sm font-semibold text-slate-900 mb-2">Informasi Approval</h4>
+        <div class="rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4">
+          <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2">Informasi Approval</h4>
           <dl class="space-y-2 text-sm">
             <div class="flex justify-between">
-              <dt class="text-slate-600">Disetujui oleh:</dt>
-              <dd class="font-medium text-slate-900">${data.approver}</dd>
+              <dt class="text-slate-600 dark:text-slate-400">Disetujui oleh:</dt>
+              <dd class="font-medium text-slate-900 dark:text-slate-100">${data.approver}</dd>
             </div>
             <div class="flex flex-col gap-1">
-              <dt class="text-slate-600">Catatan:</dt>
-              <dd class="text-slate-700">${data.notes}</dd>
+              <dt class="text-slate-600 dark:text-slate-400">Catatan:</dt>
+              <dd class="text-slate-700 dark:text-slate-300">${data.notes}</dd>
             </div>
           </dl>
         </div>
 
         ${data.status === 'Disetujui' ? `
-          <button onclick="downloadBookingProof(${id})" class="w-full inline-flex items-center justify-center gap-2 rounded-full bg-primary-500 hover:bg-primary-600 text-white font-semibold text-sm px-5 py-2.5 shadow-md hover:shadow-lg transition">
+          <button onclick="downloadBookingProof(${id})" class="w-full inline-flex items-center justify-center gap-2 rounded-full bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 dark:hover:bg-primary-700 text-white font-semibold text-sm px-5 py-2.5 shadow-md hover:shadow-lg transition">
             <span class="material-icons text-base">download</span>
             Download Bukti Peminjaman
           </button>
@@ -398,57 +399,57 @@
     
     document.getElementById('modal-content').innerHTML = `
       <div class="space-y-4">
-        <div class="rounded-xl bg-slate-50 border border-slate-200 p-4">
-          <h4 class="text-sm font-semibold text-slate-900 mb-3">Informasi Alat Tes</h4>
+        <div class="rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4">
+          <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Informasi Alat Tes</h4>
           <dl class="space-y-2 text-sm">
             <div class="flex justify-between">
-              <dt class="text-slate-600">Nama Alat:</dt>
-              <dd class="font-medium text-slate-900">${data.test}</dd>
+              <dt class="text-slate-600 dark:text-slate-400">Nama Alat:</dt>
+              <dd class="font-medium text-slate-900 dark:text-slate-100">${data.test}</dd>
             </div>
             <div class="flex justify-between">
-              <dt class="text-slate-600">Jumlah:</dt>
-              <dd class="font-medium text-slate-900">${data.qty} lembar</dd>
+              <dt class="text-slate-600 dark:text-slate-400">Jumlah:</dt>
+              <dd class="font-medium text-slate-900 dark:text-slate-100">${data.qty} lembar</dd>
             </div>
             <div class="flex justify-between">
-              <dt class="text-slate-600">Harga/lembar:</dt>
-              <dd class="font-medium text-slate-900">Rp ${data.price.toLocaleString('id-ID')}</dd>
+              <dt class="text-slate-600 dark:text-slate-400">Harga/lembar:</dt>
+              <dd class="font-medium text-slate-900 dark:text-slate-100">Rp ${data.price.toLocaleString('id-ID')}</dd>
             </div>
             <div class="flex justify-between">
-              <dt class="text-slate-600">Periode:</dt>
-              <dd class="font-medium text-slate-900">${data.date}</dd>
+              <dt class="text-slate-600 dark:text-slate-400">Periode:</dt>
+              <dd class="font-medium text-slate-900 dark:text-slate-100">${data.date}</dd>
             </div>
-            <div class="flex justify-between pt-2 border-t border-slate-200">
-              <dt class="text-slate-700 font-semibold">Total Biaya:</dt>
-              <dd class="font-semibold text-primary-600">Rp ${data.total.toLocaleString('id-ID')}</dd>
+            <div class="flex justify-between pt-2 border-t border-slate-200 dark:border-slate-700">
+              <dt class="text-slate-700 dark:text-slate-300 font-semibold">Total Biaya:</dt>
+              <dd class="font-semibold text-primary-600 dark:text-primary-400">Rp ${data.total.toLocaleString('id-ID')}</dd>
             </div>
           </dl>
         </div>
 
-        <div class="rounded-xl bg-slate-50 border border-slate-200 p-4">
-          <h4 class="text-sm font-semibold text-slate-900 mb-2">Tujuan Peminjaman</h4>
-          <p class="text-sm text-slate-700">${data.purpose}</p>
+        <div class="rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4">
+          <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2">Tujuan Peminjaman</h4>
+          <p class="text-sm text-slate-700 dark:text-slate-300">${data.purpose}</p>
         </div>
 
-        <div class="rounded-xl bg-slate-50 border border-slate-200 p-4">
-          <h4 class="text-sm font-semibold text-slate-900 mb-3">Informasi Pembayaran</h4>
+        <div class="rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4">
+          <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Informasi Pembayaran</h4>
           <dl class="space-y-2 text-sm">
             <div class="flex justify-between">
-              <dt class="text-slate-600">Waktu Pembayaran:</dt>
-              <dd class="font-medium text-slate-900">${data.payment}</dd>
+              <dt class="text-slate-600 dark:text-slate-400">Waktu Pembayaran:</dt>
+              <dd class="font-medium text-slate-900 dark:text-slate-100">${data.payment}</dd>
             </div>
             <div class="flex justify-between">
-              <dt class="text-slate-600">Status Pembayaran:</dt>
-              <dd><span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${data.paymentStatus === 'Lunas' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}">${data.paymentStatus}</span></dd>
+              <dt class="text-slate-600 dark:text-slate-400">Status Pembayaran:</dt>
+              <dd><span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${data.paymentStatus === 'Lunas' ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800' : 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'}">${data.paymentStatus}</span></dd>
             </div>
           </dl>
         </div>
 
         <div class="flex gap-2">
-          <button onclick="downloadInvoice(${id})" class="flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold text-sm px-4 py-2.5 transition">
+          <button onclick="downloadInvoice(${id})" class="flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-emerald-200 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-800/50 text-emerald-700 dark:text-emerald-300 font-semibold text-sm px-4 py-2.5 transition">
             <span class="material-icons text-base">receipt</span>
             Invoice
           </button>
-          <button onclick="downloadAgreement(${id})" class="flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-primary-200 bg-primary-50 hover:bg-primary-100 text-primary-700 font-semibold text-sm px-4 py-2.5 transition">
+          <button onclick="downloadAgreement(${id})" class="flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-primary-200 dark:border-primary-700 bg-primary-50 dark:bg-primary-900/30 hover:bg-primary-100 dark:hover:bg-primary-800/50 text-primary-700 dark:text-primary-300 font-semibold text-sm px-4 py-2.5 transition">
             <span class="material-icons text-base">description</span>
             Perjanjian
           </button>
