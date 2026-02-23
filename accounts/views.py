@@ -34,14 +34,22 @@ class LoginPageView(View):
         password   = request.POST.get('password', '')
         remember   = request.POST.get('remember')
 
+        # Info untuk LoginHistory
+        ip_address = (
+            request.META.get('HTTP_X_FORWARDED_FOR', '').split(',')[0].strip()
+            or request.META.get('REMOTE_ADDR')
+        )
+        ua_string  = request.META.get('HTTP_USER_AGENT', '')
+        ua_parsed  = _parse_user_agent(ua_string)
+
         if not identifier or not password:
             messages.error(request, 'Email/NIM dan password wajib diisi.')
             return render(request, self.template_name)
 
-        # Authenticate via email (USERNAME_FIELD = 'email')
+        # Authenticate via email
         user = authenticate(request, username=identifier, password=password)
 
-        # Jika gagal coba cari via NIM
+        # Fallback via NIM
         if user is None:
             try:
                 found = User.objects.get(nim_nip=identifier)
@@ -51,23 +59,57 @@ class LoginPageView(View):
 
         if user is None:
             # Cek akun pending
+            pending = None
             try:
                 pending = User.objects.get(email=identifier, is_active=False)
             except User.DoesNotExist:
                 try:
                     pending = User.objects.get(nim_nip=identifier, is_active=False)
                 except User.DoesNotExist:
-                    pending = None
+                    pass
 
             if pending:
+                # ← Catat login gagal: akun belum aktif
+                LoginHistory.objects.create(
+                    user=pending,
+                    ip_address=ip_address,
+                    user_agent=ua_string,
+                    browser=ua_parsed['browser'],
+                    device_type=ua_parsed['device_type'],
+                    os=ua_parsed['os'],
+                    success=False,
+                    fail_reason='not_verified',
+                )
                 return render(request, self.template_name, {
                     'account_pending': True,
                     'pending_nim':  pending.nim_nip or '—',
                     'pending_date': pending.date_joined.strftime('%d %b %Y'),
                 })
 
+            # ← Catat login gagal: email/password salah
+            LoginHistory.objects.create(
+                user=None,  # user tidak ditemukan
+                ip_address=ip_address,
+                user_agent=ua_string,
+                browser=ua_parsed['browser'],
+                device_type=ua_parsed['device_type'],
+                os=ua_parsed['os'],
+                success=False,
+                fail_reason='not_found',
+            )
             messages.error(request, 'Email/NIM atau password salah.')
             return render(request, self.template_name)
+
+        # ← LOGIN BERHASIL — catat riwayat
+        LoginHistory.objects.create(
+            user=user,
+            ip_address=ip_address,
+            user_agent=ua_string,
+            browser=ua_parsed['browser'],
+            device_type=ua_parsed['device_type'],
+            os=ua_parsed['os'],
+            success=True,
+        )
 
         auth_login(request, user)
 
@@ -75,7 +117,6 @@ class LoginPageView(View):
             request.session.set_expiry(0)
 
         return redirect('home')
-
 class RegisterPageView(View):
     template_name = 'accounts/register.html'
 
@@ -144,8 +185,155 @@ class LogoutView(View):
         # Support GET juga untuk fallback
         auth_logout(request)
         return redirect('login')
-class ProfilePageView(TemplateView):
+    
+# accounts/views.py — ProfilePageView (ganti yang lama)
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views import View
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import User, LoginHistory
+
+class ProfilePageView(LoginRequiredMixin, View):  # ← LoginRequiredMixin + View, bukan TemplateView
+    login_url = '/login/'
     template_name = 'profile.html'
+
+    def get(self, request):
+        login_history = LoginHistory.objects.filter(
+            user=request.user,
+            success=True    
+        ).order_by('-login_at')[:5]
+
+        return render(request, self.template_name, {
+            'login_history': login_history,
+        })
+
+
+    def post(self, request):
+        action = request.POST.get('action')  # bedakan aksi dari form mana
+
+        if action == 'update_profile':
+            return self._handle_profile_update(request)
+        elif action == 'change_password':
+            return self._handle_change_password(request)
+
+        messages.error(request, 'Aksi tidak dikenal.')
+        return redirect('profile')
+
+    def _handle_profile_update(self, request):
+        user = request.user
+        full_name = request.POST.get('full_name', '').strip()
+        phone     = request.POST.get('phone', '').strip()
+        instansi  = request.POST.get('instansi', '').strip()
+
+        if full_name:
+            parts = full_name.split(' ', 1)
+            user.first_name = parts[0]
+            user.last_name  = parts[1] if len(parts) > 1 else ''
+
+        if phone:
+            user.phone = phone
+        if instansi:
+            user.instansi = instansi
+
+        # ← TAMBAH INI: handle upload avatar
+        if 'avatar' in request.FILES:
+            avatar_file = request.FILES['avatar']
+
+            # Validasi ukuran: max 2MB
+            if avatar_file.size > 2 * 1024 * 1024:
+                messages.error(request, 'Ukuran foto maksimal 2MB.')
+                return redirect('profile')
+
+            # Validasi format
+            allowed = ['image/jpeg', 'image/png', 'image/webp']
+            if avatar_file.content_type not in allowed:
+                messages.error(request, 'Format foto harus JPG, PNG, atau WebP.')
+                return redirect('profile')
+
+            # Hapus foto lama jika ada (opsional, mencegah file numpuk)
+            if user.avatar:
+                import os
+                if os.path.isfile(user.avatar.path):
+                    os.remove(user.avatar.path)
+
+            user.avatar = avatar_file
+
+        user.save()
+        messages.success(request, 'Profil berhasil diperbarui.')
+        return redirect('profile')
+
+    def _handle_change_password(self, request):
+        old_password     = request.POST.get('old_password', '')
+        new_password     = request.POST.get('new_password', '')
+        confirm_password = request.POST.get('confirm_password', '')
+
+        if not request.user.check_password(old_password):
+            messages.error(request, 'Password lama salah.')
+            return redirect('profile')
+
+        if len(new_password) < 8:
+            messages.error(request, 'Password baru minimal 8 karakter.')
+            return redirect('profile')
+
+        if new_password != confirm_password:
+            messages.error(request, 'Konfirmasi password tidak cocok.')
+            return redirect('profile')
+
+        request.user.set_password(new_password)
+        request.user.save()
+
+        # Re-login agar session tidak invalid setelah ganti password
+        from django.contrib.auth import update_session_auth_hash
+        update_session_auth_hash(request, request.user)
+
+        messages.success(request, 'Password berhasil diubah.')
+        return redirect('profile')
+def _parse_user_agent(user_agent_string):
+    """Parse user agent string → dict {browser, device_type, os}"""
+    ua = user_agent_string.lower()
+
+    # Deteksi Browser
+    if 'edg/' in ua or 'edge/' in ua:
+        browser = 'Microsoft Edge'
+    elif 'opr/' in ua or 'opera' in ua:
+        browser = 'Opera'
+    elif 'chrome/' in ua and 'chromium' not in ua:
+        browser = 'Google Chrome'
+    elif 'firefox/' in ua:
+        browser = 'Mozilla Firefox'
+    elif 'safari/' in ua and 'chrome' not in ua:
+        browser = 'Safari'
+    else:
+        browser = 'Browser Lain'
+
+    # Deteksi Device Type
+    if any(x in ua for x in ['iphone', 'android', 'mobile', 'blackberry']):
+        device_type = 'Mobile'
+    elif any(x in ua for x in ['ipad', 'tablet']):
+        device_type = 'Tablet'
+    else:
+        device_type = 'Desktop'
+
+    # Deteksi OS
+    if 'windows' in ua:
+        os_name = 'Windows'
+    elif 'macintosh' in ua or 'mac os' in ua:
+        os_name = 'macOS'
+    elif 'iphone' in ua or 'ipad' in ua:
+        os_name = 'iOS'
+    elif 'android' in ua:
+        os_name = 'Android'
+    elif 'linux' in ua:
+        os_name = 'Linux'
+    else:
+        os_name = 'Unknown OS'
+
+    return {
+        'browser':     browser,
+        'device_type': device_type,
+        'os':          os_name,
+    }
+
 
 # API Views
 @api_view(['POST'])

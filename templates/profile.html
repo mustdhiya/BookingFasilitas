@@ -32,9 +32,43 @@
 
       <!-- Avatar Section -->
       <div class="flex flex-col items-center gap-4 py-4">
-        <div class="w-24 h-24 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 dark:from-primary-500 dark:to-primary-700 flex items-center justify-center text-white text-3xl font-bold shadow-lg border-4 border-primary-100 dark:border-primary-900">
-          {{ user.first_name.0|upper|default:"U" }}
+
+        <!-- Avatar: foto jika ada, inisial jika tidak -->
+        <div class="relative group">
+          {% if user.avatar %}
+            <img 
+              src="{{ user.avatar.url }}" 
+              alt="Foto {{ user.get_full_name }}"
+              id="avatar-preview"
+              class="w-24 h-24 rounded-full object-cover shadow-lg border-4 border-primary-100 dark:border-primary-900"
+            />
+          {% else %}
+            <div 
+              id="avatar-preview-fallback"
+              class="w-24 h-24 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 dark:from-primary-500 dark:to-primary-700 flex items-center justify-center text-white text-3xl font-bold shadow-lg border-4 border-primary-100 dark:border-primary-900">
+              {{ user.first_name.0|upper|default:"U" }}
+            </div>
+          {% endif %}
+
+          <!-- Overlay tombol ganti foto (muncul saat mode edit) -->
+          <label 
+            for="avatar-input"
+            id="avatar-overlay"
+            class="hidden absolute inset-0 rounded-full bg-black/50 flex items-center justify-center cursor-pointer group-hover:flex transition">
+            <span class="material-icons text-white text-2xl">photo_camera</span>
+          </label>
         </div>
+
+        <!-- Input file hidden — di dalam form yang sama -->
+        <input 
+          type="file" 
+          id="avatar-input" 
+          name="avatar"
+          accept="image/jpeg,image/png,image/webp"
+          class="hidden"
+          onchange="previewAvatar(this)"
+        />
+
         <div class="text-center space-y-1">
           <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100">
             {{ user.get_full_name|default:user.username }}
@@ -46,6 +80,63 @@
           </div>
         </div>
       </div>
+      <script>
+      // Preview foto sebelum upload
+      function previewAvatar(input) {
+        if (input.files && input.files[0]) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            // Ganti tampilan dengan foto baru (preview)
+            const fallback = document.getElementById('avatar-preview-fallback');
+            let img = document.getElementById('avatar-preview');
+
+            if (!img) {
+              // Buat elemen img baru jika sebelumnya pakai fallback
+              img = document.createElement('img');
+              img.id = 'avatar-preview';
+              img.className = 'w-24 h-24 rounded-full object-cover shadow-lg border-4 border-primary-100 dark:border-primary-900';
+              if (fallback) fallback.replaceWith(img);
+            }
+            img.src = e.target.result;
+          };
+          reader.readAsDataURL(input.files[0]);
+        }
+      }
+
+      // Tampilkan overlay kamera saat mode edit aktif
+      function toggleEditMode() {
+        const fields   = document.querySelectorAll('#profile-form input:not([type=hidden])');
+        const actions  = document.getElementById('form-actions');
+        const btnText  = document.getElementById('edit-btn-text');
+        const overlay  = document.getElementById('avatar-overlay');
+        const isEditing = btnText.textContent.trim() === 'Edit';
+
+        fields.forEach(f => {
+          if (f.id !== 'profile-email') {  // email tetap read-only
+            f.disabled = !isEditing;
+          }
+        });
+
+        actions.classList.toggle('hidden', !isEditing);
+        btnText.textContent = isEditing ? 'Batal' : 'Edit';
+
+        // Tampilkan/sembunyikan overlay ganti foto
+        if (overlay) overlay.classList.toggle('hidden', !isEditing);
+      }
+
+      function cancelEdit() {
+        const fields  = document.querySelectorAll('#profile-form input:not([type=hidden])');
+        const actions = document.getElementById('form-actions');
+        const btnText = document.getElementById('edit-btn-text');
+        const overlay = document.getElementById('avatar-overlay');
+
+        fields.forEach(f => { f.disabled = true; });
+        actions.classList.add('hidden');
+        btnText.textContent = 'Edit';
+        if (overlay) overlay.classList.add('hidden');
+      }
+      </script>
+
 
       <!-- Account Info -->
       <div class="space-y-3">
@@ -111,8 +202,11 @@
       <div id="alert-profile" class="hidden rounded-xl px-4 py-3 text-sm"></div>
 
       <!-- Form -->
-      <form method="post" action="{% url 'accounts:profile_update' %}" class="space-y-4" id="profile-form">
+       <form method="post" action="{% url 'accounts:profile_update' %}" 
+        enctype="multipart/form-data"
+        class="space-y-4" id="profile-form">
         {% csrf_token %}
+        <input type="hidden" name="action" value="update_profile">
 
         <div class="space-y-1.5">
           <label for="profile-fullname" class="flex items-center gap-1.5 text-xs font-medium text-slate-700 dark:text-slate-300">
@@ -236,6 +330,7 @@
     <!-- Change Password Form -->
     <form method="post" action="{% url 'accounts:change_password' %}" class="space-y-4" id="security-form">
       {% csrf_token %}
+      <input type="hidden" name="action" value="update_profile">
 
       <div class="space-y-1.5">
         <label for="old-password" class="flex items-center gap-1.5 text-xs font-medium text-slate-700 dark:text-slate-300">

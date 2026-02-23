@@ -79,22 +79,24 @@ class LoginHistory(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='login_history',
-        null=True, blank=True  # null jika akun tidak ditemukan
+        null=True, blank=True
     )
-    ip_address = models.GenericIPAddressField(null=True, blank=True)
-    user_agent = models.CharField(max_length=500, blank=True)
+    ip_address  = models.GenericIPAddressField(null=True, blank=True)
+    user_agent  = models.CharField(max_length=500, blank=True)
     device_type = models.CharField(max_length=50, blank=True)
-    os = models.CharField(max_length=50, blank=True)
-    success = models.BooleanField(default=True)
+    browser     = models.CharField(max_length=100, blank=True)  # ← TAMBAH
+    os          = models.CharField(max_length=50, blank=True)
+    location    = models.CharField(max_length=200, blank=True)  # ← TAMBAH
+    success     = models.BooleanField(default=True)
     fail_reason = models.CharField(max_length=20, choices=FAIL_REASONS, blank=True, null=True)
-    timestamp = models.DateTimeField(auto_now_add=True)
+    login_at    = models.DateTimeField(auto_now_add=True)  # ← RENAME dari timestamp
 
     class Meta:
-        ordering = ['-timestamp']
+        ordering = ['-login_at']
         verbose_name = 'Login History'
         verbose_name_plural = 'Login Histories'
 
     def __str__(self):
         status = 'sukses' if self.success else 'gagal'
         user_info = self.user.email if self.user else 'unknown'
-        return f"{user_info} - {status} - {self.timestamp:%d %b %Y %H:%M}"
+        return f"{user_info} - {status} - {self.login_at:%d %b %Y %H:%M}"
