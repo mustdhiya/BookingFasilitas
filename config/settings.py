@@ -18,15 +18,14 @@ PRODUCTION_MODE = config('PRODUCTION_MODE', default=False, cast=bool)
 PRODUCTION_MODE = config('PRODUCTION_MODE', default=False, cast=bool)
 
 # ALLOWED_HOSTS
-if PRODUCTION_MODE:
-    ALLOWED_HOSTS = config(
-        'ALLOWED_HOSTS',
-        default='localhost,127.0.0.1',
-        cast=Csv()
-    )
+ALLOWED_HOSTS = [
+    'psylab-umkt.my.id',
+    'www.psylab-umkt.my.id',
+    'mail.psylab-umkt.my.id',
+    '127.0.0.1',
+    'localhost',
+]
 
-else:
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # Application definition
 INSTALLED_APPS = [
