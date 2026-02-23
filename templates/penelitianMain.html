@@ -1,0 +1,792 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Penelitian - Lab Psikologi UMKT{% endblock %}
+
+{% block extra_css %}
+<style>
+  .research-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+  .research-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(13,147,177,0.15);
+  }
+  .status-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 999px;
+    font-size: 11px; font-weight: 600;
+  }
+  .badge-open      { background:#dcfce7; color:#166534; }
+  .badge-full      { background:#fee2e2; color:#991b1b; }
+  .badge-approved  { background:#e0f1f7; color:#086078; }
+  .badge-pending   { background:#fef9c3; color:#92400e; }
+  .badge-rejected  { background:#fee2e2; color:#991b1b; }
+  .badge-completed { background:#e0f1f7; color:#086078; }
+  .dark .badge-open      { background:#052e16; color:#86efac; }
+  .dark .badge-full      { background:#450a0a; color:#fca5a5; }
+  .dark .badge-approved  { background:#043840; color:#a2d5e7; }
+  .dark .badge-pending   { background:#451a03; color:#fcd34d; }
+  .dark .badge-rejected  { background:#450a0a; color:#fca5a5; }
+  .dark .badge-completed { background:#1e293b; color:#94a3b8; }
+
+  .tab-btn.active {
+    background: #0D93B1; color: #fff;
+    box-shadow: 0 2px 8px rgba(13,147,177,0.3);
+  }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+
+  .focus-tag {
+    display: inline-flex; align-items: center;
+    padding: 2px 8px; border-radius: 6px;
+    font-size: 10px; font-weight: 600;
+    background: #e0f1f7; color: #086078;
+  }
+  .dark .focus-tag { background: #043840; color: #a2d5e7; }
+
+  .type-tag-payung {
+    display: inline-flex; align-items: center; gap: 3px;
+    padding: 2px 8px; border-radius: 6px;
+    font-size: 10px; font-weight: 600;
+    background: #ede9fe; color: #5b21b6;
+  }
+  .type-tag-individu {
+    display: inline-flex; align-items: center; gap: 3px;
+    padding: 2px 8px; border-radius: 6px;
+    font-size: 10px; font-weight: 600;
+    background: #fef3c7; color: #92400e;
+  }
+  .dark .type-tag-payung   { background: #2e1065; color: #c4b5fd; }
+  .dark .type-tag-individu { background: #451a03; color: #fcd34d; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+  <!-- ── HEADER ── -->
+  <div class="mb-8">
+    <div class="flex items-start justify-between flex-wrap gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+          <span class="material-icons-outlined text-amber-500">auto_stories</span>
+          Penelitian & Bimbingan
+        </h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          Pilih dosen pembimbing atau judul payung, lalu daftarkan judul skripsimu.
+        </p>
+      </div>
+
+      <!-- Badge request aktif -->
+      {% if my_active_request %}
+      <div class="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl px-4 py-2.5">
+        <span class="material-icons-outlined mat-sm text-amber-500">how_to_reg</span>
+        <div>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Request aktif</p>
+          <p class="text-sm font-semibold text-amber-700 dark:text-amber-300">
+            {{ my_active_request.thesis_title|truncatechars:35 }}
+          </p>
+        </div>
+        <span class="status-badge badge-{{ my_active_request.status }} ml-2">
+          {% if my_active_request.status == 'pending' %}⏳ Menunggu
+          {% elif my_active_request.status == 'approved' %}✅ Disetujui
+          {% else %}{{ my_active_request.get_status_display }}{% endif %}
+        </span>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
+      <div class="card p-4 text-center">
+        <p class="text-2xl font-bold text-amber-600 dark:text-amber-400">{{ lecturers.count }}</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Dosen Tersedia</p>
+      </div>
+      <div class="card p-4 text-center">
+        <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">{{ total_titles }}</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Judul Payung</p>
+      </div>
+      <div class="card p-4 text-center">
+        <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ available_count }}</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Slot Tersedia</p>
+      </div>
+      <div class="card p-4 text-center">
+        <p class="text-2xl font-bold text-primary-600 dark:text-primary-400">{{ my_requests.count|default:"0" }}</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Request Saya</p>
+      </div>
+    </div>
+
+    <!-- Info Banner -->
+    <div class="alert alert-info mt-5 flex gap-3 items-start">
+      <span class="material-icons-outlined mat-sm flex-shrink-0 text-primary-500 mt-0.5">info</span>
+      <div class="text-xs text-slate-700 dark:text-slate-300">
+        <p class="font-semibold mb-1">Cara Mendaftar Penelitian:</p>
+        <ol class="list-decimal ml-4 space-y-0.5">
+          <li>Pilih <strong>dosen pembimbing</strong> yang tersedia di tab "Pilih Dosen"</li>
+          <li>Klik judul payung yang sesuai — atau pilih tipe <strong>Individu</strong> jika tanpa judul payung</li>
+          <li>Isi <strong>judul skripsi</strong> kamu sendiri lalu lampirkan proposal (opsional)</li>
+          <li>Nama dosen baru terlihat setelah request <strong>disetujui</strong> admin</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TABS ── -->
+  <div class="flex gap-2 flex-wrap mb-6 border-b border-slate-200 dark:border-slate-700 pb-3">
+    <button onclick="switchTab('pilih-dosen')"
+            class="tab-btn active px-4 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300"
+            data-tab="pilih-dosen">
+      <span class="material-icons-outlined mat-xs mr-1">person_search</span>Pilih Dosen
+    </button>
+    <button onclick="switchTab('request-saya')"
+            class="tab-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300"
+            data-tab="request-saya">
+      <span class="material-icons-outlined mat-xs mr-1">assignment</span>
+      Request Saya
+      {% if my_requests.count %}
+      <span class="badge badge-primary ml-1">{{ my_requests.count }}</span>
+      {% endif %}
+    </button>
+    <button onclick="switchTab('bimbingan')"
+            class="tab-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300"
+            data-tab="bimbingan">
+      <span class="material-icons-outlined mat-xs mr-1">event_note</span>Sesi Bimbingan
+    </button>
+  </div>
+
+  <!-- ════════════════════════════════════════ -->
+  <!-- TAB: PILIH DOSEN -->
+  <!-- ════════════════════════════════════════ -->
+  <div id="tab-pilih-dosen" class="tab-content active">
+
+    <!-- Filter -->
+    <div class="flex gap-3 flex-wrap mb-5">
+      <div class="relative flex-1 min-w-[200px]">
+        <span class="material-icons-outlined mat-sm absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+        <input type="text"
+               id="search-dosen"
+               placeholder="Cari dosen atau judul payung..."
+               oninput="filterDosen()"
+               class="form-input pl-9">
+      </div>
+      <select id="filter-focus" onchange="filterDosen()" class="form-input w-auto">
+        <option value="">Semua Bidang</option>
+        {% for area in focus_areas %}
+        <option value="{{ area }}">{{ area|title }}</option>
+        {% endfor %}
+      </select>
+      <select id="filter-avail" onchange="filterDosen()" class="form-input w-auto">
+        <option value="">Semua</option>
+        <option value="available">Ada Slot</option>
+        <option value="full">Penuh</option>
+      </select>
+    </div>
+
+    <!-- Daftar Dosen -->
+    {% if lecturers %}
+    <div class="space-y-4" id="dosen-list">
+      {% for lecturer in lecturers %}
+      <div class="dosen-item card overflow-hidden"
+           data-name="{{ lecturer.name|lower }}"
+           data-focus="{{ lecturer.focus }}">
+
+        <!-- Dosen Header -->
+        <div class="p-5 flex items-start gap-4">
+          <div class="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
+            {% if lecturer.photo %}
+            <img src="{{ lecturer.photo.url }}"
+                 class="w-12 h-12 rounded-xl object-cover"
+                 alt="{{ lecturer.name }}">
+            {% else %}
+            <span class="material-icons-outlined text-amber-600 dark:text-amber-400">person</span>
+            {% endif %}
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-2 flex-wrap">
+              <div>
+                <!-- Nama dosen DISEMBUNYIKAN jika belum ada request approved -->
+                {% if lecturer.id in visible_lecturer_ids %}
+                  <h3 class="font-semibold text-slate-900 dark:text-slate-100 text-sm">
+                    {{ lecturer.name }}
+                  </h3>
+                {% else %}
+                  <h3 class="font-semibold text-slate-400 dark:text-slate-500 text-sm italic">
+                    Dosen — dirahasiakan
+                  </h3>
+                {% endif %}
+                <span class="focus-tag mt-1 inline-block">{{ lecturer.get_focus_display }}</span>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                  {{ lecturer.active_titles_count }} judul payung aktif
+                </p>
+                <!-- Tombol request individu -->
+                {% if user.is_authenticated %}
+                  {% if not my_active_request %}
+                  <button onclick="openRequestModal(null, null, {{ lecturer.id }}, '{{ lecturer.name|escapejs }}')"
+                          class="btn btn-sm btn-outline mt-1">
+                    <span class="material-icons-outlined mat-xs">person_add</span>
+                    Individu
+                  </button>
+                  {% endif %}
+                {% endif %}
+              </div>
+            </div>
+            {% if lecturer.bio %}
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 line-clamp-2">{{ lecturer.bio }}</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Judul Payung dosen ini -->
+        {% with titles=lecturer.research_titles.all %}
+        {% if titles %}
+        <div class="border-t border-slate-100 dark:border-slate-700 divide-y divide-slate-50 dark:divide-slate-700/50">
+          {% for title in titles %}
+          {% if title.is_active %}
+          {% with req_count=title.slots_used %}
+          <div class="px-5 py-3 flex items-center justify-between gap-3 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors judul-item"
+               data-title="{{ title.title|lower }}"
+               data-focus="{{ title.focus }}"
+               data-avail="{% if title.is_full %}full{% else %}available{% endif %}">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="type-tag-payung">
+                  <span class="material-icons-outlined mat-xs">layers</span>
+                  Judul Payung
+                </span>
+                <p class="text-sm text-slate-800 dark:text-slate-200 font-medium truncate">
+                  {{ title.title }}
+                </p>
+              </div>
+              <div class="flex items-center gap-3 mt-1.5">
+                <!-- Quota progress -->
+                <div class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                  <div class="w-16 h-1.5 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
+                    <div class="h-full rounded-full {% if title.is_full %}bg-red-500{% elif title.is_almost_full %}bg-amber-500{% else %}bg-green-500{% endif %}"
+                         style="width: {{ title.fill_percentage }}%"></div>
+                  </div>
+                  <span>{{ req_count }}/{{ title.quota }} slot</span>
+                </div>
+                {% if title.description %}
+                <p class="text-xs text-slate-400 dark:text-slate-500 truncate max-w-[200px]">
+                  {{ title.description|truncatechars:60 }}
+                </p>
+                {% endif %}
+              </div>
+            </div>
+            <!-- CTA judul payung -->
+            {% if user.is_authenticated %}
+              {% if title.id in user_requested_ids %}
+              <span class="status-badge badge-approved flex-shrink-0">✅ Sudah Diajukan</span>
+              {% elif title.is_full %}
+              <span class="status-badge badge-full flex-shrink-0">🔴 Penuh</span>
+              {% elif my_active_request %}
+              <span class="status-badge badge-pending flex-shrink-0 text-[10px]">Ada request aktif</span>
+              {% else %}
+              <button onclick="openRequestModal({{ title.id }}, '{{ title.title|escapejs }}', {{ lecturer.id }}, '{{ lecturer.name|escapejs }}')"
+                      class="btn btn-sm btn-warning flex-shrink-0">
+                <span class="material-icons-outlined mat-xs">send</span>
+                Daftar
+              </button>
+              {% endif %}
+            {% else %}
+            <a href="/login/?next=/penelitian/"
+               class="btn btn-sm btn-outline flex-shrink-0 no-underline">
+              <span class="material-icons-outlined mat-xs">login</span>Login
+            </a>
+            {% endif %}
+          </div>
+          {% endwith %}
+          {% endif %}
+          {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+      </div>
+      {% endfor %}
+    </div>
+
+    <div id="dosen-empty" class="hidden text-center py-16">
+      <span class="material-icons-outlined mat-xl text-slate-300 dark:text-slate-600">search_off</span>
+      <p class="text-slate-500 dark:text-slate-400 mt-2">Tidak ada dosen yang cocok</p>
+    </div>
+
+    {% else %}
+    <div class="card p-16 text-center">
+      <span class="material-icons-outlined mat-xl text-slate-300 dark:text-slate-600 mb-3">person_off</span>
+      <p class="font-medium text-slate-500 dark:text-slate-400">Belum ada dosen pembimbing tersedia</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ════════════════════════════════════════ -->
+  <!-- TAB: REQUEST SAYA -->
+  <!-- ════════════════════════════════════════ -->
+  <div id="tab-request-saya" class="tab-content">
+    {% if my_requests %}
+    <div class="space-y-4">
+      {% for req in my_requests %}
+      <div class="card p-5">
+        <div class="flex items-start justify-between gap-3 flex-wrap">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
+              <span class="material-icons-outlined text-amber-600 mat-sm">auto_stories</span>
+            </div>
+            <div>
+              <!-- Tipe request -->
+              <div class="flex gap-2 mb-1.5">
+                {% if req.request_type == 'payung' %}
+                <span class="type-tag-payung">
+                  <span class="material-icons-outlined mat-xs">layers</span>Judul Payung
+                </span>
+                {% else %}
+                <span class="type-tag-individu">
+                  <span class="material-icons-outlined mat-xs">person</span>Individu
+                </span>
+                {% endif %}
+              </div>
+
+              <!-- Judul Skripsi (judul yg diinput mahasiswa) -->
+              <p class="font-semibold text-slate-900 dark:text-slate-100 text-sm">
+                {{ req.thesis_title }}
+              </p>
+
+              <!-- Judul Payung (jika ada) -->
+              {% if req.research_title %}
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                <span class="material-icons-outlined mat-xs">layers</span>
+                Payung: {{ req.research_title.title|truncatechars:50 }}
+              </p>
+              {% endif %}
+
+              <!-- Dosen — HANYA tampil jika approved -->
+              {% if req.status == 'approved' %}
+              <p class="text-xs text-primary-600 dark:text-primary-400 mt-0.5 flex items-center gap-1">
+                <span class="material-icons-outlined mat-xs">person</span>
+                Dosen: {{ req.lecturer.name }}
+              </p>
+              {% else %}
+              <p class="text-xs text-slate-400 italic mt-0.5 flex items-center gap-1">
+                <span class="material-icons-outlined mat-xs">visibility_off</span>
+                Dosen: dirahasiakan hingga disetujui
+              </p>
+              {% endif %}
+
+              <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                <span class="material-icons-outlined mat-xs">calendar_today</span>
+                Diajukan {{ req.created_at|date:"d M Y" }}
+              </p>
+
+              <!-- Sesi bimbingan counter -->
+              {% if req.status == 'approved' %}
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-1">
+                <span class="material-icons-outlined mat-xs text-green-500">event_note</span>
+                {{ req.guidance_sessions.count }} sesi bimbingan
+              </p>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Status badge -->
+          <span class="status-badge badge-{{ req.status }} flex-shrink-0">
+            {% if req.status == 'pending' %}⏳ Menunggu
+            {% elif req.status == 'approved' %}✅ Disetujui
+            {% elif req.status == 'rejected' %}❌ Ditolak
+            {% elif req.status == 'completed' %}🏁 Selesai
+            {% else %}{{ req.get_status_display }}{% endif %}
+          </span>
+        </div>
+
+        <!-- Alasan tolak -->
+        {% if req.status == 'rejected' and req.admin_notes %}
+        <div class="mt-3 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-800">
+          <p class="text-xs text-red-700 dark:text-red-300 flex items-start gap-1">
+            <span class="material-icons-outlined mat-xs flex-shrink-0 mt-0.5">info</span>
+            <span>Alasan penolakan: {{ req.admin_notes }}</span>
+          </p>
+        </div>
+        {% endif %}
+
+        <!-- Proposal download -->
+        {% if req.proposal %}
+        <div class="mt-3 flex gap-2">
+          <a href="{{ req.proposal.url }}"
+             target="_blank"
+             class="btn btn-sm btn-secondary no-underline">
+            <span class="material-icons-outlined mat-xs">description</span>
+            Lihat Proposal
+          </a>
+          {% if req.status == 'approved' %}
+          <button onclick="switchTab('bimbingan')" class="btn btn-sm btn-outline">
+            <span class="material-icons-outlined mat-xs">event_note</span>
+            Sesi Bimbingan
+          </button>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="card p-16 text-center">
+      <span class="material-icons-outlined mat-xl text-slate-300 dark:text-slate-600 mb-3">assignment</span>
+      <p class="font-medium text-slate-500 dark:text-slate-400">Belum ada request penelitian</p>
+      <p class="text-sm text-slate-400 dark:text-slate-500 mt-1">Pilih dosen atau judul payung untuk mulai mendaftar</p>
+      <button onclick="switchTab('pilih-dosen')" class="btn btn-warning btn-sm mt-4">
+        <span class="material-icons-outlined mat-sm">person_search</span>Pilih Dosen
+      </button>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ════════════════════════════════════════ -->
+  <!-- TAB: SESI BIMBINGAN -->
+  <!-- ════════════════════════════════════════ -->
+  <div id="tab-bimbingan" class="tab-content">
+    {% if guidance_sessions %}
+    <div class="space-y-3">
+      {% for session in guidance_sessions %}
+      <div class="card p-5">
+        <div class="flex items-start gap-3">
+          <div class="w-9 h-9 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center flex-shrink-0">
+            <span class="material-icons-outlined text-green-600 dark:text-green-400 mat-sm">event_note</span>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-start justify-between gap-2 flex-wrap">
+              <div>
+                <p class="font-semibold text-slate-800 dark:text-slate-200 text-sm">
+                  {{ session.topic }}
+                </p>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  <span class="material-icons-outlined mat-xs">auto_stories</span>
+                  {{ session.request.thesis_title|truncatechars:50 }}
+                </p>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  <span class="material-icons-outlined mat-xs">calendar_today</span>
+                  {{ session.date|date:"d M Y" }}
+                </p>
+              </div>
+              <span class="badge badge-primary text-xs flex-shrink-0">
+                Sesi #{{ forloop.counter }}
+              </span>
+            </div>
+            {% if session.notes %}
+            <div class="mt-2 p-2.5 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+              <p class="text-xs text-slate-600 dark:text-slate-400">
+                <span class="material-icons-outlined mat-xs text-slate-400">notes</span>
+                {{ session.notes }}
+              </p>
+            </div>
+            {% endif %}
+            {% if session.attachment %}
+            <a href="{{ session.attachment.url }}"
+               target="_blank"
+               class="inline-flex items-center gap-1 text-xs text-primary-600 dark:text-primary-400 mt-2 no-underline hover:underline">
+              <span class="material-icons-outlined mat-xs">attach_file</span>
+              Lihat Lampiran
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="card p-16 text-center">
+      <span class="material-icons-outlined mat-xl text-slate-300 dark:text-slate-600 mb-3">event_note</span>
+      <p class="font-medium text-slate-500 dark:text-slate-400">Belum ada sesi bimbingan</p>
+      <p class="text-sm text-slate-400 dark:text-slate-500 mt-1">
+        Sesi bimbingan akan dicatat oleh dosen setelah request disetujui
+      </p>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- MODAL: REQUEST PENELITIAN -->
+<!-- ════════════════════════════════════════════ -->
+<div id="request-modal"
+     class="fixed inset-0 z-50 hidden flex items-center justify-center p-4"
+     style="background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);">
+  <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg animate-slide-up max-h-[90vh] overflow-y-auto">
+
+    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700 sticky top-0 bg-white dark:bg-slate-800 z-10">
+      <h3 class="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+        <span class="material-icons-outlined mat-sm text-amber-500">how_to_reg</span>
+        Daftar Penelitian
+      </h3>
+      <button onclick="closeRequestModal()"
+              class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+        <span class="material-icons mat-sm text-slate-500">close</span>
+      </button>
+    </div>
+
+    <div class="p-6 space-y-4">
+
+      <!-- Preview dosen & judul payung -->
+      <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
+        <div class="flex items-start gap-3">
+          <span class="material-icons-outlined text-amber-500 mat-sm mt-0.5">person</span>
+          <div>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Dosen Pembimbing</p>
+            <p class="font-semibold text-amber-900 dark:text-amber-100 text-sm" id="modal-lecturer-name">-</p>
+          </div>
+        </div>
+        <div id="modal-title-section" class="flex items-start gap-3 mt-2 hidden">
+          <span class="material-icons-outlined text-violet-500 mat-sm mt-0.5">layers</span>
+          <div>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Judul Payung</p>
+            <p class="font-semibold text-violet-900 dark:text-violet-100 text-sm" id="modal-title-name">-</p>
+          </div>
+        </div>
+        <!-- Tipe badge -->
+        <div class="mt-2">
+          <span id="modal-type-badge" class="type-tag-individu">
+            <span class="material-icons-outlined mat-xs">person</span>
+            Individu
+          </span>
+        </div>
+      </div>
+
+      <!-- Input Judul Skripsi -->
+      <div class="form-group">
+        <label class="form-label" for="thesis-title">
+          Judul Skripsi <span class="text-red-500">*</span>
+        </label>
+        <input type="text"
+               id="thesis-title"
+               placeholder="Masukkan judul skripsi kamu..."
+               class="form-input"
+               maxlength="300">
+        <p class="form-help">Judul skripsi yang kamu input sendiri, berbeda dengan judul payung dosen.</p>
+      </div>
+
+      <!-- Upload Proposal (opsional) -->
+      <div class="form-group">
+        <label class="form-label" for="proposal-file">
+          File Proposal
+          <span class="text-slate-400 font-normal">(opsional)</span>
+        </label>
+        <input type="file"
+               id="proposal-file"
+               accept=".pdf,.doc,.docx"
+               class="form-input py-2 text-sm">
+        <p class="form-help">Format: PDF, DOC, DOCX. Maks 10MB.</p>
+      </div>
+
+      <!-- Catatan tambahan -->
+      <div class="form-group">
+        <label class="form-label" for="request-note">
+          Catatan untuk Dosen
+          <span class="text-slate-400 font-normal">(opsional)</span>
+        </label>
+        <textarea id="request-note"
+                  rows="3"
+                  placeholder="Tuliskan motivasi atau alasan memilih dosen/judul ini..."
+                  class="form-input resize-none"></textarea>
+      </div>
+
+      <!-- Info reminder -->
+      <div class="space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
+        <p class="flex items-center gap-1.5">
+          <span class="material-icons-outlined mat-xs text-amber-400">info</span>
+          Hanya <strong>1 request aktif</strong> diperbolehkan per semester
+        </p>
+        <p class="flex items-center gap-1.5">
+          <span class="material-icons-outlined mat-xs text-slate-400">visibility_off</span>
+          Nama dosen baru tampil setelah request <strong>disetujui</strong>
+        </p>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="flex gap-3 pt-2">
+        <button onclick="closeRequestModal()" class="btn btn-secondary flex-1">Batal</button>
+        <button onclick="submitRequest()" class="btn btn-warning flex-1" id="submit-request-btn">
+          <span class="material-icons-outlined mat-xs">send</span>
+          Kirim Request
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  let selectedTitleId   = null;
+  let selectedLecturerId = null;
+
+  // ── Tab System ──
+  function switchTab(name) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + name)?.classList.add('active');
+    document.querySelector(`[data-tab="${name}"]`)?.classList.add('active');
+    history.replaceState(null, '', '#' + name);
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const hash  = window.location.hash.replace('#', '');
+    const valid = ['pilih-dosen', 'request-saya', 'bimbingan'];
+    if (valid.includes(hash)) switchTab(hash);
+  });
+
+  // ── Filter Dosen ──
+  function filterDosen() {
+    const q     = document.getElementById('search-dosen').value.toLowerCase();
+    const focus = document.getElementById('filter-focus').value;
+    const avail = document.getElementById('filter-avail').value;
+    const items = document.querySelectorAll('.dosen-item');
+    let visible = 0;
+
+    items.forEach(el => {
+      // Cek nama dosen
+      const nameMatch  = el.dataset.name.includes(q);
+      // Cek judul payung di dalam dosen ini
+      const judulMatch = [...el.querySelectorAll('.judul-item')]
+                           .some(j => j.dataset.title?.includes(q));
+      const focusMatch = !focus || el.dataset.focus === focus;
+
+      // Avail: cek apakah ada judul yg available di dosen ini
+      let availMatch = true;
+      if (avail === 'available') {
+        availMatch = [...el.querySelectorAll('.judul-item')]
+                       .some(j => j.dataset.avail === 'available');
+      } else if (avail === 'full') {
+        availMatch = [...el.querySelectorAll('.judul-item')]
+                       .every(j => j.dataset.avail === 'full');
+      }
+
+      const show = (nameMatch || judulMatch) && focusMatch && availMatch;
+      el.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+
+    document.getElementById('dosen-empty')?.classList.toggle('hidden', visible > 0);
+  }
+
+  // ── Modal Request ──
+  function openRequestModal(titleId, titleName, lecturerId, lecturerName) {
+    selectedTitleId    = titleId;
+    selectedLecturerId = lecturerId;
+
+    document.getElementById('modal-lecturer-name').textContent = lecturerName || '-';
+
+    const titleSection = document.getElementById('modal-title-section');
+    const typeBadge    = document.getElementById('modal-type-badge');
+
+    if (titleId && titleName) {
+      // Tipe: Judul Payung
+      document.getElementById('modal-title-name').textContent = titleName;
+      titleSection.classList.remove('hidden');
+      typeBadge.className = 'type-tag-payung';
+      typeBadge.innerHTML = '<span class="material-icons-outlined mat-xs">layers</span> Judul Payung';
+    } else {
+      // Tipe: Individu
+      titleSection.classList.add('hidden');
+      typeBadge.className = 'type-tag-individu';
+      typeBadge.innerHTML = '<span class="material-icons-outlined mat-xs">person</span> Individu';
+    }
+
+    document.getElementById('request-modal').classList.remove('hidden');
+    document.getElementById('thesis-title').focus();
+  }
+
+  function closeRequestModal() {
+    document.getElementById('request-modal').classList.add('hidden');
+    document.getElementById('thesis-title').value  = '';
+    document.getElementById('request-note').value  = '';
+    document.getElementById('proposal-file').value = '';
+    selectedTitleId    = null;
+    selectedLecturerId = null;
+  }
+
+  function submitRequest() {
+    const thesisTitle = document.getElementById('thesis-title').value.trim();
+    if (!thesisTitle) {
+      document.getElementById('thesis-title').focus();
+      showToast('error', 'Judul skripsi wajib diisi!');
+      return;
+    }
+    if (!selectedLecturerId) {
+      showToast('error', 'Pilih dosen terlebih dahulu!');
+      return;
+    }
+
+    const btn      = document.getElementById('submit-request-btn');
+    const fileInput = document.getElementById('proposal-file');
+    btn.disabled   = true;
+    btn.innerHTML  = '<div class="spinner-ring w-4 h-4 border-2"></div> Mengirim...';
+
+    const formData = new FormData();
+    formData.append('lecturer',       selectedLecturerId);
+    formData.append('thesis_title',   thesisTitle);
+    formData.append('request_type',   selectedTitleId ? 'payung' : 'individu');
+    if (selectedTitleId) {
+      formData.append('research_title', selectedTitleId);
+    }
+    if (fileInput.files[0]) {
+      formData.append('proposal', fileInput.files[0]);
+    }
+    const note = document.getElementById('request-note').value.trim();
+    if (note) formData.append('note', note);
+
+    fetch('/api/research/requests/', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCookie('csrftoken') },
+      body: formData   // FormData, jangan set Content-Type manual
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.id) {
+        closeRequestModal();
+        showToast('success', 'Request berhasil dikirim! Tunggu persetujuan admin.');
+        setTimeout(() => location.reload(), 1500);
+      } else {
+        const msg = data.detail
+                 || data.thesis_title?.[0]
+                 || data.non_field_errors?.[0]
+                 || 'Gagal mengirim request';
+        showToast('error', msg);
+        btn.disabled  = false;
+        btn.innerHTML = '<span class="material-icons-outlined mat-xs">send</span> Kirim Request';
+      }
+    })
+    .catch(() => {
+      showToast('error', 'Terjadi kesalahan. Coba lagi.');
+      btn.disabled  = false;
+      btn.innerHTML = '<span class="material-icons-outlined mat-xs">send</span> Kirim Request';
+    });
+  }
+
+  // Close modal on backdrop
+  document.getElementById('request-modal')?.addEventListener('click', function(e) {
+    if (e.target === this) closeRequestModal();
+  });
+
+  function getCookie(name) {
+    const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+    return v ? v[2] : '';
+  }
+
+  function showToast(type, message) {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+    const t = document.createElement('div');
+    t.className = `toast toast-${type}`;
+    t.innerHTML = `
+      <span class="material-icons mat-sm flex-shrink-0">
+        ${type === 'success' ? 'check_circle' : type === 'error' ? 'error' : 'warning'}
+      </span>
+      <p class="flex-1">${message}</p>
+      <button onclick="this.parentElement.remove()">
+        <span class="material-icons mat-xs">close</span>
+      </button>`;
+    container.appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  }
+</script>
+{% endblock %}

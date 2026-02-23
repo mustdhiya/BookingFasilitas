@@ -1,0 +1,550 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Praktikum - Lab Psikologi UMKT{% endblock %}
+
+{% block extra_css %}
+<style>
+  .schedule-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .schedule-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(13,147,177,0.15);
+  }
+  .quota-bar {
+    height: 6px; border-radius: 3px;
+    background: #e2e8f0; overflow: hidden;
+  }
+  .dark .quota-bar { background: #334155; }
+  .quota-fill {
+    height: 100%; border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+  .status-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 999px;
+    font-size: 11px; font-weight: 600;
+  }
+  .badge-open      { background:#dcfce7; color:#166534; }
+  .badge-waitlist  { background:#fef9c3; color:#92400e; }
+  .badge-full      { background:#fee2e2; color:#991b1b; }
+  .badge-closed    { background:#f1f5f9; color:#475569; }
+  .badge-registered{ background:#e0f1f7; color:#086078; }
+  .dark .badge-open      { background:#052e16; color:#86efac; }
+  .dark .badge-waitlist  { background:#451a03; color:#fcd34d; }
+  .dark .badge-full      { background:#450a0a; color:#fca5a5; }
+  .dark .badge-closed    { background:#1e293b; color:#94a3b8; }
+  .dark .badge-registered{ background:#043840; color:#a2d5e7; }
+
+  .tab-btn.active {
+    background: #0D93B1; color: #fff;
+    box-shadow: 0 2px 8px rgba(13,147,177,0.3);
+  }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" id="jadwal">
+
+  <!-- ── HEADER ── -->
+  <div class="mb-8">
+    <div class="flex items-start justify-between flex-wrap gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+          <span class="material-icons-outlined text-violet-500">school</span>
+          Jadwal Praktikum
+        </h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          Daftar jadwal praktikum Lab Psikologi UMKT. Satu pendaftaran per semester.
+        </p>
+      </div>
+      {% if user.is_authenticated and my_registration %}
+      <div class="flex items-center gap-2 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-xl px-4 py-2.5">
+        <span class="material-icons-outlined mat-sm text-primary-500">how_to_reg</span>
+        <div>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Kamu terdaftar di</p>
+          <p class="text-sm font-semibold text-primary-700 dark:text-primary-300">
+            {{ my_registration.practicum.title }}
+          </p>
+        </div>
+        <span class="status-badge badge-registered ml-2">
+          {% if my_registration.status == 'waitlist' %}⏳ Waitlist{% else %}✅ Terdaftar{% endif %}
+        </span>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Stats Row -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
+      <div class="card p-4 text-center">
+        <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">{{ practicums.count }}</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Total Jadwal</p>
+      </div>
+      <div class="card p-4 text-center">
+        <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ open_count }}</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Masih Buka</p>
+      </div>
+      <div class="card p-4 text-center">
+        <p class="text-2xl font-bold text-amber-600 dark:text-amber-400">{{ waitlist_count }}</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Waitlist</p>
+      </div>
+      <div class="card p-4 text-center">
+        <p class="text-2xl font-bold text-primary-600 dark:text-primary-400">{{ my_registration.count|default:"0" }}</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Saya Ikuti</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TABS ── -->
+  <div class="flex gap-2 flex-wrap mb-6 border-b border-slate-200 dark:border-slate-700 pb-3">
+    <button onclick="switchTab('semua')" class="tab-btn active px-4 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300" data-tab="semua">
+      <span class="material-icons-outlined mat-xs mr-1">grid_view</span>Semua Jadwal
+    </button>
+    <button onclick="switchTab('saya')" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300" data-tab="saya">
+      <span class="material-icons-outlined mat-xs mr-1">person</span>Pendaftaran Saya
+    </button>
+    <button onclick="switchTab('sertifikat')" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300" data-tab="sertifikat">
+      <span class="material-icons-outlined mat-xs mr-1">workspace_premium</span>Sertifikat
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════ -->
+  <!-- TAB: SEMUA JADWAL -->
+  <!-- ══════════════════════════════ -->
+  <div id="tab-semua" class="tab-content active" id="jadwal">
+
+    <!-- Filter & Search -->
+    <div class="flex gap-3 flex-wrap mb-5">
+      <div class="relative flex-1 min-w-[200px]">
+        <span class="material-icons-outlined mat-sm absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+        <input type="text"
+               id="search-praktikum"
+               placeholder="Cari jadwal praktikum..."
+               oninput="filterPraktikum()"
+               class="form-input pl-9">
+      </div>
+      <select id="filter-semester" onchange="filterPraktikum()" class="form-input w-auto">
+        <option value="">Semua Semester</option>
+        {% for s in semesters %}
+        <option value="{{ s }}">{{ s }}</option>
+        {% endfor %}
+      </select>
+      <select id="filter-status" onchange="filterPraktikum()" class="form-input w-auto">
+        <option value="">Semua Status</option>
+        <option value="open">Buka</option>
+        <option value="waitlist">Waitlist</option>
+        <option value="full">Penuh</option>
+        <option value="closed">Ditutup</option>
+      </select>
+    </div>
+
+    <!-- Jadwal Grid -->
+    {% if practicums %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="praktikum-grid">
+      {% for p in practicums %}
+      {% with registered=p.registrations.count quota=p.max_participants %}
+      {% with pct=registered|divisibleby:quota %}
+      <div class="schedule-card card p-5 praktikum-item"
+           data-title="{{ p.title|lower }}"
+           data-semester="{{ p.semester }}"
+           data-status="{% if not p.is_open %}closed{% elif registered >= quota %}full{% elif registered >= quota|add:'-5' %}waitlist{% else %}open{% endif %}">
+
+        <!-- Header -->
+        <div class="flex items-start justify-between gap-2 mb-3">
+          <div class="w-10 h-10 rounded-xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center flex-shrink-0">
+            <span class="material-icons-outlined text-violet-600 dark:text-violet-400 mat-sm">school</span>
+          </div>
+          <span class="status-badge
+            {% if not p.is_open %}badge-closed
+            {% elif registered >= p.max_participants %}badge-full
+            {% else %}badge-open{% endif %}">
+            {% if not p.is_open %}🔒 Ditutup
+            {% elif registered >= p.max_participants %}🔴 Penuh
+            {% else %}🟢 Buka{% endif %}
+          </span>
+        </div>
+
+        <!-- Title -->
+        <h3 class="font-semibold text-slate-900 dark:text-slate-100 text-sm mb-1">
+          {{ p.title }}
+        </h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">
+          {{ p.description|truncatechars:80 }}
+        </p>
+
+        <!-- Info Grid -->
+        <div class="grid grid-cols-2 gap-2 mb-3 text-xs">
+          <div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
+            <span class="material-icons-outlined mat-xs text-violet-400">calendar_today</span>
+            {{ p.date|date:"d M Y" }}
+          </div>
+          <div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
+            <span class="material-icons-outlined mat-xs text-violet-400">schedule</span>
+            {{ p.start_time|default:"08:00" }} – {{ p.end_time|default:"12:00" }}
+          </div>
+          <div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
+            <span class="material-icons-outlined mat-xs text-violet-400">book</span>
+            {{ p.semester }}
+          </div>
+          <div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
+            <span class="material-icons-outlined mat-xs text-violet-400">location_on</span>
+            {{ p.location|default:"Lab Psikologi" }}
+          </div>
+        </div>
+
+        <!-- Quota Bar -->
+        <div class="mb-3">
+          <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
+            <span>Kuota Terisi</span>
+            <span class="font-semibold">{{ registered }}/{{ p.max_participants }}</span>
+          </div>
+          <div class="quota-bar">
+            <div class="quota-fill {% if registered >= p.max_participants %}bg-red-500{% elif registered >= p.max_participants|add:'-3' %}bg-amber-500{% else %}bg-violet-500{% endif %}"
+                 style="width: {% widthratio registered p.max_participants 100 %}%">
+            </div>
+          </div>
+        </div>
+
+        <!-- Lecturer -->
+        {% if p.lecturer %}
+        <div class="flex items-center gap-2 mb-3 p-2 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+          <span class="material-icons-outlined mat-xs text-primary-400">person</span>
+          <span class="text-xs text-slate-600 dark:text-slate-400">{{ p.lecturer }}</span>
+        </div>
+        {% endif %}
+
+        <!-- CTA Button -->
+        {% if user.is_authenticated %}
+          {% if p.id in user_registered_ids %}
+          <button class="btn btn-secondary w-full btn-sm" disabled>
+            <span class="material-icons-outlined mat-xs">check_circle</span>
+            Sudah Terdaftar
+          </button>
+          {% elif not p.is_open %}
+          <button class="btn btn-secondary w-full btn-sm" disabled>
+            <span class="material-icons-outlined mat-xs">lock</span>
+            Pendaftaran Ditutup
+          </button>
+          {% else %}
+          <button onclick="openDaftarModal({{ p.id }}, '{{ p.title|escapejs }}')"
+                  class="btn btn-primary w-full btn-sm">
+            <span class="material-icons-outlined mat-xs">how_to_reg</span>
+            {% if registered >= p.max_participants %}Masuk Waitlist{% else %}Daftar Sekarang{% endif %}
+          </button>
+          {% endif %}
+        {% else %}
+        <a href="/login/?next=/praktikum/" class="btn btn-outline w-full btn-sm no-underline">
+          <span class="material-icons-outlined mat-xs">login</span>
+          Login untuk Daftar
+        </a>
+        {% endif %}
+
+      </div>
+      {% endwith %}
+      {% endwith %}
+      {% endfor %}
+    </div>
+
+    <!-- Empty -->
+    <div id="praktikum-empty" class="hidden text-center py-16">
+      <span class="material-icons-outlined mat-xl text-slate-300 dark:text-slate-600">search_off</span>
+      <p class="text-slate-500 dark:text-slate-400 mt-2">Tidak ada jadwal yang cocok</p>
+    </div>
+
+    {% else %}
+    <div class="card p-16 text-center">
+      <span class="material-icons-outlined mat-xl text-slate-300 dark:text-slate-600 mb-3">event_busy</span>
+      <p class="font-medium text-slate-500 dark:text-slate-400">Belum ada jadwal praktikum tersedia</p>
+      <p class="text-sm text-slate-400 dark:text-slate-500 mt-1">Pantau terus untuk jadwal semester berikutnya</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ══════════════════════════════ -->
+  <!-- TAB: PENDAFTARAN SAYA -->
+  <!-- ══════════════════════════════ -->
+  <div id="tab-saya" class="tab-content">
+    {% if my_registrations %}
+    <div class="space-y-3">
+      {% for reg in my_registrations %}
+      <div class="card p-5">
+        <div class="flex items-start justify-between gap-3 flex-wrap">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center flex-shrink-0">
+              <span class="material-icons-outlined text-violet-600 mat-sm">school</span>
+            </div>
+            <div>
+              <p class="font-semibold text-slate-900 dark:text-slate-100 text-sm">{{ reg.practicum.title }}</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                <span class="material-icons-outlined mat-xs">calendar_today</span>
+                {{ reg.practicum.date|date:"d M Y" }}
+                &nbsp;·&nbsp;{{ reg.practicum.semester }}
+              </p>
+              <!-- Attendance Progress -->
+              {% if reg.attendance_percentage is not None %}
+              <div class="flex items-center gap-2 mt-2">
+                <div class="w-24 h-1.5 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
+                  <div class="h-full rounded-full {% if reg.attendance_percentage >= 80 %}bg-green-500{% else %}bg-amber-500{% endif %}"
+                       style="width: {{ reg.attendance_percentage }}%"></div>
+                </div>
+                <span class="text-xs font-medium text-slate-600 dark:text-slate-400">
+                  Kehadiran {{ reg.attendance_percentage }}%
+                  {% if reg.attendance_percentage >= 80 %}
+                  <span class="text-green-600 dark:text-green-400">✓ Layak sertifikat</span>
+                  {% endif %}
+                </span>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="status-badge
+              {% if reg.status == 'registered' %}badge-registered
+              {% elif reg.status == 'waitlist' %}badge-waitlist
+              {% elif reg.status == 'completed' %}badge-open
+              {% else %}badge-closed{% endif %}">
+              {% if reg.status == 'registered' %}✅ Terdaftar
+              {% elif reg.status == 'waitlist' %}⏳ Waitlist
+              {% elif reg.status == 'completed' %}🎓 Selesai
+              {% else %}{{ reg.status }}{% endif %}
+            </span>
+          </div>
+        </div>
+        {% if reg.status == 'waitlist' %}
+        <div class="mt-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-100 dark:border-amber-800">
+          <p class="text-xs text-amber-700 dark:text-amber-300 flex items-center gap-1">
+            <span class="material-icons-outlined mat-xs">info</span>
+            Kamu berada di daftar waitlist. Kamu akan otomatis dipindahkan jika ada slot yang tersedia.
+          </p>
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="card p-16 text-center">
+      <span class="material-icons-outlined mat-xl text-slate-300 dark:text-slate-600 mb-3">how_to_reg</span>
+      <p class="font-medium text-slate-500 dark:text-slate-400">Kamu belum mendaftar praktikum apapun</p>
+      <button onclick="switchTab('semua')" class="btn btn-primary btn-sm mt-4">
+        <span class="material-icons-outlined mat-sm">school</span>Lihat Jadwal
+      </button>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ══════════════════════════════ -->
+  <!-- TAB: SERTIFIKAT -->
+  <!-- ══════════════════════════════ -->
+  <div id="tab-sertifikat" class="tab-content" id="sertifikat">
+    {% with certs=my_registrations|dictsort:"certificate_issued" %}
+    {% if my_registrations %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {% for reg in my_registrations %}
+      {% if reg.certificate_issued %}
+      <div class="card p-5 border-2 border-amber-200 dark:border-amber-800">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+            <span class="material-icons-outlined text-amber-600 dark:text-amber-400 mat-md">workspace_premium</span>
+          </div>
+          <div>
+            <p class="font-semibold text-slate-900 dark:text-slate-100 text-sm">{{ reg.practicum.title }}</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">{{ reg.practicum.semester }}</p>
+          </div>
+        </div>
+        <div class="space-y-1.5 text-xs text-slate-600 dark:text-slate-400 mb-4">
+          <div class="flex justify-between">
+            <span>Kehadiran</span>
+            <span class="font-semibold text-green-600 dark:text-green-400">{{ reg.attendance_percentage }}%</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Tanggal Terbit</span>
+            <span class="font-semibold">{{ reg.updated_at|date:"d M Y" }}</span>
+          </div>
+        </div>
+        {% if reg.certificate_file %}
+        <a href="{{ reg.certificate_file.url }}"
+           target="_blank"
+           class="btn btn-warning w-full btn-sm no-underline">
+          <span class="material-icons-outlined mat-xs">download</span>
+          Download Sertifikat
+        </a>
+        {% else %}
+        <button class="btn btn-secondary w-full btn-sm" disabled>
+          <span class="material-icons-outlined mat-xs">hourglass_empty</span>
+          Sedang Diproses
+        </button>
+        {% endif %}
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="card p-16 text-center">
+      <span class="material-icons-outlined mat-xl text-slate-300 dark:text-slate-600 mb-3">workspace_premium</span>
+      <p class="font-medium text-slate-500 dark:text-slate-400">Belum ada sertifikat</p>
+      <p class="text-sm text-slate-400 dark:text-slate-500 mt-1">Selesaikan praktikum dengan kehadiran ≥ 80% untuk mendapat sertifikat</p>
+    </div>
+    {% endif %}
+    {% endwith %}
+  </div>
+
+</div>
+
+<!-- ── MODAL DAFTAR ── -->
+<div id="daftar-modal"
+     class="fixed inset-0 z-50 hidden flex items-center justify-center p-4"
+     style="background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);">
+  <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md animate-slide-up">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700">
+      <h3 class="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+        <span class="material-icons-outlined mat-sm text-violet-500">how_to_reg</span>
+        Konfirmasi Pendaftaran
+      </h3>
+      <button onclick="closeDaftarModal()" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+        <span class="material-icons mat-sm text-slate-500">close</span>
+      </button>
+    </div>
+    <div class="p-6">
+      <div class="bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800 rounded-xl p-4 mb-4">
+        <p class="font-semibold text-violet-900 dark:text-violet-100 text-sm" id="modal-praktikum-title">-</p>
+        <p class="text-xs text-violet-600 dark:text-violet-400 mt-1">Lab Psikologi UMKT</p>
+      </div>
+      <div class="space-y-2 text-sm text-slate-600 dark:text-slate-400 mb-5">
+        <p class="flex items-center gap-2">
+          <span class="material-icons-outlined mat-xs text-primary-400">info</span>
+          Pendaftaran hanya <strong>1x per semester</strong>
+        </p>
+        <p class="flex items-center gap-2">
+          <span class="material-icons-outlined mat-xs text-amber-400">schedule</span>
+          Jika kuota penuh, kamu masuk <strong>waitlist</strong> otomatis
+        </p>
+        <p class="flex items-center gap-2">
+          <span class="material-icons-outlined mat-xs text-green-400">workspace_premium</span>
+          Sertifikat diterbitkan jika kehadiran <strong>≥ 80%</strong>
+        </p>
+      </div>
+      <div class="flex gap-3">
+        <button onclick="closeDaftarModal()" class="btn btn-secondary flex-1">Batal</button>
+        <button onclick="submitDaftar()" class="btn btn-primary flex-1" id="submit-daftar-btn">
+          <span class="material-icons-outlined mat-xs">how_to_reg</span>
+          Ya, Daftar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  let selectedPracticumId = null;
+
+  function switchTab(name) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + name)?.classList.add('active');
+    document.querySelector(`[data-tab="${name}"]`)?.classList.add('active');
+    history.replaceState(null, '', '#' + name);
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const hash = window.location.hash.replace('#', '');
+    const validTabs = ['semua', 'saya', 'sertifikat'];
+    if (validTabs.includes(hash)) switchTab(hash);
+  });
+
+  function filterPraktikum() {
+    const q       = document.getElementById('search-praktikum').value.toLowerCase();
+    const sem     = document.getElementById('filter-semester').value;
+    const status  = document.getElementById('filter-status').value;
+    const items   = document.querySelectorAll('.praktikum-item');
+    let visible   = 0;
+
+    items.forEach(el => {
+      const titleMatch  = el.dataset.title.includes(q);
+      const semMatch    = !sem    || el.dataset.semester === sem;
+      const statMatch   = !status || el.dataset.status   === status;
+      const show = titleMatch && semMatch && statMatch;
+      el.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+
+    document.getElementById('praktikum-empty').classList.toggle('hidden', visible > 0);
+  }
+
+  function openDaftarModal(id, title) {
+    selectedPracticumId = id;
+    document.getElementById('modal-praktikum-title').textContent = title;
+    document.getElementById('daftar-modal').classList.remove('hidden');
+  }
+
+  function closeDaftarModal() {
+    document.getElementById('daftar-modal').classList.add('hidden');
+    selectedPracticumId = null;
+  }
+
+  function submitDaftar() {
+    if (!selectedPracticumId) return;
+    const btn = document.getElementById('submit-daftar-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner-ring w-4 h-4 border-2"></div> Mendaftarkan...';
+
+    fetch(`/api/practicum/registrations/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify({ practicum: selectedPracticumId })
+    })
+    .then(r => r.json())
+    .then(data => {
+      closeDaftarModal();
+      if (data.status === 'waitlist') {
+        showToast('warning', 'Kuota penuh — kamu masuk daftar waitlist');
+      } else if (data.id) {
+        showToast('success', 'Berhasil mendaftar praktikum!');
+        setTimeout(() => location.reload(), 1200);
+      } else {
+        showToast('error', data.detail || data.non_field_errors?.[0] || 'Gagal mendaftar');
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-icons-outlined mat-xs">how_to_reg</span> Ya, Daftar';
+      }
+    })
+    .catch(() => {
+      showToast('error', 'Terjadi kesalahan. Coba lagi.');
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-icons-outlined mat-xs">how_to_reg</span> Ya, Daftar';
+    });
+  }
+
+  document.getElementById('daftar-modal')?.addEventListener('click', function(e) {
+    if (e.target === this) closeDaftarModal();
+  });
+
+  function getCookie(name) {
+    const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+    return v ? v[2] : '';
+  }
+
+  function showToast(type, message) {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+    const t = document.createElement('div');
+    t.className = `toast toast-${type}`;
+    t.innerHTML = `
+      <span class="material-icons mat-sm flex-shrink-0">
+        ${type === 'success' ? 'check_circle' : type === 'error' ? 'error' : 'warning'}
+      </span>
+      <p class="flex-1">${message}</p>
+      <button onclick="this.parentElement.remove()">
+        <span class="material-icons mat-xs">close</span>
+      </button>`;
+    container.appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  }
+</script>
+{% endblock %}

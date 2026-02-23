@@ -15,6 +15,7 @@ class Lecturer(TimeStampedModel):
         ('perkembangan', 'Psikologi Perkembangan'),
         ('sosial',       'Psikologi Sosial'),
         ('industri',     'Psikologi Industri & Organisasi'),
+        ('agama',   'Psikologi Islam'),
         ('pendidikan',   'Psikologi Pendidikan'),
         ('umum',         'Umum'),
     )

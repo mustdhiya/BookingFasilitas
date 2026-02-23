@@ -19,7 +19,12 @@ PRODUCTION_MODE = config('PRODUCTION_MODE', default=False, cast=bool)
 
 # ALLOWED_HOSTS
 if PRODUCTION_MODE:
-    ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
+    ALLOWED_HOSTS = config(
+        'ALLOWED_HOSTS',
+        default='localhost,127.0.0.1',
+        cast=Csv()
+    )
+
 else:
     ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 

@@ -26,9 +26,10 @@ from accounts.views import (
     RegisterPageView, LogoutView, DashboardPageView, 
     AdminAkunView, AdminAkunAksiView
 )
-from rooms.views import RoomBookingPageView
+from rooms.views import PeminjamRuanganView, RiwayatView
 from konseling.views import AdminPanelView   
 from practicum.views import PracticumListView as PracticumPageView
+from research.views import ResearchListView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -40,8 +41,11 @@ urlpatterns = [
     path('login/',      LoginPageView.as_view(),                          name='login'),
     path('register/',   RegisterPageView.as_view(),                       name='register'),
     path('profile/',    ProfilePageView.as_view(),                        name='profile'),
-    path('peminjaman/', RoomBookingPageView.as_view(),                    name='peminjaman'),
+    path('peminjaman/', PeminjamRuanganView.as_view(),                    name='peminjaman'),
     path('praktikum/',  PracticumPageView.as_view(),                      name='praktikum'),
+    path('penelitian/', ResearchListView.as_view(), name='penelitian'),
+    path('riwayat/', RiwayatView.as_view(), name='riwayat'),
+
 
     # ── Admin Panel (satu halaman, semua modul) ──────────────────────────
     path('admin-panel/', AdminPanelView.as_view(), name='admin_panel'),  

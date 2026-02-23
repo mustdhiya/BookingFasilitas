@@ -909,6 +909,7 @@
             <option value="klinis">Psikologi Klinis</option>
             <option value="perkembangan">Psikologi Perkembangan</option>
             <option value="sosial">Psikologi Sosial</option>
+            <option value="agama">Psikologi Islam</option>
             <option value="industri">Psikologi Industri & Organisasi</option>
             <option value="pendidikan">Psikologi Pendidikan</option>
             <option value="umum">Umum</option>
@@ -1607,8 +1608,73 @@ function openDosenModal(mode, id = null) {
 function submitDosenForm() {
   const form = document.getElementById('form-dosen');
   if (!form.checkValidity()) { form.reportValidity(); return; }
-  form.submit();
+
+  const btn = document.getElementById('dosen-submit-label');
+  btn.textContent = 'Menyimpan...';
+
+  const data   = new FormData(form);
+  const pk     = document.getElementById('dosen-pk').value;
+  const url    = pk
+    ? `/api/research/dosen/${pk}/edit/`
+    : "{% url 'dosen-create' %}";
+
+  fetch(url, {
+    method:  'POST',
+    body:    data,
+    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+  })
+  .then(r => r.json())
+  .then(res => {
+    if (res.status === 'ok') {
+      closeModal('modal-dosen-form');
+      // Reload halaman lalu buka tab dosen
+      window.location.href = "{% url 'admin_panel' %}?tab=dosen";
+    } else {
+      const errs = Object.entries(res.errors)
+        .map(([k, v]) => `${k}: ${v[0]}`).join('\n');
+      alert('Validasi gagal:\n' + errs);
+      btn.textContent = 'Simpan Dosen';
+    }
+  })
+  .catch(() => {
+    alert('Terjadi kesalahan jaringan.');
+    btn.textContent = 'Simpan Dosen';
+  });
 }
+
+// ── Edit Dosen — prefill modal ─────────────────────────────────────────
+function openDosenModal(mode, id = null) {
+  document.getElementById('dosen-modal-title').textContent =
+    mode === 'create' ? 'Tambah Dosen Baru' : 'Edit Data Dosen';
+  document.getElementById('dosen-submit-label').textContent =
+    mode === 'create' ? 'Simpan Dosen' : 'Update Dosen';
+  document.getElementById('dosen-pk').value = id || '';
+
+  if (mode === 'create') {
+    document.getElementById('form-dosen').reset();
+    document.getElementById('dosen-photo-preview').classList.add('hidden');
+  } else {
+    fetch(`/api/research/dosen/${id}/json/`, {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('dosen-name').value    = data.name;
+      document.getElementById('dosen-nip').value     = data.nip;
+      document.getElementById('dosen-focus').value   = data.focus;
+      document.getElementById('dosen-email').value   = data.email;
+      document.getElementById('dosen-phone').value   = data.phone;
+      document.getElementById('dosen-bio').value     = data.bio;
+      document.getElementById('dosen-active').checked = data.is_active;
+      if (data.photo_url) {
+        document.getElementById('dosen-photo-img').src = data.photo_url;
+        document.getElementById('dosen-photo-preview').classList.remove('hidden');
+      }
+    });
+  }
+  openModal('modal-dosen-form');
+}
+
 
 
 
@@ -1655,11 +1721,43 @@ function handleExport(type) {
   window.location.href = urls[type];
 }
 
+
 function submitJudulForm() {
   const form = document.getElementById('form-judul');
   if (!form.checkValidity()) { form.reportValidity(); return; }
-  form.submit();
+
+  const btn = document.getElementById('judul-submit-label');
+  btn.textContent = 'Menyimpan...';
+
+  const data  = new FormData(form);
+  const pk    = document.getElementById('judul-pk').value;
+  const url   = pk
+    ? `/api/research/judul/${pk}/edit/`
+    : "{% url 'judul-create' %}";
+
+  fetch(url, {
+    method:  'POST',
+    body:    data,
+    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+  })
+  .then(r => r.json())
+  .then(res => {
+    if (res.status === 'ok') {
+      closeModal('modal-judul-form');
+      window.location.href = "{% url 'admin_panel' %}?tab=dosen";
+    } else {
+      const errs = Object.entries(res.errors)
+        .map(([k, v]) => `${k}: ${v[0]}`).join('\n');
+      alert('Validasi gagal:\n' + errs);
+      btn.textContent = 'Simpan Judul';
+    }
+  })
+  .catch(() => {
+    alert('Terjadi kesalahan jaringan.');
+    btn.textContent = 'Simpan Judul';
+  });
 }
+
 
 // ── Export ─────────────────────────────────────────────────────────────
 function exportData(module) {

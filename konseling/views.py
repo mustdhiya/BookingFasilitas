@@ -1,6 +1,6 @@
 # konseling/views.py
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.views.generic import ListView, DetailView, View, TemplateView  # ← TemplateView ada di sini
+from django.views.generic import ListView, DetailView, View, TemplateView
 from django.shortcuts import get_object_or_404, redirect
 from django.http import JsonResponse
 from django.contrib import messages
@@ -8,7 +8,32 @@ from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db.models import Q
+
 from .models import KonselingSession
+from accounts.models import User
+from practicum.models import Practicum
+
+from research.models import Lecturer, ResearchTitle, ResearchRequest  
+
+class ResearchListView(LoginRequiredMixin, TemplateView):
+    template_name = 'penelitianMain.html'
+    login_url = '/login/'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        user = self.request.user
+        titles = ResearchTitle.objects.all().order_by('title')
+
+        ctx['research_titles']       = titles
+        ctx['available_count']       = sum(1 for t in titles if t.requests.count() < t.max_students)
+        ctx['full_count']            = sum(1 for t in titles if t.requests.count() >= t.max_students)
+        ctx['focus_areas']           = titles.values_list('focus_area', flat=True).distinct()
+        ctx['my_requests']           = ResearchRequest.objects.filter(student=user).select_related('research_title')
+        ctx['my_active_request']     = ResearchRequest.objects.filter(student=user, status__in=['pending','approved']).first()
+        ctx['guidance_sessions']     = GuidanceSession.objects.filter(request__student=user).select_related('request__research_title').order_by('-session_date')
+        ctx['user_requested_ids']    = list(ResearchRequest.objects.filter(student=user).values_list('research_title_id', flat=True))
+        ctx['user_approved_title_ids'] = list(ResearchRequest.objects.filter(student=user, status='approved').values_list('research_title_id', flat=True))
+        return ctx
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -144,67 +169,46 @@ class KonselingSubmitView(LoginRequiredMixin, View):
 # ══════════════════════════════════════════════════════════════════════════════
 # ADMIN VIEWS
 # ══════════════════════════════════════════════════════════════════════════════
-from accounts.models import User
 
-class AdminPanelView(AdminRequiredMixin, TemplateView):
+from rooms.models import Room
+class AdminPanelView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     template_name = 'admin.html'
+
+    def test_func(self):
+        return self.request.user.is_staff
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
 
-        # ── Konseling data ────────────────────────────────────────────
-        status_k = self.request.GET.get('status')
-        q_k      = self.request.GET.get('q', '')
+        # Pastikan ini ADA — ini yang bikin dosen tampil di tab
+        ctx['lecturer_list'] = Lecturer.objects.prefetch_related(
+            'research_titles'
+        ).order_by('name')
 
-        qs_konseling = KonselingSession.objects.select_related('user').order_by('-created_at')
-        if status_k and status_k != 'all':
-            qs_konseling = qs_konseling.filter(status=status_k)
-        if q_k:
-            qs_konseling = qs_konseling.filter(
-                Q(user__first_name__icontains=q_k) |
-                Q(user__last_name__icontains=q_k)  |
-                Q(user__email__icontains=q_k)       |
-                Q(keluhan__icontains=q_k)
-            )
+        ctx['practicum_list'] = Practicum.objects.select_related(
+            'lecturer', 'room'
+        ).order_by('-date')
 
-        ctx['sesi_list']     = qs_konseling[:50]
-        ctx['stats']         = {
-            'pending':  KonselingSession.objects.filter(status='pending').count(),
-            'approved': KonselingSession.objects.filter(status='approved').count(),
-            'done':     KonselingSession.objects.filter(status='done').count(),
-            'rejected': KonselingSession.objects.filter(status='rejected').count(),
-            'total':    KonselingSession.objects.count(),
+        ctx['research_request_list'] = ResearchRequest.objects.select_related(
+            'student', 'lecturer', 'research_title'
+        ).order_by('-created_at')
+
+        ctx['penelitian_stats'] = {
+            'pending': ResearchRequest.objects.filter(status='pending').count()
         }
-        ctx['status_filter'] = status_k or 'all'
-        ctx['status_tabs']   = [
-            ('all',       'Semua'),
-            ('pending',   'Menunggu'),
-            ('approved',  'Disetujui'),
-            ('done',      'Selesai'),
-            ('rejected',  'Ditolak'),
-            ('cancelled', 'Dibatalkan'),
-        ]
-        ctx['q'] = q_k
 
-        # ── Akun data ─────────────────────────────────────────────────
-        ctx['user_list'] = User.objects.exclude(is_superuser=True).order_by('-created_at')
-
-        ctx['akun_stats'] = {
-            'pending':  User.objects.exclude(is_superuser=True).filter(is_active=False, is_verified=False).count(),
-            'active':   User.objects.exclude(is_superuser=True).filter(is_active=True, is_verified=True).count(),
-            'inactive': User.objects.exclude(is_superuser=True).filter(is_active=False, is_verified=True).count(),
-            'total':    User.objects.exclude(is_superuser=True).count(),
-        }
-        ctx['akun_status_filter'] = 'all'
-        ctx['akun_status_tabs'] = [
+        ctx['request_status_tabs'] = [
             ('all',      'Semua'),
-            ('pending',  'Menunggu Verifikasi'),
-            ('active',   'Aktif & Terverifikasi'),
-            ('rejected', 'Nonaktif'),
+            ('pending',  'Pending'),
+            ('approved', 'Disetujui'),
+            ('rejected', 'Ditolak'),
         ]
+
+        ctx['active_room_count'] = Room.objects.filter(is_active=True).count()
+        ctx['room_list'] = Room.objects.all().order_by('code')
+
 
         return ctx
-
 
 
 class AdminKonselingListView(AdminRequiredMixin, ListView):
