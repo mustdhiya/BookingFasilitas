@@ -1,0 +1,367 @@
+{% extends "base.html" %}
+{% block title %}Konseling Psikologi — Lab UMKT{% endblock %}
+
+{% block content %}
+<main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+  {# ── HEADER ── #}
+  <header class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <p class="text-xs font-semibold tracking-wide text-emerald-600 dark:text-emerald-400 uppercase">
+        Layanan Konseling
+      </p>
+      <h1 class="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-slate-100">
+        Konseling Psikologi
+      </h1>
+      <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+        Daftar sesi konseling dengan psikolog profesional Lab Psikologi UMKT.
+      </p>
+    </div>
+    {% if user.is_verified %}
+    <a href="#form-ajukan"
+       class="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 dark:border-emerald-800
+              bg-white dark:bg-slate-800 px-4 py-2 text-xs font-semibold self-start
+              text-emerald-700 dark:text-emerald-400 shadow-sm
+              hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition">
+      <span class="material-icons text-sm">add_circle</span>
+      Ajukan Sesi Baru
+    </a>
+    {% endif %}
+  </header>
+
+  {# ── ALERT AKUN BELUM VERIFIED ── #}
+  {% if not user.is_verified %}
+  <div class="rounded-2xl border border-amber-200 dark:border-amber-800
+              bg-amber-50 dark:bg-amber-900/20 px-5 py-4 flex items-start gap-3">
+    <span class="material-icons text-amber-500 mt-0.5">hourglass_top</span>
+    <div>
+      <p class="text-sm font-semibold text-amber-800 dark:text-amber-300">Akun Anda sedang diverifikasi</p>
+      <p class="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
+        Form pengajuan konseling akan tersedia setelah verifikasi selesai (1–3 hari kerja).
+        <a href="https://wa.me/6288571911579" target="_blank" rel="noopener noreferrer"
+           class="font-semibold underline">Hubungi admin →</a>
+      </p>
+    </div>
+  </div>
+  {% endif %}
+
+  {# ── INFO TARIF ── #}
+  <section class="grid sm:grid-cols-2 gap-4">
+
+    <div class="rounded-2xl border-2 p-5 space-y-3
+      {% if is_umkt %}border-emerald-300 dark:border-emerald-700 bg-emerald-50/40 dark:bg-emerald-900/20
+      {% else %}border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800{% endif %}">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-900/40 flex items-center justify-center">
+          <span class="material-icons-outlined text-xl text-primary-600 dark:text-primary-400">school</span>
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100">Mahasiswa UMKT</h3>
+          <span class="badge badge-primary text-[10px]">Tarif Khusus</span>
+        </div>
+        {% if is_umkt %}
+        <span class="ml-auto badge badge-success text-[10px]">Akun Anda</span>
+        {% endif %}
+      </div>
+      <p class="text-xl font-bold text-emerald-600 dark:text-emerald-400">{{ tarif.umkt }}</p>
+      <ul class="space-y-1">
+        {% for label in "abcde" %}
+        <li class="flex items-start gap-2 text-xs text-slate-600 dark:text-slate-300">
+          <span class="material-icons-outlined mat-xs text-emerald-500 mt-0.5 flex-shrink-0">check_circle</span>
+          {% if forloop.counter == 1 %}Tarif terjangkau untuk civitas UMKT
+          {% elif forloop.counter == 2 %}Wajib KTM terverifikasi di sistem
+          {% elif forloop.counter == 3 %}Sesi 60 menit bersama psikolog profesional
+          {% elif forloop.counter == 4 %}Ruangan diassign admin setelah approved
+          {% else %}Pembayaran setelah sesi selesai{% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="rounded-2xl border-2 p-5 space-y-3
+      {% if not is_umkt %}border-emerald-300 dark:border-emerald-700 bg-emerald-50/40 dark:bg-emerald-900/20
+      {% else %}border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800{% endif %}">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+          <span class="material-icons-outlined text-xl text-slate-600 dark:text-slate-300">groups</span>
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100">Umum / Non-UMKT</h3>
+          <span class="badge badge-gray text-[10px]">Tarif Umum</span>
+        </div>
+        {% if not is_umkt %}
+        <span class="ml-auto badge badge-success text-[10px]">Akun Anda</span>
+        {% endif %}
+      </div>
+      <p class="text-xl font-bold text-slate-700 dark:text-slate-300">{{ tarif.non_umkt }}</p>
+      <ul class="space-y-1">
+        {% for label in "abcde" %}
+        <li class="flex items-start gap-2 text-xs text-slate-600 dark:text-slate-300">
+          <span class="material-icons-outlined mat-xs text-slate-400 mt-0.5 flex-shrink-0">check_circle</span>
+          {% if forloop.counter == 1 %}Terbuka untuk masyarakat umum & instansi
+          {% elif forloop.counter == 2 %}Form lengkap sesuai SOP konseling
+          {% elif forloop.counter == 3 %}Informed consent digital
+          {% elif forloop.counter == 4 %}Sesi 60 menit bersama psikolog profesional
+          {% else %}Invoice + PPN diterbitkan setelah sesi{% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+  </section>
+
+  {# ── PRIVASI ── #}
+  <div class="rounded-2xl border border-emerald-200 dark:border-emerald-800
+              bg-emerald-50 dark:bg-emerald-900/20 px-5 py-4 flex items-start gap-3">
+    <span class="material-icons-outlined text-emerald-600 dark:text-emerald-400 flex-shrink-0">verified_user</span>
+    <p class="text-xs text-emerald-700 dark:text-emerald-400">
+      <span class="font-semibold text-emerald-800 dark:text-emerald-300">Kerahasiaan Terjamin —</span>
+      Hasil & catatan konseling hanya dapat diakses psikolog dan klien bersangkutan.
+      Sesuai UU PDP, Kode Etik HIMPSI, dan standar kerahasiaan medis.
+    </p>
+  </div>
+
+  {# ── RIWAYAT SESI ── #}
+  <section>
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-sm font-semibold text-slate-900 dark:text-slate-100">Riwayat Sesi Konseling</h2>
+      <span class="badge badge-gray text-[10px]">{{ sessions|length }} sesi</span>
+    </div>
+
+    {% if sessions %}
+    <div class="space-y-3">
+      {% for s in sessions %}
+      <div class="rounded-2xl border border-slate-100 dark:border-slate-700
+                  bg-white dark:bg-slate-800 px-4 py-3
+                  flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="space-y-0.5">
+          <p class="text-sm font-medium text-slate-900 dark:text-slate-100">
+            {{ s.get_tujuan_display }}
+          </p>
+          <p class="text-xs text-slate-500 dark:text-slate-400">
+            {{ s.tanggal_preferensi|date:"d M Y" }}
+            {% if s.waktu_preferensi %}· Pukul {{ s.waktu_preferensi|time:"H:i" }}{% endif %}
+            {% if s.psikolog %}· {{ s.psikolog }}{% endif %}
+          </p>
+          {% if s.catatan_admin and s.status == 'rejected' %}
+          <p class="text-xs text-rose-600 dark:text-rose-400">
+            <span class="font-semibold">Alasan:</span> {{ s.alasan_tolak|default:s.catatan_admin }}
+          </p>
+          {% endif %}
+        </div>
+        <span class="self-start sm:self-center shrink-0 text-[10px] px-3 py-1 rounded-full font-semibold
+          {% if s.status == 'approved' %}bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800
+          {% elif s.status == 'pending' %}bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800
+          {% elif s.status == 'done' %}bg-slate-50 dark:bg-slate-900/30 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700
+          {% elif s.status == 'rejected' %}bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800
+          {% else %}bg-slate-50 dark:bg-slate-900/30 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700{% endif %}">
+          {{ s.get_status_display }}
+        </span>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="rounded-2xl border border-dashed border-slate-200 dark:border-slate-700
+                py-14 text-center flex flex-col items-center gap-2">
+      <span class="material-icons-outlined text-4xl text-slate-300 dark:text-slate-600">psychology</span>
+      <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Belum ada sesi konseling.</p>
+      <p class="text-xs text-slate-400 dark:text-slate-500">Ajukan sesi pertama Anda di bawah.</p>
+    </div>
+    {% endif %}
+  </section>
+
+  {# ── FORM PENGAJUAN ── #}
+  {% if user.is_verified %}
+  <section id="form-ajukan"
+           class="rounded-2xl border border-slate-100 dark:border-slate-700
+                  bg-white dark:bg-slate-800 shadow-sm p-6 space-y-6">
+
+    <div>
+      <h2 class="text-sm font-semibold text-slate-900 dark:text-slate-100">Ajukan Sesi Konseling</h2>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+        Isi form berikut. Admin akan menghubungi Anda untuk konfirmasi jadwal.
+      </p>
+    </div>
+
+    {# Alert AJAX #}
+    <div id="konseling-alert" class="hidden alert text-xs"></div>
+
+    <form id="konseling-form" class="space-y-5" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="_ajax" value="1">
+
+      <div class="grid sm:grid-cols-2 gap-4">
+
+        {# Tanggal Preferensi #}
+        <div class="form-group">
+          <label class="form-label" for="tanggal_preferensi">
+            Tanggal Preferensi <span class="text-red-500">*</span>
+          </label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 material-icons-outlined mat-sm text-slate-400">calendar_today</span>
+            <input type="date" id="tanggal_preferensi" name="tanggal_preferensi"
+                   min="{{ min_date }}" required
+                   class="form-input pl-9">
+          </div>
+          <p class="form-help">Jadwal final ditentukan admin setelah review.</p>
+        </div>
+
+        {# Waktu Preferensi #}
+        <div class="form-group">
+          <label class="form-label" for="waktu_preferensi">
+            Waktu Preferensi <span class="text-red-500">*</span>
+          </label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 material-icons-outlined mat-sm text-slate-400">schedule</span>
+            <input type="time" id="waktu_preferensi" name="waktu_preferensi"
+                   required class="form-input pl-9">
+          </div>
+          <p class="form-help">Jam operasional: 08:00 – 16:00 WIB.</p>
+        </div>
+
+        {# Tujuan Konseling #}
+        <div class="form-group sm:col-span-2">
+          <label class="form-label" for="tujuan">
+            Tujuan Konseling <span class="text-red-500">*</span>
+          </label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 material-icons-outlined mat-sm text-slate-400">psychology</span>
+            <select id="tujuan" name="tujuan" required class="form-input pl-9">
+              <option value="">— Pilih tujuan utama —</option>
+              {% for value, label in tujuan_choices %}
+              <option value="{{ value }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        {# Keluhan / Deskripsi #}
+        <div class="form-group sm:col-span-2">
+          <label class="form-label" for="keluhan">
+            Keluhan / Hal yang Ingin Dibahas <span class="text-red-500">*</span>
+          </label>
+          <textarea id="keluhan" name="keluhan" rows="4" required
+                    placeholder="Ceritakan secara singkat apa yang ingin Anda konsultasikan... (minimal 20 karakter)"
+                    class="form-input resize-none"></textarea>
+          <p class="form-help flex items-center justify-between">
+            <span>Informasi ini bersifat rahasia dan hanya dilihat oleh psikolog.</span>
+            <span id="keluhan-count" class="text-slate-400">0 karakter</span>
+          </p>
+        </div>
+
+      </div>
+
+      {# Informed Consent #}
+      <div class="rounded-xl border border-slate-200 dark:border-slate-700
+                  bg-slate-50 dark:bg-slate-900/50 p-4 space-y-3">
+        <h3 class="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+          <span class="material-icons-outlined mat-sm text-primary-500">gavel</span>
+          Informed Consent
+        </h3>
+        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+          Dengan mengajukan sesi ini, saya menyetujui bahwa:
+          (1) Informasi yang saya berikan akurat dan jujur.
+          (2) Sesi konseling bersifat rahasia sesuai kode etik psikolog.
+          (3) Saya memahami tarif yang berlaku dan bersedia membayar setelah sesi selesai.
+          (4) Data saya diproses sesuai UU PDP dan Kode Etik HIMPSI.
+        </p>
+        <label class="flex items-start gap-3 cursor-pointer">
+          <input type="checkbox" id="consent" name="consent" value="1" required
+                 class="mt-0.5 rounded border-slate-300 dark:border-slate-600
+                        text-emerald-600 focus:ring-emerald-500 dark:bg-slate-700">
+          <span class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+            Saya telah membaca dan <strong>menyetujui</strong> seluruh ketentuan di atas.
+            Tarif berlaku:
+            <strong class="text-emerald-600 dark:text-emerald-400">
+              {% if is_umkt %}{{ tarif.umkt }}{% else %}{{ tarif.non_umkt }}{% endif %}
+            </strong>
+          </span>
+        </label>
+      </div>
+
+      <div class="flex justify-end">
+        <button type="button" onclick="submitKonseling()"
+                id="btn-konseling-submit"
+                class="btn btn-success">
+          <span class="material-icons-outlined mat-sm">send</span>
+          Kirim Pengajuan
+        </button>
+      </div>
+
+    </form>
+  </section>
+  {% endif %}
+
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // ── Character counter ──
+  document.getElementById('keluhan')?.addEventListener('input', function () {
+    document.getElementById('keluhan-count').textContent = this.value.length + ' karakter';
+  });
+
+  // ── Submit via AJAX ──
+  function submitKonseling() {
+    const form = document.getElementById('konseling-form');
+    const btn  = document.getElementById('btn-konseling-submit');
+    const alert = document.getElementById('konseling-alert');
+
+    // Client-side validation
+    const tgl     = document.getElementById('tanggal_preferensi').value;
+    const waktu   = document.getElementById('waktu_preferensi').value;
+    const tujuan  = document.getElementById('tujuan').value;
+    const keluhan = document.getElementById('keluhan').value.trim();
+    const consent = document.getElementById('consent').checked;
+
+    const showErr = (msg) => {
+      alert.textContent = msg;
+      alert.className   = 'alert alert-error text-xs';
+      alert.classList.remove('hidden');
+      alert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    };
+
+    if (!tgl)             return showErr('Tanggal preferensi wajib diisi.');
+    if (!waktu)           return showErr('Waktu preferensi wajib diisi.');
+    if (!tujuan)          return showErr('Pilih tujuan konseling terlebih dahulu.');
+    if (keluhan.length < 20) return showErr('Keluhan minimal 20 karakter.');
+    if (!consent)         return showErr('Anda harus menyetujui informed consent.');
+
+    alert.classList.add('hidden');
+    btn.disabled = true;
+    btn.innerHTML = '<span style="display:inline-block;width:14px;height:14px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 0.6s linear infinite;vertical-align:middle"></span> Mengirim...';
+
+    const fd = new FormData(form);
+
+    fetch(window.location.pathname, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value },
+      body: fd,
+    })
+    .then(r => r.json())
+    .then(data => {
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-icons-outlined mat-sm">send</span> Kirim Pengajuan';
+
+      if (data.success) {
+        alert.textContent = data.message;
+        alert.className   = 'alert alert-success text-xs';
+        alert.classList.remove('hidden');
+        form.reset();
+        document.getElementById('keluhan-count').textContent = '0 karakter';
+        // Reload riwayat setelah 1.5 detik
+        setTimeout(() => window.location.reload(), 1500);
+      } else {
+        showErr(data.message || 'Terjadi kesalahan, silakan coba lagi.');
+      }
+    })
+    .catch(err => {
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-icons-outlined mat-sm">send</span> Kirim Pengajuan';
+      showErr('Gagal mengirim: ' + err.message);
+    });
+  }
+</script>
+{% endblock %}

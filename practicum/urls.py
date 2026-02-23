@@ -1,14 +1,9 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
+# practicum/urls.py
+from django.urls import path
 from . import views
 
-app_name = 'practicum'
-
-router = DefaultRouter()
-router.register(r'schedules', views.PracticumViewSet, basename='practicum')
-router.register(r'registrations', views.PracticumRegistrationViewSet, basename='registration')
-router.register(r'attendance', views.AttendanceViewSet, basename='attendance')
-
 urlpatterns = [
-    path('', include(router.urls)),
+    path('',              views.PracticumListView.as_view(),     name='practicum-list'),
+    path('<int:pk>/',     views.PracticumDetailView.as_view(),   name='practicum-detail'),
+    path('<int:pk>/register/', views.PracticumRegisterView.as_view(), name='practicum-register'),
 ]

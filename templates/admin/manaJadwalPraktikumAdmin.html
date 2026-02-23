@@ -1,0 +1,1671 @@
+{# ===== SECTION 4: PRAKTIKUM & PENELITIAN ===== #}
+<div id="admin-section-praktikum" class="admin-module-section hidden">
+  <div class="rounded-2xl border border-slate-200 dark:border-slate-700
+              bg-white dark:bg-slate-800 shadow-sm p-6 space-y-6">
+
+    {# Header #}
+    <div class="flex items-center justify-between">
+      <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100
+                 flex items-center gap-2">
+        <span class="material-icons text-emerald-600 dark:text-emerald-400">school</span>
+        Manajemen Praktikum & Penelitian
+      </h3>
+      <button onclick="exportData('praktikum')"
+              class="inline-flex items-center gap-1.5 rounded-lg border
+                     border-slate-200 dark:border-slate-600
+                     bg-white dark:bg-slate-700
+                     hover:bg-slate-50 dark:hover:bg-slate-600
+                     text-slate-700 dark:text-slate-300
+                     font-medium text-sm px-3 py-1.5 transition">
+        <span class="material-icons text-base">download</span>Export
+      </button>
+    </div>
+
+    {# Tabs #}
+    <div class="flex gap-2 border-b border-slate-200 dark:border-slate-700 overflow-x-auto">
+      <button onclick="switchPraktikumTab('jadwal')" id="praktikum-tab-jadwal"
+              class="praktikum-tab px-4 py-2.5 text-sm font-medium
+                     text-primary-600 border-b-2 border-primary-600
+                     transition whitespace-nowrap">
+        <span class="material-icons text-base mr-1.5 align-middle">event</span>
+        Jadwal Praktikum
+      </button>
+      <button onclick="switchPraktikumTab('peserta')" id="praktikum-tab-peserta"
+              class="praktikum-tab px-4 py-2.5 text-sm font-medium
+                     text-slate-500 dark:text-slate-400
+                     border-b-2 border-transparent
+                     hover:text-slate-700 dark:hover:text-slate-200
+                     transition whitespace-nowrap">
+        <span class="material-icons text-base mr-1.5 align-middle">groups</span>
+        Peserta
+      </button>
+      <button onclick="switchPraktikumTab('dosen')" id="praktikum-tab-dosen"
+              class="praktikum-tab px-4 py-2.5 text-sm font-medium
+                     text-slate-500 dark:text-slate-400
+                     border-b-2 border-transparent
+                     hover:text-slate-700 dark:hover:text-slate-200
+                     transition whitespace-nowrap">
+        <span class="material-icons text-base mr-1.5 align-middle">person_pin</span>
+        Dosen & Judul Payung
+      </button>
+      <button onclick="switchPraktikumTab('request')" id="praktikum-tab-request"
+              class="praktikum-tab px-4 py-2.5 text-sm font-medium
+                     text-slate-500 dark:text-slate-400
+                     border-b-2 border-transparent
+                     hover:text-slate-700 dark:hover:text-slate-200
+                     transition whitespace-nowrap">
+        <span class="material-icons text-base mr-1.5 align-middle">assignment_ind</span>
+        Request Penelitian
+        {% if penelitian_stats.pending %}
+        <span class="ml-1 inline-flex items-center justify-center w-4 h-4 rounded-full
+                     bg-amber-500 text-white text-[10px] font-bold">
+          {{ penelitian_stats.pending }}
+        </span>
+        {% endif %}
+      </button>
+    </div>
+
+
+    
+    <div id="praktikum-content-jadwal" class="praktikum-content">
+
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div class="flex gap-2">
+          <button onclick="openJadwalModal('create')"
+                  class="inline-flex items-center gap-1.5 rounded-lg
+                         bg-primary-500 hover:bg-primary-600
+                         text-white font-semibold text-sm px-4 py-2
+                         transition shadow-sm">
+            <span class="material-icons text-base">add</span>Buat Jadwal Baru
+          </button>
+        </div>
+        <div class="flex gap-2">
+          <div class="relative">
+            <input type="text" placeholder="Cari praktikum..."
+                   oninput="filterPraktikumTable(this.value)"
+                   class="rounded-lg border border-slate-200 dark:border-slate-600
+                          dark:bg-slate-700 dark:text-slate-100
+                          pl-9 pr-3 py-2 text-sm
+                          focus:ring-2 focus:ring-primary-500 w-56">
+            <span class="material-icons absolute left-2.5 top-2.5
+                         text-slate-400 text-base">search</span>
+          </div>
+          <select onchange="filterPraktikumTipe(this.value)"
+                  class="rounded-lg border border-slate-200 dark:border-slate-600
+                         dark:bg-slate-700 dark:text-slate-100
+                         px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500">
+            <option value="">Semua Tipe</option>
+            <option value="inteligensi">Inteligensi</option>
+            <option value="inventory">Inventory</option>
+            <option value="wawancara">Wawancara</option>
+            <option value="konseling">Konseling</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-xl">
+        <table class="w-full text-sm" id="praktikum-table">
+          <thead class="bg-slate-50 dark:bg-slate-700/50
+                        border-b border-slate-200 dark:border-slate-700">
+            <tr>
+              <th class="px-4 py-3 text-left text-xs font-semibold
+                         text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                Tipe / Sesi
+              </th>
+              <th class="px-4 py-3 text-left text-xs font-semibold
+                         text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                Dosen Pengampu
+              </th>
+              <th class="px-4 py-3 text-left text-xs font-semibold
+                         text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                Jadwal
+              </th>
+              <th class="px-4 py-3 text-left text-xs font-semibold
+                         text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                Ruangan
+              </th>
+              <th class="px-4 py-3 text-center text-xs font-semibold
+                         text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                Peserta
+              </th>
+              <th class="px-4 py-3 text-center text-xs font-semibold
+                         text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                Status
+              </th>
+              <th class="px-4 py-3 text-center text-xs font-semibold
+                         text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                Aksi
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-700
+                        bg-white dark:bg-slate-800">
+            {% for p in practicum_list %}
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition group"
+                data-tipe="{{ p.type }}"
+                data-sesi="{{ p.session_name|lower }}">
+
+              {# Tipe / Sesi #}
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-lg flex-shrink-0
+                              flex items-center justify-center
+                              {% if p.type == 'inteligensi' %}bg-blue-100 dark:bg-blue-900/30
+                              {% elif p.type == 'inventory' %}bg-amber-100 dark:bg-amber-900/30
+                              {% elif p.type == 'wawancara' %}bg-rose-100 dark:bg-rose-900/30
+                              {% else %}bg-purple-100 dark:bg-purple-900/30{% endif %}">
+                    <span class="material-icons text-base
+                                 {% if p.type == 'inteligensi' %}text-blue-600
+                                 {% elif p.type == 'inventory' %}text-amber-600
+                                 {% elif p.type == 'wawancara' %}text-rose-600
+                                 {% else %}text-purple-600{% endif %}">
+                      {% if p.type == 'inteligensi' %}psychology
+                      {% elif p.type == 'inventory' %}inventory
+                      {% elif p.type == 'wawancara' %}forum
+                      {% else %}support_agent{% endif %}
+                    </span>
+                  </div>
+                  <div>
+                    <p class="font-medium text-slate-900 dark:text-slate-100">
+                      {{ p.get_type_display }}
+                    </p>
+                    <p class="text-xs text-slate-400 dark:text-slate-500">
+                      {{ p.session_name }}
+                    </p>
+                  </div>
+                </div>
+              </td>
+
+              {# Dosen #}
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-full bg-gradient-to-br
+                              from-primary-500 to-primary-600
+                              flex items-center justify-center
+                              text-white text-xs font-semibold flex-shrink-0">
+                    {{ p.lecturer.name|first|upper }}
+                  </div>
+                  <div>
+                    <p class="text-sm text-slate-900 dark:text-slate-100">
+                      {{ p.lecturer.name }}
+                    </p>
+                    <p class="text-xs text-slate-400 dark:text-slate-500">
+                      {{ p.lecturer.get_focus_display }}
+                    </p>
+                  </div>
+                </div>
+              </td>
+
+              {# Jadwal #}
+              <td class="px-4 py-3">
+                <p class="text-sm text-slate-900 dark:text-slate-100
+                           flex items-center gap-1">
+                  <span class="material-icons text-xs text-slate-400">event</span>
+                  {{ p.date|date:"d M Y" }}
+                </p>
+                <p class="text-xs text-slate-400 dark:text-slate-500
+                           flex items-center gap-1 mt-0.5">
+                  <span class="material-icons text-xs">schedule</span>
+                  {{ p.start_time|time:"H:i" }} – {{ p.end_time|time:"H:i" }}
+                </p>
+              </td>
+
+              {# Ruangan #}
+              <td class="px-4 py-3">
+                <span class="inline-flex items-center gap-1
+                             text-sm text-slate-700 dark:text-slate-300">
+                  <span class="material-icons text-xs text-slate-400">meeting_room</span>
+                  {{ p.room.name }}
+                </span>
+              </td>
+
+              {# Peserta / Kapasitas #}
+            <td class="px-4 py-3">
+            <div class="flex flex-col items-center">
+                <span class="text-sm font-semibold
+                            {% if p.is_full %}text-rose-600
+                            {% elif p.is_almost_full %}text-amber-600
+                            {% else %}text-emerald-600{% endif %}">
+                {{ p.registered_count }} / {{ p.capacity }}
+                </span>
+                <div class="w-16 h-1.5 bg-slate-100 dark:bg-slate-600
+                            rounded-full overflow-hidden mt-1">
+                <div class="h-full rounded-full
+                            {% if p.is_full %}bg-rose-500
+                            {% elif p.is_almost_full %}bg-amber-500
+                            {% else %}bg-emerald-500{% endif %}"
+                    style="width: {{ p.fill_percentage }}%"></div>
+                </div>
+            </div>
+            </td>
+
+
+              {# Status #}
+            <td class="px-4 py-3 text-center">
+            {% if not p.is_active %}
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full
+                            text-xs font-semibold bg-slate-100 text-slate-600
+                            border border-slate-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-slate-400 mr-1.5"></span>
+                Nonaktif
+                </span>
+            {% elif p.is_full %}
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full
+                            text-xs font-semibold bg-rose-50 text-rose-700
+                            border border-rose-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-500 mr-1.5"></span>
+                Penuh
+                </span>
+            {% elif p.is_almost_full %}
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full
+                            text-xs font-semibold bg-amber-50 text-amber-700
+                            border border-amber-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5"></span>
+                Hampir Penuh
+                </span>
+            {% else %}
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full
+                            text-xs font-semibold bg-emerald-50 text-emerald-700
+                            border border-emerald-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>
+                Aktif
+                </span>
+            {% endif %}
+            </td>
+
+              {# Aksi #}
+              <td class="px-4 py-3">
+                <div class="flex items-center justify-center gap-1
+                             opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button onclick="viewPeserta({{ p.pk }})"
+                          class="w-8 h-8 rounded-lg border border-slate-200
+                                 dark:border-slate-600 bg-white dark:bg-slate-700
+                                 hover:bg-blue-50 dark:hover:bg-blue-900/20
+                                 hover:border-blue-300 flex items-center
+                                 justify-center transition"
+                          title="Lihat Peserta">
+                    <span class="material-icons text-sm text-slate-600
+                                 dark:text-slate-400">visibility</span>
+                  </button>
+                  <button onclick="openJadwalModal('edit', {{ p.pk }})"
+                          class="w-8 h-8 rounded-lg border border-slate-200
+                                 dark:border-slate-600 bg-white dark:bg-slate-700
+                                 hover:bg-amber-50 dark:hover:bg-amber-900/20
+                                 hover:border-amber-300 flex items-center
+                                 justify-center transition"
+                          title="Edit">
+                    <span class="material-icons text-sm text-slate-600
+                                 dark:text-slate-400">edit</span>
+                  </button>
+                  <button onclick="confirmDelete('jadwal', {{ p.pk }}, '{{ p.session_name|escapejs }}')"
+                          class="w-8 h-8 rounded-lg border border-slate-200
+                                 dark:border-slate-600 bg-white dark:bg-slate-700
+                                 hover:bg-rose-50 dark:hover:bg-rose-900/20
+                                 hover:border-rose-300 flex items-center
+                                 justify-center transition"
+                          title="Hapus">
+                    <span class="material-icons text-sm text-rose-500">delete</span>
+                  </button>
+                </div>
+              </td>
+
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" class="text-center py-16 text-slate-400">
+                <span class="material-icons-outlined text-5xl block mb-3
+                             text-slate-300">event_busy</span>
+                <p class="text-sm font-medium">Belum ada jadwal praktikum</p>
+                <p class="text-xs mt-1">Klik "Buat Jadwal Baru" untuk menambahkan</p>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+    
+    <div id="praktikum-content-peserta" class="praktikum-content hidden">
+      <div class="text-center py-12">
+        <div class="w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-700
+                    flex items-center justify-center mx-auto mb-4">
+          <span class="material-icons text-4xl text-slate-400">groups</span>
+        </div>
+        <h4 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+          Pilih Jadwal Praktikum
+        </h4>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">
+          Klik ikon 👁 pada jadwal untuk melihat daftar peserta
+        </p>
+        <button onclick="switchPraktikumTab('jadwal')"
+                class="inline-flex items-center gap-1.5 rounded-lg
+                       bg-primary-500 hover:bg-primary-600
+                       text-white font-medium text-sm px-4 py-2 transition">
+          <span class="material-icons text-base">arrow_back</span>
+          Kembali ke Jadwal
+        </button>
+      </div>
+      {# Konten peserta diisi dinamis oleh JS saat viewPeserta() dipanggil #}
+      <div id="peserta-content-area" class="hidden"></div>
+    </div>
+
+
+    
+    <div id="praktikum-content-dosen" class="praktikum-content hidden">
+
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+        <div class="flex gap-2">
+          <button onclick="openDosenModal('create')"
+                  class="inline-flex items-center gap-1.5 rounded-lg
+                         bg-primary-500 hover:bg-primary-600
+                         text-white font-semibold text-sm px-4 py-2
+                         transition shadow-sm">
+            <span class="material-icons text-base">person_add</span>
+            Tambah Dosen
+          </button>
+          <button onclick="openJudulModal('create')"
+                  class="inline-flex items-center gap-1.5 rounded-lg
+                         border border-primary-300 dark:border-primary-700
+                         bg-primary-50 dark:bg-primary-900/20
+                         hover:bg-primary-100 dark:hover:bg-primary-900/40
+                         text-primary-700 dark:text-primary-400
+                         font-semibold text-sm px-4 py-2 transition">
+            <span class="material-icons text-base">add_circle</span>
+            Tambah Judul Payung
+          </button>
+        </div>
+        <div class="relative">
+          <input type="text" placeholder="Cari dosen..."
+                 oninput="filterDosenCards(this.value)"
+                 class="rounded-lg border border-slate-200 dark:border-slate-600
+                        dark:bg-slate-700 dark:text-slate-100
+                        pl-9 pr-3 py-2 text-sm
+                        focus:ring-2 focus:ring-primary-500 w-56">
+          <span class="material-icons absolute left-2.5 top-2.5
+                       text-slate-400 text-base">search</span>
+        </div>
+      </div>
+
+      {# Grid Dosen #}
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" id="dosen-grid">
+        {% for lecturer in lecturer_list %}
+        <div class="group rounded-xl border-2 border-slate-200 dark:border-slate-700
+                    bg-white dark:bg-slate-800
+                    hover:border-primary-300 dark:hover:border-primary-700
+                    hover:shadow-lg transition"
+             data-dosen-name="{{ lecturer.name|lower }}">
+
+          {# Header card dosen #}
+          <div class="p-5 border-b border-slate-100 dark:border-slate-700">
+            <div class="flex items-start gap-3">
+              {% if lecturer.photo %}
+              <img src="{{ lecturer.photo.url }}" alt=""
+                   class="w-14 h-14 rounded-xl object-cover flex-shrink-0
+                          border border-slate-200 dark:border-slate-600">
+              {% else %}
+              <div class="w-14 h-14 rounded-xl bg-gradient-to-br
+                          from-primary-500 to-primary-700
+                          flex items-center justify-center flex-shrink-0
+                          text-white text-xl font-bold">
+                {{ lecturer.name|first|upper }}
+              </div>
+              {% endif %}
+              <div class="flex-1 min-w-0">
+                <h4 class="font-semibold text-slate-900 dark:text-slate-100
+                            truncate">
+                  {{ lecturer.name }}
+                </h4>
+                {% if lecturer.nip %}
+                <p class="text-xs text-slate-400 dark:text-slate-500">
+                  NIP: {{ lecturer.nip }}
+                </p>
+                {% endif %}
+                <span class="inline-flex items-center mt-1 px-2 py-0.5
+                             rounded-full text-[10px] font-semibold
+                             bg-primary-100 dark:bg-primary-900/30
+                             text-primary-700 dark:text-primary-400">
+                  {{ lecturer.get_focus_display }}
+                </span>
+              </div>
+              <div class="flex gap-1 opacity-0 group-hover:opacity-100
+                           transition-opacity flex-shrink-0">
+                <button onclick="openDosenModal('edit', {{ lecturer.pk }})"
+                        class="w-7 h-7 rounded-lg border border-slate-200
+                               dark:border-slate-600 bg-white dark:bg-slate-700
+                               hover:bg-amber-50 hover:border-amber-300
+                               flex items-center justify-center transition"
+                        title="Edit Dosen">
+                  <span class="material-icons text-xs text-slate-500">edit</span>
+                </button>
+                <button onclick="confirmDelete('dosen', {{ lecturer.pk }}, '{{ lecturer.name|escapejs }}')"
+                        class="w-7 h-7 rounded-lg border border-slate-200
+                               dark:border-slate-600 bg-white dark:bg-slate-700
+                               hover:bg-rose-50 hover:border-rose-300
+                               flex items-center justify-center transition"
+                        title="Hapus Dosen">
+                  <span class="material-icons text-xs text-rose-500">delete</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {# Judul Payung list #}
+          <div class="p-4 space-y-2">
+            <div class="flex items-center justify-between mb-2">
+              <p class="text-xs font-semibold text-slate-500
+                         dark:text-slate-400 uppercase tracking-wide">
+                Judul Payung
+                <span class="ml-1 text-primary-600 dark:text-primary-400">
+                  ({{ lecturer.research_titles.count }})
+                </span>
+              </p>
+              <button onclick="openJudulModal('create', {{ lecturer.pk }})"
+                      class="inline-flex items-center gap-0.5 text-[10px]
+                             font-semibold text-primary-600 dark:text-primary-400
+                             hover:text-primary-700 transition">
+                <span class="material-icons text-xs">add</span>Tambah
+              </button>
+            </div>
+
+            {% for title in lecturer.research_titles.all %}
+                {% if title.is_active %}
+                <div class="rounded-lg border border-slate-100 dark:border-slate-700
+                            bg-slate-50/50 dark:bg-slate-700/30 p-3
+                            hover:border-primary-200 dark:hover:border-primary-800
+                            transition group/title">
+                    <div class="flex items-start justify-between gap-2">
+
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs font-medium text-slate-800
+                                dark:text-slate-200 line-clamp-2 leading-snug">
+                        {{ title.title }}
+                        </p>
+
+                        {# Progress slot #}
+                        <div class="flex items-center gap-2 mt-2">
+                        <div class="flex-1 h-1 bg-slate-200 dark:bg-slate-600
+                                    rounded-full overflow-hidden">
+                            <div class="h-full rounded-full
+                                        {% if title.is_full %}bg-rose-500
+                                        {% elif title.is_almost_full %}bg-amber-500
+                                        {% else %}bg-emerald-500{% endif %}"
+                                style="width: {{ title.fill_percentage }}%"></div>
+                        </div>
+                        <span class="text-[10px] font-semibold whitespace-nowrap
+                                    {% if title.is_full %}text-rose-600
+                                    {% elif title.is_almost_full %}text-amber-600
+                                    {% else %}text-emerald-600{% endif %}">
+                            {{ title.slots_used }}/{{ title.quota }}
+                        </span>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-1 opacity-0 group-hover/title:opacity-100
+                                transition-opacity flex-shrink-0">
+                        <button onclick="openJudulModal('edit', {{ lecturer.pk }}, {{ title.pk }})"
+                                class="w-6 h-6 rounded border border-slate-200
+                                    dark:border-slate-600 bg-white dark:bg-slate-700
+                                    hover:bg-amber-50 flex items-center
+                                    justify-center transition"
+                                title="Edit Judul">
+                        <span class="material-icons text-[11px] text-slate-500">edit</span>
+                        </button>
+                        <button onclick="lihatMahasiswaPayung({{ title.pk }}, '{{ title.title|escapejs }}')"
+                                class="w-6 h-6 rounded border border-slate-200
+                                    dark:border-slate-600 bg-white dark:bg-slate-700
+                                    hover:bg-blue-50 flex items-center
+                                    justify-center transition"
+                                title="Lihat Mahasiswa">
+                        <span class="material-icons text-[11px] text-slate-500">visibility</span>
+                        </button>
+                    </div>
+
+                    </div>
+                </div>
+                {% endif %}  {# ← ini yang hilang sebelumnya #}
+                {% endfor %}
+
+
+            {% if not lecturer.research_titles.exists %}
+            <p class="text-xs text-slate-400 dark:text-slate-500 italic text-center py-3">
+              Belum ada judul payung
+            </p>
+            {% endif %}
+          </div>
+        </div>
+        {% empty %}
+        <div class="col-span-3 text-center py-16 text-slate-400">
+          <span class="material-icons-outlined text-5xl block mb-3
+                       text-slate-300">person_search</span>
+          <p class="text-sm font-medium">Belum ada dosen terdaftar</p>
+          <p class="text-xs mt-1">Klik "Tambah Dosen" untuk memulai</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+
+    
+    <div id="praktikum-content-request" class="praktikum-content hidden">
+
+      {# Filter status #}
+      <div class="flex gap-2 mb-4 flex-wrap">
+        {% for val, label in request_status_tabs %}
+        <button onclick="filterRequestStatus('{{ val }}')"
+                data-req-status="{{ val }}"
+                class="req-status-tab px-3 py-1.5 rounded-lg text-xs font-medium
+                       transition-colors
+                       {% if val == 'pending' %}
+                         bg-primary-500 text-white shadow-sm
+                       {% else %}
+                         bg-slate-100 dark:bg-slate-700 text-slate-600
+                         dark:text-slate-300 hover:bg-slate-200
+                       {% endif %}">
+          {{ label }}
+          {% if val == 'pending' and penelitian_stats.pending %}
+          <span class="ml-1 inline-flex items-center justify-center w-4 h-4
+                       rounded-full bg-amber-500 text-white text-[10px] font-bold">
+            {{ penelitian_stats.pending }}
+          </span>
+          {% endif %}
+        </button>
+        {% endfor %}
+      </div>
+
+      <div class="space-y-3" id="request-list">
+        {% for req in research_request_list %}
+        <div class="rounded-xl border-2 p-5 transition
+                    {% if req.status == 'pending' %}
+                      border-amber-200 dark:border-amber-800
+                      bg-amber-50/30 dark:bg-amber-900/5
+                    {% elif req.status == 'approved' %}
+                      border-emerald-200 dark:border-emerald-800
+                      bg-emerald-50/20 dark:bg-emerald-900/5
+                    {% else %}
+                      border-rose-200 dark:border-rose-800
+                      bg-rose-50/20 dark:bg-rose-900/5
+                    {% endif %}"
+             data-req-status="{{ req.status }}">
+
+          <div class="flex items-start gap-4">
+            <div class="w-11 h-11 rounded-xl flex-shrink-0
+                        flex items-center justify-center
+                        {% if req.status == 'pending' %}bg-amber-100 dark:bg-amber-900/30
+                        {% elif req.status == 'approved' %}bg-emerald-100 dark:bg-emerald-900/30
+                        {% else %}bg-rose-100 dark:bg-rose-900/30{% endif %}">
+              <span class="material-icons
+                           {% if req.status == 'pending' %}text-amber-600
+                           {% elif req.status == 'approved' %}text-emerald-600
+                           {% else %}text-rose-600{% endif %}">
+                {% if req.status == 'pending' %}pending_actions
+                {% elif req.status == 'approved' %}check_circle
+                {% else %}cancel{% endif %}
+              </span>
+            </div>
+
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between gap-3 mb-3">
+                <div>
+                  <h4 class="font-semibold text-slate-900 dark:text-slate-100 mb-0.5">
+                    {{ req.thesis_title }}
+                  </h4>
+                  <p class="text-sm text-slate-500 dark:text-slate-400">
+                    {{ req.student.get_full_name }}
+                    <span class="text-slate-300 dark:text-slate-600 mx-1">·</span>
+                    {{ req.student.nim_nip|default:"—" }}
+                  </p>
+                </div>
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full
+                             text-xs font-semibold flex-shrink-0
+                             {% if req.status == 'pending' %}
+                               bg-amber-100 text-amber-800 border border-amber-300
+                             {% elif req.status == 'approved' %}
+                               bg-emerald-100 text-emerald-800 border border-emerald-300
+                             {% else %}
+                               bg-rose-100 text-rose-800 border border-rose-300
+                             {% endif %}">
+                  <span class="w-1.5 h-1.5 rounded-full mr-1.5
+                               {% if req.status == 'pending' %}bg-amber-500 animate-pulse
+                               {% elif req.status == 'approved' %}bg-emerald-500
+                               {% else %}bg-rose-500{% endif %}"></span>
+                  {{ req.get_status_display }}
+                </span>
+              </div>
+
+              <div class="grid sm:grid-cols-3 gap-x-4 gap-y-1.5 mb-4
+                           text-xs text-slate-500 dark:text-slate-400">
+                <span class="flex items-center gap-1">
+                  <span class="material-icons text-[13px]">person_pin</span>
+                  {{ req.lecturer.name }}
+                </span>
+                <span class="flex items-center gap-1">
+                  <span class="material-icons text-[13px]">bookmark</span>
+                  {% if req.research_title %}
+                    {{ req.research_title.title|truncatechars:40 }}
+                  {% else %}
+                    <em>Individu</em>
+                  {% endif %}
+                </span>
+                <span class="flex items-center gap-1">
+                  <span class="material-icons text-[13px]">event</span>
+                  {{ req.created_at|date:"d M Y" }}
+                </span>
+              </div>
+
+              {# Aksi #}
+              <div class="flex items-center gap-2 flex-wrap">
+                {% if req.proposal %}
+                <a href="{{ req.proposal.url }}" target="_blank"
+                   class="inline-flex items-center gap-1.5 rounded-lg
+                          border border-slate-200 dark:border-slate-600
+                          bg-white dark:bg-slate-700
+                          hover:bg-slate-50 dark:hover:bg-slate-600
+                          text-slate-700 dark:text-slate-300
+                          font-medium text-xs px-3 py-1.5 transition">
+                  <span class="material-icons text-sm">description</span>
+                  Lihat Proposal
+                </a>
+                {% endif %}
+
+                {% if req.status == 'pending' %}
+                <button onclick="approveRequest({{ req.pk }})"
+                        class="inline-flex items-center gap-1.5 rounded-lg
+                               bg-emerald-500 hover:bg-emerald-600
+                               text-white font-semibold text-xs
+                               px-4 py-1.5 transition">
+                  <span class="material-icons text-sm">check</span>
+                  Setujui
+                </button>
+                <button onclick="confirmDecline('request', {{ req.pk }}, '{{ req.student.get_full_name|escapejs }}')"
+                        class="inline-flex items-center gap-1.5 rounded-lg
+                               bg-rose-500 hover:bg-rose-600
+                               text-white font-semibold text-xs
+                               px-4 py-1.5 transition">
+                  <span class="material-icons text-sm">close</span>
+                  Tolak
+                </button>
+                {% elif req.status == 'approved' %}
+                <p class="text-xs text-emerald-600 dark:text-emerald-400
+                           flex items-center gap-1">
+                  <span class="material-icons text-sm">verified</span>
+                  Disetujui {{ req.approved_at|date:"d M Y" }}
+                  {% if req.approved_by %}oleh {{ req.approved_by.get_full_name }}{% endif %}
+                </p>
+                {% else %}
+                <p class="text-xs text-rose-500 dark:text-rose-400
+                           flex items-center gap-1">
+                  <span class="material-icons text-sm">cancel</span>
+                  Ditolak
+                  {% if req.admin_notes %}: {{ req.admin_notes|truncatechars:60 }}{% endif %}
+                </p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-16 text-slate-400">
+          <span class="material-icons-outlined text-5xl block mb-3
+                       text-slate-300">assignment_late</span>
+          <p class="text-sm font-medium">Belum ada request penelitian</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+</div>
+{# ===== END SECTION 4 ===== #}
+
+
+
+{# Modal: Hapus Konfirmasi #}
+<div id="modal-delete-confirm"
+     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+     onclick="closeModal('modal-delete-confirm')">
+  <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-sm"></div>
+  <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl
+              w-full max-w-md" onclick="event.stopPropagation()">
+    <div class="p-6">
+      <div class="flex items-start gap-4">
+        <div class="w-12 h-12 rounded-full bg-rose-100 dark:bg-rose-900/30
+                    flex items-center justify-center flex-shrink-0">
+          <span class="material-icons text-rose-600 text-2xl">warning</span>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-1">
+            Konfirmasi Hapus
+          </h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400">
+            Hapus: <span id="delete-item-name" class="font-semibold text-slate-900
+                         dark:text-slate-100">—</span>
+          </p>
+          <div class="mt-3 rounded-lg bg-rose-50 dark:bg-rose-900/20
+                      border border-rose-200 dark:border-rose-800 p-3">
+            <p class="text-xs text-rose-700 dark:text-rose-400 flex gap-2">
+              <span class="material-icons text-sm mt-0.5">info</span>
+              Data yang dihapus tidak dapat dikembalikan.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="bg-slate-50 dark:bg-slate-700/50 px-6 py-4
+                flex gap-3 justify-end border-t
+                border-slate-200 dark:border-slate-700">
+      <button onclick="closeModal('modal-delete-confirm')"
+              class="inline-flex items-center gap-1.5 rounded-lg
+                     border border-slate-300 dark:border-slate-600
+                     bg-white dark:bg-slate-700
+                     hover:bg-slate-50 text-slate-700 dark:text-slate-300
+                     font-medium text-sm px-4 py-2 transition">
+        Batal
+      </button>
+      <button id="btn-confirm-delete" onclick="executeDelete()"
+              class="inline-flex items-center gap-1.5 rounded-lg
+                     bg-rose-600 hover:bg-rose-700 text-white
+                     font-semibold text-sm px-5 py-2 transition shadow-sm">
+        <span class="material-icons text-sm">delete</span>Ya, Hapus
+      </button>
+    </div>
+  </div>
+</div>
+
+{# Modal: Tolak Request #}
+<div id="modal-decline-confirm"
+     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+     onclick="closeModal('modal-decline-confirm')">
+  <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-sm"></div>
+  <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl
+              w-full max-w-md" onclick="event.stopPropagation()">
+    <div class="p-6">
+      <div class="flex items-start gap-4">
+        <div class="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-900/30
+                    flex items-center justify-center flex-shrink-0">
+          <span class="material-icons text-amber-600 text-2xl">block</span>
+        </div>
+        <div class="flex-1">
+          <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-1">
+            Tolak Request
+          </h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">
+            Dari: <span id="decline-requester-name"
+                        class="font-semibold text-slate-900 dark:text-slate-100">—</span>
+          </p>
+          <label class="block text-sm font-medium text-slate-700
+                         dark:text-slate-300 mb-2">
+            Alasan Penolakan <span class="text-rose-500">*</span>
+          </label>
+          <textarea id="decline-reason" rows="3"
+                    class="w-full rounded-lg border border-slate-300
+                           dark:border-slate-600 dark:bg-slate-700
+                           dark:text-slate-100 px-3 py-2 text-sm
+                           focus:ring-2 focus:ring-amber-500
+                           focus:border-amber-500"
+                    placeholder="Jelaskan alasan (akan dikirim ke mahasiswa)"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="bg-slate-50 dark:bg-slate-700/50 px-6 py-4
+                flex gap-3 justify-end border-t
+                border-slate-200 dark:border-slate-700">
+      <button onclick="closeModal('modal-decline-confirm')"
+              class="inline-flex items-center gap-1.5 rounded-lg
+                     border border-slate-300 dark:border-slate-600
+                     bg-white dark:bg-slate-700
+                     hover:bg-slate-50 text-slate-700 dark:text-slate-300
+                     font-medium text-sm px-4 py-2 transition">
+        Batal
+      </button>
+      <button onclick="executeDecline()"
+              class="inline-flex items-center gap-1.5 rounded-lg
+                     bg-amber-600 hover:bg-amber-700 text-white
+                     font-semibold text-sm px-5 py-2 transition shadow-sm">
+        <span class="material-icons text-sm">send</span>Kirim Penolakan
+      </button>
+    </div>
+  </div>
+</div>
+{# Modal: Form Dosen (Tambah / Edit) #}
+<div id="modal-dosen-form"
+     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+
+  {# Backdrop — klik untuk tutup, z-index LEBIH RENDAH dari konten #}
+  <div class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm"
+       onclick="closeModal('modal-dosen-form')"></div>
+
+  {# Konten modal — z-index LEBIH TINGGI dari backdrop #}
+  <div class="relative z-10 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl
+              w-full max-w-lg max-h-[90vh] flex flex-col">
+
+    {# Header #}
+    <div class="px-6 pt-5 pb-4 border-b border-slate-200 dark:border-slate-700
+                flex items-center justify-between flex-shrink-0">
+      <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100
+                 flex items-center gap-2">
+        <span class="material-icons text-primary-600">person_pin</span>
+        <span id="dosen-modal-title">Tambah Dosen Baru</span>
+      </h3>
+      <button type="button"
+              onclick="closeModal('modal-dosen-form')"
+              class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300
+                     rounded-lg p-1.5 hover:bg-slate-100
+                     dark:hover:bg-slate-700 transition">
+        <span class="material-icons-outlined">close</span>
+      </button>
+    </div>
+
+    {# Form body (scrollable) #}
+    <form method="post" id="form-dosen"
+            action="{% url 'dosen-create' %}"
+            enctype="multipart/form-data"
+            class="flex-1 overflow-y-auto p-6 space-y-4">
+        {% csrf_token %}
+        <input type="hidden" name="form_type" value="dosen">
+        <input type="hidden" id="dosen-pk" name="pk" value="">
+
+      {# Nama #}
+      <div>
+        <label class="block text-sm font-medium text-slate-700
+                       dark:text-slate-300 mb-1.5">
+          Nama Lengkap <span class="text-rose-500">*</span>
+        </label>
+        <input type="text" id="dosen-name" name="name" required
+               placeholder="Contoh: Dr. Ahmad Fauzi, M.Psi"
+               class="w-full rounded-lg border border-slate-300
+                      dark:border-slate-600 dark:bg-slate-700
+                      dark:text-slate-100 px-3 py-2 text-sm
+                      focus:ring-2 focus:ring-primary-500
+                      focus:border-primary-500">
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        {# NIP #}
+        <div>
+          <label class="block text-sm font-medium text-slate-700
+                         dark:text-slate-300 mb-1.5">NIP</label>
+          <input type="text" id="dosen-nip" name="nip"
+                 placeholder="Opsional"
+                 class="w-full rounded-lg border border-slate-300
+                        dark:border-slate-600 dark:bg-slate-700
+                        dark:text-slate-100 px-3 py-2 text-sm
+                        focus:ring-2 focus:ring-primary-500
+                        focus:border-primary-500">
+        </div>
+        {# Bidang Fokus #}
+        <div>
+          <label class="block text-sm font-medium text-slate-700
+                         dark:text-slate-300 mb-1.5">
+            Bidang Fokus <span class="text-rose-500">*</span>
+          </label>
+          <select id="dosen-focus" name="focus" required
+                  class="w-full rounded-lg border border-slate-300
+                         dark:border-slate-600 dark:bg-slate-700
+                         dark:text-slate-100 px-3 py-2 text-sm
+                         focus:ring-2 focus:ring-primary-500">
+            <option value="">— Pilih —</option>
+            <option value="klinis">Psikologi Klinis</option>
+            <option value="perkembangan">Psikologi Perkembangan</option>
+            <option value="sosial">Psikologi Sosial</option>
+            <option value="industri">Psikologi Industri & Organisasi</option>
+            <option value="pendidikan">Psikologi Pendidikan</option>
+            <option value="umum">Umum</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        {# Email #}
+        <div>
+          <label class="block text-sm font-medium text-slate-700
+                         dark:text-slate-300 mb-1.5">Email</label>
+          <input type="email" id="dosen-email" name="email"
+                 placeholder="Opsional"
+                 class="w-full rounded-lg border border-slate-300
+                        dark:border-slate-600 dark:bg-slate-700
+                        dark:text-slate-100 px-3 py-2 text-sm
+                        focus:ring-2 focus:ring-primary-500
+                        focus:border-primary-500">
+        </div>
+        {# No. HP #}
+        <div>
+          <label class="block text-sm font-medium text-slate-700
+                         dark:text-slate-300 mb-1.5">No. HP</label>
+          <input type="text" id="dosen-phone" name="phone"
+                 placeholder="Opsional"
+                 class="w-full rounded-lg border border-slate-300
+                        dark:border-slate-600 dark:bg-slate-700
+                        dark:text-slate-100 px-3 py-2 text-sm
+                        focus:ring-2 focus:ring-primary-500
+                        focus:border-primary-500">
+        </div>
+      </div>
+
+      {# Bio #}
+      <div>
+        <label class="block text-sm font-medium text-slate-700
+                       dark:text-slate-300 mb-1.5">Bio Singkat</label>
+        <textarea id="dosen-bio" name="bio" rows="2"
+                  placeholder="Minat riset, keahlian, dll. (opsional)"
+                  class="w-full rounded-lg border border-slate-300
+                         dark:border-slate-600 dark:bg-slate-700
+                         dark:text-slate-100 px-3 py-2 text-sm
+                         focus:ring-2 focus:ring-primary-500
+                         focus:border-primary-500 resize-none"></textarea>
+      </div>
+
+      {# Foto #}
+      <div>
+        <label class="block text-sm font-medium text-slate-700
+                       dark:text-slate-300 mb-1.5">Foto (opsional)</label>
+        <div id="dosen-photo-preview"
+             class="hidden mb-2 w-16 h-16 rounded-xl overflow-hidden
+                    border border-slate-200 dark:border-slate-600">
+          <img id="dosen-photo-img" src="" alt=""
+               class="w-full h-full object-cover">
+        </div>
+        <input type="file" name="photo" id="dosen-photo"
+               accept="image/*"
+               onchange="previewDosenPhoto(this)"
+               class="block w-full text-sm text-slate-500
+                      dark:text-slate-400 file:mr-3 file:py-1.5
+                      file:px-3 file:rounded-lg file:border-0
+                      file:text-sm file:font-medium
+                      file:bg-primary-50 dark:file:bg-primary-900/20
+                      file:text-primary-700 dark:file:text-primary-400
+                      hover:file:bg-primary-100 cursor-pointer">
+      </div>
+
+      {# Status aktif #}
+      <label class="flex items-center gap-2 cursor-pointer select-none">
+        <input type="checkbox" id="dosen-active" name="is_active"
+               checked
+               class="rounded border-slate-300 text-primary-600
+                      focus:ring-primary-500 w-4 h-4">
+        <span class="text-sm text-slate-700 dark:text-slate-300">
+          Dosen aktif (tampil di katalog)
+        </span>
+      </label>
+    </form>
+
+    {# Footer — di LUAR form, tetap dalam z-10 container #}
+    <div class="bg-slate-50 dark:bg-slate-700/50 px-6 py-4
+                flex gap-3 justify-end border-t
+                border-slate-200 dark:border-slate-700 flex-shrink-0
+                rounded-b-2xl">
+      <button type="button"
+              onclick="closeModal('modal-dosen-form')"
+              class="inline-flex items-center gap-1.5 rounded-lg
+                     border border-slate-300 dark:border-slate-600
+                     bg-white dark:bg-slate-700
+                     hover:bg-slate-50 text-slate-700 dark:text-slate-300
+                     font-medium text-sm px-4 py-2 transition">
+        Batal
+      </button>
+      <button type="button"
+              onclick="submitDosenForm()"
+              class="inline-flex items-center gap-1.5 rounded-lg
+                     bg-primary-600 hover:bg-primary-700 text-white
+                     font-semibold text-sm px-5 py-2 transition shadow-sm">
+        <span class="material-icons text-sm">save</span>
+        <span id="dosen-submit-label">Simpan Dosen</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+
+{# Modal: Export #}
+<div id="modal-judul-form"
+     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+     onclick="closeModal('modal-judul-form')">
+  <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-sm"></div>
+  <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl
+              w-full max-w-lg flex flex-col"
+       onclick="event.stopPropagation()">
+
+    {# Header #}
+    <div class="px-6 pt-5 pb-4 border-b border-slate-200 dark:border-slate-700
+                flex items-center justify-between flex-shrink-0">
+      <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100
+                 flex items-center gap-2">
+        <span class="material-icons text-primary-600">bookmark_add</span>
+        <span id="judul-modal-title">Tambah Judul Payung</span>
+      </h3>
+      <button onclick="closeModal('modal-judul-form')"
+              class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300
+                     rounded-lg p-1.5 hover:bg-slate-100
+                     dark:hover:bg-slate-700 transition">
+        <span class="material-icons-outlined">close</span>
+      </button>
+    </div>
+
+    <form method="post" id="form-judul"
+      action="{% url 'judul-create' %}"
+      class="p-6 space-y-4">
+  {% csrf_token %}
+  <input type="hidden" name="form_type" value="judul_payung">
+  <input type="hidden" id="judul-pk" name="pk" value="">
+
+      {# Dosen #}
+      <div>
+        <label class="block text-sm font-medium text-slate-700
+                       dark:text-slate-300 mb-1.5">
+          Dosen Pembimbing <span class="text-rose-500">*</span>
+        </label>
+        <select id="judul-lecturer" name="lecturer" required
+                class="w-full rounded-lg border border-slate-300
+                       dark:border-slate-600 dark:bg-slate-700
+                       dark:text-slate-100 px-3 py-2 text-sm
+                       focus:ring-2 focus:ring-primary-500">
+          <option value="">— Pilih Dosen —</option>
+          {% for lec in lecturer_list %}
+          <option value="{{ lec.pk }}">
+            {{ lec.name }} — {{ lec.get_focus_display }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      {# Judul #}
+      <div>
+        <label class="block text-sm font-medium text-slate-700
+                       dark:text-slate-300 mb-1.5">
+          Judul Payung <span class="text-rose-500">*</span>
+        </label>
+        <input type="text" id="judul-title" name="title" required
+               placeholder="Contoh: Pengaruh Self-Efficacy terhadap Prokrastinasi"
+               class="w-full rounded-lg border border-slate-300
+                      dark:border-slate-600 dark:bg-slate-700
+                      dark:text-slate-100 px-3 py-2 text-sm
+                      focus:ring-2 focus:ring-primary-500
+                      focus:border-primary-500">
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        {# Bidang #}
+        <div>
+          <label class="block text-sm font-medium text-slate-700
+                         dark:text-slate-300 mb-1.5">
+            Bidang <span class="text-rose-500">*</span>
+          </label>
+          <select id="judul-focus" name="focus" required
+                  class="w-full rounded-lg border border-slate-300
+                         dark:border-slate-600 dark:bg-slate-700
+                         dark:text-slate-100 px-3 py-2 text-sm
+                         focus:ring-2 focus:ring-primary-500">
+            <option value="">— Pilih —</option>
+            <option value="klinis">Psikologi Klinis</option>
+            <option value="perkembangan">Psikologi Perkembangan</option>
+            <option value="sosial">Psikologi Sosial</option>
+            <option value="industri">Psikologi Industri & Organisasi</option>
+            <option value="pendidikan">Psikologi Pendidikan</option>
+            <option value="umum">Umum</option>
+          </select>
+        </div>
+
+        {# Kuota #}
+        <div>
+          <label class="block text-sm font-medium text-slate-700
+                         dark:text-slate-300 mb-1.5">
+            Kuota Mahasiswa <span class="text-rose-500">*</span>
+          </label>
+          <input type="number" id="judul-quota" name="quota"
+                 min="1" value="5" required
+                 class="w-full rounded-lg border border-slate-300
+                        dark:border-slate-600 dark:bg-slate-700
+                        dark:text-slate-100 px-3 py-2 text-sm
+                        focus:ring-2 focus:ring-primary-500
+                        focus:border-primary-500">
+        </div>
+      </div>
+
+      {# Deskripsi #}
+      <div>
+        <label class="block text-sm font-medium text-slate-700
+                       dark:text-slate-300 mb-1.5">Deskripsi (opsional)</label>
+        <textarea id="judul-description" name="description" rows="2"
+                  placeholder="Ruang lingkup atau penjelasan singkat judul payung"
+                  class="w-full rounded-lg border border-slate-300
+                         dark:border-slate-600 dark:bg-slate-700
+                         dark:text-slate-100 px-3 py-2 text-sm
+                         focus:ring-2 focus:ring-primary-500
+                         focus:border-primary-500 resize-none"></textarea>
+      </div>
+
+      {# Aktif #}
+      <label class="flex items-center gap-2 cursor-pointer select-none">
+        <input type="checkbox" id="judul-active" name="is_active"
+               checked
+               class="rounded border-slate-300 text-primary-600
+                      focus:ring-primary-500 w-4 h-4">
+        <span class="text-sm text-slate-700 dark:text-slate-300">
+          Judul aktif (bisa dipilih mahasiswa)
+        </span>
+      </label>
+    </form>
+
+    <div class="bg-slate-50 dark:bg-slate-700/50 px-6 py-4
+                flex gap-3 justify-end border-t
+                border-slate-200 dark:border-slate-700">
+      <button onclick="closeModal('modal-judul-form')"
+              class="inline-flex items-center gap-1.5 rounded-lg
+                     border border-slate-300 dark:border-slate-600
+                     bg-white dark:bg-slate-700
+                     hover:bg-slate-50 text-slate-700 dark:text-slate-300
+                     font-medium text-sm px-4 py-2 transition">
+        Batal
+      </button>
+      <button onclick="submitJudulForm()"
+              class="inline-flex items-center gap-1.5 rounded-lg
+                     bg-primary-600 hover:bg-primary-700 text-white
+                     font-semibold text-sm px-5 py-2 transition shadow-sm">
+        <span class="material-icons text-sm">save</span>
+        <span id="judul-submit-label">Simpan Judul</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+{# Modal: Export #}
+<div id="modal-export"
+     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+     onclick="closeModal('modal-export')">
+  <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-sm"></div>
+  <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl
+              w-full max-w-sm" onclick="event.stopPropagation()">
+
+    <div class="px-6 pt-5 pb-4 border-b border-slate-200 dark:border-slate-700
+                flex items-center justify-between">
+      <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100
+                 flex items-center gap-2">
+        <span class="material-icons text-primary-600">download</span>
+        Export Data
+      </h3>
+      <button onclick="closeModal('modal-export')"
+              class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300
+                     rounded-lg p-1.5 hover:bg-slate-100
+                     dark:hover:bg-slate-700 transition">
+        <span class="material-icons-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="p-6 space-y-3">
+      <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">
+        Pilih data yang ingin diekspor:
+      </p>
+
+      {# ── Export Jadwal Praktikum ── #}
+<a href="#" onclick="handleExport('praktikum'); return false;"
+   class="flex items-center gap-3 rounded-xl border border-slate-200
+          dark:border-slate-700 bg-white dark:bg-slate-700/50
+          hover:border-primary-300 hover:bg-primary-50
+          dark:hover:border-primary-700 dark:hover:bg-primary-900/10
+          p-4 transition group">
+  <div class="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30
+              flex items-center justify-center flex-shrink-0">
+    <span class="material-icons text-emerald-600">event</span>
+  </div>
+  <div>
+    <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Jadwal Praktikum</p>
+    <p class="text-xs text-slate-400 dark:text-slate-500">Export ke Excel (.xlsx)</p>
+  </div>
+  <span class="material-icons text-slate-300 ml-auto">chevron_right</span>
+</a>
+
+{# ── Export Dosen ── #}
+<a href="#" onclick="handleExport('dosen'); return false;"
+   class="flex items-center gap-3 rounded-xl border border-slate-200
+          dark:border-slate-700 bg-white dark:bg-slate-700/50
+          hover:border-primary-300 hover:bg-primary-50
+          dark:hover:border-primary-700 dark:hover:bg-primary-900/10
+          p-4 transition group">
+  <div class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30
+              flex items-center justify-center flex-shrink-0">
+    <span class="material-icons text-blue-600">person_pin</span>
+  </div>
+  <div>
+    <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Dosen & Judul Payung</p>
+    <p class="text-xs text-slate-400 dark:text-slate-500">Export ke Excel (.xlsx)</p>
+  </div>
+  <span class="material-icons text-slate-300 ml-auto">chevron_right</span>
+</a>
+
+{# ── Export Penelitian ── #}
+<a href="#" onclick="handleExport('penelitian'); return false;"
+   class="flex items-center gap-3 rounded-xl border border-slate-200
+          dark:border-slate-700 bg-white dark:bg-slate-700/50
+          hover:border-primary-300 hover:bg-primary-50
+          dark:hover:border-primary-700 dark:hover:bg-primary-900/10
+          p-4 transition group">
+  <div class="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30
+              flex items-center justify-center flex-shrink-0">
+    <span class="material-icons text-amber-600">assignment_ind</span>
+  </div>
+  <div>
+    <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Request Penelitian</p>
+    <p class="text-xs text-slate-400 dark:text-slate-500">Export ke Excel (.xlsx)</p>
+  </div>
+  <span class="material-icons text-slate-300 ml-auto">chevron_right</span>
+</a>
+
+    </div>
+  </div>
+</div>
+
+
+{# Modal: Form Jadwal Praktikum #}
+<div id="modal-jadwal-form"
+     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+     onclick="closeModal('modal-jadwal-form')">
+  <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-sm"></div>
+  <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl
+              w-full max-w-2xl max-h-[90vh] flex flex-col"
+       onclick="event.stopPropagation()">
+    <div class="px-6 pt-6 pb-4 border-b border-slate-200 dark:border-slate-700
+                flex-shrink-0">
+      <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100
+                 flex items-center gap-2">
+        <span class="material-icons text-primary-600">event</span>
+        <span id="jadwal-modal-title">Buat Jadwal Praktikum Baru</span>
+      </h3>
+    </div>
+    <form method="post" id="form-jadwal"
+          class="flex-1 overflow-y-auto p-6 space-y-4">
+      {% csrf_token %}
+      <input type="hidden" name="form_type" value="jadwal">
+      <input type="hidden" id="jadwal-pk" name="pk" value="">
+
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700
+                         dark:text-slate-300 mb-1.5">
+            Tipe Praktikum <span class="text-rose-500">*</span>
+          </label>
+          <select name="type" required
+                  class="w-full rounded-lg border border-slate-300
+                         dark:border-slate-600 dark:bg-slate-700
+                         dark:text-slate-100 px-3 py-2 text-sm
+                         focus:ring-2 focus:ring-primary-500">
+            <option value="inteligensi">Praktikum Inteligensi</option>
+            <option value="inventory">Praktikum Inventory</option>
+            <option value="wawancara">Praktikum Wawancara</option>
+            <option value="konseling">Praktikum Konseling</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700
+                         dark:text-slate-300 mb-1.5">
+            Nama Sesi <span class="text-rose-500">*</span>
+          </label>
+          <input type="text" name="session_name" required
+                 placeholder="Contoh: Sesi 3 - Semester Genap 2025/2026"
+                 class="w-full rounded-lg border border-slate-300
+                        dark:border-slate-600 dark:bg-slate-700
+                        dark:text-slate-100 px-3 py-2 text-sm
+                        focus:ring-2 focus:ring-primary-500">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700
+                       dark:text-slate-300 mb-1.5">
+          Dosen Pengampu <span class="text-rose-500">*</span>
+        </label>
+        <select name="lecturer" required
+                class="w-full rounded-lg border border-slate-300
+                       dark:border-slate-600 dark:bg-slate-700
+                       dark:text-slate-100 px-3 py-2 text-sm
+                       focus:ring-2 focus:ring-primary-500">
+          <option value="">— Pilih Dosen —</option>
+          {% for lec in lecturer_list %}
+          <option value="{{ lec.pk }}">
+            {{ lec.name }} — {{ lec.get_focus_display }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="grid sm:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700
+                         dark:text-slate-300 mb-1.5">
+            Tanggal <span class="text-rose-500">*</span>
+          </label>
+          <input type="date" name="date" required
+                 class="w-full rounded-lg border border-slate-300
+                        dark:border-slate-600 dark:bg-slate-700
+                        dark:text-slate-100 px-3 py-2 text-sm
+                        focus:ring-2 focus:ring-primary-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700
+                         dark:text-slate-300 mb-1.5">Jam Mulai</label>
+          <input type="time" name="start_time"
+                 class="w-full rounded-lg border border-slate-300
+                        dark:border-slate-600 dark:bg-slate-700
+                        dark:text-slate-100 px-3 py-2 text-sm
+                        focus:ring-2 focus:ring-primary-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700
+                         dark:text-slate-300 mb-1.5">Jam Selesai</label>
+          <input type="time" name="end_time"
+                 class="w-full rounded-lg border border-slate-300
+                        dark:border-slate-600 dark:bg-slate-700
+                        dark:text-slate-100 px-3 py-2 text-sm
+                        focus:ring-2 focus:ring-primary-500">
+        </div>
+      </div>
+
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700
+                         dark:text-slate-300 mb-1.5">
+            Ruangan <span class="text-rose-500">*</span>
+          </label>
+          <select name="room" required
+                  class="w-full rounded-lg border border-slate-300
+                         dark:border-slate-600 dark:bg-slate-700
+                         dark:text-slate-100 px-3 py-2 text-sm
+                         focus:ring-2 focus:ring-primary-500">
+            <option value="">— Pilih Ruangan —</option>
+            {% for r in room_list %}
+            <option value="{{ r.pk }}">{{ r.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700
+                         dark:text-slate-300 mb-1.5">
+            Kapasitas <span class="text-rose-500">*</span>
+          </label>
+          <input type="number" name="capacity" min="1" required
+                 class="w-full rounded-lg border border-slate-300
+                        dark:border-slate-600 dark:bg-slate-700
+                        dark:text-slate-100 px-3 py-2 text-sm
+                        focus:ring-2 focus:ring-primary-500">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-700
+                       dark:text-slate-300 mb-1.5">Deskripsi (opsional)</label>
+        <textarea name="description" rows="2"
+                  class="w-full rounded-lg border border-slate-300
+                         dark:border-slate-600 dark:bg-slate-700
+                         dark:text-slate-100 px-3 py-2 text-sm
+                         focus:ring-2 focus:ring-primary-500"></textarea>
+      </div>
+    </form>
+    <div class="bg-slate-50 dark:bg-slate-700/50 px-6 py-4
+                flex gap-3 justify-end border-t
+                border-slate-200 dark:border-slate-700 flex-shrink-0">
+      <button onclick="closeModal('modal-jadwal-form')"
+              class="inline-flex items-center gap-1.5 rounded-lg
+                     border border-slate-300 dark:border-slate-600
+                     bg-white dark:bg-slate-700
+                     hover:bg-slate-50 text-slate-700 dark:text-slate-300
+                     font-medium text-sm px-4 py-2 transition">
+        Batal
+      </button>
+      <button onclick="submitJadwalForm()"
+              class="inline-flex items-center gap-1.5 rounded-lg
+                     bg-primary-600 hover:bg-primary-700 text-white
+                     font-semibold text-sm px-5 py-2 transition shadow-sm">
+        <span class="material-icons text-sm">save</span>Simpan
+      </button>
+    </div>
+  </div>
+</div>
+
+{# Modal: Lihat Mahasiswa dalam Judul Payung #}
+<div id="modal-mahasiswa-payung"
+     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+     onclick="closeModal('modal-mahasiswa-payung')">
+  <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-sm"></div>
+  <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl
+              w-full max-w-lg max-h-[80vh] flex flex-col"
+       onclick="event.stopPropagation()">
+    <div class="px-6 pt-5 pb-4 border-b border-slate-200 dark:border-slate-700
+                flex items-center justify-between flex-shrink-0">
+      <div>
+        <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100">
+          Mahasiswa dalam Judul Payung
+        </h3>
+        <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5"
+           id="modal-payung-title">—</p>
+      </div>
+      <button onclick="closeModal('modal-mahasiswa-payung')"
+              class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300
+                     rounded-lg p-1.5 hover:bg-slate-100
+                     dark:hover:bg-slate-700 transition">
+        <span class="material-icons-outlined">close</span>
+      </button>
+    </div>
+    <div class="flex-1 overflow-y-auto p-4" id="modal-mahasiswa-list">
+      <p class="text-center text-slate-400 py-8 text-sm">Memuat...</p>
+    </div>
+  </div>
+</div>
+
+
+<script>
+(function () {
+    window.switchPraktikumTab   = switchPraktikumTab;
+    window.closeModal           = closeModal;
+    window.openModal            = openModal;
+    window.confirmDelete        = confirmDelete;
+    window.executeDelete        = executeDelete;
+    window.confirmDecline       = confirmDecline;
+    window.executeDecline       = executeDecline;
+    window.openJadwalModal      = openJadwalModal;
+    window.submitJadwalForm     = submitJadwalForm;
+    window.openDosenModal       = openDosenModal;
+    window.submitDosenForm      = submitDosenForm;    
+    window.openJudulModal       = openJudulModal;
+    window.submitJudulForm      = submitJudulForm;    
+    window.previewDosenPhoto    = previewDosenPhoto;  
+    window.viewPeserta          = viewPeserta;
+    window.approveRequest       = approveRequest;
+    window.filterRequestStatus  = filterRequestStatus;
+    window.filterDosenCards     = filterDosenCards;
+    window.lihatMahasiswaPayung = lihatMahasiswaPayung;
+    window.exportData           = exportData;
+    window.handleExport         = handleExport;       
+
+
+  // ── Tab switching ──────────────────────────────────────────────────────
+  function switchPraktikumTab(tab) {
+    document.querySelectorAll('.praktikum-tab').forEach(t => {
+      t.classList.remove('text-primary-600', 'border-primary-600');
+      t.classList.add('text-slate-500', 'border-transparent');
+    });
+    const activeTab = document.getElementById(`praktikum-tab-${tab}`);
+    if (activeTab) {
+      activeTab.classList.add('text-primary-600', 'border-primary-600');
+      activeTab.classList.remove('text-slate-500', 'border-transparent');
+    }
+    document.querySelectorAll('.praktikum-content').forEach(c =>
+      c.classList.add('hidden')
+    );
+    const activeContent = document.getElementById(`praktikum-content-${tab}`);
+    if (activeContent) activeContent.classList.remove('hidden');
+  }
+
+  // ── Modal helpers ──────────────────────────────────────────────────────
+  function openModal(id) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function closeModal(id) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('[id^="modal-"]').forEach(m => {
+        if (!m.classList.contains('hidden')) closeModal(m.id);
+      });
+    }
+  });
+
+  // ── Delete ─────────────────────────────────────────────────────────────
+  let deleteAction = { type: '', id: null };
+
+  function confirmDelete(type, id, name) {
+    deleteAction = { type, id };
+    document.getElementById('delete-item-name').textContent = name;
+    openModal('modal-delete-confirm');
+  }
+
+  function executeDelete() {
+    // TODO: fetch POST ke URL delete sesuai type
+    console.log('DELETE:', deleteAction);
+    closeModal('modal-delete-confirm');
+  }
+
+  // ── Decline ────────────────────────────────────────────────────────────
+  let declineAction = { type: '', id: null };
+
+  function confirmDecline(type, id, name) {
+    declineAction = { type, id };
+    document.getElementById('decline-requester-name').textContent = name;
+    document.getElementById('decline-reason').value = '';
+    openModal('modal-decline-confirm');
+  }
+
+  function executeDecline() {
+    const reason = document.getElementById('decline-reason').value.trim();
+    if (!reason) {
+      document.getElementById('decline-reason').classList.add('border-rose-500');
+      return;
+    }
+    // TODO: fetch POST ke URL decline
+    console.log('DECLINE:', declineAction, reason);
+    closeModal('modal-decline-confirm');
+  }
+
+  // ── Jadwal form ────────────────────────────────────────────────────────
+  function openJadwalModal(mode, id = null) {
+    document.getElementById('jadwal-modal-title').textContent =
+      mode === 'create' ? 'Buat Jadwal Praktikum Baru' : 'Edit Jadwal Praktikum';
+    document.getElementById('jadwal-pk').value = id || '';
+    if (mode === 'create') document.getElementById('form-jadwal').reset();
+    openModal('modal-jadwal-form');
+  }
+
+  function submitJadwalForm() {
+    document.getElementById('form-jadwal').submit();
+  }
+
+  // ── Dosen Form ─────────────────────────────────────────────────────────
+
+
+function openDosenModal(mode, id = null) {
+  const form = document.getElementById('form-dosen');
+
+  document.getElementById('dosen-modal-title').textContent =
+    mode === 'create' ? 'Tambah Dosen Baru' : 'Edit Data Dosen';
+  document.getElementById('dosen-submit-label').textContent =
+    mode === 'create' ? 'Simpan Dosen' : 'Update Dosen';
+  document.getElementById('dosen-pk').value = id || '';
+
+  if (mode === 'create') {
+    form.action = "{% url 'dosen-create' %}";
+    form.reset();
+    document.getElementById('dosen-photo-preview').classList.add('hidden');
+  } else {
+    form.action = `/research/dosen/${id}/edit/`;
+    // TODO: fetch data dosen untuk pre-fill field
+    // fetch(`/research/dosen/${id}/json/`)
+    //   .then(r => r.json())
+    //   .then(data => {
+    //     document.getElementById('dosen-name').value  = data.name;
+    //     document.getElementById('dosen-nip').value   = data.nip  || '';
+    //     document.getElementById('dosen-focus').value = data.focus;
+    //     document.getElementById('dosen-email').value = data.email || '';
+    //     document.getElementById('dosen-phone').value = data.phone || '';
+    //     document.getElementById('dosen-bio').value   = data.bio   || '';
+    //     document.getElementById('dosen-active').checked = data.is_active;
+    //   });
+  }
+  openModal('modal-dosen-form');
+}
+
+function submitDosenForm() {
+  const form = document.getElementById('form-dosen');
+  if (!form.checkValidity()) { form.reportValidity(); return; }
+  form.submit();
+}
+
+
+
+function previewDosenPhoto(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('dosen-photo-img').src = e.target.result;
+      document.getElementById('dosen-photo-preview').classList.remove('hidden');
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+// ── Judul Payung Form ──────────────────────────────────────────────────
+function openJudulModal(mode, lecturerId = null, titleId = null) {
+  const form = document.getElementById('form-judul');
+
+  document.getElementById('judul-modal-title').textContent =
+    mode === 'create' ? 'Tambah Judul Payung' : 'Edit Judul Payung';
+  document.getElementById('judul-submit-label').textContent =
+    mode === 'create' ? 'Simpan Judul' : 'Update Judul';
+  document.getElementById('judul-pk').value = titleId || '';
+
+  if (mode === 'create') {
+    form.action = "{% url 'judul-create' %}";
+    form.reset();
+    document.getElementById('judul-quota').value = 5;
+    if (lecturerId) {
+      document.getElementById('judul-lecturer').value = lecturerId;
+    }
+  } else {
+    form.action = `/research/judul/${titleId}/edit/`;
+  }
+  openModal('modal-judul-form');
+}
+
+function handleExport(type) {
+  const urls = {
+    'praktikum' : '/research/export/praktikum/',
+    'dosen'     : '/research/export/dosen/',
+    'penelitian': '/research/export/penelitian/',
+  };
+  window.location.href = urls[type];
+}
+
+function submitJudulForm() {
+  const form = document.getElementById('form-judul');
+  if (!form.checkValidity()) { form.reportValidity(); return; }
+  form.submit();
+}
+
+// ── Export ─────────────────────────────────────────────────────────────
+function exportData(module) {
+  openModal('modal-export');
+}
+
+
+})();
+</script>

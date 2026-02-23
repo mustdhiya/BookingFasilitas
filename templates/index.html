@@ -1,300 +1,495 @@
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %}Dashboard - Lab Psikologi UMKT{% endblock %}
+{% block title %}Lab Psikologi UMKT — Peminjaman, Konseling, Praktikum & Penelitian{% endblock %}
+
+{% block extra_css %}
+<style>
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.4s; }
+
+  .timeline-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: calc(100% - 0px);
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(to right, #0D93B1, #c1e3ef);
+    z-index: 0;
+  }
+  .dark .timeline-step:not(:last-child)::after {
+    background: linear-gradient(to right, #0a7a96, #064859);
+  }
+
+  .faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease, padding 0.25s ease;
+  }
+  .faq-answer.open { max-height: 200px; }
+</style>
+{% endblock %}
 
 {% block content %}
 
-{# ===================== HERO (SEBELUM LOGIN) ===================== #}
-{% if not user.is_authenticated %}
-<section class="min-h-[calc(100vh-80px)] flex items-center justify-center px-6 py-16 bg-gradient-to-b from-primary-50 via-light-bg to-white dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
-  <div class="max-w-4xl mx-auto text-center space-y-10">
+{# ── Sudah login → redirect ke dashboard ── #}
+{% if user.is_authenticated %}
+<script>window.location.replace("{% url 'dashboard' %}");</script>
+<div class="min-h-screen flex items-center justify-center text-sm text-slate-500 dark:text-slate-400">
+  <span class="material-icons-outlined animate-spin mr-2">sync</span>
+  Mengalihkan ke dashboard...
+</div>
 
-    <!-- Badge -->
-    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary-200 dark:border-primary-800 bg-white/70 dark:bg-slate-800/70 shadow-sm backdrop-blur-sm">
-      <span class="text-lg">✨</span>
-      <span class="text-xs font-medium tracking-wide uppercase text-primary-700 dark:text-primary-300">
-        Sistem Terintegrasi Lab Psikologi
-      </span>
+{% else %}
+
+{# ================================================================= #}
+{# LANDING PAGE                                                       #}
+{# ================================================================= #}
+
+<!-- ── HERO ── -->
+<section class="relative overflow-hidden bg-gradient-to-br from-primary-50 via-white to-slate-50
+                dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 pt-16 pb-20 px-4">
+  <div class="absolute top-0 right-0 w-96 h-96 bg-primary-100 dark:bg-primary-900/20 rounded-full blur-3xl opacity-40 pointer-events-none -translate-y-1/2 translate-x-1/3"></div>
+  <div class="absolute bottom-0 left-0 w-64 h-64 bg-primary-200 dark:bg-primary-900/20 rounded-full blur-3xl opacity-30 pointer-events-none translate-y-1/2 -translate-x-1/4"></div>
+
+  <div class="relative max-w-4xl mx-auto text-center space-y-8">
+    <div class="reveal inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white dark:bg-slate-800 border border-primary-200 dark:border-primary-800 shadow-sm text-xs font-semibold text-primary-700 dark:text-primary-300 tracking-wide uppercase">
+      <span class="w-2 h-2 rounded-full bg-primary-500 animate-pulse"></span>
+      Sistem Terintegrasi Lab Psikologi UMKT
     </div>
 
-    <!-- Title + Subtitle -->
-    <div class="space-y-4">
+    <div class="reveal reveal-delay-1 space-y-4">
       <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight text-slate-900 dark:text-slate-100">
-        Kelola Peminjaman Lab dengan
-        <span class="text-primary-600 dark:text-primary-400">Mudah & Transparan</span>
+        Sistem Manajemen<br>
+        <span class="text-primary-600 dark:text-primary-400">Lab Psikologi UMKT</span>
       </h1>
-      <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-        Satu portal untuk peminjaman ruangan, alat tes, jadwal praktikum, dan variabel penelitian. 
-        Sistem approval otomatis dengan notifikasi email real-time untuk mahasiswa, dosen, dan laboran.
+      <p class="text-sm sm:text-base text-slate-500 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
+        Peminjaman Alat, Konseling, Praktikum, dan Penelitian dalam Satu Platform.
+        Approval transparan, notifikasi real-time, dan manajemen lengkap untuk mahasiswa & umum.
       </p>
     </div>
 
-    <!-- CTA Buttons -->
-    <div class="flex flex-wrap justify-center gap-3">
-      <a href="{% url 'login' %}" class="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 dark:bg-primary-600 dark:hover:bg-primary-700 shadow-md hover:shadow-lg transition">
-        <span>Mulai Sekarang</span>
-        <span class="material-icons text-base">arrow_forward</span>
+    <div class="reveal reveal-delay-2 flex flex-wrap justify-center gap-3">
+      <a href="{% url 'login' %}" class="btn btn-primary btn-lg no-underline">
+        <span class="material-icons-outlined mat-sm">login</span>
+        Masuk
       </a>
-      <a href="#fitur" class="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold text-primary-600 dark:text-primary-400 bg-white dark:bg-slate-800 hover:bg-primary-50 dark:hover:bg-slate-700 border border-primary-100 dark:border-primary-800 transition">
-        <span>Pelajari Fitur</span>
-        <span class="material-icons text-base">south</span>
+      <a href="{% url 'register' %}" class="btn btn-outline btn-lg no-underline">
+        <span class="material-icons-outlined mat-sm">person_add</span>
+        Daftar Sekarang
+      </a>
+      <a href="#layanan" class="btn btn-secondary btn-lg no-underline">
+        <span class="material-icons-outlined mat-sm">south</span>
+        Pelajari Layanan
       </a>
     </div>
 
-    <!-- Feature Cards -->
-    <div id="fitur" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 pt-6">
-      <!-- Fitur 1 -->
-      <div class="rounded-2xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm hover:shadow-lg dark:hover:shadow-slate-900/50 transition p-4 text-left group">
-        <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 mb-3 group-hover:scale-110 transition-transform">
-          <span class="material-icons text-xl">meeting_room</span>
-        </div>
-        <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-1">Peminjaman Ruangan</h3>
-        <p class="text-xs text-slate-500 dark:text-slate-400">
-          Booking ruangan lab dengan validasi 5-menit buffer otomatis.
-        </p>
+    <div class="reveal reveal-delay-3 flex flex-wrap justify-center gap-6 pt-2">
+      <div class="text-center">
+        <p class="text-2xl font-bold text-primary-600 dark:text-primary-400">50+</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400">Alat Tersedia</p>
       </div>
-
-      <!-- Fitur 2 -->
-      <div class="rounded-2xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm hover:shadow-lg dark:hover:shadow-slate-900/50 transition p-4 text-left group">
-        <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 mb-3 group-hover:scale-110 transition-transform">
-          <span class="material-icons text-xl">science</span>
-        </div>
-        <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-1">Peminjaman Alat Tes</h3>
-        <p class="text-xs text-slate-500 dark:text-slate-400">
-          12-step form dengan invoice PDF & tracking pengembalian.
-        </p>
+      <div class="w-px bg-slate-200 dark:bg-slate-700 hidden sm:block"></div>
+      <div class="text-center">
+        <p class="text-2xl font-bold text-primary-600 dark:text-primary-400">4</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400">Jenis Layanan</p>
       </div>
-
-      <!-- Fitur 3 -->
-      <div class="rounded-2xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm hover:shadow-lg dark:hover:shadow-slate-900/50 transition p-4 text-left group">
-        <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 mb-3 group-hover:scale-110 transition-transform">
-          <span class="material-icons text-xl">event</span>
-        </div>
-        <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-1">Jadwal Praktikum</h3>
-        <p class="text-xs text-slate-500 dark:text-slate-400">
-          Self-registration, waitlist, dan sertifikat otomatis.
-        </p>
+      <div class="w-px bg-slate-200 dark:bg-slate-700 hidden sm:block"></div>
+      <div class="text-center">
+        <p class="text-2xl font-bold text-primary-600 dark:text-primary-400">2-3</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400">Hari Approval</p>
       </div>
-
-      <!-- Fitur 4 -->
-      <div class="rounded-2xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm hover:shadow-lg dark:hover:shadow-slate-900/50 transition p-4 text-left group">
-        <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 mb-3 group-hover:scale-110 transition-transform">
-          <span class="material-icons text-xl">psychology</span>
-        </div>
-        <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-1">Variabel Penelitian</h3>
-        <p class="text-xs text-slate-500 dark:text-slate-400">
-          Request variabel, guidance logging, dan overdue alert.
-        </p>
+      <div class="w-px bg-slate-200 dark:bg-slate-700 hidden sm:block"></div>
+      <div class="text-center">
+        <p class="text-2xl font-bold text-primary-600 dark:text-primary-400">100%</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400">Terverifikasi Admin</p>
       </div>
     </div>
   </div>
 </section>
-{% endif %}
 
-{# ===================== DASHBOARD (SETELAH LOGIN) ===================== #}
-{% if user.is_authenticated %}
-<main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+<!-- ── LAYANAN KAMI ── -->
+<section id="layanan" class="py-16 px-4 bg-white dark:bg-slate-900">
+  <div class="max-w-5xl mx-auto">
+    <div class="reveal text-center mb-10 space-y-2">
+      <span class="badge badge-primary text-xs">Layanan Kami</span>
+      <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100">
+        Semua Kebutuhan Lab, Satu Platform
+      </h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
+        Dari peminjaman alat hingga konseling psikologi, semua dikelola secara digital dengan approval admin.
+      </p>
+    </div>
 
-  <!-- Header -->
-  <header class="space-y-1">
-    <h1 class="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-slate-100">
-      Selamat datang kembali, 
-      <span class="text-primary-600 dark:text-primary-400">
-        {{ user.get_full_name|default:user.username }}
-      </span> 👋
-    </h1>
-    <p class="text-sm text-slate-500 dark:text-slate-400">
-      Kelola semua peminjaman dan jadwal praktikum Anda dari satu tempat.
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div class="reveal reveal-delay-1 card p-5 space-y-3 group cursor-default">
+        <div class="w-12 h-12 rounded-xl bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <span class="material-icons-outlined text-2xl text-primary-600 dark:text-primary-400">inventory_2</span>
+        </div>
+        <div>
+          <h3 class="font-semibold text-sm text-slate-900 dark:text-slate-100 mb-1">Peminjaman Alat</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            Pinjam, sewa, atau beli alat tes psikologi. Tersedia 3 jenis: gratis, berbayar, dan consumable.
+          </p>
+        </div>
+        <div class="space-y-1 pt-1">
+          {% for feat in "abc" %}
+          <div class="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+            <span class="material-icons-outlined mat-xs text-emerald-500">check_circle</span>
+            {% if forloop.counter == 1 %}Peminjaman gratis (UMKT)
+            {% elif forloop.counter == 2 %}Penyewaan berbayar
+            {% else %}Pembelian consumable{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="reveal reveal-delay-2 card p-5 space-y-3 group cursor-default">
+        <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <span class="material-icons-outlined text-2xl text-emerald-600 dark:text-emerald-400">psychology</span>
+        </div>
+        <div>
+          <h3 class="font-semibold text-sm text-slate-900 dark:text-slate-100 mb-1">Konseling Psikologi</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            Layanan konseling untuk mahasiswa UMKT maupun masyarakat umum dengan psikolog profesional.
+          </p>
+        </div>
+        <div class="space-y-1 pt-1">
+          {% for feat in "abc" %}
+          <div class="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+            <span class="material-icons-outlined mat-xs text-emerald-500">check_circle</span>
+            {% if forloop.counter == 1 %}Harga khusus UMKT
+            {% elif forloop.counter == 2 %}E-signature & informed consent
+            {% else %}Data konseling privat{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="reveal reveal-delay-3 card p-5 space-y-3 group cursor-default">
+        <div class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <span class="material-icons-outlined text-2xl text-indigo-600 dark:text-indigo-400">school</span>
+        </div>
+        <div>
+          <h3 class="font-semibold text-sm text-slate-900 dark:text-slate-100 mb-1">Jadwal Praktikum</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            Daftar praktikum, kelola jadwal dengan dosen, dan unduh sertifikat kelulusan.
+          </p>
+        </div>
+        <div class="space-y-1 pt-1">
+          {% for feat in "abc" %}
+          <div class="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+            <span class="material-icons-outlined mat-xs text-emerald-500">check_circle</span>
+            {% if forloop.counter == 1 %}4 tipe: Intel, Inventory, Wawancara, Konseling
+            {% elif forloop.counter == 2 %}Waitlist & tracking kehadiran
+            {% else %}Sertifikat digital{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="reveal reveal-delay-4 card p-5 space-y-3 group cursor-default">
+        <div class="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <span class="material-icons-outlined text-2xl text-amber-600 dark:text-amber-400">auto_stories</span>
+        </div>
+        <div>
+          <h3 class="font-semibold text-sm text-slate-900 dark:text-slate-100 mb-1">Variabel Penelitian</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            Gabung payung penelitian dosen pembimbing atau daftar sebagai penelitian individual.
+          </p>
+        </div>
+        <div class="space-y-1 pt-1">
+          {% for feat in "abc" %}
+          <div class="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+            <span class="material-icons-outlined mat-xs text-emerald-500">check_circle</span>
+            {% if forloop.counter == 1 %}Payung & individual
+            {% elif forloop.counter == 2 %}Log bimbingan terstruktur
+            {% else %}Reminder overdue otomatis{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── ALUR PEMINJAMAN ── -->
+<section id="alur" class="py-16 px-4 bg-slate-50 dark:bg-slate-800/50">
+  <div class="max-w-5xl mx-auto">
+    <div class="reveal text-center mb-10 space-y-2">
+      <span class="badge badge-primary text-xs">Cara Kerja</span>
+      <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100">Alur Peminjaman</h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">Proses sederhana, transparan, dan terverifikasi admin</p>
+    </div>
+
+    <div class="overflow-x-auto pb-4">
+      <div class="flex items-start gap-0 min-w-[640px] lg:min-w-0">
+        {% for label, sub in alur_steps %}
+        <div class="timeline-step relative flex-1 text-center px-2">
+          <div class="relative z-10 w-10 h-10 rounded-full mx-auto mb-3 flex items-center justify-center font-bold text-sm shadow-sm
+            {% if forloop.counter <= 4 %}bg-primary-500 text-white{% else %}bg-white dark:bg-slate-800 border-2 border-primary-300 dark:border-primary-700 text-primary-600 dark:text-primary-400{% endif %}">
+            {{ forloop.counter }}
+          </div>
+          <p class="text-xs font-semibold text-slate-900 dark:text-slate-100 leading-tight">{{ label }}</p>
+          <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 leading-tight">{{ sub }}</p>
+        </div>
+        {% empty %}
+        {# Static fallback jika view tidak inject alur_steps #}
+        {% for item in "12345678" %}
+        <div class="timeline-step relative flex-1 text-center px-2">
+          <div class="relative z-10 w-10 h-10 rounded-full mx-auto mb-3 flex items-center justify-center font-bold text-sm shadow-sm
+            {% if forloop.counter <= 4 %}bg-primary-500 text-white{% else %}bg-white dark:bg-slate-800 border-2 border-primary-300 dark:border-primary-700 text-primary-600 dark:text-primary-400{% endif %}">
+            {{ forloop.counter }}
+          </div>
+          <p class="text-xs font-semibold text-slate-900 dark:text-slate-100 leading-tight">
+            {% if forloop.counter == 1 %}Pilih Item
+            {% elif forloop.counter == 2 %}Pilih Tanggal
+            {% elif forloop.counter == 3 %}Submit
+            {% elif forloop.counter == 4 %}Admin Approve
+            {% elif forloop.counter == 5 %}Info Bayar
+            {% elif forloop.counter == 6 %}Bayar
+            {% elif forloop.counter == 7 %}Gunakan
+            {% else %}Kembalikan{% endif %}
+          </p>
+          <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 leading-tight">
+            {% if forloop.counter == 1 %}Pinjam/Sewa/Beli
+            {% elif forloop.counter == 2 %}Rentang tanggal
+            {% elif forloop.counter == 3 %}Tunggu review
+            {% elif forloop.counter == 4 %}2-3 hari kerja
+            {% elif forloop.counter == 5 %}Kode dari admin
+            {% elif forloop.counter == 6 %}Upload bukti
+            {% elif forloop.counter == 7 %}Pakai dengan baik
+            {% else %}QR scan + kondisi{% endif %}
+          </p>
+        </div>
+        {% endfor %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="reveal flex flex-wrap justify-center gap-3 mt-8">
+      <span class="badge badge-success text-xs py-1.5 px-3">
+        <span class="material-icons-outlined mat-xs">lock_open</span> Peminjaman Gratis (UMKT)
+      </span>
+      <span class="badge badge-primary text-xs py-1.5 px-3">
+        <span class="material-icons-outlined mat-xs">payments</span> Penyewaan Berbayar
+      </span>
+      <span class="badge badge-warning text-xs py-1.5 px-3">
+        <span class="material-icons-outlined mat-xs">shopping_bag</span> Pembelian Consumable
+      </span>
+      <span class="badge badge-danger text-xs py-1.5 px-3">
+        <span class="material-icons-outlined mat-xs">warning</span> Denda Otomatis jika Terlambat
+      </span>
+    </div>
+  </div>
+</section>
+
+<!-- ── KONSELING PSIKOLOGI ── -->
+<section id="konseling" class="py-16 px-4 bg-white dark:bg-slate-900">
+  <div class="max-w-5xl mx-auto">
+    <div class="reveal text-center mb-10 space-y-2">
+      <span class="badge badge-success text-xs">Konseling Psikologi</span>
+      <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100">
+        Layanan Psikologi Profesional
+      </h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
+        Tersedia untuk mahasiswa UMKT maupun masyarakat umum, ditangani langsung oleh psikolog berpengalaman
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="reveal reveal-delay-1 card p-6 space-y-4 border-2 border-primary-200 dark:border-primary-800">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-900/40 flex items-center justify-center">
+            <span class="material-icons-outlined text-xl text-primary-600 dark:text-primary-400">school</span>
+          </div>
+          <div>
+            <h3 class="font-bold text-sm text-slate-900 dark:text-slate-100">Mahasiswa UMKT</h3>
+            <span class="badge badge-primary text-[10px]">Harga Khusus</span>
+          </div>
+        </div>
+        <ul class="space-y-2">
+          {% for item in "abcde" %}
+          <li class="flex items-start gap-2 text-xs text-slate-600 dark:text-slate-300">
+            <span class="material-icons-outlined mat-xs text-primary-500 mt-0.5 flex-shrink-0">check_circle</span>
+            {% if forloop.counter == 1 %}Tarif lebih terjangkau khusus civitas UMKT
+            {% elif forloop.counter == 2 %}Wajib verifikasi KTM saat registrasi akun
+            {% elif forloop.counter == 3 %}Sesi 60 menit bersama psikolog & dosen berprofesi
+            {% elif forloop.counter == 4 %}Ruangan assign oleh admin setelah approved
+            {% else %}Pembayaran di akhir setelah sesi selesai{% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="reveal reveal-delay-2 card p-6 space-y-4 border-2 border-slate-200 dark:border-slate-700">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+            <span class="material-icons-outlined text-xl text-slate-600 dark:text-slate-300">groups</span>
+          </div>
+          <div>
+            <h3 class="font-bold text-sm text-slate-900 dark:text-slate-100">Umum / Non-UMKT</h3>
+            <span class="badge badge-gray text-[10px]">Terbuka untuk Semua</span>
+          </div>
+        </div>
+        <ul class="space-y-2">
+          {% for item in "abcde" %}
+          <li class="flex items-start gap-2 text-xs text-slate-600 dark:text-slate-300">
+            <span class="material-icons-outlined mat-xs text-slate-400 mt-0.5 flex-shrink-0">check_circle</span>
+            {% if forloop.counter == 1 %}Terbuka untuk masyarakat umum & instansi lain
+            {% elif forloop.counter == 2 %}Harga berbeda (lebih tinggi dari tarif UMKT)
+            {% elif forloop.counter == 3 %}Form lengkap sesuai SOP konseling
+            {% elif forloop.counter == 4 %}Informed consent digital dengan e-signature QR
+            {% else %}Invoice + PPN diterbitkan setelah sesi selesai{% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <div class="reveal mt-6 card p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800
+                flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div class="flex items-start gap-3">
+        <span class="material-icons-outlined text-emerald-600 dark:text-emerald-400 flex-shrink-0">verified_user</span>
+        <div>
+          <p class="text-xs font-semibold text-emerald-800 dark:text-emerald-300">Kerahasiaan Terjamin</p>
+          <p class="text-xs text-emerald-700 dark:text-emerald-400 mt-0.5">
+            Hasil & diagnosis konseling hanya dapat diakses oleh psikolog dan klien yang bersangkutan.
+            Sesuai UU PDP, Kode Etik HIMPSI, dan standar kerahasiaan medis.
+          </p>
+        </div>
+      </div>
+      <a href="{% url 'register' %}" class="btn btn-success btn-sm no-underline flex-shrink-0">
+        <span class="material-icons-outlined mat-sm">psychology</span>
+        Daftar Konseling
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── FAQ ── -->
+<section id="faq" class="py-16 px-4 bg-slate-50 dark:bg-slate-800/50">
+  <div class="max-w-2xl mx-auto">
+    <div class="reveal text-center mb-10 space-y-2">
+      <span class="badge badge-gray text-xs">FAQ</span>
+      <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Pertanyaan Umum</h2>
+    </div>
+
+    <div class="space-y-3">
+      {% for faq in faq_list %}
+      <div class="reveal card overflow-hidden">
+        <button onclick="toggleFaq(this)"
+                class="w-full flex items-center justify-between px-5 py-4 text-left text-sm font-semibold
+                       text-slate-900 dark:text-slate-100
+                       hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+          <span>{{ faq.question }}</span>
+          <span class="material-icons-outlined mat-sm text-slate-400 flex-shrink-0 transition-transform duration-300">expand_more</span>
+        </button>
+        <div class="faq-answer px-5 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+          <div class="pb-4">{{ faq.answer }}</div>
+        </div>
+      </div>
+      {% empty %}
+      {# Static fallback FAQ #}
+      {% for q in "123456" %}
+      <div class="reveal card overflow-hidden">
+        <button onclick="toggleFaq(this)"
+                class="w-full flex items-center justify-between px-5 py-4 text-left text-sm font-semibold
+                       text-slate-900 dark:text-slate-100
+                       hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+          <span>
+            {% if forloop.counter == 1 %}Bagaimana cara meminjam alat?
+            {% elif forloop.counter == 2 %}Berapa lama proses approval?
+            {% elif forloop.counter == 3 %}Apakah bisa meminjam tanpa akun?
+            {% elif forloop.counter == 4 %}Apa bedanya Peminjaman, Penyewaan, dan Pembelian?
+            {% elif forloop.counter == 5 %}Apakah konseling tersedia untuk umum?
+            {% else %}Bagaimana jika alat terlambat dikembalikan?{% endif %}
+          </span>
+          <span class="material-icons-outlined mat-sm text-slate-400 flex-shrink-0 transition-transform duration-300">expand_more</span>
+        </button>
+        <div class="faq-answer px-5 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+          <div class="pb-4">
+            {% if forloop.counter == 1 %}Login ke akun Anda → pilih menu Peminjaman → pilih alat → tentukan rentang tanggal → submit. Admin akan memproses dalam 2-3 hari kerja.
+            {% elif forloop.counter == 2 %}Proses approval membutuhkan 2-3 hari kerja. Jika belum ada respons, Anda bisa menghubungi admin langsung via WhatsApp.
+            {% elif forloop.counter == 3 %}Tidak bisa. Semua pengguna wajib registrasi dan menunggu verifikasi akun oleh admin terlebih dahulu.
+            {% elif forloop.counter == 4 %}Peminjaman = gratis, wajib dikembalikan. Penyewaan = berbayar, wajib dikembalikan. Pembelian = berbayar untuk item consumable (kertas form, dll), tidak dikembalikan.
+            {% elif forloop.counter == 5 %}Ya, konseling terbuka untuk mahasiswa UMKT maupun masyarakat umum dan instansi lain. Tarif berbeda berdasarkan kategori pengguna.
+            {% else %}Sistem akan mencatat keterlambatan secara otomatis. Denda akan dihitung per hari dan tagihan dikirim ke akun Anda. Wajib dilunasi sebelum melakukan peminjaman berikutnya.{% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA BOTTOM ── -->
+<section class="py-14 px-4 bg-gradient-to-r from-primary-600 to-primary-700 dark:from-primary-800 dark:to-primary-900">
+  <div class="reveal max-w-2xl mx-auto text-center space-y-5">
+    <h2 class="text-2xl sm:text-3xl font-bold text-white">Siap Mulai?</h2>
+    <p class="text-sm text-primary-100 dark:text-primary-300">
+      Daftarkan akun Anda sekarang dan nikmati kemudahan pengelolaan lab psikologi UMKT secara digital.
     </p>
-  </header>
-
-  <!-- Quick Action Cards -->
-  <section class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-    <!-- Card: Peminjaman Ruangan -->
-    <a href="{% url 'rooms:booking_create' %}"
-       class="group rounded-2xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm hover:shadow-lg dark:hover:shadow-slate-900/50 hover:border-primary-200 dark:hover:border-primary-700 transition p-5 flex flex-col gap-3">
-      <div class="w-11 h-11 rounded-xl bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-        <span class="material-icons">meeting_room</span>
-      </div>
-      <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">Ajukan Peminjaman Ruangan</h3>
-      <p class="text-xs text-slate-500 dark:text-slate-400">
-        Booking ruangan praktikum individu atau kelompok dengan validasi otomatis.
-      </p>
-      <span class="mt-auto text-sm font-medium text-primary-600 dark:text-primary-400 flex items-center gap-1">
-        Pergi ke form
-        <span class="material-icons text-base group-hover:translate-x-0.5 transition">arrow_forward</span>
-      </span>
-    </a>
-
-    <!-- Card: Peminjaman Alat -->
-    <a href="{% url 'tools:rental_create' %}"
-       class="group rounded-2xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm hover:shadow-lg dark:hover:shadow-slate-900/50 hover:border-emerald-200 dark:hover:border-emerald-700 transition p-5 flex flex-col gap-3">
-      <div class="w-11 h-11 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-        <span class="material-icons">science</span>
-      </div>
-      <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">Ajukan Peminjaman Alat Tes</h3>
-      <p class="text-xs text-slate-500 dark:text-slate-400">
-        Pinjam alat tes psikologi dengan invoice otomatis & tracking pengembalian.
-      </p>
-      <span class="mt-auto text-sm font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-        Pergi ke form
-        <span class="material-icons text-base group-hover:translate-x-0.5 transition">arrow_forward</span>
-      </span>
-    </a>
-
-    <!-- Card: Jadwal Praktikum -->
-    <a href="{% url 'practicum:schedule_list' %}"
-       class="group rounded-2xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm hover:shadow-lg dark:hover:shadow-slate-900/50 hover:border-indigo-200 dark:hover:border-indigo-700 transition p-5 flex flex-col gap-3">
-      <div class="w-11 h-11 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-        <span class="material-icons">event</span>
-      </div>
-      <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">Lihat Jadwal Praktikum</h3>
-      <p class="text-xs text-slate-500 dark:text-slate-400">
-        Daftar praktikum (Inteligensi, Inventory, Wawancara, Konseling).
-      </p>
-      <span class="mt-auto text-sm font-medium text-indigo-600 dark:text-indigo-400 flex items-center gap-1">
-        Lihat jadwal
-        <span class="material-icons text-base group-hover:translate-x-0.5 transition">arrow_forward</span>
-      </span>
-    </a>
-
-    <!-- Card: Variabel Penelitian -->
-    <a href="{% url 'research:variables_list' %}"
-       class="group rounded-2xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm hover:shadow-lg dark:hover:shadow-slate-900/50 hover:border-amber-200 dark:hover:border-amber-700 transition p-5 flex flex-col gap-3">
-      <div class="w-11 h-11 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-        <span class="material-icons">psychology</span>
-      </div>
-      <h3 class="text-sm font-semibold text-slate-900 dark:text-slate-100">Lihat Variabel Penelitian</h3>
-      <p class="text-xs text-slate-500 dark:text-slate-400">
-        Request variabel penelitian dan tracking bimbingan dengan dosen.
-      </p>
-      <span class="mt-auto text-sm font-medium text-amber-600 dark:text-amber-400 flex items-center gap-1">
-        Lihat daftar
-        <span class="material-icons text-base group-hover:translate-x-0.5 transition">arrow_forward</span>
-      </span>
-    </a>
-  </section>
-
-  <!-- Panels: Aktivitas & Notifikasi -->
-  <section class="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)]">
-
-    <!-- Aktivitas Terakhir -->
-    <div class="rounded-2xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-5 space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
-        <div>
-          <h2 class="text-sm font-semibold text-slate-900 dark:text-slate-100">Aktivitas Terakhir</h2>
-          <p class="text-xs text-slate-500 dark:text-slate-400">5 aktivitas terbaru Anda di sistem</p>
-        </div>
-        <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-medium bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 border border-primary-100 dark:border-primary-800">
-          5 terbaru
-        </span>
-      </div>
-
-      <div class="space-y-3 text-xs">
-        <!-- Item 1 -->
-        <div class="flex items-start justify-between gap-3 rounded-xl border border-slate-100 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-900/50 px-3 py-2.5 hover:bg-slate-100 dark:hover:bg-slate-900 transition">
-          <div class="space-y-0.5">
-            <p class="font-medium text-slate-900 dark:text-slate-100">Peminjaman Ruangan: Lab Psikometri</p>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">
-              15 Jan 2026, 09:00 - 11:00 • Praktikum Asesmen
-            </p>
-          </div>
-          <span class="text-[10px] px-2.5 py-1 rounded-full font-semibold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800 whitespace-nowrap">
-            Disetujui
-          </span>
-        </div>
-
-        <!-- Item 2 -->
-        <div class="flex items-start justify-between gap-3 rounded-xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800/50 px-3 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-900 transition">
-          <div class="space-y-0.5">
-            <p class="font-medium text-slate-900 dark:text-slate-100">Peminjaman Alat: Tes WAIS-IV (3 set)</p>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">
-              12 Jan 2026 - 14 Jan 2026 • Penelitian Individu
-            </p>
-          </div>
-          <span class="text-[10px] px-2.5 py-1 rounded-full font-semibold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-100 dark:border-amber-800 whitespace-nowrap">
-            Pending
-          </span>
-        </div>
-
-        <!-- Item 3 -->
-        <div class="flex items-start justify-between gap-3 rounded-xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800/50 px-3 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-900 transition">
-          <div class="space-y-0.5">
-            <p class="font-medium text-slate-900 dark:text-slate-100">Praktikum Inventory: Sesi 3</p>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">
-              10 Jan 2026, 13:00 • Attendance: 80%
-            </p>
-          </div>
-          <span class="text-[10px] px-2.5 py-1 rounded-full font-semibold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800 whitespace-nowrap">
-            Selesai
-          </span>
-        </div>
-
-        <!-- Item 4 -->
-        <div class="flex items-start justify-between gap-3 rounded-xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800/50 px-3 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-900 transition">
-          <div class="space-y-0.5">
-            <p class="font-medium text-slate-900 dark:text-slate-100">Variabel Penelitian: Konstruksi Alat Ukur</p>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">
-              Requested 8 Jan 2026 • Dosen: Prof. Dr. Budi S.
-            </p>
-          </div>
-          <span class="text-[10px] px-2.5 py-1 rounded-full font-semibold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800 whitespace-nowrap">
-            Disetujui
-          </span>
-        </div>
-
-        <!-- Item 5 -->
-        <div class="flex items-start justify-between gap-3 rounded-xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800/50 px-3 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-900 transition">
-          <div class="space-y-0.5">
-            <p class="font-medium text-slate-900 dark:text-slate-100">Peminjaman Ruangan: Lab Klinis</p>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">
-              5 Jan 2026, 14:00 - 16:00 • Konseling Praktik
-            </p>
-          </div>
-          <span class="text-[10px] px-2.5 py-1 rounded-full font-semibold bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 border border-rose-100 dark:border-rose-800 whitespace-nowrap">
-            Ditolak
-          </span>
-        </div>
-      </div>
+    <div class="flex flex-wrap justify-center gap-3">
+      <a href="{% url 'register' %}"
+         class="btn btn-lg no-underline bg-white text-primary-700 hover:bg-primary-50 border-white">
+        <span class="material-icons-outlined mat-sm">person_add</span>
+        Daftar Gratis
+      </a>
+      <a href="https://wa.me/6288571911579" target="_blank" rel="noopener noreferrer"
+         class="btn btn-lg no-underline bg-transparent border-2 border-white/60 text-white hover:bg-white/10">
+        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+        </svg>
+        Tanya Admin
+      </a>
     </div>
+  </div>
+</section>
 
-    <!-- Notifikasi Penting -->
-    <div class="rounded-2xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-5 space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
-        <div>
-          <h2 class="text-sm font-semibold text-slate-900 dark:text-slate-100">Notifikasi Penting</h2>
-          <p class="text-xs text-slate-500 dark:text-slate-400">Hal yang perlu Anda perhatikan hari ini</p>
-        </div>
-        <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-medium bg-slate-50 dark:bg-slate-900/50 text-slate-700 dark:text-slate-300 border border-slate-100 dark:border-slate-700">
-          3 notifikasi
-        </span>
-      </div>
-
-      <div class="space-y-3 text-xs">
-        <div class="rounded-xl border border-amber-100 dark:border-amber-800/50 bg-amber-50/70 dark:bg-amber-900/20 px-3 py-2.5 text-amber-800 dark:text-amber-200 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition">
-          <p class="font-semibold text-[11px] mb-0.5">⏰ Pengingat Pengembalian</p>
-          <p>
-            Alat tes MMPI-2 harus dikembalikan hari ini (17 Jan 2026). Hubungi laboran untuk konfirmasi.
-          </p>
-        </div>
-
-        <div class="rounded-xl border border-blue-100 dark:border-blue-800/50 bg-blue-50/70 dark:bg-blue-900/20 px-3 py-2.5 text-blue-800 dark:text-blue-200 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition">
-          <p class="font-semibold text-[11px] mb-0.5">📩 Request Pending</p>
-          <p>
-            Peminjaman alat tes WAIS-IV menunggu approval admin. Estimasi: 1 hari kerja.
-          </p>
-        </div>
-
-        <div class="rounded-xl border border-emerald-100 dark:border-emerald-800/50 bg-emerald-50/70 dark:bg-emerald-900/20 px-3 py-2.5 text-emerald-800 dark:text-emerald-200 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition">
-          <p class="font-semibold text-[11px] mb-0.5">✅ Bimbingan Terjadwal</p>
-          <p>
-            Sesi bimbingan variabel penelitian dengan Prof. Dr. Budi dijadwalkan 20 Jan 2026, 10:00 WIT.
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-</main>
 {% endif %}
-
 {% endblock content %}
+
+{% block extra_js %}
+<script>
+  // ── REVEAL ON SCROLL ──
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+  // ── FAQ ACCORDION ──
+  function toggleFaq(btn) {
+    const answer = btn.nextElementSibling;
+    const icon   = btn.querySelector('.material-icons-outlined');
+    const isOpen = answer.classList.contains('open');
+
+    document.querySelectorAll('.faq-answer').forEach(a => {
+      a.classList.remove('open');
+      const b = a.previousElementSibling?.querySelector('.material-icons-outlined');
+      if (b) b.style.transform = 'rotate(0deg)';
+    });
+
+    if (!isOpen) {
+      answer.classList.add('open');
+      if (icon) icon.style.transform = 'rotate(180deg)';
+    }
+  }
+</script>
+{% endblock %}

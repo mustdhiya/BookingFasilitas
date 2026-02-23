@@ -1,0 +1,18 @@
+<div class="rounded-2xl border border-slate-100 dark:border-slate-700
+            bg-white dark:bg-slate-800 shadow-sm hover:shadow-md transition p-4 flex flex-col gap-2">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <div class="w-9 h-9 rounded-xl bg-{{ color }}-50 dark:bg-{{ color }}-900/30
+                  text-{{ color }}-600 dark:text-{{ color }}-400 flex items-center justify-center">
+        <span class="material-icons text-base">{{ icon }}</span>
+      </div>
+      <p class="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+        {{ label }}
+      </p>
+    </div>
+  </div>
+  <p class="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+    {{ value|default:"0" }}
+  </p>
+  <p class="text-[11px] text-slate-500 dark:text-slate-400">{{ subtitle }}</p>
+</div>

@@ -1,0 +1,580 @@
+{% load static %}
+
+
+<div id="admin-section-konseling" class="admin-module-section hidden">
+
+  {# Header #}
+  <div class="mb-6">
+    <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+      <span class="material-icons text-primary-600 dark:text-primary-400">psychology</span>
+      Manajemen Konseling
+    </h2>
+    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+      Review dan kelola pengajuan sesi konseling
+    </p>
+  </div>
+
+  {# ── STATS ──────────────────────────────────────────────────────────── #}
+  <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
+
+    <div class="rounded-xl border border-amber-200 bg-gradient-to-br from-amber-50 to-white
+                dark:from-amber-900/20 dark:to-slate-800 dark:border-amber-800
+                p-4 text-center hover:shadow-md transition">
+      <p class="text-2xl font-bold text-amber-500" id="k-stat-pending">{{ stats.pending }}</p>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wide font-medium">Menunggu</p>
+    </div>
+
+    <div class="rounded-xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white
+                dark:from-emerald-900/20 dark:to-slate-800 dark:border-emerald-800
+                p-4 text-center hover:shadow-md transition">
+      <p class="text-2xl font-bold text-emerald-500">{{ stats.approved }}</p>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wide font-medium">Disetujui</p>
+    </div>
+
+    <div class="rounded-xl border border-indigo-200 bg-gradient-to-br from-indigo-50 to-white
+                dark:from-indigo-900/20 dark:to-slate-800 dark:border-indigo-800
+                p-4 text-center hover:shadow-md transition">
+      <p class="text-2xl font-bold text-indigo-500">{{ stats.done }}</p>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wide font-medium">Selesai</p>
+    </div>
+
+    <div class="rounded-xl border border-red-200 bg-gradient-to-br from-red-50 to-white
+                dark:from-red-900/20 dark:to-slate-800 dark:border-red-800
+                p-4 text-center hover:shadow-md transition">
+      <p class="text-2xl font-bold text-red-500">{{ stats.rejected }}</p>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wide font-medium">Ditolak</p>
+    </div>
+
+    <div class="rounded-xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white
+                dark:from-slate-800 dark:to-slate-900 dark:border-slate-700
+                p-4 text-center hover:shadow-md transition">
+      <p class="text-2xl font-bold text-slate-700 dark:text-slate-200">{{ stats.total }}</p>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wide font-medium">Total</p>
+    </div>
+
+  </div>
+
+  {# ── FILTER BAR ─────────────────────────────────────────────────────── #}
+  <div class="rounded-2xl border border-slate-200 dark:border-slate-700
+              bg-white dark:bg-slate-800 shadow-sm p-4 mb-4
+              flex flex-wrap items-center gap-3">
+
+    {# Search — client-side #}
+    <div class="relative flex-1 min-w-48">
+      <span class="absolute left-3 top-1/2 -translate-y-1/2 material-icons-outlined
+                   text-slate-400 text-sm">search</span>
+      <input type="text" id="k-search"
+             value="{{ q }}"
+             placeholder="Cari nama, email, keluhan..."
+             oninput="kFilterTable(this.value)"
+             class="w-full rounded-lg border border-slate-200 dark:border-slate-600
+                    dark:bg-slate-700 dark:text-slate-100 dark:placeholder-slate-400
+                    pl-9 pr-3 py-2 text-sm focus:ring-2 focus:ring-primary-500">
+    </div>
+
+    {# Status tabs — client-side filter #}
+    <div class="flex gap-1 flex-wrap">
+      {% for val, label in status_tabs %}
+      <button onclick="kFilterStatus('{{ val }}')"
+              data-kval="{{ val }}"
+              class="k-tab px-3 py-1.5 rounded-lg text-xs font-medium transition-colors
+                     {% if status_filter == val %}
+                       bg-primary-500 text-white shadow-sm
+                     {% else %}
+                       bg-slate-100 dark:bg-slate-700 text-slate-600
+                       dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600
+                     {% endif %}">
+        {{ label }}
+        {% if val == 'pending' and stats.pending %}
+          <span class="ml-1 inline-flex items-center justify-center w-4 h-4 rounded-full
+                       bg-amber-500 text-white text-[10px] font-bold">
+            {{ stats.pending }}
+          </span>
+        {% endif %}
+      </button>
+      {% endfor %}
+    </div>
+
+  </div>
+
+  {# ── TABLE ──────────────────────────────────────────────────────────── #}
+  <div class="rounded-2xl border border-slate-200 dark:border-slate-700
+              bg-white dark:bg-slate-800 shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-50 dark:bg-slate-700/50 border-b
+                      border-slate-200 dark:border-slate-700">
+          <tr>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">#</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Klien</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Tujuan</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Tgl Preferensi</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Status</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Psikolog</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Aksi</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-700" id="k-tbody">
+
+          {% for sesi in sesi_list %}
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors"
+              id="krow-{{ sesi.pk }}"
+              data-kstatus="{{ sesi.status }}"
+              data-ktext="{{ sesi.user.get_full_name|lower }} {{ sesi.user.email|lower }} {{ sesi.keluhan|lower }}">
+
+            <td class="px-4 py-3 text-slate-400 dark:text-slate-500 text-xs">#{{ sesi.pk }}</td>
+
+            <td class="px-4 py-3">
+              <p class="font-medium text-slate-900 dark:text-slate-100">
+                {{ sesi.user.get_full_name|default:sesi.user.email }}
+              </p>
+              <p class="text-xs text-slate-400 dark:text-slate-500">{{ sesi.user.email }}</p>
+              {% if sesi.user.phone %}
+                <p class="text-xs text-slate-400 dark:text-slate-500">{{ sesi.user.phone }}</p>
+              {% endif %}
+            </td>
+
+            <td class="px-4 py-3">
+              <span class="text-xs font-medium text-slate-700 dark:text-slate-300">
+                {{ sesi.get_tujuan_display }}
+              </span>
+            </td>
+
+            <td class="px-4 py-3 text-xs text-slate-600 dark:text-slate-400">
+              {{ sesi.tanggal_preferensi|date:"d M Y" }}<br>
+              <span class="text-slate-400 dark:text-slate-500">{{ sesi.waktu_preferensi }}</span>
+            </td>
+
+            <td class="px-4 py-3">
+              <span id="kbadge-{{ sesi.pk }}"
+                    class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold
+                    {% if sesi.status == 'pending' %}
+                      bg-amber-100 text-amber-700 border border-amber-200
+                      dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800
+                    {% elif sesi.status == 'approved' %}
+                      bg-emerald-100 text-emerald-700 border border-emerald-200
+                      dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800
+                    {% elif sesi.status == 'done' %}
+                      bg-indigo-100 text-indigo-700 border border-indigo-200
+                      dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800
+                    {% elif sesi.status == 'rejected' %}
+                      bg-red-100 text-red-700 border border-red-200
+                      dark:bg-red-900/30 dark:text-red-400 dark:border-red-800
+                    {% else %}
+                      bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400
+                    {% endif %}">
+                {% if sesi.status == 'pending' %}
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5 animate-pulse"></span>
+                {% endif %}
+                {{ sesi.get_status_display }}
+              </span>
+            </td>
+
+            <td class="px-4 py-3 text-xs text-slate-600 dark:text-slate-400">
+              {{ sesi.psikolog|default:"—" }}
+            </td>
+
+            <td class="px-4 py-3" id="kaction-{{ sesi.pk }}">
+              {% if sesi.status == 'pending' %}
+                <button onclick="kBukaModal({{ sesi.pk }})"
+                        class="inline-flex items-center gap-1 rounded-lg bg-primary-500
+                               hover:bg-primary-600 text-white font-semibold text-xs
+                               px-3 py-1.5 transition shadow-sm">
+                  <span class="material-icons-outlined text-sm">rate_review</span>
+                  Review
+                </button>
+              {% elif sesi.status == 'approved' %}
+                <button onclick="kAksiCepat({{ sesi.pk }}, 'done')"
+                        class="inline-flex items-center gap-1 rounded-lg bg-indigo-500
+                               hover:bg-indigo-600 text-white font-semibold text-xs
+                               px-3 py-1.5 transition shadow-sm">
+                  <span class="material-icons-outlined text-sm">task_alt</span>
+                  Selesai
+                </button>
+              {% else %}
+                <span class="text-xs text-slate-400 dark:text-slate-500 italic">
+                  {{ sesi.get_status_display }}
+                </span>
+              {% endif %}
+            </td>
+
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="7" class="text-center py-16 text-slate-400 dark:text-slate-500">
+              <span class="material-icons-outlined text-5xl block mb-3
+                           text-slate-300 dark:text-slate-600">inbox</span>
+              <p class="text-sm font-medium">Tidak ada sesi konseling</p>
+              <p class="text-xs mt-1">
+                {% if status_filter != 'all' %}Coba filter status lain
+                {% else %}Belum ada pengajuan masuk{% endif %}
+              </p>
+            </td>
+          </tr>
+          {% endfor %}
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {# ── MODAL REVIEW ───────────────────────────────────────────────────── #}
+  <div id="k-modal"
+       class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-lg shadow-2xl"
+         onclick="event.stopPropagation()">
+
+      <div class="flex items-center justify-between px-6 pt-5 pb-4
+                  border-b border-slate-100 dark:border-slate-700">
+        <div>
+          <h2 class="text-base font-bold text-slate-900 dark:text-slate-100">
+            Review Sesi Konseling
+            <span id="k-modal-id" class="text-primary-500 ml-1"></span>
+          </h2>
+          <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+            Isi form untuk menyetujui atau tolak sesi ini
+          </p>
+        </div>
+        <button onclick="kTutupModal()"
+                class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300
+                       transition rounded-lg p-1">
+          <span class="material-icons-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="px-6 py-5 space-y-4">
+        <div id="k-modal-info"
+             class="rounded-xl bg-slate-50 dark:bg-slate-700/50 border
+                    border-slate-200 dark:border-slate-600 p-4
+                    text-xs text-slate-700 dark:text-slate-300"></div>
+
+        <form id="k-form" class="space-y-4">
+          {% csrf_token %}
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                Tanggal Aktual
+              </label>
+              <input type="date" name="tanggal_aktual" id="k-inp-tanggal"
+                     class="w-full rounded-lg border border-slate-200 dark:border-slate-600
+                            dark:bg-slate-700 dark:text-slate-100
+                            px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                Waktu Aktual
+              </label>
+              <input type="time" name="waktu_aktual" id="k-inp-waktu"
+                     class="w-full rounded-lg border border-slate-200 dark:border-slate-600
+                            dark:bg-slate-700 dark:text-slate-100
+                            px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                Ruangan
+              </label>
+              <input type="text" name="ruangan" id="k-inp-ruangan"
+                     placeholder="cth: Ruang B201"
+                     class="w-full rounded-lg border border-slate-200 dark:border-slate-600
+                            dark:bg-slate-700 dark:text-slate-100
+                            px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                Psikolog
+              </label>
+              <input type="text" name="psikolog" id="k-inp-psikolog"
+                     placeholder="Nama psikolog"
+                     class="w-full rounded-lg border border-slate-200 dark:border-slate-600
+                            dark:bg-slate-700 dark:text-slate-100
+                            px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              Tarif (Rp)
+            </label>
+            <input type="number" name="tarif" id="k-inp-tarif"
+                   placeholder="cth: 50000"
+                   class="w-full rounded-lg border border-slate-200 dark:border-slate-600
+                          dark:bg-slate-700 dark:text-slate-100
+                          px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              Catatan Admin
+              <span class="text-red-400 font-normal ml-1">(wajib jika ditolak)</span>
+            </label>
+            <textarea name="catatan_admin" id="k-inp-catatan" rows="3"
+                      placeholder="Catatan untuk klien..."
+                      class="w-full rounded-lg border border-slate-200 dark:border-slate-600
+                             dark:bg-slate-700 dark:text-slate-100
+                             px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500
+                             resize-none"></textarea>
+          </div>
+        </form>
+      </div>
+
+      <div class="flex gap-2 justify-end px-6 pb-5">
+        <button type="button" onclick="kTutupModal()"
+                class="rounded-lg border border-slate-200 dark:border-slate-600
+                       bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600
+                       text-slate-700 dark:text-slate-300 font-semibold text-sm
+                       px-4 py-2 transition">
+          Batal
+        </button>
+        <button type="button" onclick="kSubmit('reject')"
+                class="inline-flex items-center gap-1.5 rounded-lg bg-red-500
+                       hover:bg-red-600 text-white font-semibold text-sm px-4 py-2 transition">
+          <span class="material-icons-outlined text-base">cancel</span>
+          Tolak
+        </button>
+        <button type="button" onclick="kSubmit('approve')"
+                class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500
+                       hover:bg-emerald-600 text-white font-semibold text-sm px-4 py-2 transition">
+          <span class="material-icons-outlined text-base">check_circle</span>
+          Setujui
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>{# end #admin-section-konseling #}
+
+
+{# ── JAVASCRIPT ─────────────────────────────────────────────────────────── #}
+<script>
+(function () {   // ← IIFE: semua variabel terisolasi, tidak bocor ke global
+
+  // ── Data sesi dari Django ──────────────────────────────────────────────
+  const SESI = {
+    {% for s in sesi_list %}
+    {{ s.pk }}: {
+      id:      {{ s.pk }},
+      nama:    "{{ s.user.get_full_name|default:s.user.email|escapejs }}",
+      email:   "{{ s.user.email|escapejs }}",
+      wa:      "{{ s.user.phone|default:'-'|escapejs }}",
+      tujuan:  "{{ s.get_tujuan_display|escapejs }}",
+      keluhan: "{{ s.keluhan|truncatechars:150|escapejs }}",
+      tglPref: "{{ s.tanggal_preferensi|date:'Y-m-d' }}",
+      wktPref: "{{ s.waktu_preferensi }}",
+      url:     "{% url 'admin-konseling-aksi' s.pk %}",
+    },
+    {% endfor %}
+  };
+
+  let activePk = null;
+
+  // ── Expose ke global (dipanggil dari onclick="...") ────────────────────
+  window.kBukaModal  = kBukaModal;
+  window.kTutupModal = kTutupModal;
+  window.kSubmit     = kSubmit;
+  window.kAksiCepat  = kAksiCepat;
+  window.kFilterTable  = kFilterTable;
+  window.kFilterStatus = kFilterStatus;
+
+  // ── Buka modal ─────────────────────────────────────────────────────────
+  function kBukaModal(pk) {
+    activePk = pk;
+    const d  = SESI[pk];
+    if (!d) return;
+
+    document.getElementById('k-modal-id').textContent = `#${pk}`;
+    document.getElementById('k-modal-info').innerHTML = `
+      <div class="grid grid-cols-2 gap-x-4 gap-y-1">
+        <div><span class="text-slate-400">Nama</span>
+             <p class="font-semibold">${d.nama}</p></div>
+        <div><span class="text-slate-400">WhatsApp</span>
+             <p class="font-semibold">${d.wa}</p></div>
+        <div class="col-span-2"><span class="text-slate-400">Email</span>
+             <p class="font-semibold">${d.email}</p></div>
+        <div><span class="text-slate-400">Tujuan</span>
+             <p class="font-semibold">${d.tujuan}</p></div>
+        <div><span class="text-slate-400">Pref. Waktu</span>
+             <p class="font-semibold">${d.tglPref} ${d.wktPref}</p></div>
+        <div class="col-span-2 mt-1 pt-2 border-t border-slate-200 dark:border-slate-600">
+          <span class="text-slate-400">Keluhan / Tujuan</span>
+          <p class="italic mt-0.5">"${d.keluhan}"</p>
+        </div>
+      </div>`;
+
+    document.getElementById('k-inp-tanggal').value  = d.tglPref;
+    document.getElementById('k-inp-waktu').value    = d.wktPref;
+    document.getElementById('k-inp-ruangan').value  = '';
+    document.getElementById('k-inp-psikolog').value = '';
+    document.getElementById('k-inp-tarif').value    = '';
+    document.getElementById('k-inp-catatan').value  = '';
+
+    const modal = document.getElementById('k-modal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+  }
+
+  // ── Tutup modal ────────────────────────────────────────────────────────
+  function kTutupModal() {
+    const modal = document.getElementById('k-modal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.body.style.overflow = '';
+    activePk = null;
+  }
+
+  document.getElementById('k-modal').addEventListener('click', function (e) {
+    if (e.target === this) kTutupModal();
+  });
+
+  // ── Submit approve/reject ──────────────────────────────────────────────
+  async function kSubmit(aksi) {
+    if (!activePk) return;
+    const d       = SESI[activePk];
+    const catatan = document.getElementById('k-inp-catatan').value.trim();
+
+    if (aksi === 'reject' && !catatan) {
+      kToast('error', 'Catatan wajib diisi saat menolak sesi.');
+      document.getElementById('k-inp-catatan').focus();
+      return;
+    }
+
+    const fd = new FormData(document.getElementById('k-form'));
+    fd.append('aksi', aksi);
+
+    try {
+      const res  = await fetch(d.url, {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        body: fd,
+      });
+      const json = await res.json();
+      if (json.ok) {
+        kTutupModal();
+        kUpdateRow(activePk, json.status, json.label);
+        kUpdatePendingCounter();
+        kToast('success', json.msg);
+      } else {
+        kToast('error', json.msg || 'Terjadi kesalahan.');
+      }
+    } catch (e) {
+      kToast('error', 'Gagal menghubungi server.');
+    }
+  }
+
+  // ── Aksi cepat (done) tanpa modal ─────────────────────────────────────
+  async function kAksiCepat(pk, aksi) {
+    const d = SESI[pk];
+    if (!d || !confirm(`Tandai sesi #${pk} sebagai selesai?`)) return;
+
+    const fd = new FormData();
+    fd.append('aksi', aksi);
+    fd.append('csrfmiddlewaretoken', getCsrf());
+
+    try {
+      const res  = await fetch(d.url, {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        body: fd,
+      });
+      const json = await res.json();
+      if (json.ok) {
+        kUpdateRow(pk, json.status, json.label);
+        kUpdatePendingCounter();
+        kToast('success', json.msg);
+      } else {
+        kToast('error', json.msg);
+      }
+    } catch (e) {
+      kToast('error', 'Gagal.');
+    }
+  }
+
+  // ── Update badge + tombol aksi di baris ───────────────────────────────
+  function kUpdateRow(pk, status, label) {
+    const badge = document.getElementById(`kbadge-${pk}`);
+    if (badge) {
+      const cls = {
+        approved: 'bg-emerald-100 text-emerald-700 border border-emerald-200',
+        rejected:  'bg-red-100 text-red-700 border border-red-200',
+        done:      'bg-indigo-100 text-indigo-700 border border-indigo-200',
+        cancelled: 'bg-slate-100 text-slate-500',
+      };
+      badge.className = `inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${cls[status] || ''}`;
+      badge.textContent = label;
+      // update data-kstatus agar filter client-side tetap akurat
+      const row = document.getElementById(`krow-${pk}`);
+      if (row) row.dataset.kstatus = status;
+    }
+
+    const action = document.getElementById(`kaction-${pk}`);
+    if (action) {
+      action.innerHTML = `<span class="text-xs text-slate-400 italic">${label}</span>`;
+    }
+  }
+
+  // ── Update counter stat "Menunggu" ────────────────────────────────────
+  function kUpdatePendingCounter() {
+    const el = document.getElementById('k-stat-pending');
+    if (!el) return;
+    const count = document.querySelectorAll('#k-tbody tr[data-kstatus="pending"]:not([style*="none"])').length;
+    el.textContent = count;
+  }
+
+  // ── Filter client-side: teks ──────────────────────────────────────────
+  function kFilterTable(q) {
+    q = q.toLowerCase();
+    document.querySelectorAll('#k-tbody tr[id^="krow-"]').forEach(row => {
+      row.style.display = row.dataset.ktext.includes(q) ? '' : 'none';
+    });
+  }
+
+  // ── Filter client-side: status ────────────────────────────────────────
+  function kFilterStatus(val) {
+    // Update tab aktif
+    document.querySelectorAll('.k-tab').forEach(t => {
+      const on = t.dataset.kval === val;
+      t.classList.toggle('bg-primary-500', on);
+      t.classList.toggle('text-white',     on);
+      t.classList.toggle('shadow-sm',      on);
+      t.classList.toggle('bg-slate-100',   !on);
+      t.classList.toggle('text-slate-600', !on);
+    });
+
+    document.querySelectorAll('#k-tbody tr[id^="krow-"]').forEach(row => {
+      row.style.display =
+        (val === 'all' || row.dataset.kstatus === val) ? '' : 'none';
+    });
+  }
+
+  // ── Toast ──────────────────────────────────────────────────────────────
+  function kToast(type, msg) {
+    const color = type === 'success' ? 'bg-emerald-500' : 'bg-red-500';
+    const icon  = type === 'success' ? 'check_circle'   : 'error';
+    const el    = document.createElement('div');
+    el.className = `fixed bottom-5 right-5 z-[60] ${color} text-white text-sm
+                    px-4 py-3 rounded-xl shadow-lg flex items-center gap-2
+                    opacity-0 translate-y-2 transition-all duration-300`;
+    el.innerHTML = `<span class="material-icons-outlined text-base">${icon}</span>
+                    <span>${msg}</span>`;
+    document.body.appendChild(el);
+    requestAnimationFrame(() => el.classList.remove('opacity-0', 'translate-y-2'));
+    setTimeout(() => {
+      el.classList.add('opacity-0', 'translate-y-2');
+      setTimeout(() => el.remove(), 300);
+    }, 4000);
+  }
+
+  // ── CSRF ───────────────────────────────────────────────────────────────
+  function getCsrf() {
+    return document.querySelector('[name=csrfmiddlewaretoken]')?.value
+        || document.cookie.split('; ').find(r => r.startsWith('csrftoken='))?.split('=')[1]
+        || '';
+  }
+
+})(); // end IIFE
+</script>

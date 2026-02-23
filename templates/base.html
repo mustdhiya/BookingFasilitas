@@ -2,616 +2,1119 @@
 <!DOCTYPE html>
 <html lang="id" class="scroll-smooth">
 <head>
-    <!-- Meta Tags -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Sistem Manajemen Peminjaman Ruangan & Alat Praktikum Laboratorium Psikologi UMKT">
-    <meta name="theme-color" content="#0D93B1">
-    <link rel="icon" type="image/png" href="{% get_media_prefix %}logo/logo_lab.png">
-    <link rel="apple-touch-icon" type="image/png" href="{% get_media_prefix %}logo/logo_lab.png">
+  <!-- Meta Tags -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sistem Manajemen Lab Psikologi UMKT — Peminjaman, Konseling, Praktikum & Penelitian">
+  <meta name="theme-color" content="#0D93B1">
+  <link rel="icon" type="image/png" href="{% get_media_prefix %}logo/logo_lab.png">
+  <link rel="apple-touch-icon" type="image/png" href="{% get_media_prefix %}logo/logo_lab.png">
 
-    
-    <!-- Title -->
-    <title>{% block title %}Lab Psikologi UMKT - Sistem Booking Fasilitas{% endblock %}</title>
-    
-    <!-- Dark Mode Script - Must be BEFORE any content to prevent flicker -->
-    <script>
-        // Check localStorage or system preference
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-    </script>
-    
-    <!-- Tailwind CSS via CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Custom Tailwind Config -->
-    <script>
-        tailwind.config = {
-            darkMode: 'class', // Enable class-based dark mode
-            theme: {
-                extend: {
-                    colors: {
-                        'primary': {
-                            50: '#f0f8fb',
-                            100: '#e0f1f7',
-                            200: '#c1e3ef',
-                            300: '#a2d5e7',
-                            400: '#5ebdd4',
-                            500: '#0D93B1',  // Main brand color
-                            600: '#0a7a96',
-                            700: '#086078',
-                            800: '#064859',
-                            900: '#043840',
-                        },
-                        'secondary': {
-                            50: '#faf9f7',
-                            100: '#f5f3ef',
-                            200: '#ebe7df',
-                            300: '#e1dbcf',
-                            400: '#d1c5af',
-                            500: '#c1af8f',
-                            600: '#a39973',
-                            700: '#856f5c',
-                            800: '#674f45',
-                            900: '#49352e',
-                        },
-                        'light-bg': '#F8F8F8',
-                        'dark-text': '#1f2937',
-                        'border-light': '#e5e7eb',
-                    },
-                    fontFamily: {
-                        'sans': ['Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'sans-serif'],
-                    },
-                    spacing: {
-                        '128': '32rem',
-                        '144': '36rem',
-                    },
-                    borderRadius: {
-                        'xl': '0.75rem',
-                        '2xl': '1rem',
-                    },
-                    boxShadow: {
-                        'soft': '0 1px 3px 0 rgba(13, 147, 177, 0.1)',
-                        'medium': '0 4px 6px -1px rgba(13, 147, 177, 0.1)',
-                        'hard': '0 10px 15px -3px rgba(13, 147, 177, 0.2)',
-                    },
-                },
+  <!-- Title -->
+  <title>{% block title %}Lab Psikologi UMKT{% endblock %}</title>
+
+  <!-- Dark Mode Script: HARUS sebelum konten agar tidak flicker -->
+  <script>
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  </script>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50:  '#f0f8fb', 100: '#e0f1f7', 200: '#c1e3ef',
+              300: '#a2d5e7', 400: '#5ebdd4', 500: '#0D93B1',
+              600: '#0a7a96', 700: '#086078', 800: '#064859', 900: '#043840',
             },
-        }
-    </script>
-    
-    <!-- Google Material Icons -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Additional Styles -->
-    <style>
-        * {
-            font-family: 'Inter', 'Poppins', sans-serif;
-        }
-        
-        /* Smooth transitions for dark mode [web:229] */
-        * {
-            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-        }
-        
-        /* Scrollbar styling */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            @apply bg-gray-100 dark:bg-slate-800;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            @apply bg-primary-500 hover:bg-primary-600;
-            border-radius: 4px;
-        }
-        
-        /* Material Icons sizing */
-        .material-icons,
-        .material-icons-outlined,
-        .material-icons-round {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            user-select: none;
-        }
-        
-        .material-icons.small { font-size: 18px; }
-        .material-icons.medium { font-size: 24px; }
-        .material-icons.large { font-size: 32px; }
-        .material-icons.xl { font-size: 48px; }
-        
-        /* Button base styles */
-        .btn-primary {
-            @apply bg-primary-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-600 active:bg-primary-700 transition-all duration-200 cursor-pointer shadow-soft hover:shadow-medium disabled:opacity-50 disabled:cursor-not-allowed dark:bg-primary-600 dark:hover:bg-primary-700;
-        }
-        
-        .btn-secondary {
-            @apply bg-gray-200 text-dark-text px-6 py-2 rounded-lg font-medium hover:bg-gray-300 active:bg-gray-400 transition-all duration-200 cursor-pointer shadow-soft hover:shadow-medium disabled:opacity-50 disabled:cursor-not-allowed dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600;
-        }
-        
-        .btn-outline {
-            @apply border-2 border-primary-500 text-primary-500 px-6 py-2 rounded-lg font-medium hover:bg-primary-50 active:bg-primary-100 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed dark:border-primary-400 dark:text-primary-400 dark:hover:bg-primary-900/30;
-        }
-        
-        .btn-danger {
-            @apply bg-red-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-red-600 active:bg-red-700 transition-all duration-200 cursor-pointer shadow-soft hover:shadow-medium disabled:opacity-50 disabled:cursor-not-allowed dark:bg-red-600 dark:hover:bg-red-700;
-        }
-        
-        .btn-success {
-            @apply bg-green-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-green-600 active:bg-green-700 transition-all duration-200 cursor-pointer shadow-soft hover:shadow-medium disabled:opacity-50 disabled:cursor-not-allowed dark:bg-green-600 dark:hover:bg-green-700;
-        }
-        
-        /* Form input styles */
-        .form-input {
-            @apply w-full px-4 py-2 border-2 border-border-light rounded-lg focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all duration-200 text-dark-text placeholder-gray-400 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200 dark:placeholder-slate-400 dark:focus:border-primary-400 dark:focus:ring-primary-800;
-        }
-        
-        .form-input:disabled {
-            @apply bg-gray-100 cursor-not-allowed opacity-60 dark:bg-slate-900;
-        }
-        
-        .form-label {
-            @apply block text-sm font-medium text-dark-text mb-2 dark:text-slate-300;
-        }
-        
-        .form-error {
-            @apply text-red-500 text-sm mt-1 dark:text-red-400;
-        }
-        
-        .form-help {
-            @apply text-gray-500 text-xs mt-1 dark:text-slate-400;
-        }
-        
-        /* Card styles */
-        .card {
-            @apply bg-white rounded-xl shadow-soft hover:shadow-medium transition-all duration-200 border border-border-light dark:bg-slate-800 dark:border-slate-700;
-        }
-        
-        .card-header {
-            @apply px-6 py-4 border-b border-border-light dark:border-slate-700;
-        }
-        
-        .card-body {
-            @apply px-6 py-4;
-        }
-        
-        .card-footer {
-            @apply px-6 py-4 border-t border-border-light bg-light-bg rounded-b-xl dark:bg-slate-900 dark:border-slate-700;
-        }
-        
-        /* Alert styles */
-        .alert {
-            @apply px-4 py-3 rounded-lg border-l-4 flex items-start gap-3;
-        }
-        
-        .alert-success {
-            @apply bg-green-50 border-l-green-500 text-green-800 dark:bg-green-900/20 dark:text-green-300;
-        }
-        
-        .alert-error {
-            @apply bg-red-50 border-l-red-500 text-red-800 dark:bg-red-900/20 dark:text-red-300;
-        }
-        
-        .alert-warning {
-            @apply bg-yellow-50 border-l-yellow-500 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300;
-        }
-        
-        .alert-info {
-            @apply bg-primary-50 border-l-primary-500 text-primary-800 dark:bg-primary-900/20 dark:text-primary-300;
-        }
-        
-        /* Badge styles */
-        .badge {
-            @apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium;
-        }
-        
-        .badge-primary {
-            @apply bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300;
-        }
-        
-        .badge-success {
-            @apply bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300;
-        }
-        
-        .badge-warning {
-            @apply bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300;
-        }
-        
-        .badge-danger {
-            @apply bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300;
-        }
-        
-        /* Dark Mode Toggle Animation [web:232] */
-        #theme-toggle-icon {
-            transition: transform 0.5s ease, opacity 0.3s ease;
-        }
-        
-        /* Loading spinner */
-        .spinner {
-            @apply inline-block animate-spin;
-        }
-        
-        /* Animations */
-        @keyframes slideInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-        
-        .animate-slide-in-down {
-            animation: slideInDown 0.3s ease-out;
-        }
-        
-        .animate-slide-in-up {
-            animation: slideInUp 0.3s ease-out;
-        }
-        
-        .animate-fade-in {
-            animation: fadeIn 0.3s ease-out;
-        }
-        
-        /* Responsive helpers */
-        @media (max-width: 640px) {
-            .hide-mobile { display: none; }
-        }
-        
-        @media (min-width: 641px) {
-            .show-mobile { display: none; }
-        }
-        
-        /* Link styles */
-        a {
-            @apply text-primary-500 hover:text-primary-600 transition-colors duration-200 dark:text-primary-400 dark:hover:text-primary-300;
-        }
-        
-        a.no-link {
-            @apply text-inherit hover:text-inherit no-underline;
-        }
-    </style>
-    
-    {% block extra_css %}{% endblock %}
-</head>
-<body class="bg-light-bg text-dark-text dark:bg-slate-900 dark:text-slate-200">
-    <!-- Navigation Bar -->
-    <nav class="bg-white dark:bg-slate-800 shadow-soft sticky top-0 z-50 border-b border-border-light dark:border-slate-700">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <!-- Logo/Brand -->
-                <div class="flex items-center gap-3">
-                    <!-- Logo Lab -->
-                    <img src="{{ MEDIA_URL }}logo/logo_lab.png" 
-                        alt="Logo Lab Psikologi" 
-                        class="w-12 h-12 object-contain">
-                    
-                    <div class="hidden md:block">
-                        <h1 class="text-lg font-bold text-primary-500 dark:text-primary-400">Lab Psikologi</h1>
-                        <p class="text-xs text-gray-500 dark:text-slate-400">UMKT SAMARINDA</p>
-                    </div>
-                </div>
+            secondary: {
+              50:  '#faf9f7', 100: '#f5f3ef', 200: '#ebe7df',
+              300: '#e1dbcf', 400: '#d1c5af', 500: '#c1af8f',
+              600: '#a39973', 700: '#856f5c', 800: '#674f45', 900: '#49352e',
+            },
+            'light-bg':    '#F8F8F8',
+            'dark-text':   '#1f2937',
+            'border-light':'#e5e7eb',
+          },
+          fontFamily: {
+            sans: ['Inter', 'Poppins', 'Segoe UI', 'sans-serif'],
+          },
+          boxShadow: {
+            soft:   '0 1px 3px 0 rgba(13,147,177,0.10)',
+            medium: '0 4px 6px -1px rgba(13,147,177,0.10)',
+            hard:   '0 10px 15px -3px rgba(13,147,177,0.20)',
+          },
+        },
+      },
+    }
+  </script>
 
-                
-                <!-- Navigation Links (Desktop) -->
-                <div class="hidden md:flex items-center gap-8">
-                    <a href="/" class="text-gray-600 dark:text-slate-300 hover:text-primary-500 dark:hover:text-primary-400 transition-colors duration-200 flex items-center gap-2">
-                        <span class="material-icons-outlined text-sm">home</span>
-                        <span>Beranda</span>
-                    </a>
-                    <a href="/peminjaman/" class="text-gray-600 dark:text-slate-300 hover:text-primary-500 dark:hover:text-primary-400 transition-colors duration-200 flex items-center gap-2">
-                        <span class="material-icons-outlined text-sm">event_available</span>
-                        <span>Peminjaman</span>
-                    </a>
-                    <a href="/praktikum/" class="text-gray-600 dark:text-slate-300 hover:text-primary-500 dark:hover:text-primary-400 transition-colors duration-200 flex items-center gap-2">
-                        <span class="material-icons-outlined text-sm">school</span>
-                        <span>Praktikum</span>
-                    </a>
-                    <a href="/profile/" class="text-gray-600 dark:text-slate-300 hover:text-primary-500 dark:hover:text-primary-400 transition-colors duration-200 flex items-center gap-2">
-                        <span class="material-icons-outlined text-sm">person</span>
-                        <span>Profil</span>
-                    </a>
-                </div>
-                
-                <!-- Action Buttons -->
-                <div class="flex items-center gap-3">
-                    <!-- Dark Mode Toggle Button [web:226][web:230] -->
-                    <button onclick="toggleTheme()" class="p-2 text-gray-600 dark:text-slate-300 hover:text-primary-500 dark:hover:text-primary-400 hover:bg-light-bg dark:hover:bg-slate-700 rounded-lg transition-all duration-200" id="theme-toggle" title="Toggle Dark Mode">
-                        <span class="material-icons text-xl" id="theme-toggle-icon">
-                            light_mode
-                        </span>
-                    </button>
-                    
-                    <!-- Notifications (if logged in) -->
-                    {% if user.is_authenticated %}
-                    <button class="relative p-2 text-gray-600 dark:text-slate-300 hover:text-primary-500 dark:hover:text-primary-400 hover:bg-light-bg dark:hover:bg-slate-700 rounded-lg transition-all duration-200" id="notification-btn">
-                        <span class="material-icons-outlined">notifications</span>
-                        <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                    </button>
-                    {% endif %}
-                    
-                    <!-- User Menu / Login Button -->
-                    <div class="relative" id="user-menu">
-                        {% if user.is_authenticated %}
-                        <button class="flex items-center gap-2 p-2 hover:bg-light-bg dark:hover:bg-slate-700 rounded-lg transition-all duration-200" id="user-menu-btn">
-                            <img src="{% if user.avatar %}{{ user.avatar.url }}{% else %}https://ui-avatars.com/api/?name={{ user.get_full_name }}&background=0D93B1&color=fff{% endif %}" 
-                                 alt="{{ user.get_full_name }}" 
-                                 class="w-8 h-8 rounded-full object-cover ring-2 ring-primary-500 dark:ring-primary-400">
-                            <span class="hidden sm:inline text-sm font-medium text-dark-text dark:text-slate-200">{{ user.first_name }}</span>
-                            <span class="material-icons text-gray-600 dark:text-slate-400 text-sm">expand_more</span>
-                        </button>
-                        
-                        <!-- Dropdown Menu -->
-                        <div class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-lg shadow-hard border border-border-light dark:border-slate-700" id="user-menu-dropdown">
-                            <a href="/profile/" class="block px-4 py-2 text-sm text-dark-text dark:text-slate-200 hover:bg-light-bg dark:hover:bg-slate-700 flex items-center gap-2 rounded-t-lg">
-                                <span class="material-icons text-primary-500 dark:text-primary-400 text-sm">person</span>
-                                Profil Saya
-                            </a>
-                            <a href="/profile/" class="block px-4 py-2 text-sm text-dark-text dark:text-slate-200 hover:bg-light-bg dark:hover:bg-slate-700 flex items-center gap-2">
-                                <span class="material-icons text-primary-500 dark:text-primary-400 text-sm">security</span>
-                                Keamanan
-                            </a>
-                            {% if user.role in 'laboran,dosen' %}
-                            <a href="/admin-panel/" class="block px-4 py-2 text-sm text-dark-text dark:text-slate-200 hover:bg-light-bg dark:hover:bg-slate-700 flex items-center gap-2">
-                                <span class="material-icons text-primary-500 dark:text-primary-400 text-sm">admin_panel_settings</span>
-                                Panel Admin
-                            </a>
-                            {% endif %}
-                            <hr class="my-2 border-border-light dark:border-slate-700">
-                            <button onclick="logout()" class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2 rounded-b-lg">
-                                <span class="material-icons text-red-600 dark:text-red-400 text-sm">logout</span>
-                                Logout
-                            </button>
-                        </div>
-                        {% else %}
-                        <div class="flex gap-2">
-                            <a href="/login/" class="btn-outline text-sm flex items-center gap-1">
-                                <span class="material-icons-outlined text-sm">login</span>
-                                <span class="hidden sm:inline">Login</span>
-                            </a>
-                        </div>
-                        {% endif %}
-                    </div>
-                    
-                    <!-- Mobile Menu Toggle -->
-                    <button class="md:hidden p-2 text-gray-600 dark:text-slate-300 hover:text-primary-500 dark:hover:text-primary-400 hover:bg-light-bg dark:hover:bg-slate-700 rounded-lg transition-all duration-200" id="mobile-menu-btn">
-                        <span class="material-icons">menu</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Mobile Navigation -->
-        <div class="hidden md:hidden border-t border-border-light dark:border-slate-700" id="mobile-menu">
-            <div class="px-4 py-4 space-y-2">
-                <a href="/" class="block px-4 py-2 text-gray-600 dark:text-slate-300 hover:bg-light-bg dark:hover:bg-slate-700 hover:text-primary-500 dark:hover:text-primary-400 rounded-lg transition-colors duration-200 flex items-center gap-2">
-                    <span class="material-icons-outlined text-sm">home</span>
-                    <span>Beranda</span>
-                </a>
-                <a href="/peminjaman/" class="block px-4 py-2 text-gray-600 dark:text-slate-300 hover:bg-light-bg dark:hover:bg-slate-700 hover:text-primary-500 dark:hover:text-primary-400 rounded-lg transition-colors duration-200 flex items-center gap-2">
-                    <span class="material-icons-outlined text-sm">event_available</span>
-                    <span>Peminjaman</span>
-                </a>
-                <a href="/praktikum/" class="block px-4 py-2 text-gray-600 dark:text-slate-300 hover:bg-light-bg dark:hover:bg-slate-700 hover:text-primary-500 dark:hover:text-primary-400 rounded-lg transition-colors duration-200 flex items-center gap-2">
-                    <span class="material-icons-outlined text-sm">school</span>
-                    <span>Praktikum</span>
-                </a>
-                <a href="/profile/" class="block px-4 py-2 text-gray-600 dark:text-slate-300 hover:bg-light-bg dark:hover:bg-slate-700 hover:text-primary-500 dark:hover:text-primary-400 rounded-lg transition-colors duration-200 flex items-center gap-2">
-                    <span class="material-icons-outlined text-sm">person</span>
-                    <span>Profil</span>
-                </a>
-            </div>
-        </div>
-    </nav>
-    
-    <!-- Messages/Alerts -->
-    {% if messages %}
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 space-y-2" id="messages-container">
-        {% for message in messages %}
-        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %} animate-slide-in-down">
-            <span class="material-icons text-sm">{% if message.tags == 'success' %}check_circle{% elif message.tags == 'error' %}error{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}</span>
-            <div>
-                <p class="font-medium">{{ message }}</p>
-            </div>
-            <button onclick="this.parentElement.remove()" class="ml-auto p-1 hover:bg-white dark:hover:bg-slate-700 rounded">
-                <span class="material-icons text-sm">close</span>
-            </button>
-        </div>
-        {% endfor %}
+  <!-- Google Fonts & Material Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+
+  <style>
+    * { font-family: 'Inter', 'Poppins', sans-serif; }
+
+    /* Dark mode smooth transition */
+    *, *::before, *::after {
+      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.2s ease;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #0D93B1; border-radius: 3px; }
+    .dark ::-webkit-scrollbar-track { background: #1e293b; }
+    .dark ::-webkit-scrollbar-thumb { background: #0a7a96; }
+
+    /* Material Icons sizing */
+    .material-icons, .material-icons-outlined, .material-icons-round {
+      user-select: none;
+      vertical-align: middle;
+    }
+    .mat-xs  { font-size: 14px !important; }
+    .mat-sm  { font-size: 18px !important; }
+    .mat-md  { font-size: 24px !important; }
+    .mat-lg  { font-size: 32px !important; }
+    .mat-xl  { font-size: 48px !important; }
+
+    /* ===== BUTTON SYSTEM ===== */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 20px; border-radius: 8px; font-size: 14px;
+      font-weight: 500; cursor: pointer; transition: all 0.2s ease;
+      border: 2px solid transparent;
+    }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary   { background:#0D93B1; color:#fff; border-color:#0D93B1; }
+    .btn-primary:hover { background:#0a7a96; border-color:#0a7a96; }
+    .dark .btn-primary { background:#0a7a96; border-color:#0a7a96; }
+    .dark .btn-primary:hover { background:#086078; }
+
+    .btn-secondary { background:#e2e8f0; color:#1f2937; border-color:#e2e8f0; }
+    .btn-secondary:hover { background:#cbd5e1; }
+    .dark .btn-secondary { background:#334155; color:#e2e8f0; border-color:#334155; }
+    .dark .btn-secondary:hover { background:#475569; }
+
+    .btn-outline { background:transparent; color:#0D93B1; border-color:#0D93B1; }
+    .btn-outline:hover { background:#f0f8fb; }
+    .dark .btn-outline { color:#5ebdd4; border-color:#5ebdd4; }
+    .dark .btn-outline:hover { background:#043840; }
+
+    .btn-danger  { background:#ef4444; color:#fff; border-color:#ef4444; }
+    .btn-danger:hover { background:#dc2626; }
+    .btn-success { background:#22c55e; color:#fff; border-color:#22c55e; }
+    .btn-success:hover { background:#16a34a; }
+    .btn-warning { background:#f59e0b; color:#fff; border-color:#f59e0b; }
+    .btn-warning:hover { background:#d97706; }
+
+    .btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 6px; }
+    .btn-lg { padding: 12px 28px; font-size: 16px; border-radius: 10px; }
+
+    /* ===== FORM SYSTEM ===== */
+    .form-input {
+      width: 100%; padding: 9px 14px; border-radius: 8px; font-size: 14px;
+      border: 2px solid #e5e7eb; background: #fff; color: #1f2937;
+      outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-input:focus { border-color: #0D93B1; box-shadow: 0 0 0 3px rgba(13,147,177,0.12); }
+    .form-input:disabled { background: #f1f5f9; cursor: not-allowed; opacity: 0.6; }
+    .form-input::placeholder { color: #9ca3af; }
+    .dark .form-input {
+      background: #1e293b; border-color: #475569; color: #e2e8f0;
+    }
+    .dark .form-input:focus { border-color: #5ebdd4; box-shadow: 0 0 0 3px rgba(94,189,212,0.15); }
+    .dark .form-input::placeholder { color: #64748b; }
+    .dark .form-input:disabled { background: #0f172a; }
+
+    .form-label { display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px; }
+    .dark .form-label { color: #cbd5e1; }
+    .form-error { font-size: 12px; color: #ef4444; margin-top: 4px; }
+    .dark .form-error { color: #fca5a5; }
+    .form-help  { font-size: 11px; color: #6b7280; margin-top: 4px; }
+    .dark .form-help { color: #94a3b8; }
+    .form-group { margin-bottom: 16px; }
+
+    /* ===== CARD SYSTEM ===== */
+    .card {
+      background: #fff; border-radius: 12px; border: 1px solid #e5e7eb;
+      box-shadow: 0 1px 3px rgba(13,147,177,0.08); transition: box-shadow 0.2s;
+    }
+    .card:hover { box-shadow: 0 4px 12px rgba(13,147,177,0.12); }
+    .dark .card { background: #1e293b; border-color: #334155; }
+    .card-header { padding: 16px 24px; border-bottom: 1px solid #e5e7eb; }
+    .dark .card-header { border-bottom-color: #334155; }
+    .card-body   { padding: 16px 24px; }
+    .card-footer { padding: 12px 24px; border-top: 1px solid #e5e7eb; background: #f8f8f8; border-radius: 0 0 12px 12px; }
+    .dark .card-footer { border-top-color: #334155; background: #0f172a; }
+
+    /* ===== ALERT SYSTEM ===== */
+    .alert { display:flex; align-items:flex-start; gap:10px; padding:12px 16px; border-radius:10px; border-left:4px solid transparent; font-size:14px; }
+    .alert-success { background:#f0fdf4; border-color:#22c55e; color:#166534; }
+    .alert-error   { background:#fef2f2; border-color:#ef4444; color:#991b1b; }
+    .alert-warning { background:#fffbeb; border-color:#f59e0b; color:#92400e; }
+    .alert-info    { background:#f0f8fb; border-color:#0D93B1; color:#064859; }
+    .dark .alert-success { background:#052e16; color:#86efac; }
+    .dark .alert-error   { background:#450a0a; color:#fca5a5; }
+    .dark .alert-warning { background:#451a03; color:#fcd34d; }
+    .dark .alert-info    { background:#043840; color:#a2d5e7; }
+
+    /* ===== BADGE SYSTEM ===== */
+    .badge { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:600; }
+    .badge-primary { background:#e0f1f7; color:#086078; }
+    .badge-success { background:#dcfce7; color:#166534; }
+    .badge-warning { background:#fef9c3; color:#92400e; }
+    .badge-danger  { background:#fee2e2; color:#991b1b; }
+    .badge-info    { background:#dbeafe; color:#1e40af; }
+    .badge-gray    { background:#f1f5f9; color:#475569; }
+    .dark .badge-primary { background:#043840; color:#a2d5e7; }
+    .dark .badge-success { background:#052e16; color:#86efac; }
+    .dark .badge-warning { background:#451a03; color:#fcd34d; }
+    .dark .badge-danger  { background:#450a0a; color:#fca5a5; }
+    .dark .badge-info    { background:#1e3a5f; color:#93c5fd; }
+    .dark .badge-gray    { background:#1e293b; color:#94a3b8; }
+
+    /* ===== NOTIFICATION DROPDOWN ===== */
+    #notif-dropdown {
+      max-height: 460px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+    .notif-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 12px 16px; border-bottom: 1px solid #f1f5f9;
+      transition: background 0.15s; cursor: pointer; text-decoration: none;
+    }
+    .notif-item:last-child { border-bottom: none; }
+    .notif-item:hover { background: #f0f8fb; }
+    .dark .notif-item { border-bottom-color: #1e293b; color: #e2e8f0; }
+    .dark .notif-item:hover { background: #0a3a45; }
+    .notif-item.unread { background: #f0f8fb; }
+    .dark .notif-item.unread { background: #0a2535; }
+    .notif-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      margin-top: 5px; flex-shrink: 0;
+    }
+    .notif-dot-blue   { background: #3b82f6; }
+    .notif-dot-yellow { background: #f59e0b; }
+    .notif-dot-red    { background: #ef4444; }
+    .notif-dot-green  { background: #22c55e; }
+    .notif-dot-purple { background: #8b5cf6; }
+    .notif-dot-gray   { background: #9ca3af; }
+
+    /* ===== DROPDOWN MENU ===== */
+    .dropdown-menu {
+      position: absolute; right: 0; top: calc(100% + 8px);
+      background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.12); z-index: 100;
+      animation: dropdownIn 0.18s ease;
+    }
+    .dark .dropdown-menu { background: #1e293b; border-color: #334155; }
+    @keyframes dropdownIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== LOADING OVERLAY ===== */
+    #loading-overlay {
+      position: fixed; inset: 0; background: rgba(255,255,255,0.85);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999; backdrop-filter: blur(4px);
+    }
+    .dark #loading-overlay { background: rgba(15,23,42,0.85); }
+    #loading-overlay.hidden { display: none; }
+    .spinner-ring {
+      width: 44px; height: 44px; border: 4px solid #e0f1f7;
+      border-top-color: #0D93B1; border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== TOAST ===== */
+    #toast-container {
+      position: fixed; bottom: 24px; right: 24px;
+      z-index: 9998; display: flex; flex-direction: column; gap: 10px;
+    }
+    .toast {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 14px 18px; border-radius: 10px; min-width: 280px;
+      max-width: 360px; box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      animation: toastIn 0.3s ease;
+      font-size: 13px; font-weight: 500;
+    }
+    @keyframes toastIn {
+      from { opacity:0; transform: translateX(30px); }
+      to   { opacity:1; transform: translateX(0); }
+    }
+    .toast-success { background:#f0fdf4; color:#166534; border-left:4px solid #22c55e; }
+    .toast-error   { background:#fef2f2; color:#991b1b; border-left:4px solid #ef4444; }
+    .toast-warning { background:#fffbeb; color:#92400e; border-left:4px solid #f59e0b; }
+    .toast-info    { background:#f0f8fb; color:#064859; border-left:4px solid #0D93B1; }
+    .dark .toast-success { background:#052e16; color:#86efac; }
+    .dark .toast-error   { background:#450a0a; color:#fca5a5; }
+    .dark .toast-warning { background:#451a03; color:#fcd34d; }
+    .dark .toast-info    { background:#043840; color:#a2d5e7; }
+
+    /* ===== ACTIVE NAV ===== */
+    .nav-link { position: relative; }
+    .nav-link.active { color: #0D93B1 !important; }
+    .dark .nav-link.active { color: #5ebdd4 !important; }
+    .nav-link.active::after {
+      content: ''; position: absolute; bottom: -4px; left: 0; right: 0;
+      height: 2px; background: #0D93B1; border-radius: 2px;
+    }
+    .dark .nav-link.active::after { background: #5ebdd4; }
+
+    /* ===== MOBILE MENU TRANSITION ===== */
+    #mobile-menu {
+      transition: max-height 0.3s ease, opacity 0.3s ease;
+      overflow: hidden;
+    }
+    #mobile-menu.hidden { max-height: 0; opacity: 0; display: block !important; }
+    #mobile-menu.open   { max-height: 600px; opacity: 1; }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes slideDown { from{opacity:0;transform:translateY(-16px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes slideUp   { from{opacity:0;transform:translateY(16px)}  to{opacity:1;transform:translateY(0)} }
+    @keyframes fadeIn    { from{opacity:0} to{opacity:1} }
+    .animate-slide-down { animation: slideDown 0.3s ease; }
+    .animate-slide-up   { animation: slideUp 0.3s ease; }
+    .animate-fade-in    { animation: fadeIn 0.3s ease; }
+
+    @media (max-width: 640px) {
+      .hide-mobile { display: none !important; }
+    }
+    @media (min-width: 641px) {
+      .show-mobile-only { display: none !important; }
+    }
+  </style>
+
+  {% block extra_css %}{% endblock %}
+</head>
+
+<body class="bg-light-bg text-dark-text dark:bg-slate-900 dark:text-slate-200 min-h-screen flex flex-col">
+
+  <!-- ===== LOADING OVERLAY ===== -->
+  <div id="loading-overlay" class="hidden" role="status" aria-label="Memuat...">
+    <div class="text-center space-y-3">
+      <div class="spinner-ring mx-auto"></div>
+      <p class="text-sm text-slate-500 dark:text-slate-400">Memuat...</p>
     </div>
-    {% endif %}
-    
-    <!-- Main Content -->
-    <main class="min-h-screen">
-        {% block content %}{% endblock %}
-    </main>
-    
-    <!-- Footer -->
-    <footer class="bg-white dark:bg-slate-800 border-t border-border-light dark:border-slate-700 mt-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-                <!-- About -->
-                <div>
-                    <h3 class="font-bold text-dark-text dark:text-slate-200 mb-4 flex items-center gap-2">
-                        <img src="{{ MEDIA_URL }}logo/logo_lab.png" 
-                            alt="Logo Lab" 
-                            class="w-8 h-8 object-contain">
-                        Lab Psikologi UMKT
-                    </h3>
-                    <p class="text-sm text-gray-600 dark:text-slate-400">Sistem manajemen peminjaman ruangan dan alat praktikum untuk mendukung pembelajaran efektif.</p>
-                </div>
-                
-                <!-- Quick Links -->
-                <div>
-                    <h4 class="font-semibold text-dark-text dark:text-slate-200 mb-4">Navigasi</h4>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="/" class="text-gray-600 dark:text-slate-400 hover:text-primary-500 dark:hover:text-primary-400">Beranda</a></li>
-                        <li><a href="/peminjaman/" class="text-gray-600 dark:text-slate-400 hover:text-primary-500 dark:hover:text-primary-400">Peminjaman</a></li>
-                        <li><a href="/praktikum/" class="text-gray-600 dark:text-slate-400 hover:text-primary-500 dark:hover:text-primary-400">Praktikum</a></li>
-                        <li><a href="/profile/" class="text-gray-600 dark:text-slate-400 hover:text-primary-500 dark:hover:text-primary-400">Profil</a></li>
-                    </ul>
-                </div>
-                
-                <!-- Support -->
-                <div>
-                    <h4 class="font-semibold text-dark-text dark:text-slate-200 mb-4">Bantuan</h4>
-                    <ul class="space-y-2 text-sm">
-                        <li><a href="#" class="text-gray-600 dark:text-slate-400 hover:text-primary-500 dark:hover:text-primary-400">FAQ</a></li>
-                        <li><a href="#" class="text-gray-600 dark:text-slate-400 hover:text-primary-500 dark:hover:text-primary-400">Dokumentasi</a></li>
-                        <li><a href="#" class="text-gray-600 dark:text-slate-400 hover:text-primary-500 dark:hover:text-primary-400">Hubungi Kami</a></li>
-                        <li><a href="#" class="text-gray-600 dark:text-slate-400 hover:text-primary-500 dark:hover:text-primary-400">Report Bug</a></li>
-                    </ul>
-                </div>
-                
-                <!-- Contact -->
-                <div>
-                    <h4 class="font-semibold text-dark-text dark:text-slate-200 mb-4">Kontak</h4>
-                    <ul class="space-y-2 text-sm text-gray-600 dark:text-slate-400">
-                        <li class="flex items-start gap-2">
-                            <span class="material-icons text-primary-500 dark:text-primary-400 text-sm flex-shrink-0">location_on</span>
-                            <span>Samarinda, Kalimantan Timur</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <span class="material-icons text-primary-500 dark:text-primary-400 text-sm flex-shrink-0">email</span>
-                            <span>lab@umkt.ac.id</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <span class="material-icons text-primary-500 dark:text-primary-400 text-sm flex-shrink-0">phone</span>
-                            <span>+62-xxx-xxx-xxxx</span>
-                        </li>
-                    </ul>
-                </div>
+  </div>
+
+  <!-- ===== TOAST CONTAINER ===== -->
+  <div id="toast-container" aria-live="polite"></div>
+
+  <!-- ================================================================== -->
+  <!-- NAVBAR -->
+  <!-- ================================================================== -->
+  <nav class="bg-white dark:bg-slate-800 shadow-soft sticky top-0 z-50 border-b border-border-light dark:border-slate-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16 gap-4">
+
+        <!-- ── LOGO ── -->
+        <a href="/" class="flex items-center gap-3 flex-shrink-0 no-underline hover:opacity-80 transition-opacity">
+          <img src="{{ MEDIA_URL }}logo/logo_lab.png"
+               alt="Logo Lab Psikologi UMKT"
+               class="w-10 h-10 object-contain rounded-lg">
+          <div class="hidden md:block leading-tight">
+            <p class="text-base font-bold text-primary-600 dark:text-primary-400 leading-none">Lab Psikologi</p>
+            <p class="text-[10px] font-medium text-slate-400 dark:text-slate-500 tracking-wider uppercase">UMKT Samarinda</p>
+          </div>
+        </a>
+
+        <!-- ── NAV LINKS (Desktop) ── -->
+        <div class="hidden lg:flex items-center gap-1">
+
+          <!-- Beranda -->
+          <a href="/"
+             class="nav-link flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all no-underline">
+            <span class="material-icons-outlined mat-sm">home</span>
+            Beranda
+          </a>
+
+          <!-- Peminjaman (Dropdown) -->
+          <div class="relative" id="nav-peminjaman">
+            <button onclick="toggleNavDropdown('nav-peminjaman')"
+                    class="nav-link flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all">
+              <span class="material-icons-outlined mat-sm">inventory_2</span>
+              Peminjaman
+              <span class="material-icons mat-xs text-slate-400">expand_more</span>
+            </button>
+            <!-- Dropdown -->
+            <div id="nav-peminjaman-dropdown"
+                 class="dropdown-menu hidden w-52 py-1">
+              <a href="/peminjaman/#ruangan"
+                 class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline">
+                <span class="material-icons-outlined mat-sm text-primary-500">meeting_room</span>
+                Ruangan
+              </a>
+              <a href="/peminjaman/#alat-test"
+                 class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline">
+                <span class="material-icons-outlined mat-sm text-primary-500">biotech</span>
+                Alat Test
+              </a>
+              <hr class="my-1 border-slate-100 dark:border-slate-700">
+              <a href="/peminjaman/#riwayat"
+                 class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline">
+                <span class="material-icons-outlined mat-sm text-slate-400">history</span>
+                Riwayat & Dokumen
+              </a>
             </div>
-            
-            <hr class="border-border-light dark:border-slate-700 mb-8">
-            
-            <!-- Bottom Footer -->
-            <div class="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-600 dark:text-slate-400">
-                <p>&copy; 2024-2026 Lab Psikologi UMKT. Semua hak cipta dilindungi.</p>
-                <div class="flex gap-6">
-                    <a href="#" class="hover:text-primary-500 dark:hover:text-primary-400">Kebijakan Privasi</a>
-                    <a href="#" class="hover:text-primary-500 dark:hover:text-primary-400">Syarat & Ketentuan</a>
-                    <a href="#" class="hover:text-primary-500 dark:hover:text-primary-400">Sitemap</a>
-                </div>
+          </div>
+
+          <!-- Konseling -->
+          <a href="/konseling/"
+             class="nav-link flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all no-underline">
+            <span class="material-icons-outlined mat-sm">psychology</span>
+            Konseling
+          </a>
+
+          <!-- Praktikum (Dropdown) -->
+          <div class="relative" id="nav-praktikum">
+            <button onclick="toggleNavDropdown('nav-praktikum')"
+                    class="nav-link flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all">
+              <span class="material-icons-outlined mat-sm">school</span>
+              Praktikum
+              <span class="material-icons mat-xs text-slate-400">expand_more</span>
+            </button>
+            <div id="nav-praktikum-dropdown"
+                 class="dropdown-menu hidden w-52 py-1">
+              <a href="/praktikum/#jadwal"
+                 class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline">
+                <span class="material-icons-outlined mat-sm text-primary-500">event_note</span>
+                Jadwal Praktikum
+              </a>
+              <a href="/praktikum/#penelitian"
+                 class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline">
+                <span class="material-icons-outlined mat-sm text-primary-500">auto_stories</span>
+                Variabel Penelitian
+              </a>
             </div>
+          </div>
+
+          <!-- Riwayat -->
+          <a href="/riwayat/"
+             class="nav-link flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all no-underline">
+            <span class="material-icons-outlined mat-sm">receipt_long</span>
+            Riwayat
+          </a>
         </div>
-    </footer>
-    
-    <!-- Scripts -->
-    <script>
-        // Dark Mode Toggle Function [web:192][web:228][web:231]
-        function toggleTheme() {
-            const html = document.documentElement;
-            const icon = document.getElementById('theme-toggle-icon');
-            
-            if (html.classList.contains('dark')) {
-                // Switch to light mode
-                html.classList.remove('dark');
-                localStorage.theme = 'light';
-                icon.textContent = 'light_mode';
-                icon.style.transform = 'rotate(180deg)';
-            } else {
-                // Switch to dark mode
-                html.classList.add('dark');
-                localStorage.theme = 'dark';
-                icon.textContent = 'dark_mode';
-                icon.style.transform = 'rotate(0deg)';
-            }
-            
-            // Reset transform after animation
-            setTimeout(() => {
-                icon.style.transform = 'rotate(0deg)';
-            }, 500);
+
+        <!-- ── ACTION BUTTONS (kanan) ── -->
+        <div class="flex items-center gap-1.5">
+
+          <!-- Dark Mode Toggle -->
+          <button onclick="toggleTheme()"
+                  id="theme-toggle"
+                  title="Toggle Dark Mode"
+                  class="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
+            <span class="material-icons mat-md" id="theme-toggle-icon">light_mode</span>
+          </button>
+
+          <!-- ── NOTIFICATION BELL ── -->
+          {% if user.is_authenticated %}
+          <div class="relative" id="notif-wrapper">
+            <button onclick="toggleNotifDropdown()"
+                    id="notif-btn"
+                    title="Notifikasi"
+                    class="relative p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
+              <span class="material-icons-outlined mat-md">notifications</span>
+              <!-- Badge Counter -->
+              <span id="notif-badge"
+                    class="absolute top-1 right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 hidden">
+                0
+              </span>
+            </button>
+
+            <!-- Notification Dropdown -->
+            <div id="notif-dropdown-wrapper"
+                 class="dropdown-menu hidden w-80 sm:w-96"
+                 style="right:0; top:calc(100% + 8px);">
+
+              <!-- Header -->
+              <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-700">
+                <div class="flex items-center gap-2">
+                  <span class="material-icons-outlined mat-sm text-primary-500">notifications_active</span>
+                  <h3 class="font-semibold text-sm text-slate-900 dark:text-slate-100">Notifikasi</h3>
+                  <span id="notif-unread-count"
+                        class="badge badge-danger hidden">0</span>
+                </div>
+                <button onclick="markAllRead()"
+                        class="text-xs font-medium text-primary-600 dark:text-primary-400 hover:underline transition-colors">
+                  Tandai Semua Dibaca
+                </button>
+              </div>
+
+              <!-- Notif List -->
+              <div id="notif-dropdown" class="divide-y divide-slate-50 dark:divide-slate-800">
+                <!-- Populated by JS -->
+                <div id="notif-empty"
+                     class="flex flex-col items-center justify-center py-10 text-slate-400 dark:text-slate-600">
+                  <span class="material-icons-outlined mat-xl mb-2 opacity-40">notifications_none</span>
+                  <p class="text-sm">Tidak ada notifikasi</p>
+                </div>
+              </div>
+
+              <!-- Footer -->
+              <div class="px-4 py-2.5 border-t border-slate-100 dark:border-slate-700 text-center">
+                <a href="/riwayat/#notifikasi"
+                   class="text-xs font-medium text-primary-600 dark:text-primary-400 hover:underline no-underline">
+                  Lihat Semua Notifikasi →
+                </a>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- ── USER MENU ── -->
+          {% if user.is_authenticated %}
+          <div class="relative" id="user-menu">
+            <button onclick="toggleUserMenu()"
+                    id="user-menu-btn"
+                    class="flex items-center gap-2 pl-1 pr-2 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
+              <img src="{% if user.avatar %}{{ user.avatar.url }}{% else %}https://ui-avatars.com/api/?name={{ user.get_full_name|default:user.username }}&background=0D93B1&color=fff&bold=true{% endif %}"
+                   alt="{{ user.get_full_name|default:user.username }}"
+                   class="w-8 h-8 rounded-full object-cover ring-2 ring-primary-500 dark:ring-primary-400 flex-shrink-0">
+              <span class="hidden sm:inline text-sm font-medium text-slate-700 dark:text-slate-200 max-w-[100px] truncate">
+                {{ user.first_name|default:user.username }}
+              </span>
+              <span class="material-icons mat-xs text-slate-400 dark:text-slate-500">expand_more</span>
+            </button>
+
+            <!-- User Dropdown -->
+            <div id="user-dropdown"
+                 class="dropdown-menu hidden w-52 py-1">
+              <!-- User Info -->
+              <div class="px-4 py-3 border-b border-slate-100 dark:border-slate-700">
+                <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
+                  {{ user.get_full_name|default:user.username }}
+                </p>
+                <p class="text-xs text-slate-400 dark:text-slate-500 truncate">{{ user.email }}</p>
+                {% if user.is_umkt %}
+                <span class="badge badge-primary mt-1">Mahasiswa UMKT</span>
+                {% else %}
+                <span class="badge badge-gray mt-1">Non-UMKT</span>
+                {% endif %}
+              </div>
+              <!-- Links -->
+              <a href="/profile/"
+                 class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-colors no-underline">
+                <span class="material-icons-outlined mat-sm text-primary-500">manage_accounts</span>
+                Profil Saya
+              </a>
+              <a href="/profile/#keamanan"
+                 class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-colors no-underline">
+                <span class="material-icons-outlined mat-sm text-primary-500">security</span>
+                Keamanan
+              </a>
+              <a href="/riwayat/"
+                 class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-colors no-underline">
+                <span class="material-icons-outlined mat-sm text-primary-500">receipt_long</span>
+                Riwayat Saya
+              </a>
+              {% if user.is_staff %}
+              <a href="/admin-panel/"
+                 class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-colors no-underline">
+                <span class="material-icons-outlined mat-sm text-orange-500">admin_panel_settings</span>
+                Panel Admin
+              </a>
+              {% endif %}
+              <hr class="my-1 border-slate-100 dark:border-slate-700">
+              <button onclick="logout()"
+                      class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors rounded-b-xl">
+                <span class="material-icons-outlined mat-sm">logout</span>
+                Logout
+              </button>
+            </div>
+          </div>
+
+          {% else %}
+          <!-- Guest: Login button -->
+          <a href="/login/" class="btn btn-outline btn-sm no-underline">
+            <span class="material-icons-outlined mat-sm">login</span>
+            <span class="hidden sm:inline">Masuk</span>
+          </a>
+          <a href="/register/" class="btn btn-primary btn-sm no-underline">
+            <span class="material-icons-outlined mat-sm">person_add</span>
+            <span class="hidden sm:inline">Daftar</span>
+          </a>
+          {% endif %}
+
+          <!-- Mobile Menu Toggle -->
+          <button id="mobile-menu-btn"
+                  onclick="toggleMobileMenu()"
+                  class="lg:hidden p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
+                  aria-label="Toggle menu">
+            <span class="material-icons mat-md" id="hamburger-icon">menu</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MOBILE MENU ── -->
+    <div id="mobile-menu"
+         class="hidden border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800">
+      <div class="px-4 py-3 space-y-1">
+        <a href="/"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline">
+          <span class="material-icons-outlined mat-sm">home</span>Beranda
+        </a>
+
+        <!-- Peminjaman accordion mobile -->
+        <div>
+          <button onclick="toggleMobileAccordion('mob-peminjaman')"
+                  class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+            <span class="flex items-center gap-3">
+              <span class="material-icons-outlined mat-sm">inventory_2</span>Peminjaman
+            </span>
+            <span class="material-icons mat-xs text-slate-400">expand_more</span>
+          </button>
+          <div id="mob-peminjaman" class="hidden pl-10 py-1 space-y-1">
+            <a href="/peminjaman/#ruangan"   class="block py-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-primary-600 transition-colors no-underline">🏠 Ruangan</a>
+            <a href="/peminjaman/#alat-test" class="block py-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-primary-600 transition-colors no-underline">🔬 Alat Test</a>
+            <a href="/peminjaman/#riwayat"   class="block py-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-primary-600 transition-colors no-underline">📋 Riwayat & Dokumen</a>
+          </div>
+        </div>
+
+        <a href="/konseling/"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline">
+          <span class="material-icons-outlined mat-sm">psychology</span>Konseling
+        </a>
+
+        <!-- Praktikum accordion mobile -->
+        <div>
+          <button onclick="toggleMobileAccordion('mob-praktikum')"
+                  class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+            <span class="flex items-center gap-3">
+              <span class="material-icons-outlined mat-sm">school</span>Praktikum
+            </span>
+            <span class="material-icons mat-xs text-slate-400">expand_more</span>
+          </button>
+          <div id="mob-praktikum" class="hidden pl-10 py-1 space-y-1">
+            <a href="/praktikum/#jadwal"     class="block py-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-primary-600 transition-colors no-underline">📅 Jadwal Praktikum</a>
+            <a href="/praktikum/#penelitian" class="block py-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-primary-600 transition-colors no-underline">📚 Variabel Penelitian</a>
+          </div>
+        </div>
+
+        <a href="/riwayat/"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline">
+          <span class="material-icons-outlined mat-sm">receipt_long</span>Riwayat
+        </a>
+
+        {% if user.is_authenticated %}
+        <hr class="border-slate-100 dark:border-slate-700 my-2">
+        <a href="/profile/"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors no-underline">
+          <span class="material-icons-outlined mat-sm">manage_accounts</span>Profil Saya
+        </a>
+        <button onclick="logout()"
+                class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+          <span class="material-icons-outlined mat-sm">logout</span>Logout
+        </button>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <!-- ================================================================== -->
+  <!-- DJANGO MESSAGES -->
+  <!-- ================================================================== -->
+  {% if messages %}
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 space-y-2" id="messages-container">
+    {% for message in messages %}
+    <div class="alert animate-slide-down
+      {% if 'success' in message.tags %}alert-success
+      {% elif 'error' in message.tags %}alert-error
+      {% elif 'warning' in message.tags %}alert-warning
+      {% else %}alert-info{% endif %}">
+      <span class="material-icons mat-sm flex-shrink-0">
+        {% if 'success' in message.tags %}check_circle
+        {% elif 'error' in message.tags %}error
+        {% elif 'warning' in message.tags %}warning
+        {% else %}info{% endif %}
+      </span>
+      <p class="flex-1 text-sm font-medium">{{ message }}</p>
+      <button onclick="this.closest('.alert').remove()"
+              class="flex-shrink-0 p-0.5 rounded hover:bg-black/5 transition-colors">
+        <span class="material-icons mat-sm">close</span>
+      </button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- ================================================================== -->
+  <!-- MAIN CONTENT -->
+  <!-- ================================================================== -->
+  <main class="flex-1">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ================================================================== -->
+  <!-- FOOTER -->
+  <!-- ================================================================== -->
+  <footer class="bg-white dark:bg-slate-800 border-t border-border-light dark:border-slate-700 mt-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
+
+        <!-- Brand -->
+        <div class="lg:col-span-1">
+          <div class="flex items-center gap-2.5 mb-3">
+            <img src="{{ MEDIA_URL }}logo/logo_lab.png"
+                 alt="Logo Lab Psikologi UMKT"
+                 class="w-10 h-10 object-contain rounded-lg">
+            <div>
+              <p class="font-bold text-slate-800 dark:text-slate-100 leading-none text-sm">Lab Psikologi</p>
+              <p class="text-[10px] text-slate-400 tracking-wider">UMKT SAMARINDA</p>
+            </div>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+            Sistem terpadu manajemen peminjaman, konseling psikologi, praktikum, dan penelitian Lab Psikologi UMKT.
+          </p>
+          <!-- WhatsApp Admin -->
+          <a href="https://wa.me/6288571911579"
+             target="_blank" rel="noopener noreferrer"
+             class="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold px-4 py-2 rounded-full transition-colors no-underline shadow-sm">
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+            </svg>
+            Chat Admin (Desti)
+          </a>
+        </div>
+
+        <!-- Quick Links -->
+        <div>
+          <h4 class="font-semibold text-sm text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-1.5">
+            <span class="material-icons-outlined mat-sm text-primary-500">link</span>
+            Navigasi
+          </h4>
+          <ul class="space-y-2 text-xs text-slate-500 dark:text-slate-400">
+            <li><a href="/"            class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline flex items-center gap-1.5"><span class="material-icons-outlined mat-xs">chevron_right</span>Beranda</a></li>
+            <li><a href="/peminjaman/" class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline flex items-center gap-1.5"><span class="material-icons-outlined mat-xs">chevron_right</span>Peminjaman</a></li>
+            <li><a href="/konseling/"  class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline flex items-center gap-1.5"><span class="material-icons-outlined mat-xs">chevron_right</span>Konseling</a></li>
+            <li><a href="/praktikum/"  class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline flex items-center gap-1.5"><span class="material-icons-outlined mat-xs">chevron_right</span>Praktikum</a></li>
+            <li><a href="/riwayat/"   class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline flex items-center gap-1.5"><span class="material-icons-outlined mat-xs">chevron_right</span>Riwayat</a></li>
+          </ul>
+        </div>
+
+        <!-- Panduan & SOP -->
+        <div>
+          <h4 class="font-semibold text-sm text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-1.5">
+            <span class="material-icons-outlined mat-sm text-primary-500">help_outline</span>
+            Panduan & Info
+          </h4>
+          <ul class="space-y-2 text-xs text-slate-500 dark:text-slate-400">
+            <li><a href="/panduan/peminjaman/" class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline flex items-center gap-1.5"><span class="material-icons-outlined mat-xs">description</span>Panduan Peminjaman</a></li>
+            <li><a href="/panduan/konseling/"  class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline flex items-center gap-1.5"><span class="material-icons-outlined mat-xs">description</span>SOP Konseling</a></li>
+            <li><a href="/faq/"                class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline flex items-center gap-1.5"><span class="material-icons-outlined mat-xs">quiz</span>FAQ</a></li>
+            <li><a href="/tentang/"            class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline flex items-center gap-1.5"><span class="material-icons-outlined mat-xs">info</span>Tentang Lab</a></li>
+            <li><a href="/kebijakan-privasi/"  class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline flex items-center gap-1.5"><span class="material-icons-outlined mat-xs">policy</span>Kebijakan Privasi</a></li>
+          </ul>
+        </div>
+
+        <!-- Kontak -->
+        <div>
+          <h4 class="font-semibold text-sm text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-1.5">
+            <span class="material-icons-outlined mat-sm text-primary-500">contacts</span>
+            Kontak
+          </h4>
+          <ul class="space-y-3 text-xs text-slate-500 dark:text-slate-400">
+            <li class="flex items-start gap-2">
+              <span class="material-icons-outlined mat-sm text-primary-500 flex-shrink-0 mt-0.5">location_on</span>
+              <span>Jl. Ir. H. Juanda No. 15, Samarinda, Kalimantan Timur 75124</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="material-icons-outlined mat-sm text-primary-500 flex-shrink-0">email</span>
+              <a href="mailto:psikologi@umkt.ac.id"
+                 class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline">
+                psikologi@umkt.ac.id
+              </a>
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="material-icons-outlined mat-sm text-primary-500 flex-shrink-0">phone</span>
+              <a href="tel:+625411234567"
+                 class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline">
+                (0541) 123-4567
+              </a>
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="material-icons-outlined mat-sm text-emerald-500 flex-shrink-0">chat</span>
+              <a href="https://wa.me/6288571911579"
+                 target="_blank" rel="noopener noreferrer"
+                 class="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors no-underline">
+                +62 857-1911-1579 (Desti)
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Bottom Bar -->
+      <div class="border-t border-slate-100 dark:border-slate-700 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400 dark:text-slate-500">
+        <p>© 2026 Lab Psikologi UMKT. Semua hak cipta dilindungi.</p>
+        <div class="flex items-center gap-4">
+          <a href="/syarat-ketentuan/"  class="hover:text-primary-500 transition-colors no-underline">Syarat & Ketentuan</a>
+          <a href="/kebijakan-privasi/" class="hover:text-primary-500 transition-colors no-underline">Kebijakan Privasi</a>
+          <span class="flex items-center gap-1">
+            <span class="material-icons-outlined mat-xs">favorite</span>
+            Made for UMKT
+          </span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ================================================================== -->
+  <!-- GLOBAL SCRIPTS -->
+  <!-- ================================================================== -->
+  <script>
+    // ── CSRF TOKEN HELPER ──
+    function getCsrfToken() {
+      return document.querySelector('[name=csrfmiddlewaretoken]')?.value
+          || document.cookie.split('; ').find(r => r.startsWith('csrftoken='))?.split('=')[1]
+          || '';
+    }
+
+    // ================================================================
+    // DARK MODE
+    // ================================================================
+    function toggleTheme() {
+      const html = document.documentElement;
+      const icon = document.getElementById('theme-toggle-icon');
+      const isDark = html.classList.toggle('dark');
+      localStorage.theme = isDark ? 'dark' : 'light';
+      icon.textContent = isDark ? 'dark_mode' : 'light_mode';
+      icon.style.transform = 'rotate(360deg)';
+      setTimeout(() => { icon.style.transform = 'rotate(0deg)'; }, 400);
+    }
+
+    // Init icon on load
+    document.addEventListener('DOMContentLoaded', () => {
+      const icon = document.getElementById('theme-toggle-icon');
+      if (icon) {
+        icon.textContent = document.documentElement.classList.contains('dark') ? 'dark_mode' : 'light_mode';
+      }
+    });
+
+    // ================================================================
+    // MOBILE MENU
+    // ================================================================
+    let mobileOpen = false;
+    function toggleMobileMenu() {
+      mobileOpen = !mobileOpen;
+      const menu = document.getElementById('mobile-menu');
+      const icon = document.getElementById('hamburger-icon');
+      if (mobileOpen) {
+        menu.classList.remove('hidden');
+        menu.classList.add('open');
+        icon.textContent = 'close';
+      } else {
+        menu.classList.remove('open');
+        menu.classList.add('hidden');
+        icon.textContent = 'menu';
+      }
+    }
+
+    function toggleMobileAccordion(id) {
+      const el = document.getElementById(id);
+      el.classList.toggle('hidden');
+    }
+
+    // ================================================================
+    // NAV DROPDOWN (desktop)
+    // ================================================================
+    function toggleNavDropdown(wrapperId) {
+      const dropdownId = wrapperId + '-dropdown';
+      const dropdown   = document.getElementById(dropdownId);
+      const isHidden   = dropdown.classList.contains('hidden');
+
+      // close all
+      document.querySelectorAll('[id$="-dropdown"]').forEach(d => {
+        if (!d.id.includes('notif') && !d.id.includes('user')) {
+          d.classList.add('hidden');
         }
-        
-        // Initialize theme icon on page load
-        window.addEventListener('DOMContentLoaded', () => {
-            const icon = document.getElementById('theme-toggle-icon');
-            if (document.documentElement.classList.contains('dark')) {
-                icon.textContent = 'dark_mode';
-            } else {
-                icon.textContent = 'light_mode';
-            }
-        });
-        
-        // Mobile menu toggle
-        document.getElementById('mobile-menu-btn')?.addEventListener('click', function() {
-            const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
-        });
-        
-        // User menu toggle
-        document.getElementById('user-menu-btn')?.addEventListener('click', function() {
-            const dropdown = document.getElementById('user-menu-dropdown');
-            dropdown.classList.toggle('hidden');
-        });
-        
-        // Close user menu when clicking outside
-        document.addEventListener('click', function(event) {
-            const userMenu = document.getElementById('user-menu');
-            if (userMenu && !userMenu.contains(event.target)) {
-                document.getElementById('user-menu-dropdown')?.classList.add('hidden');
-            }
-        });
-        
-        // Logout function
-        function logout() {
-            if (confirm('Apakah Anda yakin ingin logout?')) {
-                fetch('/api/accounts/logout/', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '',
-                        'Content-Type': 'application/json',
-                    }
-                }).then(response => {
-                    if (response.ok) {
-                        window.location.href = '/login/';
-                    }
-                });
-            }
+      });
+      if (isHidden) dropdown.classList.remove('hidden');
+    }
+
+    // ================================================================
+    // USER MENU DROPDOWN
+    // ================================================================
+    function toggleUserMenu() {
+      document.getElementById('user-dropdown')?.classList.toggle('hidden');
+      document.getElementById('notif-dropdown-wrapper')?.classList.add('hidden');
+    }
+
+    // ================================================================
+    // NOTIFICATION SYSTEM
+    // ================================================================
+
+    // Dummy data — replace with API response structure
+    let notifications = [];
+    let unreadCount   = 0;
+
+    const NOTIF_CONFIG = {
+      reminder:   { icon: 'alarm',            dotClass: 'notif-dot-yellow', label: 'Reminder',   labelClass: 'badge-warning' },
+      approval:   { icon: 'check_circle',     dotClass: 'notif-dot-green',  label: 'Approval',   labelClass: 'badge-success' },
+      denda:      { icon: 'warning',          dotClass: 'notif-dot-red',    label: 'Denda',      labelClass: 'badge-danger'  },
+      konseling:  { icon: 'psychology',       dotClass: 'notif-dot-blue',   label: 'Konseling',  labelClass: 'badge-info'    },
+      penelitian: { icon: 'auto_stories',     dotClass: 'notif-dot-purple', label: 'Penelitian', labelClass: 'badge-primary' },
+      info:       { icon: 'info',             dotClass: 'notif-dot-gray',   label: 'Info',       labelClass: 'badge-gray'    },
+    };
+
+    function toggleNotifDropdown() {
+      const wrapper = document.getElementById('notif-dropdown-wrapper');
+      const isHidden = wrapper.classList.contains('hidden');
+      // close user dropdown
+      document.getElementById('user-dropdown')?.classList.add('hidden');
+      // close all nav dropdowns
+      document.querySelectorAll('[id$="-dropdown"]').forEach(d => {
+        if (!d.id.includes('notif')) d.classList.add('hidden');
+      });
+      wrapper.classList.toggle('hidden');
+      if (isHidden) fetchNotifications();
+    }
+
+    function buildNotifItem(notif) {
+      const cfg = NOTIF_CONFIG[notif.type] || NOTIF_CONFIG.info;
+      return `
+        <a href="${notif.url || '#'}"
+           class="notif-item ${notif.is_read ? '' : 'unread'}"
+           data-id="${notif.id}"
+           onclick="markRead(${notif.id}, event)">
+          <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700
+                      flex items-center justify-center">
+            <span class="material-icons-outlined mat-sm text-primary-500">${cfg.icon}</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span class="badge ${cfg.labelClass} text-[9px] py-0.5 px-2">${cfg.label}</span>
+              <span class="text-[10px] text-slate-400 dark:text-slate-500">${notif.time_ago}</span>
+            </div>
+            <p class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">${notif.message}</p>
+          </div>
+          <div class="flex-shrink-0">
+            <span class="notif-dot ${cfg.dotClass} ${notif.is_read ? 'opacity-0' : ''}"></span>
+          </div>
+        </a>`;
+    }
+
+    function renderNotifications(data) {
+      const container  = document.getElementById('notif-dropdown');
+      const emptyEl    = document.getElementById('notif-empty');
+      const badge      = document.getElementById('notif-badge');
+      const countBadge = document.getElementById('notif-unread-count');
+
+      if (!data || data.length === 0) {
+        emptyEl.classList.remove('hidden');
+        badge.classList.add('hidden');
+        countBadge.classList.add('hidden');
+        return;
+      }
+
+      emptyEl.classList.add('hidden');
+      const unread = data.filter(n => !n.is_read).length;
+      unreadCount  = unread;
+
+      // Badge counter
+      if (unread > 0) {
+        badge.textContent = unread > 99 ? '99+' : unread;
+        badge.classList.remove('hidden');
+        countBadge.textContent = unread;
+        countBadge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+        countBadge.classList.add('hidden');
+      }
+
+      // Render items (max 10)
+      const items = data.slice(0, 10);
+      // Clear existing items (keep empty placeholder)
+      container.querySelectorAll('.notif-item').forEach(el => el.remove());
+      items.forEach(n => {
+        container.insertAdjacentHTML('beforeend', buildNotifItem(n));
+      });
+    }
+
+    function fetchNotifications() {
+      fetch('/api/notifications/', {
+        headers: {
+          'X-CSRFToken': getCsrfToken(),
+          'Accept': 'application/json',
         }
-        
-        // Auto-hide alerts after 5 seconds
-        document.querySelectorAll('#messages-container .alert').forEach(alert => {
-            setTimeout(() => {
-                alert.classList.add('animate-fade-out');
-                setTimeout(() => alert.remove(), 300);
-            }, 5000);
+      })
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .then(data => {
+        notifications = data.results || data;
+        renderNotifications(notifications);
+      })
+      .catch(() => {
+        // Fail silently — tidak mengganggu UX
+      });
+    }
+
+    function markRead(id, event) {
+      // Optimistic UI
+      const item = document.querySelector(`[data-id="${id}"]`);
+      if (item) {
+        item.classList.remove('unread');
+        const dot = item.querySelector('.notif-dot');
+        if (dot) dot.classList.add('opacity-0');
+      }
+      fetch(`/api/notifications/${id}/read/`, {
+        method: 'PATCH',
+        headers: { 'X-CSRFToken': getCsrfToken() }
+      }).catch(() => {});
+    }
+
+    function markAllRead() {
+      document.querySelectorAll('.notif-item').forEach(item => {
+        item.classList.remove('unread');
+        const dot = item.querySelector('.notif-dot');
+        if (dot) dot.classList.add('opacity-0');
+      });
+      const badge = document.getElementById('notif-badge');
+      const countBadge = document.getElementById('notif-unread-count');
+      badge.classList.add('hidden');
+      countBadge.classList.add('hidden');
+
+      fetch('/api/notifications/read-all/', {
+        method: 'PATCH',
+        headers: { 'X-CSRFToken': getCsrfToken() }
+      }).catch(() => {});
+    }
+
+    // Polling setiap 30 detik
+    {% if user.is_authenticated %}
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchNotifications();
+      setInterval(fetchNotifications, 30000);
+    });
+    {% endif %}
+
+    // ================================================================
+    // TOAST NOTIFICATION
+    // ================================================================
+    window.showToast = function(message, type = 'info', duration = 4000) {
+      const icons = {
+        success: 'check_circle', error: 'error',
+        warning: 'warning',      info:  'info',
+      };
+      const container = document.getElementById('toast-container');
+      const id = 'toast-' + Date.now();
+      const html = `
+        <div id="${id}" class="toast toast-${type}">
+          <span class="material-icons-outlined mat-sm flex-shrink-0">${icons[type] || 'info'}</span>
+          <p class="flex-1 text-sm">${message}</p>
+          <button onclick="document.getElementById('${id}').remove()"
+                  class="flex-shrink-0 opacity-60 hover:opacity-100 transition-opacity">
+            <span class="material-icons mat-xs">close</span>
+          </button>
+        </div>`;
+      container.insertAdjacentHTML('beforeend', html);
+      setTimeout(() => {
+        document.getElementById(id)?.remove();
+      }, duration);
+    };
+
+    // ================================================================
+    // LOADING OVERLAY
+    // ================================================================
+    window.showLoading = function(text = 'Memuat...') {
+      const overlay = document.getElementById('loading-overlay');
+      overlay.querySelector('p').textContent = text;
+      overlay.classList.remove('hidden');
+    };
+    window.hideLoading = function() {
+      document.getElementById('loading-overlay').classList.add('hidden');
+    };
+
+    // ================================================================
+    // LOGOUT
+    // ================================================================
+    // JS — lebih simple, tidak perlu fetch
+function logout() {
+    if (!confirm('Apakah Anda yakin ingin logout?')) return;
+
+    // Submit form POST ke /logout/ — paling reliable
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/logout/';
+
+    const csrf = document.createElement('input');
+    csrf.type  = 'hidden';
+    csrf.name  = 'csrfmiddlewaretoken';
+    csrf.value = getCsrfToken();
+
+    form.appendChild(csrf);
+    document.body.appendChild(form);
+    form.submit();
+}
+
+
+    // ================================================================
+    // ACTIVE NAV LINK
+    // ================================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      const path = window.location.pathname;
+      document.querySelectorAll('.nav-link').forEach(link => {
+        const href = link.getAttribute('href');
+        if (href && path.startsWith(href) && href !== '/') {
+          link.classList.add('active');
+        } else if (href === '/' && path === '/') {
+          link.classList.add('active');
+        }
+      });
+    });
+
+    // ================================================================
+    // CLOSE DROPDOWNS ON OUTSIDE CLICK
+    // ================================================================
+    document.addEventListener('click', (e) => {
+      // Nav dropdowns
+      if (!e.target.closest('[id^="nav-"]')) {
+        document.querySelectorAll('[id$="-dropdown"]').forEach(d => {
+          if (!d.id.includes('notif') && !d.id.includes('user')) {
+            d.classList.add('hidden');
+          }
         });
-    </script>
-    
-    {% block extra_js %}{% endblock %}
+      }
+      // Notif dropdown
+      if (!e.target.closest('#notif-wrapper')) {
+        document.getElementById('notif-dropdown-wrapper')?.classList.add('hidden');
+      }
+      // User dropdown
+      if (!e.target.closest('#user-menu')) {
+        document.getElementById('user-dropdown')?.classList.add('hidden');
+      }
+    });
+
+    // ================================================================
+    // AUTO DISMISS DJANGO MESSAGES (5s)
+    // ================================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('#messages-container .alert').forEach(alert => {
+        setTimeout(() => {
+          alert.style.transition = 'opacity 0.4s ease';
+          alert.style.opacity = '0';
+          setTimeout(() => alert.remove(), 400);
+        }, 5000);
+      });
+    });
+  </script>
+
+  {% block extra_js %}{% endblock %}
 </body>
 </html>

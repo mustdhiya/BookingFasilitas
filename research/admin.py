@@ -1,17 +1,25 @@
+# research/admin.py
 from django.contrib import admin
-from .models import ResearchVariable, VariableRequest, GuidanceSession
+from .models import Lecturer, ResearchTitle, ResearchRequest, GuidanceSession
 
-@admin.register(ResearchVariable)
-class ResearchVariableAdmin(admin.ModelAdmin):
-    list_display = ['name', 'field', 'supervisor', 'quota', 'is_active']
-    list_filter = ['field', 'is_active']
+@admin.register(Lecturer)
+class LecturerAdmin(admin.ModelAdmin):
+    list_display  = ('name', 'focus', 'nip', 'active_titles_count', 'is_active')
+    list_filter   = ('focus', 'is_active')
+    search_fields = ('name', 'nip')
 
-@admin.register(VariableRequest)
-class VariableRequestAdmin(admin.ModelAdmin):
-    list_display = ['variable', 'student', 'status', 'created_at']
-    list_filter = ['status', 'created_at']
+@admin.register(ResearchTitle)
+class ResearchTitleAdmin(admin.ModelAdmin):
+    list_display  = ('title', 'lecturer', 'focus', 'quota', 'slots_used', 'is_active')
+    list_filter   = ('focus', 'is_active', 'lecturer')
+    search_fields = ('title', 'lecturer__name')
+
+@admin.register(ResearchRequest)
+class ResearchRequestAdmin(admin.ModelAdmin):
+    list_display  = ('student', 'lecturer', 'thesis_title', 'request_type', 'status')
+    list_filter   = ('status', 'request_type')
+    search_fields = ('student__first_name', 'thesis_title')
 
 @admin.register(GuidanceSession)
 class GuidanceSessionAdmin(admin.ModelAdmin):
-    list_display = ['request', 'date', 'topic']
-    list_filter = ['date']
+    list_display = ('request', 'date', 'topic')

@@ -1,0 +1,1148 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Daftar Akun — Lab Psikologi UMKT{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Step indicator */
+  .step-item { transition: all 0.3s ease; }
+  .step-circle {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; transition: all 0.3s ease;
+    border: 2px solid #e5e7eb; background: #fff; color: #9ca3af;
+  }
+  .dark .step-circle { background: #1e293b; border-color: #334155; color: #64748b; }
+
+  .step-circle.active {
+    background: #0D93B1; border-color: #0D93B1; color: #fff;
+  }
+  .step-circle.done {
+    background: #22c55e; border-color: #22c55e; color: #fff;
+  }
+  .step-label { font-size: 11px; font-weight: 500; color: #9ca3af; transition: color 0.3s; }
+  .dark .step-label { color: #64748b; }
+  .step-item.active .step-label { color: #0D93B1; font-weight: 600; }
+  .dark .step-item.active .step-label { color: #5ebdd4; }
+  .step-item.done .step-label { color: #22c55e; }
+
+  .step-line {
+    flex: 1; height: 2px; background: #e5e7eb; transition: background 0.4s ease; margin: 0 4px;
+  }
+  .dark .step-line { background: #334155; }
+  .step-line.done { background: #22c55e; }
+
+  /* Panel transition */
+  .step-panel { animation: stepIn 0.3s ease; }
+  @keyframes stepIn {
+    from { opacity: 0; transform: translateX(16px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  /* Upload preview */
+  #ktm-preview { transition: all 0.3s ease; }
+
+  /* Password strength bar */
+  .strength-bar { height: 4px; border-radius: 2px; transition: width 0.4s ease, background 0.4s ease; }
+
+  /* File upload drag area */
+  .upload-area {
+    border: 2px dashed #e5e7eb; border-radius: 12px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .upload-area:hover, .upload-area.dragover {
+    border-color: #0D93B1; background: #f0f8fb;
+  }
+  .dark .upload-area { border-color: #334155; }
+  .dark .upload-area:hover, .dark .upload-area.dragover {
+    border-color: #5ebdd4; background: #043840;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-[calc(100vh-80px)] bg-slate-50 dark:bg-slate-900 py-10 px-4">
+  <div class="max-w-2xl mx-auto space-y-6">
+
+    <!-- Header -->
+    <div class="text-center space-y-1">
+      <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Daftar Akun Baru</h1>
+      <p class="text-sm text-slate-500 dark:text-slate-400">
+        Isi form berikut untuk mendaftar. Akun akan diverifikasi admin dalam 2–3 hari kerja.
+      </p>
+    </div>
+
+    <!-- ── STEP INDICATOR ── -->
+    <div class="flex items-center justify-between px-2" id="step-indicator">
+
+      <!-- Step 1 -->
+      <div class="step-item active flex flex-col items-center gap-1.5" id="step-item-1">
+        <div class="step-circle active" id="step-circle-1">1</div>
+        <span class="step-label">Tipe Akun</span>
+      </div>
+      <div class="step-line" id="step-line-1"></div>
+
+      <!-- Step 2 -->
+      <div class="step-item flex flex-col items-center gap-1.5" id="step-item-2">
+        <div class="step-circle" id="step-circle-2">2</div>
+        <span class="step-label">Data Diri</span>
+      </div>
+      <div class="step-line" id="step-line-2"></div>
+
+      <!-- Step 3 -->
+      <div class="step-item flex flex-col items-center gap-1.5" id="step-item-3">
+        <div class="step-circle" id="step-circle-3">3</div>
+        <span class="step-label">Identitas</span>
+      </div>
+      <div class="step-line" id="step-line-3"></div>
+
+      <!-- Step 4 -->
+      <div class="step-item flex flex-col items-center gap-1.5" id="step-item-4">
+        <div class="step-circle" id="step-circle-4">4</div>
+        <span class="step-label">Keamanan</span>
+      </div>
+      <div class="step-line" id="step-line-4"></div>
+
+      <!-- Step 5 -->
+      <div class="step-item flex flex-col items-center gap-1.5" id="step-item-5">
+        <div class="step-circle" id="step-circle-5">5</div>
+        <span class="step-label">Konfirmasi</span>
+      </div>
+
+    </div>
+
+    <!-- Alert Box -->
+    <div id="alert-box" class="hidden alert alert-error text-xs">
+      <span class="material-icons mat-sm flex-shrink-0">error</span>
+      <p id="alert-msg" class="flex-1"></p>
+      <button onclick="this.closest('#alert-box').classList.add('hidden')">
+        <span class="material-icons mat-xs">close</span>
+      </button>
+    </div>
+
+    <!-- ── FORM CARD ── -->
+    <form method="post" action="{% url 'register' %}" enctype="multipart/form-data" id="register-form" novalidate>
+      {% csrf_token %}
+
+      <!-- ============================================================ -->
+      <!-- STEP 1: Tipe Akun                                            -->
+      <!-- ============================================================ -->
+      <div id="panel-1" class="step-panel card p-6 space-y-5">
+
+        <div>
+          <h2 class="text-base font-bold text-slate-900 dark:text-slate-100">Langkah 1 dari 5 — Tipe Akun</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Pilih tipe akun Anda. Harga layanan berbeda berdasarkan tipe.</p>
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-3" id="user-type-grid">
+
+          <!-- UMKT -->
+          <label class="user-type-card cursor-pointer" data-value="umkt">
+            <input type="radio" name="user_type" value="umkt" class="sr-only" required>
+            <div class="card p-4 border-2 border-slate-200 dark:border-slate-700 hover:border-primary-400 dark:hover:border-primary-600 transition-all space-y-2 rounded-xl">
+              <div class="flex items-center justify-between">
+                <div class="w-10 h-10 rounded-xl bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center">
+                  <span class="material-icons-outlined text-xl text-primary-600 dark:text-primary-400">school</span>
+                </div>
+                <div class="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-600 flex items-center justify-center type-radio-indicator">
+                  <div class="w-2.5 h-2.5 rounded-full bg-primary-500 hidden"></div>
+                </div>
+              </div>
+              <div>
+                <h3 class="font-semibold text-sm text-slate-900 dark:text-slate-100">Mahasiswa UMKT</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">Civitas akademika UMKT. Wajib verifikasi KTM. Tarif layanan khusus.</p>
+              </div>
+              <span class="badge badge-primary text-[10px]">Tarif Khusus</span>
+            </div>
+          </label>
+
+          <!-- Non-UMKT / Umum -->
+          <label class="user-type-card cursor-pointer" data-value="non_umkt">
+            <input type="radio" name="user_type" value="non_umkt" class="sr-only">
+            <div class="card p-4 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500 transition-all space-y-2 rounded-xl">
+              <div class="flex items-center justify-between">
+                <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+                  <span class="material-icons-outlined text-xl text-slate-600 dark:text-slate-300">groups</span>
+                </div>
+                <div class="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-600 flex items-center justify-center type-radio-indicator">
+                  <div class="w-2.5 h-2.5 rounded-full bg-primary-500 hidden"></div>
+                </div>
+              </div>
+              <div>
+                <h3 class="font-semibold text-sm text-slate-900 dark:text-slate-100">Umum / Non-UMKT</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">Masyarakat umum, instansi lain, atau mahasiswa universitas lain.</p>
+              </div>
+              <span class="badge badge-gray text-[10px]">Tarif Umum</span>
+            </div>
+          </label>
+
+        </div>
+
+        <!-- Info perbedaan harga -->
+        <div class="card p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+          <div class="flex items-start gap-2">
+            <span class="material-icons-outlined mat-sm text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5">info</span>
+            <p class="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
+              Tipe akun menentukan tarif layanan konseling dan penyewaan alat. Tipe akun tidak dapat diubah sendiri setelah verifikasi — hubungi admin jika perlu perubahan.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex justify-end">
+          <button type="button" onclick="nextStep(1)" class="btn btn-primary">
+            Lanjut <span class="material-icons-outlined mat-sm">arrow_forward</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- STEP 2: Data Diri                                            -->
+      <!-- ============================================================ -->
+      <div id="panel-2" class="step-panel card p-6 space-y-5 hidden">
+
+        <div>
+          <h2 class="text-base font-bold text-slate-900 dark:text-slate-100">Langkah 2 dari 5 — Data Diri</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Isi data diri sesuai identitas resmi Anda.</p>
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-4">
+
+          <!-- Nama Lengkap -->
+          <div class="form-group sm:col-span-2">
+            <label class="form-label" for="full-name">Nama Lengkap <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 material-icons-outlined mat-sm text-slate-400">person</span>
+              <input type="text" id="full-name" name="full_name"
+                     placeholder="Nama lengkap sesuai KTM/KTP"
+                     required class="form-input pl-9">
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="form-group">
+            <label class="form-label" for="email">Email Aktif <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 material-icons-outlined mat-sm text-slate-400">email</span>
+              <input type="email" id="email" name="email"
+                     placeholder="nama@umkt.ac.id"
+                     autocomplete="email"
+                     required class="form-input pl-9">
+            </div>
+            <p class="form-help">Notifikasi approval akan dikirim ke email ini</p>
+          </div>
+
+          <!-- No. WhatsApp -->
+          <div class="form-group">
+            <label class="form-label" for="phone">No. WhatsApp <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 material-icons-outlined mat-sm text-slate-400">phone</span>
+              <input type="tel" id="phone" name="phone"
+                     placeholder="08xx-xxxx-xxxx"
+                     required class="form-input pl-9">
+            </div>
+            <p class="form-help">Admin akan menghubungi via WhatsApp ini</p>
+          </div>
+
+          <!-- NIM (UMKT only) -->
+          <div class="form-group" id="nim-field">
+            <label class="form-label" for="nim">
+              NIM <span class="text-red-500" id="nim-required">*</span>
+              <span class="text-xs font-normal text-slate-400 ml-1" id="nim-optional">(Wajib untuk UMKT)</span>
+            </label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 material-icons-outlined mat-sm text-slate-400">badge</span>
+              <input type="text" id="nim" name="nim"
+                     placeholder="contoh: 2023123456"
+                     class="form-input pl-9">
+            </div>
+          </div>
+
+          <!-- Prodi (UMKT only) -->
+          <div class="form-group" id="prodi-field">
+            <label class="form-label" for="prodi">Program Studi <span class="text-red-500" id="prodi-required">*</span></label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 material-icons-outlined mat-sm text-slate-400">school</span>
+              <select id="prodi" name="prodi" class="form-input pl-9">
+                <option value="">— Pilih Prodi —</option>
+                <option value="psikologi">S1 Psikologi</option>
+                <option value="profesi">Profesi Psikologi</option>
+                <option value="lainnya">Lainnya (UMKT)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Angkatan (UMKT only) -->
+          <div class="form-group" id="angkatan-field">
+            <label class="form-label" for="angkatan">Angkatan <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 material-icons-outlined mat-sm text-slate-400">calendar_today</span>
+              <select id="angkatan" name="angkatan" class="form-input pl-9">
+                <option value="">— Pilih Angkatan —</option>
+                {% for year in angkatan_choices %}
+                <option value="{{ year }}">{{ year }}</option>
+                {% empty %}
+                {% for y in "0123456" %}
+                  {% with yr=2026|add:"-"|add:y %}{% endwith %}
+                {% endfor %}
+                <option value="2026">2026</option>
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+                <option value="2022">2022</option>
+                <option value="2021">2021</option>
+                <option value="2020">2020</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <!-- Instansi (Non-UMKT only, hidden by default) -->
+          <div class="form-group sm:col-span-2 hidden" id="instansi-field">
+            <label class="form-label" for="instansi">Asal Instansi / Universitas</label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 material-icons-outlined mat-sm text-slate-400">business</span>
+              <input type="text" id="instansi" name="instansi"
+                     placeholder="contoh: Universitas Mulawarman / Puskesmas X"
+                     class="form-input pl-9">
+            </div>
+          </div>
+
+        </div>
+
+        <div class="flex justify-between">
+          <button type="button" onclick="prevStep(2)" class="btn btn-secondary">
+            <span class="material-icons-outlined mat-sm">arrow_back</span> Kembali
+          </button>
+          <button type="button" onclick="nextStep(2)" class="btn btn-primary">
+            Lanjut <span class="material-icons-outlined mat-sm">arrow_forward</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- STEP 3: Upload Identitas                                     -->
+      <!-- ============================================================ -->
+      <div id="panel-3" class="step-panel card p-6 space-y-5 hidden">
+
+        <div>
+          <h2 class="text-base font-bold text-slate-900 dark:text-slate-100">Langkah 3 dari 5 — Upload Identitas</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Diperlukan untuk verifikasi tipe akun oleh admin.
+          </p>
+        </div>
+
+        <!-- Upload area -->
+        <div>
+          <label class="form-label" id="upload-label">
+            Foto KTM <span class="text-red-500">*</span>
+            <span class="text-xs font-normal text-slate-400 ml-1" id="upload-type-note">(Mahasiswa UMKT)</span>
+          </label>
+
+          <div id="upload-area"
+               class="upload-area relative p-6 text-center cursor-pointer"
+               onclick="document.getElementById('ktm-file').click()"
+               ondragover="handleDragOver(event)"
+               ondragleave="handleDragLeave(event)"
+               ondrop="handleDrop(event)">
+
+            <!-- Default state -->
+            <div id="upload-placeholder">
+              <span class="material-icons-outlined text-4xl text-slate-300 dark:text-slate-600 mb-2">upload_file</span>
+              <p class="text-sm font-medium text-slate-600 dark:text-slate-400">
+                Klik atau drag & drop file di sini
+              </p>
+              <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                Format: JPG, PNG, PDF · Maks. 5 MB
+              </p>
+            </div>
+
+            <!-- Preview state (hidden by default) -->
+            <div id="upload-preview" class="hidden">
+              <img id="ktm-img-preview"
+                   src="" alt="Preview KTM"
+                   class="max-h-40 mx-auto rounded-lg object-contain shadow-sm mb-2">
+              <p id="ktm-filename" class="text-xs font-medium text-slate-700 dark:text-slate-300"></p>
+              <button type="button"
+                      onclick="clearUpload(event)"
+                      class="mt-2 text-xs text-red-500 hover:text-red-700 dark:hover:text-red-400 transition-colors">
+                <span class="material-icons-outlined mat-xs">delete</span> Hapus & Ganti
+              </button>
+            </div>
+
+          </div>
+
+          <input type="file"
+                 id="ktm-file"
+                 name="ktm_photo"
+                 accept="image/jpeg,image/png,application/pdf"
+                 class="sr-only"
+                 required
+                 onchange="handleFileChange(event)">
+
+          <p class="form-help mt-2">
+            Pastikan foto jelas, tidak buram, dan seluruh identitas terbaca oleh admin.
+          </p>
+        </div>
+
+        <!-- Privacy notice -->
+        <div class="card p-4 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800">
+          <div class="flex items-start gap-2">
+            <span class="material-icons-outlined mat-sm text-primary-600 dark:text-primary-400 flex-shrink-0 mt-0.5">verified_user</span>
+            <div>
+              <p class="text-xs font-semibold text-slate-800 dark:text-slate-200">Keamanan Data Anda</p>
+              <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5 leading-relaxed">
+                Foto identitas hanya digunakan untuk verifikasi tipe akun oleh admin dan tidak dibagikan kepada pihak lain. Sesuai dengan UU Perlindungan Data Pribadi (UU PDP).
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-between">
+          <button type="button" onclick="prevStep(3)" class="btn btn-secondary">
+            <span class="material-icons-outlined mat-sm">arrow_back</span> Kembali
+          </button>
+          <button type="button" onclick="nextStep(3)" class="btn btn-primary">
+            Lanjut <span class="material-icons-outlined mat-sm">arrow_forward</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- STEP 4: Keamanan Akun                                        -->
+      <!-- ============================================================ -->
+      <div id="panel-4" class="step-panel card p-6 space-y-5 hidden">
+
+        <div>
+          <h2 class="text-base font-bold text-slate-900 dark:text-slate-100">Langkah 4 dari 5 — Keamanan Akun</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Buat password yang kuat untuk keamanan akun Anda.</p>
+        </div>
+
+        <div class="space-y-4">
+
+          <!-- Password -->
+          <div class="form-group">
+            <label class="form-label" for="password">Password <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 material-icons-outlined mat-sm text-slate-400">lock</span>
+              <input type="password" id="password" name="password"
+                     placeholder="Minimal 8 karakter"
+                     autocomplete="new-password"
+                     required
+                     oninput="checkPasswordStrength(this.value)"
+                     class="form-input pl-9 pr-10">
+              <button type="button"
+                      onclick="togglePwd('password', 'eye-pwd')"
+                      class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+                <span class="material-icons-outlined mat-sm" id="eye-pwd">visibility_off</span>
+              </button>
+            </div>
+
+            <!-- Strength bar -->
+            <div class="mt-2 space-y-1">
+              <div class="flex gap-1">
+                <div class="h-1 flex-1 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+                  <div id="strength-bar" class="strength-bar h-full w-0 bg-red-500"></div>
+                </div>
+              </div>
+              <p id="strength-label" class="text-[11px] text-slate-400 dark:text-slate-500">
+                Belum diisi
+              </p>
+            </div>
+
+            <!-- Requirements checklist -->
+            <div class="mt-3 space-y-1">
+              <div class="flex items-center gap-1.5 text-[11px]" id="req-length">
+                <span class="material-icons-outlined mat-xs text-slate-300 dark:text-slate-600" id="icon-length">radio_button_unchecked</span>
+                <span class="text-slate-500 dark:text-slate-400">Minimal 8 karakter</span>
+              </div>
+              <div class="flex items-center gap-1.5 text-[11px]" id="req-upper">
+                <span class="material-icons-outlined mat-xs text-slate-300 dark:text-slate-600" id="icon-upper">radio_button_unchecked</span>
+                <span class="text-slate-500 dark:text-slate-400">Mengandung huruf kapital (A–Z)</span>
+              </div>
+              <div class="flex items-center gap-1.5 text-[11px]" id="req-number">
+                <span class="material-icons-outlined mat-xs text-slate-300 dark:text-slate-600" id="icon-number">radio_button_unchecked</span>
+                <span class="text-slate-500 dark:text-slate-400">Mengandung angka (0–9)</span>
+              </div>
+              <div class="flex items-center gap-1.5 text-[11px]" id="req-special">
+                <span class="material-icons-outlined mat-xs text-slate-300 dark:text-slate-600" id="icon-special">radio_button_unchecked</span>
+                <span class="text-slate-500 dark:text-slate-400">Mengandung karakter spesial (!@#$...)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Konfirmasi Password -->
+          <div class="form-group">
+            <label class="form-label" for="password-confirm">Konfirmasi Password <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 material-icons-outlined mat-sm text-slate-400">lock_reset</span>
+              <input type="password" id="password-confirm" name="password_confirm"
+                     placeholder="Ulangi password"
+                     autocomplete="new-password"
+                     required
+                     oninput="checkPasswordMatch()"
+                     class="form-input pl-9 pr-10">
+              <button type="button"
+                      onclick="togglePwd('password-confirm', 'eye-confirm')"
+                      class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+                <span class="material-icons-outlined mat-sm" id="eye-confirm">visibility_off</span>
+              </button>
+            </div>
+            <p id="match-msg" class="form-help mt-1"></p>
+          </div>
+
+        </div>
+
+        <div class="flex justify-between">
+          <button type="button" onclick="prevStep(4)" class="btn btn-secondary">
+            <span class="material-icons-outlined mat-sm">arrow_back</span> Kembali
+          </button>
+          <button type="button" onclick="nextStep(4)" class="btn btn-primary">
+            Lanjut <span class="material-icons-outlined mat-sm">arrow_forward</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- STEP 5: Konfirmasi & Consent                                 -->
+      <!-- ============================================================ -->
+      <div id="panel-5" class="step-panel card p-6 space-y-5 hidden">
+
+        <div>
+          <h2 class="text-base font-bold text-slate-900 dark:text-slate-100">Langkah 5 dari 5 — Konfirmasi</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Periksa kembali data Anda sebelum mendaftar.</p>
+        </div>
+
+        <!-- Summary -->
+        <div class="card bg-slate-50 dark:bg-slate-900/50 p-4 space-y-3">
+          <h3 class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Ringkasan Pendaftaran</h3>
+          <div class="space-y-2">
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-500 dark:text-slate-400">Tipe Akun</span>
+              <span id="summary-type" class="font-semibold text-slate-900 dark:text-slate-100">—</span>
+            </div>
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-500 dark:text-slate-400">Nama Lengkap</span>
+              <span id="summary-name" class="font-semibold text-slate-900 dark:text-slate-100 text-right max-w-[60%] truncate">—</span>
+            </div>
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-500 dark:text-slate-400">Email</span>
+              <span id="summary-email" class="font-semibold text-slate-900 dark:text-slate-100 text-right max-w-[60%] truncate">—</span>
+            </div>
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-500 dark:text-slate-400">No. WhatsApp</span>
+              <span id="summary-phone" class="font-semibold text-slate-900 dark:text-slate-100">—</span>
+            </div>
+            <div class="flex justify-between text-xs" id="summary-nim-row">
+              <span class="text-slate-500 dark:text-slate-400">NIM</span>
+              <span id="summary-nim" class="font-semibold text-slate-900 dark:text-slate-100">—</span>
+            </div>
+            <div class="flex justify-between text-xs">
+              <span class="text-slate-500 dark:text-slate-400">Identitas</span>
+              <span id="summary-ktm" class="font-semibold text-slate-900 dark:text-slate-100">—</span>
+            </div>
+          </div>
+          <button type="button" onclick="goToStep(1)"
+                  class="text-xs text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1 bg-transparent border-none cursor-pointer p-0">
+            <span class="material-icons-outlined mat-xs">edit</span>
+            Edit data
+          </button>
+        </div>
+
+        <!-- Persetujuan -->
+        <div class="space-y-3">
+
+          <label class="flex items-start gap-3 cursor-pointer">
+            <input type="checkbox" id="agree-terms" name="agree_terms" required
+                   class="mt-0.5 rounded border-slate-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500 dark:bg-slate-700">
+            <span class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              Saya menyetujui
+              <a href="/syarat-ketentuan/" target="_blank" class="text-primary-600 dark:text-primary-400 font-semibold hover:underline">Syarat & Ketentuan</a>
+              penggunaan fasilitas Lab Psikologi UMKT
+            </span>
+          </label>
+
+          <label class="flex items-start gap-3 cursor-pointer">
+            <input type="checkbox" id="agree-privacy" name="agree_privacy" required
+                   class="mt-0.5 rounded border-slate-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500 dark:bg-slate-700">
+            <span class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              Saya menyetujui
+              <a href="/kebijakan-privasi/" target="_blank" class="text-primary-600 dark:text-primary-400 font-semibold hover:underline">Kebijakan Privasi</a>
+              dan pemberian data identitas untuk keperluan verifikasi
+            </span>
+          </label>
+
+          <label class="flex items-start gap-3 cursor-pointer">
+            <input type="checkbox" id="agree-sop" name="agree_sop" required
+                   class="mt-0.5 rounded border-slate-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500 dark:bg-slate-700">
+            <span class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              Saya memahami bahwa akun akan melalui proses verifikasi admin selama
+              <strong class="text-slate-700 dark:text-slate-300">2–3 hari kerja</strong>
+              dan saya akan dihubungi via WhatsApp jika ada kendala
+            </span>
+          </label>
+
+        </div>
+
+        <!-- Info setelah daftar -->
+        <div class="card p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">
+          <div class="flex items-start gap-2">
+            <span class="material-icons-outlined mat-sm text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5">info</span>
+            <div class="text-xs text-emerald-800 dark:text-emerald-300 leading-relaxed space-y-0.5">
+              <p class="font-semibold">Setelah mendaftar:</p>
+              <p>1. Admin akan memverifikasi identitas Anda</p>
+              <p>2. Notifikasi status dikirim ke email & WhatsApp</p>
+              <p>3. Setelah diverifikasi, Anda bisa langsung login</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-between">
+          <button type="button" onclick="prevStep(5)" class="btn btn-secondary">
+            <span class="material-icons-outlined mat-sm">arrow_back</span> Kembali
+          </button>
+          <button type="submit" id="btn-submit" class="btn btn-primary">
+            <span class="material-icons-outlined mat-sm">how_to_reg</span>
+            Daftar Sekarang
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- STEP 6: Sukses                                               -->
+      <!-- ============================================================ -->
+      <div id="panel-success" class="step-panel card p-8 text-center space-y-5 hidden">
+
+        <div class="w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto">
+          <span class="material-icons-outlined text-4xl text-emerald-600 dark:text-emerald-400">how_to_reg</span>
+        </div>
+
+        <div>
+          <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100">Pendaftaran Berhasil! 🎉</h2>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 leading-relaxed max-w-sm mx-auto">
+            Akun Anda sedang diproses. Admin akan memverifikasi identitas dan menghubungi Anda dalam <strong>2–3 hari kerja</strong>.
+          </p>
+        </div>
+
+        <div class="card bg-slate-50 dark:bg-slate-900/50 p-4 text-left space-y-2 max-w-xs mx-auto">
+          <div class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+            <span class="material-icons-outlined mat-xs text-primary-500">email</span>
+            Cek email Anda untuk konfirmasi
+          </div>
+          <div class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+            <span class="material-icons-outlined mat-xs text-emerald-500">chat</span>
+            Admin akan WA jika ada kendala
+          </div>
+          <div class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+            <span class="material-icons-outlined mat-xs text-amber-500">schedule</span>
+            Estimasi verifikasi: 2–3 hari kerja
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-2 justify-center">
+          <a href="{% url 'login' %}" class="btn btn-primary no-underline">
+            <span class="material-icons-outlined mat-sm">login</span>
+            Ke Halaman Login
+          </a>
+          <a href="https://wa.me/6288571911579" target="_blank" rel="noopener noreferrer"
+             class="btn btn-success no-underline">
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+            Tanya Admin
+          </a>
+        </div>
+
+      </div>
+
+    </form>
+
+    <!-- Already have account -->
+    <p class="text-center text-xs text-slate-500 dark:text-slate-400 pb-4">
+      Sudah punya akun?
+      <a href="{% url 'login' %}" class="text-primary-600 dark:text-primary-400 font-semibold hover:underline no-underline">
+        Masuk sekarang
+      </a>
+    </p>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // ================================================================
+  // STATE
+  // ================================================================
+  let currentStep = 1;
+  const TOTAL_STEPS = 5;
+  let selectedUserType = '';
+
+  // ================================================================
+  // STEP NAVIGATION
+  // ================================================================
+  function goToStep(step) {
+    for (let i = 1; i <= TOTAL_STEPS; i++) {
+      document.getElementById('panel-' + i)?.classList.add('hidden');
+    }
+    document.getElementById('panel-success')?.classList.add('hidden');
+
+    const panel = document.getElementById('panel-' + step);
+    if (panel) {
+      panel.classList.remove('hidden');
+      panel.classList.add('step-panel');
+      panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    for (let i = 1; i <= TOTAL_STEPS; i++) {
+      const circle = document.getElementById('step-circle-' + i);
+      const item   = document.getElementById('step-item-' + i);
+      const line   = document.getElementById('step-line-' + i);
+      if (!circle) continue;
+
+      if (i < step) {
+        circle.className = 'step-circle done';
+        circle.innerHTML = '<span class="material-icons mat-sm">check</span>';
+        item.classList.add('done');
+        item.classList.remove('active');
+        if (line) line.classList.add('done');
+      } else if (i === step) {
+        circle.className = 'step-circle active';
+        circle.textContent = i;
+        item.classList.add('active');
+        item.classList.remove('done');
+        if (line) line.classList.remove('done');
+      } else {
+        circle.className = 'step-circle';
+        circle.textContent = i;
+        item.classList.remove('active', 'done');
+        if (line) line.classList.remove('done');
+      }
+    }
+
+    currentStep = step;
+    document.getElementById('alert-box')?.classList.add('hidden');
+  }
+
+  function nextStep(from) {
+    if (!validateStep(from)) return;
+    if (from === TOTAL_STEPS) { submitForm(); return; }
+    if (from === TOTAL_STEPS - 1) updateSummary();
+    goToStep(from + 1);
+  }
+
+  function prevStep(from) {
+    goToStep(from - 1);
+  }
+
+  // ================================================================
+  // VALIDATION PER STEP
+  // ================================================================
+  function validateStep(step) {
+    const showErr = (msg) => {
+      const box = document.getElementById('alert-box');
+      document.getElementById('alert-msg').textContent = msg;
+      box.className = 'alert alert-error text-xs';
+      box.classList.remove('hidden');
+      box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      return false;
+    };
+
+    if (step === 1) {
+      if (!selectedUserType) return showErr('Pilih tipe akun terlebih dahulu.');
+    }
+
+    if (step === 2) {
+      const name       = document.getElementById('full-name').value.trim();
+      const email      = document.getElementById('email').value.trim();
+      const phone      = document.getElementById('phone').value.trim();
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (!name)                   return showErr('Nama lengkap wajib diisi.');
+      if (!email)                  return showErr('Email wajib diisi.');
+      if (!emailRegex.test(email)) return showErr('Format email tidak valid.');
+      if (!phone)                  return showErr('Nomor WhatsApp wajib diisi.');
+      if (phone.length < 9)        return showErr('Nomor WhatsApp tidak valid.');
+
+      if (selectedUserType === 'umkt') {
+        const nim = document.getElementById('nim').value.trim();
+        if (!nim) return showErr('NIM wajib diisi untuk mahasiswa UMKT.');
+      }
+    }
+
+    if (step === 3) {
+      const file = document.getElementById('ktm-file').files[0];
+      if (!file) return showErr('Upload foto identitas (KTM/KTP) wajib dilakukan.');
+      if (file.size > 5 * 1024 * 1024) return showErr('Ukuran file maksimal 5 MB.');
+    }
+
+    if (step === 4) {
+      const pwd     = document.getElementById('password').value;
+      const confirm = document.getElementById('password-confirm').value;
+      if (pwd.length < 8)  return showErr('Password minimal 8 karakter.');
+      if (pwd !== confirm) return showErr('Konfirmasi password tidak cocok.');
+    }
+
+    if (step === 5) {
+      if (!document.getElementById('agree-terms').checked)
+        return showErr('Anda harus menyetujui Syarat & Ketentuan.');
+      if (!document.getElementById('agree-privacy').checked)
+        return showErr('Anda harus menyetujui Kebijakan Privasi.');
+      if (!document.getElementById('agree-sop').checked)
+        return showErr('Anda harus menyetujui ketentuan verifikasi akun.');
+    }
+
+    return true;
+  }
+
+  // ================================================================
+  // USER TYPE SELECTION
+  // ================================================================
+  document.querySelectorAll('.user-type-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const value = card.dataset.value;
+      selectedUserType = value;
+      card.querySelector('input[type=radio]').checked = true;
+
+      document.querySelectorAll('.user-type-card > div').forEach(c => {
+        c.classList.remove('border-primary-500', 'dark:border-primary-500');
+      });
+      card.querySelector('div').classList.add('border-primary-500', 'dark:border-primary-500');
+
+      document.querySelectorAll('.type-radio-indicator').forEach(ind => {
+        ind.querySelector('div').classList.add('hidden');
+      });
+      card.querySelector('.type-radio-indicator div').classList.remove('hidden');
+
+      adaptFieldsForUserType(value);
+    });
+  });
+
+  function adaptFieldsForUserType(type) {
+    const umktFields    = ['nim-field', 'prodi-field', 'angkatan-field'];
+    const nonUmktFields = ['instansi-field'];
+
+    if (type === 'umkt') {
+      umktFields.forEach(id => document.getElementById(id)?.classList.remove('hidden'));
+      nonUmktFields.forEach(id => document.getElementById(id)?.classList.add('hidden'));
+      document.getElementById('upload-label').firstChild.textContent = 'Foto KTM ';
+      document.getElementById('upload-type-note').textContent = '(Mahasiswa UMKT)';
+    } else {
+      umktFields.forEach(id => document.getElementById(id)?.classList.add('hidden'));
+      nonUmktFields.forEach(id => document.getElementById(id)?.classList.remove('hidden'));
+      document.getElementById('upload-label').firstChild.textContent = 'Foto KTP / Identitas ';
+      document.getElementById('upload-type-note').textContent = '(Masyarakat Umum)';
+    }
+  }
+
+  // ================================================================
+  // FILE UPLOAD
+  // ================================================================
+  function handleFileChange(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    renderUploadPreview(file);
+  }
+
+  function renderUploadPreview(file) {
+    const placeholder = document.getElementById('upload-placeholder');
+    const preview     = document.getElementById('upload-preview');
+    const img         = document.getElementById('ktm-img-preview');
+    const name        = document.getElementById('ktm-filename');
+
+    name.textContent = `${file.name} (${(file.size / 1024).toFixed(0)} KB)`;
+
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        img.src = e.target.result;
+        img.classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    } else {
+      img.classList.add('hidden');
+    }
+
+    placeholder.classList.add('hidden');
+    preview.classList.remove('hidden');
+  }
+
+  function clearUpload(e) {
+    e.stopPropagation();
+    document.getElementById('ktm-file').value = '';
+    document.getElementById('upload-placeholder').classList.remove('hidden');
+    document.getElementById('upload-preview').classList.add('hidden');
+    document.getElementById('ktm-img-preview').src = '';
+  }
+
+  function handleDragOver(e) {
+    e.preventDefault();
+    document.getElementById('upload-area').classList.add('dragover');
+  }
+
+  function handleDragLeave(e) {
+    document.getElementById('upload-area').classList.remove('dragover');
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    document.getElementById('upload-area').classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      const input = document.getElementById('ktm-file');
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      input.files = dt.files;
+      renderUploadPreview(file);
+    }
+  }
+
+  // ================================================================
+  // PASSWORD STRENGTH
+  // ================================================================
+  function checkPasswordStrength(pwd) {
+    const bar   = document.getElementById('strength-bar');
+    const label = document.getElementById('strength-label');
+
+    const checks = {
+      length:  pwd.length >= 8,
+      upper:   /[A-Z]/.test(pwd),
+      number:  /[0-9]/.test(pwd),
+      special: /[!@#$%^&*(),.?":{}|<>]/.test(pwd),
+    };
+
+    Object.entries(checks).forEach(([key, pass]) => {
+      const icon = document.getElementById('icon-' + key);
+      if (!icon) return;
+      icon.textContent = pass ? 'check_circle' : 'radio_button_unchecked';
+      icon.className   = `material-icons-outlined mat-xs ${pass ? 'text-emerald-500' : 'text-slate-300 dark:text-slate-600'}`;
+    });
+
+    const score = Object.values(checks).filter(Boolean).length;
+    const configs = [
+      { w: '0%',   bg: 'bg-slate-300',   txt: 'Belum diisi',    clr: 'text-slate-400'  },
+      { w: '25%',  bg: 'bg-red-500',     txt: 'Lemah',          clr: 'text-red-500'    },
+      { w: '50%',  bg: 'bg-orange-500',  txt: 'Cukup',          clr: 'text-orange-500' },
+      { w: '75%',  bg: 'bg-yellow-500',  txt: 'Kuat',           clr: 'text-yellow-600' },
+      { w: '100%', bg: 'bg-emerald-500', txt: 'Sangat Kuat ✓', clr: 'text-emerald-600'},
+    ];
+
+    const cfg = configs[pwd ? score : 0];
+    bar.style.width   = cfg.w;
+    bar.className     = `strength-bar h-full ${cfg.bg}`;
+    label.textContent = cfg.txt;
+    label.className   = `text-[11px] ${cfg.clr}`;
+  }
+
+  function checkPasswordMatch() {
+    const pwd     = document.getElementById('password').value;
+    const confirm = document.getElementById('password-confirm').value;
+    const msg     = document.getElementById('match-msg');
+    if (!confirm) { msg.textContent = ''; return; }
+    if (pwd === confirm) {
+      msg.textContent = '✓ Password cocok';
+      msg.className   = 'text-[11px] text-emerald-600 dark:text-emerald-400 mt-1';
+    } else {
+      msg.textContent = '✗ Password tidak cocok';
+      msg.className   = 'text-[11px] text-red-500 dark:text-red-400 mt-1';
+    }
+  }
+
+  // ================================================================
+  // SHOW / HIDE PASSWORD
+  // ================================================================
+  function togglePwd(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon  = document.getElementById(iconId);
+    if (!input || !icon) return;
+    const hidden = input.type === 'password';
+    input.type   = hidden ? 'text' : 'password';
+    icon.textContent = hidden ? 'visibility' : 'visibility_off';
+  }
+
+  // ================================================================
+  // SUMMARY (Step 5)
+  // ================================================================
+  function updateSummary() {
+    const typeLabel = selectedUserType === 'umkt' ? 'Mahasiswa UMKT' : 'Umum / Non-UMKT';
+    const file = document.getElementById('ktm-file').files[0];
+
+    document.getElementById('summary-type').textContent  = typeLabel;
+    document.getElementById('summary-name').textContent  = document.getElementById('full-name').value || '—';
+    document.getElementById('summary-email').textContent = document.getElementById('email').value || '—';
+    document.getElementById('summary-phone').textContent = document.getElementById('phone').value || '—';
+    document.getElementById('summary-nim').textContent   = document.getElementById('nim').value || '—';
+    document.getElementById('summary-ktm').textContent   = file ? file.name : '—';
+
+    document.getElementById('summary-nim-row').classList.toggle('hidden', selectedUserType !== 'umkt');
+  }
+
+  // ================================================================
+  // SHOW ALERT
+  // ================================================================
+  function showAlert(msg, type = 'error') {
+    const box   = document.getElementById('alert-box');
+    const msgEl = document.getElementById('alert-msg');
+    if (!box || !msgEl) return;
+
+    const typeMap = {
+      error:   'alert alert-error text-xs',
+      success: 'alert alert-success text-xs',
+      warning: 'alert alert-warning text-xs',
+      info:    'alert alert-info text-xs',
+    };
+
+    msgEl.textContent = msg;
+    box.className = typeMap[type] || typeMap.error;
+    box.classList.remove('hidden');
+    box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  // ================================================================
+  // CSRF TOKEN
+  // ================================================================
+  function getCsrfToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]')?.value
+      || document.cookie.split('; ')
+           .find(r => r.startsWith('csrftoken='))
+           ?.split('=')[1]
+      || '';
+  }
+
+  // ================================================================
+  // BUILD FORM DATA
+  // ================================================================
+  function buildFormData() {
+    const fd = new FormData();
+
+    fd.append('_ajax',     '1');
+    fd.append('user_type', selectedUserType);
+    fd.append('full_name', document.getElementById('full-name').value.trim());
+    fd.append('email',     document.getElementById('email').value.trim());
+    fd.append('phone',     document.getElementById('phone').value.trim());
+    fd.append('password',         document.getElementById('password').value);
+    fd.append('password_confirm', document.getElementById('password-confirm').value);
+
+    // ✅ Field UMKT/Non-UMKT — hanya append jika ada nilai
+    const nim      = document.getElementById('nim')?.value.trim();
+    const prodi    = document.getElementById('prodi')?.value;
+    const angkatan = document.getElementById('angkatan')?.value;  // ← tidak append jika kosong
+    const instansi = document.getElementById('instansi')?.value.trim();
+
+    if (nim)      fd.append('nim_nip',  nim);
+    if (prodi)    fd.append('prodi',    prodi);
+    if (angkatan) fd.append('angkatan', angkatan);  // ← "" = falsy, tidak terkirim
+    if (instansi) fd.append('instansi', instansi);
+
+    // File
+    const ktmFile = document.getElementById('ktm-file').files[0];
+    if (ktmFile) fd.append('ktm_photo', ktmFile, ktmFile.name);
+
+    return fd;
+  }
+
+  // ================================================================
+  // MAP ERROR FIELD → STEP
+  // ================================================================
+  const FIELD_TO_STEP = {
+    user_type:        1,
+    full_name:        2,
+    email:            2,
+    phone:            2,
+    nim_nip:          2,
+    prodi:            2,
+    angkatan:         2,
+    instansi:         2,
+    ktm_photo:        3,
+    password:         4,
+    password_confirm: 4,
+  };
+
+  function handleServerErrors(errors, fallbackMessage) {
+    let targetStep = 5;
+    let firstMsg   = fallbackMessage || 'Terjadi kesalahan, silakan periksa kembali.';
+
+    for (const [field, msgs] of Object.entries(errors)) {
+      const step = FIELD_TO_STEP[field] || 5;
+      if (step < targetStep) {
+        targetStep = step;
+        firstMsg   = Array.isArray(msgs) ? msgs[0] : msgs;
+      }
+    }
+
+    goToStep(targetStep);
+    setTimeout(() => showAlert(String(firstMsg), 'error'), 200);
+  }
+
+  // ================================================================
+  // SUBMIT
+  // ================================================================
+  function submitForm() {
+    if (!validateStep(5)) return;
+
+    const btn = document.getElementById('btn-submit');
+    btn.disabled = true;
+    btn.innerHTML = `
+      <span style="display:inline-block;width:14px;height:14px;border:2px solid #fff;
+        border-top-color:transparent;border-radius:50%;
+        animation:spin 0.6s linear infinite;vertical-align:middle">
+      </span> Mendaftarkan...`;
+
+    const csrfToken = getCsrfToken();
+    if (!csrfToken) {
+      showAlert('CSRF token tidak ditemukan. Refresh halaman dan coba lagi.');
+      btn.disabled = false;
+      return;
+    }
+
+    fetch(window.location.pathname, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrfToken },
+      body: buildFormData(),
+    })
+    .then(response => {
+      const ct = response.headers.get('content-type') || '';
+      if (!ct.includes('application/json')) {
+        throw new Error('Server error. Coba lagi atau hubungi admin.');
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data.success) {
+        for (let i = 1; i <= TOTAL_STEPS; i++) {
+          document.getElementById('panel-' + i)?.classList.add('hidden');
+        }
+        document.getElementById('step-indicator')?.classList.add('hidden');
+        const successPanel = document.getElementById('panel-success');
+        successPanel.classList.remove('hidden');
+        successPanel.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-icons-outlined mat-sm">how_to_reg</span> Daftar Sekarang';
+        handleServerErrors(data.errors || {}, data.message);
+      }
+    })
+    .catch(err => {
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-icons-outlined mat-sm">how_to_reg</span> Daftar Sekarang';
+      showAlert('Gagal mengirim data: ' + err.message);
+      console.error('Register error:', err);
+    });
+  }
+
+  // ================================================================
+  // INIT
+  // ================================================================
+  document.addEventListener('DOMContentLoaded', () => {
+    goToStep(1);
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('type') === 'non_umkt') {
+      document.querySelector('[data-value="non_umkt"]')?.click();
+    }
+  });
+</script>
+{% endblock %}
+

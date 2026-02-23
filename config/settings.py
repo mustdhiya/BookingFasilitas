@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'practicum',
     'research',
     'core',
-    
+    'konseling',    
 ]
 
 
@@ -59,6 +59,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
 ]
 
 
@@ -158,8 +161,8 @@ REST_FRAMEWORK = {
 # ============================================
 if PRODUCTION_MODE:
     CORS_ALLOWED_ORIGINS = [
-        "https://yourdomain.com",
-        "https://www.yourdomain.com",
+        "https://psylab-umkt.my.id",
+        "https://www.psylab-umkt.my.id",
     ]
 else:
     CORS_ALLOWED_ORIGINS = [
