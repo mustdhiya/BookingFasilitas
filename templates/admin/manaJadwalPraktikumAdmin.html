@@ -1277,7 +1277,8 @@
       </h3>
     </div>
     <form method="post" id="form-jadwal"
-          class="flex-1 overflow-y-auto p-6 space-y-4">
+      action="{% url 'jadwal-create' %}"
+      class="flex-1 overflow-y-auto p-6 space-y-4">
       {% csrf_token %}
       <input type="hidden" name="form_type" value="jadwal">
       <input type="hidden" id="jadwal-pk" name="pk" value="">
@@ -1745,8 +1746,33 @@ function showToast(msg, type) {
   }
 
   function submitJadwalForm() {
-    document.getElementById('form-jadwal').submit();
-  }
+    var form   = document.getElementById('form-jadwal');
+    var pk     = document.getElementById('jadwal-pk').value;
+    var url    = pk
+        ? '/api/research/jadwal/' + pk + '/update/'   // edit
+        : '/api/research/jadwal/create/';              // buat baru
+    var data   = new FormData(form);
+
+    fetch(url, {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': getCookie('csrftoken') },
+        body: data,
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.status === 'ok' || data.ok) {
+            closeModal('modal-jadwal-form');
+            showToast('Jadwal berhasil disimpan!', 'success');
+            setTimeout(function() { location.reload(); }, 800);
+        } else {
+            var errs = data.errors
+                ? Object.values(data.errors).map(function(e) { return e[0]; }).join(', ')
+                : (data.msg || 'Gagal menyimpan');
+            showToast(errs, 'error');
+        }
+    })
+    .catch(function(e) { showToast('Kesalahan jaringan.', 'error'); });
+}
 
   // ── Dosen Form ─────────────────────────────────────────────────────────
 

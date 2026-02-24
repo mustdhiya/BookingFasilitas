@@ -111,28 +111,46 @@ class LecturerDeactivateView(AdminRequiredMixin, View):
             'msg': f'Dosen {lecturer.name} berhasil dinonaktifkan.',
         })
 
-class LecturerDeactivateView(AdminRequiredMixin, View):
+class JadwalCreateView(AdminRequiredMixin, CreateView):
+    model = Practicum
+    fields = ['type', 'session_name', 'lecturer', 'date',
+              'start_time', 'end_time', 'room', 'capacity',
+              'description', 'is_active']
 
-    def post(self, request, pk):
-        lecturer = get_object_or_404(Lecturer, pk=pk)
-        lecturer.is_active = False
-        lecturer.save()
-        return JsonResponse({
-            'ok':  True,
-            'msg': f'Dosen {lecturer.name} berhasil dinonaktifkan.',
-        })
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'ok', 'id': self.object.pk})
+        return response
 
-class LecturerDeactivateView(AdminRequiredMixin, View):
+    def form_invalid(self, form):
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+        return redirect(reverse_lazy('admin_panel') + '?tab=praktikum')
 
-    def post(self, request, pk):
-        lecturer = get_object_or_404(Lecturer, pk=pk)
-        lecturer.is_active = False
-        lecturer.save()
-        return JsonResponse({
-            'ok':  True,
-            'msg': f'Dosen {lecturer.name} berhasil dinonaktifkan.',
-        })
+    def get_success_url(self):
+        return reverse_lazy('admin_panel') + '?tab=praktikum'
 
+
+class JadwalUpdateView(AdminRequiredMixin, UpdateView):
+    model = Practicum
+    fields = ['type', 'session_name', 'lecturer', 'date',
+              'start_time', 'end_time', 'room', 'capacity',
+              'description', 'is_active']
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'ok', 'id': self.object.pk})
+        return response
+
+    def form_invalid(self, form):
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+        return redirect(reverse_lazy('admin_panel') + '?tab=praktikum')
+
+    def get_success_url(self):
+        return reverse_lazy('admin_panel') + '?tab=praktikum'
 
 class JadwalDeleteView(AdminRequiredMixin, View):
     def post(self, request, pk):
@@ -392,29 +410,13 @@ class DosenDeleteView(AdminRequiredMixin, View):
 
     def post(self, request, pk):
         lecturer = get_object_or_404(Lecturer, pk=pk)
-
-        active_requests = ResearchRequest.objects.filter(
-            lecturer=lecturer,
-            status__in=['pending', 'approved']
-        )
-        if active_requests.exists():
-            return JsonResponse({
-                'ok': False,
-                'action': 'suggest_deactivate',
-                'msg': f'Dosen {lecturer.name} masih punya {active_requests.count()} request aktif. Nonaktifkan saja?',
-            })
-
-        title_count = lecturer.research_titles.count()
+        
+        # Hapus semua relasi dulu, baru dosen
         ResearchRequest.objects.filter(lecturer=lecturer).delete()
         lecturer.research_titles.all().delete()
-        name = lecturer.name
         lecturer.delete()
 
-        return JsonResponse({
-            'ok': True,
-            'msg': f'Dosen {name} berhasil dihapus'
-                   + (f' beserta {title_count} judul payung' if title_count else '') + '.',
-        })
+        return JsonResponse({'ok': True, 'msg': f'Dosen berhasil dihapus.'})
 
 
 class DosenDeactivateView(AdminRequiredMixin, View):
@@ -491,17 +493,14 @@ class JudulUpdateView(AdminRequiredMixin, UpdateView):
         return redirect(str(reverse_lazy('admin_panel')) + '?tab=dosen')
 
 
-class JudulDeleteView(AdminRequiredMixin, DeleteView):
-    model = ResearchTitle
+class JudulDeleteView(AdminRequiredMixin, View):
+    def post(self, request, pk):
+        title = get_object_or_404(ResearchTitle, pk=pk)
+        # Hapus request yang terkait dulu
+        ResearchRequest.objects.filter(research_title=title).delete()
+        title.delete()
+        return JsonResponse({'status': 'ok', 'msg': 'Judul payung berhasil dihapus.'})
 
-    def get_success_url(self):
-        return reverse_lazy('admin_panel') + '?tab=dosen'
-
-    def post(self, request, *args, **kwargs):
-        result = super().post(request, *args, **kwargs)
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({'status': 'ok'})
-        return result
 
 
 class JudulJsonView(AdminRequiredMixin, View):
