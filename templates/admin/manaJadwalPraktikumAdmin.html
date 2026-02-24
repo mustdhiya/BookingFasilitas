@@ -142,8 +142,9 @@
                         bg-white dark:bg-slate-800">
             {% for p in practicum_list %}
             <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition group"
-                data-tipe="{{ p.type }}"
-                data-sesi="{{ p.session_name|lower }}">
+                data-tipe="{{ p.type }}" 
+                data-sesi="{{ p.session_name|lower }}"
+                data-id="{{ p.pk }}">
 
               {# Tipe / Sesi #}
               <td class="px-4 py-3">
@@ -395,8 +396,8 @@
                     bg-white dark:bg-slate-800
                     hover:border-primary-300 dark:hover:border-primary-700
                     hover:shadow-lg transition"
-             data-dosen-name="{{ lecturer.name|lower }}">
-
+             data-dosen-name="{{ lecturer.name|lower }}"
+             data-dosen-id="{{ lecturer.pk }}">
           {# Header card dosen #}
           <div class="p-5 border-b border-slate-100 dark:border-slate-700">
             <div class="flex items-start gap-3">
@@ -894,11 +895,11 @@
                         focus:ring-2 focus:ring-primary-500
                         focus:border-primary-500">
         </div>
-        {# Bidang Fokus #}
+        {# Bidang #}
         <div>
           <label class="block text-sm font-medium text-slate-700
                          dark:text-slate-300 mb-1.5">
-            Bidang Fokus <span class="text-rose-500">*</span>
+            Bidang <span class="text-rose-500">*</span>
           </label>
           <select id="dosen-focus" name="focus" required
                   class="w-full rounded-lg border border-slate-300
@@ -1102,6 +1103,7 @@
             <option value="klinis">Psikologi Klinis</option>
             <option value="perkembangan">Psikologi Perkembangan</option>
             <option value="sosial">Psikologi Sosial</option>
+            <option value="agama">Psikologi Islam</option>
             <option value="industri">Psikologi Industri & Organisasi</option>
             <option value="pendidikan">Psikologi Pendidikan</option>
             <option value="umum">Umum</option>
@@ -1457,26 +1459,72 @@
 <script>
 (function () {
     window.switchPraktikumTab   = switchPraktikumTab;
-    window.closeModal           = closeModal;
-    window.openModal            = openModal;
-    window.confirmDelete        = confirmDelete;
-    window.executeDelete        = executeDelete;
-    window.confirmDecline       = confirmDecline;
-    window.executeDecline       = executeDecline;
-    window.openJadwalModal      = openJadwalModal;
-    window.submitJadwalForm     = submitJadwalForm;
-    window.openDosenModal       = openDosenModal;
-    window.submitDosenForm      = submitDosenForm;    
-    window.openJudulModal       = openJudulModal;
-    window.submitJudulForm      = submitJudulForm;    
-    window.previewDosenPhoto    = previewDosenPhoto;  
-    window.viewPeserta          = viewPeserta;
-    window.approveRequest       = approveRequest;
-    window.filterRequestStatus  = filterRequestStatus;
-    window.filterDosenCards     = filterDosenCards;
-    window.lihatMahasiswaPayung = lihatMahasiswaPayung;
-    window.exportData           = exportData;
-    window.handleExport         = handleExport;       
+window.closeModal           = closeModal;
+window.openModal            = openModal;
+window.confirmDelete        = confirmDelete;
+window.executeDelete        = executeDelete;
+window.confirmDecline       = confirmDecline;
+window.executeDecline       = executeDecline;
+window.openJadwalModal      = openJadwalModal;
+window.submitJadwalForm     = submitJadwalForm;
+window.openDosenModal       = openDosenModal;
+window.submitDosenForm      = submitDosenForm;
+window.openJudulModal       = openJudulModal;
+window.submitJudulForm      = submitJudulForm;
+window.previewDosenPhoto    = previewDosenPhoto;
+window.viewPeserta          = viewPeserta;
+window.approveRequest       = approveRequest;
+window.filterRequestStatus  = filterRequestStatus;
+window.filterDosenCards     = filterDosenCards;
+window.filterPraktikumTable = filterPraktikumTable; 
+window.filterPraktikumTipe  = filterPraktikumTipe;  
+window.lihatMahasiswaPayung = lihatMahasiswaPayung; 
+window.showDeactivateDialog = showDeactivateDialog; 
+window.doDeactivate         = doDeactivate;         
+window.exportData           = exportData;
+window.handleExport         = handleExport;
+
+function filterPraktikumTable(query) {
+    var q = query.toLowerCase();
+    document.querySelectorAll('#praktikum-table tbody tr[data-tipe]').forEach(function(row) {
+        var sesi = (row.dataset.sesi || '').toLowerCase();
+        var tipe = (row.dataset.tipe || '').toLowerCase();
+        row.style.display = (sesi.includes(q) || tipe.includes(q)) ? '' : 'none';
+    });
+}
+
+function filterPraktikumTipe(tipe) {
+    document.querySelectorAll('#praktikum-table tbody tr[data-tipe]').forEach(function(row) {
+        row.style.display = (!tipe || tipe === 'Semua Tipe' || row.dataset.tipe === tipe) ? '' : 'none';
+    });
+}
+
+// ── Filter request status ───────────────────────────────────────────────
+function filterRequestStatus(status) {
+  document.querySelectorAll('.req-status-tab').forEach(btn => {
+    const isActive = btn.dataset.reqStatus === status;
+    btn.classList.toggle('bg-primary-500', isActive);
+    btn.classList.toggle('text-white', isActive);
+    btn.classList.toggle('shadow-sm', isActive);
+    btn.classList.toggle('bg-slate-100', !isActive);
+    btn.classList.toggle('dark:bg-slate-700', !isActive);
+    btn.classList.toggle('text-slate-600', !isActive);
+  });
+
+  document.querySelectorAll('#request-list > div[data-req-status]').forEach(item => {
+    if (status === 'all' || item.dataset.reqStatus === status) {
+      item.classList.remove('hidden');
+    } else {
+      item.classList.add('hidden');
+    }
+  });
+}
+function filterDosenCards(query) {
+    var q = query.toLowerCase();
+    document.querySelectorAll('#dosen-grid [data-dosen-name]').forEach(function(card) {
+        card.style.display = card.dataset.dosenName.includes(q) ? '' : 'none';
+    });
+}
 
 
   // ── Tab switching ──────────────────────────────────────────────────────
@@ -1523,22 +1571,151 @@
   });
 
   // ── Delete ─────────────────────────────────────────────────────────────
-  let deleteAction = { type: '', id: null };
+var deleteAction = { type: null, id: null };   // ← var bukan let
 
-  function confirmDelete(type, id, name) {
-    deleteAction = { type, id };
+function confirmDelete(type, id, name) {
+    deleteAction = { type: type, id: id };
     document.getElementById('delete-item-name').textContent = name;
     openModal('modal-delete-confirm');
-  }
+}
 
-  function executeDelete() {
-    // TODO: fetch POST ke URL delete sesuai type
-    console.log('DELETE:', deleteAction);
-    closeModal('modal-delete-confirm');
-  }
+async function executeDelete() {
+    var type = deleteAction.type;
+    var id   = deleteAction.id;
+    if (!type || !id) return;
+
+    var urlMap = {
+        'dosen':  '/api/research/dosen/' + id + '/delete/',
+        'jadwal': '/api/research/jadwal/' + id + '/delete/',
+    };
+    var url = urlMap[type];
+    if (!url) { alert('Tipe tidak dikenal: ' + type); return; }
+
+    var btn = document.getElementById('btn-confirm-delete');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-icons text-sm">refresh</span> Menghapus...';
+
+    try {
+        var res = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken':      getCookie('csrftoken'),
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        });
+
+        // ← Cek content-type sebelum parse JSON
+        var contentType = res.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+            // Server return HTML (error page) — tampilkan pesan generik
+            console.error('[executeDelete] Response bukan JSON, status:', res.status);
+            closeModal('modal-delete-confirm');
+            showToast('Server error (' + res.status + '). Cek terminal Django.', 'error');
+            return;
+        }
+
+        var data = await res.json();
+        closeModal('modal-delete-confirm');
+
+        if (data.ok) {
+            showToast(data.msg, 'success');
+            var card = document.querySelector('[data-dosen-id="' + id + '"]');
+            if (card) {
+                card.style.transition = 'opacity 0.3s, transform 0.3s';
+                card.style.opacity    = '0';
+                card.style.transform  = 'scale(0.95)';
+                setTimeout(function() { card.remove(); }, 300);
+            } else {
+                setTimeout(function() { location.reload(); }, 900);
+            }
+        } else if (data.action === 'suggest_deactivate') {
+            showDeactivateDialog(id, data.msg);
+        } else {
+            showToast(data.msg || 'Gagal menghapus.', 'error');
+        }
+
+    } catch (err) {
+        closeModal('modal-delete-confirm');
+        showToast('Kesalahan tak terduga: ' + err.message, 'error');
+        console.error('[executeDelete catch]', err);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-icons text-sm">delete</span>Ya, Hapus';
+    }
+}
+
+function showDeactivateDialog(id, msg) {
+    var old = document.getElementById('modal-deactivate-inline');
+    if (old) old.remove();
+
+    var div = document.createElement('div');
+    div.id  = 'modal-deactivate-inline';
+    div.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;' +
+        'justify-content:center;padding:16px;background:rgba(15,23,42,.7);backdrop-filter:blur(4px)';
+    div.innerHTML =
+        '<div style="background:#fff;border-radius:16px;padding:24px;max-width:400px;width:100%;' +
+        'box-shadow:0 20px 40px rgba(0,0,0,.3)" onclick="event.stopPropagation()">' +
+        '<div style="display:flex;gap:12px;margin-bottom:16px">' +
+        '<div style="width:44px;height:44px;border-radius:50%;background:#fef3c7;display:flex;' +
+        'align-items:center;justify-content:center;flex-shrink:0">' +
+        '<span class="material-icons" style="color:#d97706">warning</span></div>' +
+        '<div><p style="font-weight:600;color:#0f172a;margin:0 0 4px">Tidak Dapat Dihapus</p>' +
+        '<p style="font-size:13px;color:#64748b;margin:0">' + msg + '</p></div></div>' +
+        '<div style="display:flex;gap:8px;justify-content:flex-end">' +
+        '<button onclick="document.getElementById(\'modal-deactivate-inline\').remove()" ' +
+        'style="padding:8px 16px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;' +
+        'color:#475569;font-size:14px;cursor:pointer">Batal</button>' +
+        '<button onclick="doDeactivate(' + id + ')" ' +
+        'style="padding:8px 20px;border-radius:8px;background:#f59e0b;border:none;color:#fff;' +
+        'font-size:14px;font-weight:600;cursor:pointer">Nonaktifkan</button></div></div>';
+    document.body.appendChild(div);
+}
+
+async function doDeactivate(id) {
+    var overlay = document.getElementById('modal-deactivate-inline');
+    if (overlay) overlay.remove();
+
+    var res  = await fetch('/api/research/dosen/' + id + '/deactivate/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken'), 'X-Requested-With': 'XMLHttpRequest' },
+    });
+    var data = await res.json();
+    if (data.ok) {
+        showToast(data.msg, 'success');
+        var card = document.querySelector('[data-dosen-id="' + id + '"]');
+        if (card) card.style.opacity = '0.45';
+    } else {
+        showToast(data.msg || 'Gagal nonaktifkan.', 'error');
+    }
+}
+
+function getCookie(name) {
+    var v = '; ' + document.cookie, p = v.split('; ' + name + '=');
+    if (p.length === 2) return p.pop().split(';').shift();
+    return '';
+}
+
+function showToast(msg, type) {
+    var old = document.getElementById('toast-notif');
+    if (old) old.remove();
+    var t = document.createElement('div');
+    t.id  = 'toast-notif';
+    t.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;padding:12px 18px;' +
+        'border-radius:12px;color:#fff;font-size:14px;font-weight:500;' +
+        'display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,.2);' +
+        (type === 'success' ? 'background:#059669' : 'background:#dc2626');
+    t.innerHTML = '<span class="material-icons" style="font-size:18px">' +
+        (type === 'success' ? 'check_circle' : 'error') + '</span>' + msg;
+    document.body.appendChild(t);
+    setTimeout(function() {
+        t.style.opacity = '0'; t.style.transition = 'opacity .3s';
+        setTimeout(function() { t.remove(); }, 300);
+    }, 3000);
+}
+
 
   // ── Decline ────────────────────────────────────────────────────────────
-  let declineAction = { type: '', id: null };
+  var declineAction = { type: '', id: null };
 
   function confirmDecline(type, id, name) {
     declineAction = { type, id };
@@ -1575,8 +1752,6 @@
 
 
 function openDosenModal(mode, id = null) {
-  const form = document.getElementById('form-dosen');
-
   document.getElementById('dosen-modal-title').textContent =
     mode === 'create' ? 'Tambah Dosen Baru' : 'Edit Data Dosen';
   document.getElementById('dosen-submit-label').textContent =
@@ -1584,27 +1759,29 @@ function openDosenModal(mode, id = null) {
   document.getElementById('dosen-pk').value = id || '';
 
   if (mode === 'create') {
-    form.action = "{% url 'dosen-create' %}";
-    form.reset();
+    document.getElementById('form-dosen').reset();
     document.getElementById('dosen-photo-preview').classList.add('hidden');
   } else {
-    form.action = `/research/dosen/${id}/edit/`;
-    // TODO: fetch data dosen untuk pre-fill field
-    // fetch(`/research/dosen/${id}/json/`)
-    //   .then(r => r.json())
-    //   .then(data => {
-    //     document.getElementById('dosen-name').value  = data.name;
-    //     document.getElementById('dosen-nip').value   = data.nip  || '';
-    //     document.getElementById('dosen-focus').value = data.focus;
-    //     document.getElementById('dosen-email').value = data.email || '';
-    //     document.getElementById('dosen-phone').value = data.phone || '';
-    //     document.getElementById('dosen-bio').value   = data.bio   || '';
-    //     document.getElementById('dosen-active').checked = data.is_active;
-    //   });
+    fetch(`/api/research/dosen/${id}/json/`, {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('dosen-name').value     = data.name;
+      document.getElementById('dosen-nip').value      = data.nip;
+      document.getElementById('dosen-focus').value    = data.focus;
+      document.getElementById('dosen-email').value    = data.email;
+      document.getElementById('dosen-phone').value    = data.phone;
+      document.getElementById('dosen-bio').value      = data.bio;
+      document.getElementById('dosen-active').checked = data.is_active;
+      if (data.photo_url) {
+        document.getElementById('dosen-photo-img').src = data.photo_url;
+        document.getElementById('dosen-photo-preview').classList.remove('hidden');
+      }
+    });
   }
   openModal('modal-dosen-form');
 }
-
 function submitDosenForm() {
   const form = document.getElementById('form-dosen');
   if (!form.checkValidity()) { form.reportValidity(); return; }

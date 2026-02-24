@@ -51,6 +51,106 @@ class ResearchTitleListView(ListView):
             lecturer_id=self.kwargs['pk'],
             is_active=True
         )
+# Tambah di bagian atas views.py, setelah imports
+import traceback
+
+def safe_json_view(view_func):
+    """Decorator: tangkap semua exception → return JSON error, bukan HTML 500"""
+    from functools import wraps
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        try:
+            return view_func(request, *args, **kwargs)
+        except Exception as e:
+            traceback.print_exc()  # tetap print di terminal
+            return JsonResponse({
+                'ok':  False,
+                'msg': f'Server error: {str(e)}',
+            }, status=500)
+    return wrapper
+
+# ✅ GANTI DENGAN INI:
+class LecturerDeleteView(AdminRequiredMixin, View):
+
+    def post(self, request, pk):
+        lecturer = get_object_or_404(Lecturer, pk=pk)
+
+        active_requests = ResearchRequest.objects.filter(
+            lecturer=lecturer,
+            status__in=['pending', 'approved']
+        )
+
+        if active_requests.exists():
+            return JsonResponse({
+                'ok':     False,
+                'action': 'suggest_deactivate',
+                'msg':    f'Dosen {lecturer.name} masih punya {active_requests.count()} request aktif. Nonaktifkan saja?',
+            })
+
+        title_count = lecturer.research_titles.count()
+        ResearchRequest.objects.filter(lecturer=lecturer).delete()
+        lecturer.research_titles.all().delete()
+        name = lecturer.name
+        lecturer.delete()
+
+        return JsonResponse({
+            'ok':  True,
+            'msg': f'Dosen {name} berhasil dihapus'
+                   + (f' beserta {title_count} judul payung' if title_count else '') + '.',
+        })
+
+
+class LecturerDeactivateView(AdminRequiredMixin, View):
+
+    def post(self, request, pk):
+        lecturer = get_object_or_404(Lecturer, pk=pk)
+        lecturer.is_active = False
+        lecturer.save()
+        return JsonResponse({
+            'ok':  True,
+            'msg': f'Dosen {lecturer.name} berhasil dinonaktifkan.',
+        })
+
+class LecturerDeactivateView(AdminRequiredMixin, View):
+
+    def post(self, request, pk):
+        lecturer = get_object_or_404(Lecturer, pk=pk)
+        lecturer.is_active = False
+        lecturer.save()
+        return JsonResponse({
+            'ok':  True,
+            'msg': f'Dosen {lecturer.name} berhasil dinonaktifkan.',
+        })
+
+class LecturerDeactivateView(AdminRequiredMixin, View):
+
+    def post(self, request, pk):
+        lecturer = get_object_or_404(Lecturer, pk=pk)
+        lecturer.is_active = False
+        lecturer.save()
+        return JsonResponse({
+            'ok':  True,
+            'msg': f'Dosen {lecturer.name} berhasil dinonaktifkan.',
+        })
+
+
+class JadwalDeleteView(AdminRequiredMixin, View):
+    def post(self, request, pk):
+        from practicum.models import Practicum
+        jadwal = get_object_or_404(Practicum, pk=pk)
+
+        # Cek apakah ada peserta terdaftar
+        if jadwal.registrations.filter(
+            status__in=['registered', 'waitlist']
+        ).exists():
+            return JsonResponse({
+                'ok': False,
+                'msg': 'Jadwal tidak bisa dihapus — masih ada peserta terdaftar.'
+            }, status=400)
+
+        name = jadwal.session_name
+        jadwal.delete()
+        return JsonResponse({'ok': True, 'msg': f'Jadwal {name} berhasil dihapus.'})
 
 class ResearchRequestCreateView(LoginRequiredMixin, CreateView):
     model = ResearchRequest
@@ -288,17 +388,45 @@ class DosenUpdateView(AdminRequiredMixin, UpdateView):
         return redirect(str(reverse_lazy('admin_panel')) + '?tab=dosen')
 
 
-class DosenDeleteView(AdminRequiredMixin, DeleteView):
-    model = Lecturer
+class DosenDeleteView(AdminRequiredMixin, View):
 
-    def get_success_url(self):
-        return reverse_lazy('admin_panel') + '?tab=dosen'
+    def post(self, request, pk):
+        lecturer = get_object_or_404(Lecturer, pk=pk)
 
-    def post(self, request, *args, **kwargs):
-        result = super().post(request, *args, **kwargs)
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({'status': 'ok'})
-        return result
+        active_requests = ResearchRequest.objects.filter(
+            lecturer=lecturer,
+            status__in=['pending', 'approved']
+        )
+        if active_requests.exists():
+            return JsonResponse({
+                'ok': False,
+                'action': 'suggest_deactivate',
+                'msg': f'Dosen {lecturer.name} masih punya {active_requests.count()} request aktif. Nonaktifkan saja?',
+            })
+
+        title_count = lecturer.research_titles.count()
+        ResearchRequest.objects.filter(lecturer=lecturer).delete()
+        lecturer.research_titles.all().delete()
+        name = lecturer.name
+        lecturer.delete()
+
+        return JsonResponse({
+            'ok': True,
+            'msg': f'Dosen {name} berhasil dihapus'
+                   + (f' beserta {title_count} judul payung' if title_count else '') + '.',
+        })
+
+
+class DosenDeactivateView(AdminRequiredMixin, View):
+
+    def post(self, request, pk):
+        lecturer = get_object_or_404(Lecturer, pk=pk)
+        lecturer.is_active = False
+        lecturer.save()
+        return JsonResponse({
+            'ok': True,
+            'msg': f'Dosen {lecturer.name} berhasil dinonaktifkan.',
+        })
 
 
 class DosenJsonView(AdminRequiredMixin, View):

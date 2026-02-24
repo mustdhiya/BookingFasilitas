@@ -27,5 +27,9 @@ urlpatterns = [
     # JSON endpoint untuk prefill edit modal
     path('dosen/<int:pk>/json/',            views.DosenJsonView.as_view(),             name='dosen-json'),
     path('judul/<int:pk>/json/',            views.JudulJsonView.as_view(),             name='judul-json'),
+    path('dosen/<int:pk>/delete/',  views.LecturerDeleteView.as_view(),  name='dosen-delete'),
+    path('jadwal/<int:pk>/delete/', views.JadwalDeleteView.as_view(),    name='jadwal-delete'),
+    path('api/research/dosen/<int:pk>/delete/',     views.DosenDeleteView.as_view(),     name='dosen-delete'),
+    path('api/research/dosen/<int:pk>/deactivate/', views.DosenDeactivateView.as_view(), name='dosen-deactivate'),
 ]
 
