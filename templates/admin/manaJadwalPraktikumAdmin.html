@@ -1484,6 +1484,104 @@ window.showDeactivateDialog = showDeactivateDialog;
 window.doDeactivate         = doDeactivate;         
 window.exportData           = exportData;
 window.handleExport         = handleExport;
+// ── Lihat Mahasiswa Payung ─────────────────────────────────────────────
+function lihatMahasiswaPayung(titleId, titleName) {
+  // Buat modal dinamis jika belum ada
+  var existing = document.getElementById('modal-mahasiswa-payung');
+  if (existing) existing.remove();
+
+  var modal = document.createElement('div');
+  modal.id = 'modal-mahasiswa-payung';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;' +
+    'justify-content:center;padding:16px;background:rgba(15,23,42,.7);backdrop-filter:blur(4px)';
+  modal.innerHTML =
+    '<div style="background:#fff;border-radius:16px;width:100%;max-width:520px;' +
+    'max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 40px rgba(0,0,0,.3)"' +
+    ' onclick="event.stopPropagation()">' +
+    // Header
+    '<div style="padding:20px 24px 16px;border-bottom:1px solid #e2e8f0;' +
+    'display:flex;align-items:center;justify-content:space-between">' +
+    '<div>' +
+    '<p style="font-size:11px;font-weight:600;color:#6366f1;text-transform:uppercase;' +
+    'letter-spacing:.05em;margin:0 0 2px">Judul Payung</p>' +
+    '<h3 style="font-size:15px;font-weight:700;color:#0f172a;margin:0">' + titleName + '</h3>' +
+    '</div>' +
+    '<button onclick="document.getElementById(\'modal-mahasiswa-payung\').remove()" ' +
+    'style="width:32px;height:32px;border-radius:8px;border:1px solid #e2e8f0;' +
+    'background:#f8fafc;cursor:pointer;display:flex;align-items:center;justify-content:center">' +
+    '<span class="material-icons" style="font-size:18px;color:#64748b">close</span></button>' +
+    '</div>' +
+    // Body — loading state
+    '<div id="mahasiswa-payung-body" style="flex:1;overflow-y:auto;padding:16px 24px">' +
+    '<div style="text-align:center;padding:32px;color:#94a3b8">' +
+    '<span class="material-icons" style="font-size:40px;display:block;margin-bottom:8px">hourglass_empty</span>' +
+    '<p style="font-size:13px;margin:0">Memuat data...</p></div>' +
+    '</div>' +
+    '</div>';
+
+  document.body.appendChild(modal);
+  // Klik backdrop untuk tutup
+  modal.addEventListener('click', function() { modal.remove(); });
+
+  // Fetch mahasiswa yang terdaftar di judul payung ini
+  fetch('/api/research/judul/' + titleId + '/mahasiswa/', {
+    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    var body = document.getElementById('mahasiswa-payung-body');
+    if (!body) return;
+
+    if (!data.mahasiswa || data.mahasiswa.length === 0) {
+      body.innerHTML =
+        '<div style="text-align:center;padding:32px;color:#94a3b8">' +
+        '<span class="material-icons" style="font-size:40px;display:block;margin-bottom:8px">group_off</span>' +
+        '<p style="font-size:13px;margin:0">Belum ada mahasiswa terdaftar</p></div>';
+      return;
+    }
+
+    var rows = data.mahasiswa.map(function(m, i) {
+      return '<tr style="border-bottom:1px solid #f1f5f9">' +
+        '<td style="padding:10px 12px;font-size:13px;color:#64748b">' + (i + 1) + '</td>' +
+        '<td style="padding:10px 12px">' +
+        '<p style="font-size:13px;font-weight:600;color:#0f172a;margin:0">' + m.name + '</p>' +
+        '<p style="font-size:11px;color:#94a3b8;margin:2px 0 0">' + (m.nim || '—') + '</p>' +
+        '</td>' +
+        '<td style="padding:10px 12px;font-size:12px;color:#64748b">' + (m.thesis_title || '<em>—</em>') + '</td>' +
+        '<td style="padding:10px 12px;text-align:center">' +
+        '<span style="display:inline-block;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:600;' +
+        (m.status === 'approved'
+          ? 'background:#d1fae5;color:#065f46'
+          : m.status === 'pending'
+          ? 'background:#fef3c7;color:#92400e'
+          : 'background:#fee2e2;color:#991b1b') + '">' +
+        (m.status === 'approved' ? 'Disetujui' : m.status === 'pending' ? 'Pending' : 'Ditolak') +
+        '</span></td>' +
+        '</tr>';
+    }).join('');
+
+    body.innerHTML =
+      '<p style="font-size:12px;color:#94a3b8;margin:0 0 12px">' +
+      data.mahasiswa.length + ' mahasiswa terdaftar</p>' +
+      '<table style="width:100%;border-collapse:collapse">' +
+      '<thead><tr style="background:#f8fafc">' +
+      '<th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase">#</th>' +
+      '<th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase">Mahasiswa</th>' +
+      '<th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase">Judul Skripsi</th>' +
+      '<th style="padding:8px 12px;text-align:center;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase">Status</th>' +
+      '</tr></thead>' +
+      '<tbody>' + rows + '</tbody>' +
+      '</table>';
+  })
+  .catch(function(err) {
+    var body = document.getElementById('mahasiswa-payung-body');
+    if (body) body.innerHTML =
+      '<div style="text-align:center;padding:32px;color:#ef4444">' +
+      '<span class="material-icons" style="font-size:40px;display:block;margin-bottom:8px">error_outline</span>' +
+      '<p style="font-size:13px;margin:0">Gagal memuat data: ' + err.message + '</p></div>';
+  });
+}
+
 
 function filterPraktikumTable(query) {
     var q = query.toLowerCase();
@@ -1715,26 +1813,152 @@ function showToast(msg, type) {
 }
 
 
-  // ── Decline ────────────────────────────────────────────────────────────
-  var declineAction = { type: '', id: null };
+// ─── DECLINE (Tolak Request) ────────────────────────────────────────────────
+var declineAction = { type: null, id: null };
 
-  function confirmDecline(type, id, name) {
-    declineAction = { type, id };
-    document.getElementById('decline-requester-name').textContent = name;
-    document.getElementById('decline-reason').value = '';
-    openModal('modal-decline-confirm');
+function confirmDecline(type, id, name) {
+  declineAction = { type, id };
+  document.getElementById('decline-requester-name').textContent = name;
+  document.getElementById('decline-reason').value = '';
+  document.getElementById('decline-reason').classList.remove('border-rose-500');
+  openModal('modal-decline-confirm');
+}
+
+async function executeDecline() {
+  const reason = document.getElementById('decline-reason').value.trim();
+  if (!reason) {
+    document.getElementById('decline-reason').classList.add('border-rose-500');
+    return;
   }
 
-  function executeDecline() {
-    const reason = document.getElementById('decline-reason').value.trim();
-    if (!reason) {
-      document.getElementById('decline-reason').classList.add('border-rose-500');
-      return;
+  const btn = document.querySelector('#modal-decline-confirm button[onclick="executeDecline()"]');
+  const originalText = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="material-icons text-sm animate-spin">refresh</span> Memproses...';
+
+  try {
+    const url = `/api/research/requests/${declineAction.id}/reject/`;
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCsrfToken(),
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+      body: JSON.stringify({ admin_notes: reason }),
+    });
+
+    const data = await resp.json();
+    if (resp.ok && data.status === 'ok') {
+      closeModal('modal-decline-confirm');
+      showToast('success', 'Request Ditolak', 'Request penelitian berhasil ditolak.');
+      // Update DOM — ubah card tanpa reload halaman
+      updateRequestCard(declineAction.id, 'rejected', null, reason);
+    } else {
+      showToast('error', 'Gagal', data.message || 'Terjadi kesalahan.');
     }
-    // TODO: fetch POST ke URL decline
-    console.log('DECLINE:', declineAction, reason);
-    closeModal('modal-decline-confirm');
+  } catch (err) {
+    showToast('error', 'Error Jaringan', err.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = originalText;
   }
+}
+
+// ─── APPROVE (Setujui Request) ──────────────────────────────────────────────
+async function approveRequest(id) {
+  if (!confirm('Setujui request penelitian ini?')) return;
+
+  try {
+    const resp = await fetch(`/api/research/requests/${id}/approve/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCsrfToken(),
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+    });
+
+    const data = await resp.json();
+    if (resp.ok && data.status === 'ok') {
+      showToast('success', 'Disetujui!', 'Request penelitian berhasil disetujui.');
+      updateRequestCard(id, 'approved', data.approved_at, null);
+    } else {
+      showToast('error', 'Gagal', data.message || 'Terjadi kesalahan.');
+    }
+  } catch (err) {
+    showToast('error', 'Error Jaringan', err.message);
+  }
+}
+
+// ─── UPDATE CARD TANPA RELOAD ───────────────────────────────────────────────
+function updateRequestCard(id, newStatus, approvedAt, notes) {
+  // Cari card berdasarkan tombol yang memiliki onclick dengan id tersebut
+  const allCards = document.querySelectorAll('#request-list [data-req-status]');
+  let targetCard = null;
+
+  allCards.forEach(card => {
+    const btn = card.querySelector(`button[onclick*="approveRequest(${id})"],
+                                   button[onclick*="confirmDecline('request', ${id}"]`);
+    if (btn) targetCard = card;
+  });
+
+  if (!targetCard) {
+    // Fallback: reload halaman jika card tidak ditemukan
+    window.location.reload();
+    return;
+  }
+
+  // Update data-req-status dan tampilan
+  targetCard.dataset.reqStatus = newStatus;
+
+  // Update border/bg class
+  targetCard.classList.remove(
+    'border-amber-200','dark:border-amber-800','bg-amber-50/30','dark:bg-amber-900/5',
+    'border-emerald-200','dark:border-emerald-800','bg-emerald-50/20','dark:bg-emerald-900/5',
+    'border-rose-200','dark:border-rose-800','bg-rose-50/20','dark:bg-rose-900/5'
+  );
+
+  if (newStatus === 'approved') {
+    targetCard.classList.add('border-emerald-200','dark:border-emerald-800','bg-emerald-50/20','dark:bg-emerald-900/5');
+  } else {
+    targetCard.classList.add('border-rose-200','dark:border-rose-800','bg-rose-50/20','dark:bg-rose-900/5');
+  }
+
+  // Ganti icon + badge status
+  const iconEl = targetCard.querySelector('.material-icons');
+  const badgeEl = targetCard.querySelector('.inline-flex.items-center.px-2\\.5');
+  const actionDiv = targetCard.querySelector('.flex.items-center.gap-2.flex-wrap');
+
+  if (newStatus === 'approved') {
+    iconEl.textContent = 'check_circle';
+    iconEl.className = 'material-icons text-emerald-600';
+    badgeEl.className = 'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0 bg-emerald-100 text-emerald-800 border border-emerald-300';
+    badgeEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full mr-1.5 bg-emerald-500"></span> Disetujui`;
+    actionDiv.innerHTML = `<p class="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+      <span class="material-icons text-sm">verified</span>
+      Disetujui ${approvedAt || 'baru saja'}
+    </p>`;
+  } else {
+    iconEl.textContent = 'cancel';
+    iconEl.className = 'material-icons text-rose-600';
+    badgeEl.className = 'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0 bg-rose-100 text-rose-800 border border-rose-300';
+    badgeEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full mr-1.5 bg-rose-500"></span> Ditolak`;
+    actionDiv.innerHTML = `<p class="text-xs text-rose-500 dark:text-rose-400 flex items-center gap-1">
+      <span class="material-icons text-sm">cancel</span>
+      Ditolak${notes ? ': ' + notes.substring(0, 60) : ''}
+    </p>`;
+  }
+
+  // Re-filter agar card tersembunyi jika tab aktif bukan statusnya
+  filterRequestStatus(document.querySelector('.req-status-tab.bg-primary-500')?.dataset.reqStatus || 'pending');
+}
+
+// ─── getCsrfToken (jika belum ada) ──────────────────────────────────────────
+function getCsrfToken() {
+  return document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+}
+
 
   // ── Jadwal form ────────────────────────────────────────────────────────
   function openJadwalModal(mode, id = null) {

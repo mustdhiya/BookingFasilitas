@@ -8,6 +8,9 @@ urlpatterns = [
     path('lecturers/<int:pk>/titles/',   views.ResearchTitleListView.as_view(),     name='title-list'),
     path('requests/',                    views.ResearchRequestCreateView.as_view(), name='research-request'),
     path('requests/<int:pk>/',           views.ResearchRequestDetailView.as_view(), name='research-request-detail'),
+    path('requests/<int:pk>/approve/',   views.ResearchRequestApproveView.as_view(),name='request-approve'),
+    path('requests/<int:pk>/reject/',    views.ResearchRequestRejectView.as_view(), name='request-reject'),
+
 
     # ── Export ────────────────────────────────────────────────────────
     path('export/praktikum/',            views.export_praktikum,                    name='export-praktikum'),

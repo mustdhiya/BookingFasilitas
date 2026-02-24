@@ -515,3 +515,61 @@ class JudulJsonView(AdminRequiredMixin, View):
             'description': t.description or '',
             'is_active':   t.is_active,
         })
+
+
+from django.views import View
+from django.http import JsonResponse
+from django.utils import timezone
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .models import ResearchRequest  # sesuaikan import model Anda
+
+class ResearchRequestApproveView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        try:
+            req = ResearchRequest.objects.get(pk=pk)
+            req.status = 'approved'
+            req.approved_at = timezone.now()
+            req.approved_by = request.user
+            req.save()
+            return JsonResponse({
+                'status': 'ok',
+                'approved_at': req.approved_at.strftime('%d %b %Y'),
+            })
+        except ResearchRequest.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Request tidak ditemukan.'}, status=404)
+
+
+class ResearchRequestRejectView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        import json
+        try:
+            body = json.loads(request.body)
+            req = ResearchRequest.objects.get(pk=pk)
+            req.status = 'rejected'
+            req.admin_notes = body.get('admin_notes', '')
+            req.save()
+            return JsonResponse({'status': 'ok'})
+        except ResearchRequest.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Request tidak ditemukan.'}, status=404)
+class JudulMahasiswaView(LoginRequiredMixin, View):
+    def get(self, request, pk):
+        from .models import ResearchTitle, ResearchRequest
+        try:
+            title = ResearchTitle.objects.get(pk=pk)
+        except ResearchTitle.DoesNotExist:
+            return JsonResponse({'mahasiswa': []})
+
+        requests = ResearchRequest.objects.filter(
+            research_title=title
+        ).select_related('student')
+
+        data = [
+            {
+                'name':        r.student.get_full_name(),
+                'nim':         getattr(r.student, 'nim_nip', ''),
+                'thesis_title': r.thesis_title,
+                'status':      r.status,
+            }
+            for r in requests
+        ]
+        return JsonResponse({'mahasiswa': data})
