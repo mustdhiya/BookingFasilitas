@@ -112,10 +112,12 @@
         const isEditing = btnText.textContent.trim() === 'Edit';
 
         fields.forEach(f => {
-          if (f.id !== 'profile-email') {  // email tetap read-only
+          // email dan NIM tetap read-only
+          if (f.id !== 'profile-email' && f.id !== 'profile-nim') {
             f.disabled = !isEditing;
           }
         });
+
 
         actions.classList.toggle('hidden', !isEditing);
         btnText.textContent = isEditing ? 'Batal' : 'Edit';
@@ -254,6 +256,10 @@
             disabled
             class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900/50 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 disabled:bg-slate-50 dark:disabled:bg-slate-900 disabled:text-slate-500 dark:disabled:text-slate-500 transition"
           />
+          <p class="flex items-center gap-1 text-xs text-slate-400 dark:text-slate-500">
+            <span class="material-icons text-xs">info</span>
+            NIM / NIP tidak dapat diubah. Hubungi admin jika perlu perubahan.
+          </p>
         </div>
 
         <div class="space-y-1.5">
@@ -307,7 +313,7 @@
   </div>
 
   {# ===== SECURITY SECTION ===== #}
-  <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-6 space-y-6">
+  <div id="keamanan" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-6 space-y-6">
     <div class="pb-4 border-b border-slate-100 dark:border-slate-700">
       <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
         <span class="material-icons text-lg text-primary-600 dark:text-primary-400">lock</span>
@@ -459,91 +465,102 @@
   </div>
 
 </main>
-
 <script>
   let isEditMode = false;
   const originalValues = {};
 
+  // Field yang BOLEH diedit
+  const EDITABLE_IDS = ['profile-fullname', 'profile-instansi', 'profile-phone'];
+  // profile-email dan profile-nim TIDAK masuk daftar ini — permanen read-only
+
   function toggleEditMode() {
     isEditMode = !isEditMode;
-    const inputs = [
-      document.getElementById('profile-fullname'),
-      document.getElementById('profile-nim'),
-      document.getElementById('profile-instansi'),
-      document.getElementById('profile-phone')
-    ];
 
     const editBtnText = document.getElementById('edit-btn-text');
     const formActions = document.getElementById('form-actions');
+    const overlay     = document.getElementById('avatar-overlay');
 
     if (isEditMode) {
-      // Save original values
-      inputs.forEach(input => {
-        originalValues[input.id] = input.value;
-        input.disabled = false;
+      // Simpan nilai asli & aktifkan field
+      EDITABLE_IDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        originalValues[id] = el.value;
+        el.disabled = false;
+        el.classList.remove('disabled:bg-slate-50', 'dark:disabled:bg-slate-900',
+                            'disabled:text-slate-500', 'dark:disabled:text-slate-500');
       });
-      editBtnText.textContent = 'Mode Edit';
+      editBtnText.textContent = 'Batal';
       formActions.classList.remove('hidden');
+      if (overlay) overlay.classList.remove('hidden');
+
     } else {
-      inputs.forEach(input => input.disabled = true);
+      // Kembalikan nilai asli & disable field
+      EDITABLE_IDS.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (originalValues[id] !== undefined) el.value = originalValues[id];
+        el.disabled = true;
+      });
       editBtnText.textContent = 'Edit';
       formActions.classList.add('hidden');
+      if (overlay) overlay.classList.add('hidden');
     }
   }
 
   function cancelEdit() {
-    // Restore original values
-    Object.keys(originalValues).forEach(id => {
-      document.getElementById(id).value = originalValues[id];
-    });
-    toggleEditMode();
-    hideAlert('alert-profile');
+    if (isEditMode) toggleEditMode(); // toggle balik ke mode read
   }
 
-  // Client-side validation for change password
-  document.getElementById('security-form').addEventListener('submit', (e) => {
-    const newPassword = document.getElementById('new-password').value;
-    const confirmPassword = document.getElementById('confirm-password').value;
+  // Preview foto sebelum upload
+  function previewAvatar(input) {
+    if (!input.files || !input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const fallback = document.getElementById('avatar-preview-fallback');
+      let img = document.getElementById('avatar-preview');
+      if (!img) {
+        img = document.createElement('img');
+        img.id = 'avatar-preview';
+        img.className = 'w-24 h-24 rounded-full object-cover shadow-lg border-4 border-primary-100 dark:border-primary-900';
+        if (fallback) fallback.replaceWith(img);
+        else document.getElementById('avatar-overlay').parentNode.prepend(img);
+      }
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
 
-    if (newPassword.length < 8) {
+  // Validasi change password
+  document.getElementById('security-form').addEventListener('submit', (e) => {
+    const newPw  = document.getElementById('new-password').value;
+    const confPw = document.getElementById('confirm-password').value;
+    if (newPw.length < 8) {
       e.preventDefault();
       showAlert('alert-security', 'Password baru minimal 8 karakter.', 'error');
       return;
     }
-
-    if (newPassword !== confirmPassword) {
+    if (newPw !== confPw) {
       e.preventDefault();
       showAlert('alert-security', 'Password baru dan konfirmasi tidak cocok.', 'error');
-      return;
     }
   });
 
   function showAlert(alertId, message, type) {
     const alertBox = document.getElementById(alertId);
-    const isDarkMode = document.documentElement.classList.contains('dark');
-    
-    const colors = {
-      success: isDarkMode 
-        ? 'bg-emerald-900/20 border-emerald-800 text-emerald-300'
-        : 'bg-emerald-50 border-emerald-200 text-emerald-800',
-      error: isDarkMode 
-        ? 'bg-rose-900/20 border-rose-800 text-rose-300'
-        : 'bg-rose-50 border-rose-200 text-rose-800',
-      info: isDarkMode 
-        ? 'bg-blue-900/20 border-blue-800 text-blue-300'
-        : 'bg-blue-50 border-blue-200 text-blue-800'
+    const isDark   = document.documentElement.classList.contains('dark');
+    const colors   = {
+      success: isDark ? 'bg-emerald-900/20 border-emerald-800 text-emerald-300'
+                      : 'bg-emerald-50 border-emerald-200 text-emerald-800',
+      error:   isDark ? 'bg-rose-900/20 border-rose-800 text-rose-300'
+                      : 'bg-rose-50 border-rose-200 text-rose-800',
+      info:    isDark ? 'bg-blue-900/20 border-blue-800 text-blue-300'
+                      : 'bg-blue-50 border-blue-200 text-blue-800',
     };
-    
     alertBox.textContent = message;
-    alertBox.className = `rounded-xl px-4 py-3 text-sm border ${colors[type] || colors.info}`;
+    alertBox.className   = `rounded-xl px-4 py-3 text-sm border ${colors[type] || colors.info}`;
     alertBox.classList.remove('hidden');
-    
-    // Auto-hide after 5 seconds
-    setTimeout(() => hideAlert(alertId), 5000);
-  }
-
-  function hideAlert(alertId) {
-    document.getElementById(alertId).classList.add('hidden');
+    setTimeout(() => alertBox.classList.add('hidden'), 5000);
   }
 </script>
 

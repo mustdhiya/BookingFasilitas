@@ -354,20 +354,20 @@
             </button>
             <!-- Dropdown -->
             <div id="nav-peminjaman-dropdown"
-                 class="dropdown-menu hidden w-52 py-1">
-              <a href="/peminjaman/"
-                 class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline">
+                class="dropdown-menu hidden w-52 py-1">
+              <a href="/peminjaman/?tab=room"
+                class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline">
                 <span class="material-icons-outlined mat-sm text-primary-500">meeting_room</span>
                 Ruangan
               </a>
-              <a href="/peminjaman/"
-                 class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline">
+              <a href="/peminjaman/?tab=tool"
+                class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline">
                 <span class="material-icons-outlined mat-sm text-primary-500">biotech</span>
                 Alat Test
               </a>
               <hr class="my-1 border-slate-100 dark:border-slate-700">
-              <a href="/peminjaman/"
-                 class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline">
+              <a href="/peminjaman/?tab=history"
+                class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline">
                 <span class="material-icons-outlined mat-sm text-slate-400">history</span>
                 Riwayat & Dokumen
               </a>
@@ -514,7 +514,7 @@
                 <span class="material-icons-outlined mat-sm text-primary-500">manage_accounts</span>
                 Profil Saya
               </a>
-              <a href="/profile/"
+              <a href="/profile/#keamanan"
                  class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-colors no-underline">
                 <span class="material-icons-outlined mat-sm text-primary-500">security</span>
                 Keamanan
@@ -588,32 +588,32 @@
           </button>
           <div id="mob-peminjaman" class="hidden pl-10 py-1 space-y-1">
             <!-- Praktikum accordion mobile -->
-        <a href="/praktikum/"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline">
-          <span class="material-icons-outlined mat-sm">school</span>Praktikum
-        </a>
-        <a href="/penelitian/"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline">
-          <span class="material-icons-outlined mat-sm">auto_stories</span>Penelitian
-        </a>
+            <a href="/praktikum/"
+              class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline">
+              <span class="material-icons-outlined mat-sm">school</span>Praktikum
+            </a>
+            <a href="/penelitian/"
+              class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline">
+              <span class="material-icons-outlined mat-sm">auto_stories</span>Penelitian
+            </a>
 
-        <a href="/riwayat/"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline">
-          <span class="material-icons-outlined mat-sm">receipt_long</span>Riwayat
-        </a>
-          </div>
-        </div>
-        {% if user.is_authenticated %}
-        <hr class="border-slate-100 dark:border-slate-700 my-2">
-        <a href="/profile/"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors no-underline">
-          <span class="material-icons-outlined mat-sm">manage_accounts</span>Profil Saya
-        </a>
-        <button onclick="logout()"
-                class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
-          <span class="material-icons-outlined mat-sm">logout</span>Logout
-        </button>
-        {% endif %} 
+            <a href="/riwayat/"
+              class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline">
+              <span class="material-icons-outlined mat-sm">receipt_long</span>Riwayat
+            </a>
+              </div>
+            </div>
+            {% if user.is_authenticated %}
+            <hr class="border-slate-100 dark:border-slate-700 my-2">
+            <a href="/profile/"
+              class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors no-underline">
+              <span class="material-icons-outlined mat-sm">manage_accounts</span>Profil Saya
+            </a>
+            <button onclick="logout()"
+                    class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+              <span class="material-icons-outlined mat-sm">logout</span>Logout
+            </button>
+            {% endif %} 
 
         
       </div>
@@ -754,15 +754,56 @@
       </div>
 
       <!-- Bottom Bar -->
-      <div class="border-t border-slate-100 dark:border-slate-700 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400 dark:text-slate-500">
-        <p>© 2026 Lab Psikologi UMKT. Semua hak cipta dilindungi.</p>
-        <div class="flex items-center gap-4">
-          <a href="/syarat-ketentuan/"  class="hover:text-primary-500 transition-colors no-underline">Syarat & Ketentuan</a>
-          <a href="/kebijakan-privasi/" class="hover:text-primary-500 transition-colors no-underline">Kebijakan Privasi</a>
-          <span class="flex items-center gap-1">
-            <span class="material-icons-outlined mat-xs">favorite</span>
-            Made for UMKT
-          </span>
+      <div class="border-t border-slate-100 dark:border-slate-700 pt-6">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between text-xs text-slate-400 dark:text-slate-500">
+
+          {# ── Kiri: Copyright ── #}
+          <p class="text-center sm:text-left">
+            © 2026 Lab Psikologi UMKT. Semua hak cipta dilindungi.
+          </p>
+
+          {# ── Kanan: Links + Credit ── #}
+          <div class="flex flex-col items-center gap-3 sm:flex-row sm:items-center sm:gap-4">
+
+            {# Links #}
+            <div class="flex items-center gap-4">
+              <a href="/syarat-ketentuan/"
+                class="hover:text-primary-500 transition-colors no-underline whitespace-nowrap">
+                Syarat &amp; Ketentuan
+              </a>
+              <a href="/kebijakan-privasi/"
+                class="hover:text-primary-500 transition-colors no-underline whitespace-nowrap">
+                Kebijakan Privasi
+              </a>
+            </div>
+
+            {# Divider — hanya tampil di sm ke atas #}
+            <span class="hidden sm:inline-block text-slate-200 dark:text-slate-700">|</span>
+
+            {# Credit: Must Dhiya' Tech #}
+            <a href="https://www.instagram.com/mustdhiya_tech/"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Must Dhiya' Tech"
+              class="group flex items-center gap-1.5
+                      text-slate-400 dark:text-slate-500
+                      hover:text-slate-600 dark:hover:text-slate-300
+                      transition no-underline">
+              <img src="{{ MEDIA_URL }}logo/logo_dev.png"
+                  alt="Must Dhiya' Tech"
+                  class="w-4 h-4 rounded object-contain
+                          opacity-60 group-hover:opacity-100 transition flex-shrink-0">
+              <span class="font-medium whitespace-nowrap">Must Dhiya' Tech</span>
+              <span class="hidden sm:inline text-slate-300 dark:text-slate-600 mx-0.5">·</span>
+              <span class="hidden sm:inline whitespace-nowrap">Made for Psychology Study Program, UMKT</span>
+            </a>
+
+            {# "Made for..." muncul di bawah di mobile #}
+            <p class="sm:hidden text-center text-slate-300 dark:text-slate-600">
+              Made for Psychology Study Program, UMKT
+            </p>
+
+          </div>
         </div>
       </div>
     </div>

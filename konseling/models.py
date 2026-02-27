@@ -21,7 +21,30 @@ class KonselingSession(models.Model):
         ('kecemasan',   'Kecemasan / Stres'),
         ('lainnya',     'Lainnya'),
     ]
-
+    # ── Hasil sesi (diisi saat "Selesai") ──
+    laporan_pdf     = models.FileField(
+                          upload_to='konseling/laporan/',
+                          null=True, blank=True,
+                          verbose_name='Laporan/Hasil PDF'
+                      )
+    dirujuk         = models.BooleanField(
+                          default=False,
+                          verbose_name='Dirujuk ke layanan lain'
+                      )
+    catatan_rujukan = models.TextField(
+                          blank=True,
+                          verbose_name='Catatan rujukan'
+                      )
+    selesai_at      = models.DateTimeField(null=True, blank=True)
+    
+    # ── Pembayaran (sudah ada bukti_bayar, tambah verified) ──
+    bayar_verified_at = models.DateTimeField(null=True, blank=True)
+    bayar_verified_by = models.ForeignKey(
+                            settings.AUTH_USER_MODEL,
+                            on_delete=models.SET_NULL,
+                            null=True, blank=True,
+                            related_name='verified_payments'
+                        )
     # Relasi ke User
     user            = models.ForeignKey(
                           settings.AUTH_USER_MODEL,

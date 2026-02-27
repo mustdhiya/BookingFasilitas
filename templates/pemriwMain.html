@@ -96,12 +96,38 @@
           </div>
 
           <div class="space-y-1.5">
-            <label for="date" class="flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
+            <label for="date_start" class="flex items-center gap-1.5 text-sm font-medium
+                                            text-slate-700 dark:text-slate-300">
               <span class="material-icons text-base">calendar_today</span>
-              Tanggal Peminjaman
+              Tanggal Mulai
               <span class="text-rose-500 dark:text-rose-400">*</span>
             </label>
-            <input type="date" id="date" name="date" required min="2026-01-18" class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-200 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition" />
+            <input type="date" id="date_start" name="date_start" required
+                  class="w-full rounded-xl border border-slate-200 dark:border-slate-600
+                          bg-white dark:bg-slate-900 px-4 py-2.5 text-sm
+                          text-slate-900 dark:text-slate-200
+                          focus:border-primary-400 dark:focus:border-primary-500
+                          focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition" />
+          </div>
+
+          <div class="space-y-1.5">
+            <label for="date_end" class="flex items-center gap-1.5 text-sm font-medium
+                                          text-slate-700 dark:text-slate-300">
+              <span class="material-icons text-base">event</span>
+              Tanggal Selesai
+              <span class="text-rose-500 dark:text-rose-400">*</span>
+            </label>
+            <input type="date" id="date_end" name="date_end" required
+                  class="w-full rounded-xl border border-slate-200 dark:border-slate-600
+                          bg-white dark:bg-slate-900 px-4 py-2.5 text-sm
+                          text-slate-900 dark:text-slate-200
+                          focus:border-primary-400 dark:focus:border-primary-500
+                          focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition" />
+            <p class="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
+              <span class="material-icons text-xs">info</span>
+              Peminjaman 1 hari: isi tanggal yang sama di kedua field.
+              Durasi: <strong id="duration-display" class="text-primary-600 dark:text-primary-400 ml-1">0 hari</strong>
+            </p>
           </div>
 
           <div class="grid sm:grid-cols-2 gap-4">
@@ -507,35 +533,77 @@
   {% include 'pemriwayatinclude.html' %}
 
 </main>
-
 <script>
   let currentToolStep = 1;
   let toolPrice = 0;
   let toolQty = 0;
 
-  // Module Switcher
+  // ── Module Switcher (URL-based) ────────────────────────────────────────
   function switchModule(moduleName) {
+    // Update URL tanpa reload
+    const url = new URL(window.location.href);
+    url.searchParams.set('tab', moduleName);
+    window.history.pushState({ tab: moduleName }, '', url.toString());
+
+    _applyModule(moduleName);
+  }
+
+  function _applyModule(moduleName) {
+    // Sembunyikan semua section
     document.querySelectorAll('.module-section').forEach(s => s.classList.add('hidden'));
+
+    // Reset semua card ke default
     document.querySelectorAll('[id^="card-"]').forEach(c => {
-      c.classList.remove('border-primary-300', 'dark:border-primary-600', 'bg-gradient-to-br', 'from-primary-50', 'to-white', 'dark:from-primary-900/30', 'dark:to-slate-800');
+      c.classList.remove(
+        'border-primary-300', 'dark:border-primary-600',
+        'bg-gradient-to-br', 'from-primary-50', 'to-white',
+        'dark:from-primary-900/30', 'dark:to-slate-800'
+      );
       c.classList.add('border-slate-200', 'dark:border-slate-700', 'bg-white', 'dark:bg-slate-800');
     });
 
-    const sectionMap = { 'room': 'section-room', 'tool': 'section-tool', 'history': 'section-history' };
-    document.getElementById(sectionMap[moduleName]).classList.remove('hidden');
-    
+    // Tampilkan section yang dipilih
+    const sectionMap = {
+      'room':    'section-room',
+      'tool':    'section-tool',
+      'history': 'section-history',
+    };
+    const targetSection = document.getElementById(sectionMap[moduleName]);
+    if (targetSection) targetSection.classList.remove('hidden');
+
+    // Aktifkan card yang dipilih
     const card = document.getElementById(`card-${moduleName}`);
-    card.classList.remove('border-slate-200', 'dark:border-slate-700', 'bg-white', 'dark:bg-slate-800');
-    card.classList.add('border-primary-300', 'dark:border-primary-600', 'bg-gradient-to-br', 'from-primary-50', 'to-white', 'dark:from-primary-900/30', 'dark:to-slate-800');
+    if (card) {
+      card.classList.remove('border-slate-200', 'dark:border-slate-700', 'bg-white', 'dark:bg-slate-800');
+      card.classList.add(
+        'border-primary-300', 'dark:border-primary-600',
+        'bg-gradient-to-br', 'from-primary-50', 'to-white',
+        'dark:from-primary-900/30', 'dark:to-slate-800'
+      );
+    }
   }
 
-  // Wizard Navigation
+  // Handle tombol back/forward browser
+  window.addEventListener('popstate', function(e) {
+    const tab = e.state?.tab
+      || new URLSearchParams(window.location.search).get('tab')
+      || 'room';
+    _applyModule(tab);
+  });
+
+  // Init: baca ?tab= dari URL saat halaman dibuka
+  document.addEventListener('DOMContentLoaded', function() {
+    const tab = new URLSearchParams(window.location.search).get('tab') || 'room';
+    _applyModule(tab);
+  });
+
+  // ── Wizard Navigation ──────────────────────────────────────────────────
   function nextStep(step) {
     if (step === 5) updateReviewSummary();
-    
+
     document.querySelectorAll('.wizard-step').forEach(s => s.classList.add('hidden'));
     document.getElementById(`wizard-step-${step}`).classList.remove('hidden');
-    
+
     for (let i = 1; i <= 5; i++) {
       const circle = document.getElementById(`step-circle-${i}`);
       if (i < step) {
@@ -556,50 +624,54 @@
     nextStep(step);
   }
 
-  // Price Calculator
+  // ── Price Calculator ───────────────────────────────────────────────────
   function updatePrice() {
     const testSelect = document.getElementById('tool-test');
-    const qtyInput = document.getElementById('tool-qty');
-    
+    const qtyInput   = document.getElementById('tool-qty');
+
     if (testSelect.value && qtyInput.value) {
       toolPrice = parseInt(testSelect.options[testSelect.selectedIndex].dataset.price);
-      toolQty = parseInt(qtyInput.value);
+      toolQty   = parseInt(qtyInput.value);
       const total = toolPrice * toolQty;
-      
-      document.getElementById('summary-test').textContent = testSelect.options[testSelect.selectedIndex].text.split('(')[0].trim();
-      document.getElementById('summary-qty').textContent = `${toolQty} lembar`;
+
+      document.getElementById('summary-test').textContent  = testSelect.options[testSelect.selectedIndex].text.split('(')[0].trim();
+      document.getElementById('summary-qty').textContent   = `${toolQty} lembar`;
       document.getElementById('summary-price').textContent = `Rp ${toolPrice.toLocaleString('id-ID')}`;
       document.getElementById('summary-total').textContent = `Rp ${total.toLocaleString('id-ID')}`;
     }
   }
 
-  // Duration Calculator
+  // ── Duration Calculator ────────────────────────────────────────────────
   function calculateDuration() {
     const start = document.getElementById('tool-start').value;
-    const end = document.getElementById('tool-end').value;
-    
+    const end   = document.getElementById('tool-end').value;
+
     if (start && end) {
       const days = Math.ceil((new Date(end) - new Date(start)) / (1000 * 60 * 60 * 24)) + 1;
-      document.getElementById('duration-display').textContent = `${days} hari`;
-      document.getElementById('summary-duration').textContent = `${days} hari`;
+      document.getElementById('duration-display').textContent  = `${days} hari`;
+      document.getElementById('summary-duration').textContent  = `${days} hari`;
     }
   }
 
-  // Update Review Summary
+  // ── Update Review Summary ──────────────────────────────────────────────
   function updateReviewSummary() {
-    document.getElementById('review-instansi').textContent = document.getElementById('tool-instansi').value.toUpperCase();
-    document.getElementById('review-purpose').textContent = document.getElementById('tool-purpose').options[document.getElementById('tool-purpose').selectedIndex].text;
-    document.getElementById('review-test').textContent = document.getElementById('tool-test').options[document.getElementById('tool-test').selectedIndex].text;
-    document.getElementById('review-duration').textContent = `${document.getElementById('tool-start').value} - ${document.getElementById('tool-end').value}`;
-    document.getElementById('review-total').textContent = document.getElementById('summary-total').textContent;
+    const instansi  = document.getElementById('tool-instansi');
+    const purpose   = document.getElementById('tool-purpose');
+    const test      = document.getElementById('tool-test');
+
+    document.getElementById('review-instansi').textContent  = instansi.value.toUpperCase();
+    document.getElementById('review-purpose').textContent   = purpose.options[purpose.selectedIndex].text;
+    document.getElementById('review-test').textContent      = test.options[test.selectedIndex].text;
+    document.getElementById('review-duration').textContent  = `${document.getElementById('tool-start').value} – ${document.getElementById('tool-end').value}`;
+    document.getElementById('review-total').textContent     = document.getElementById('summary-total').textContent;
   }
 
-  // Room Form Submit
+  // ── Room Form Submit ───────────────────────────────────────────────────
   function handleRoomSubmit(e) {
     e.preventDefault();
     const participants = parseInt(document.getElementById('participants').value);
-    const roomSelect = document.getElementById('room');
-    const capacity = parseInt(roomSelect.options[roomSelect.selectedIndex].dataset.capacity);
+    const roomSelect   = document.getElementById('room');
+    const capacity     = parseInt(roomSelect.options[roomSelect.selectedIndex].dataset.capacity);
 
     if (participants > capacity) {
       showAlert('alert-room', `Jumlah peserta (${participants}) melebihi kapasitas ruangan (${capacity} orang).`, 'error');
@@ -610,7 +682,7 @@
     setTimeout(() => document.getElementById('room-form').reset(), 2000);
   }
 
-  // Tool Form Submit
+  // ── Tool Form Submit ───────────────────────────────────────────────────
   function handleToolSubmit(e) {
     e.preventDefault();
     showAlert('alert-tool', '✓ Permohonan peminjaman alat tes berhasil dikirim! Invoice akan dikirim ke email Anda.', 'success');
@@ -620,7 +692,7 @@
     }, 2500);
   }
 
-  // Utility Functions
+  // ── Utility Functions ─────────────────────────────────────────────────
   function checkAvailability() {
     showAlert('alert-room', '✓ Ruangan tersedia! Tidak ada konflik dengan peminjaman lain.', 'success');
   }
@@ -634,16 +706,46 @@
     const alertBox = document.getElementById(id);
     const colors = {
       success: 'bg-emerald-50 dark:bg-emerald-900/30 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300',
-      error: 'bg-rose-50 dark:bg-rose-900/30 border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300',
+      error:   'bg-rose-50 dark:bg-rose-900/30 border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300',
       warning: 'bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300',
-      info: 'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300'
+      info:    'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300',
     };
-    
+
     alertBox.textContent = message;
-    alertBox.className = `rounded-xl px-4 py-3 text-sm border ${colors[type] || colors.info}`;
+    alertBox.className   = `rounded-xl px-4 py-3 text-sm border ${colors[type] || colors.info}`;
     alertBox.classList.remove('hidden');
     setTimeout(() => alertBox.classList.add('hidden'), 5000);
   }
+  // Kalkulasi durasi otomatis
+document.getElementById('date_start').addEventListener('change', syncDates);
+document.getElementById('date_end').addEventListener('change',   syncDates);
+
+function syncDates() {
+  var s = document.getElementById('date_start').value;
+  var e = document.getElementById('date_end').value;
+
+  // Auto-isi date_end jika belum diisi
+  if (s && !e) {
+    document.getElementById('date_end').value = s;
+    document.getElementById('date_end').min   = s;
+    e = s;
+  }
+  if (s) {
+    document.getElementById('date_end').min = s;
+  }
+
+  // Tampilkan durasi
+  if (s && e) {
+    var start = new Date(s), end = new Date(e);
+    var days  = Math.round((end - start) / 86400000) + 1;
+    if (days < 1) days = 1;
+    document.getElementById('duration-display').textContent = days + ' hari';
+  }
+
+  // Sync ke kalender — highlight rentang yang dipilih
+  if (s) calSelectDate(s);
+}
+
 </script>
 
 {% endblock content %}

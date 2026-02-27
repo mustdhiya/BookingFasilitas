@@ -19,9 +19,10 @@ class PeminjamRuanganView(LoginRequiredMixin, TemplateView):
 
         ctx['room_list'] = Room.objects.filter(is_active=True).order_by('code')
 
-        ctx['my_bookings'] = RoomBooking.objects.filter(
+        # ← ganti booking_date → date_start
+        ctx['recent_bookings'] = RoomBooking.objects.filter(
             user=user
-        ).select_related('room').order_by('-booking_date')[:10]
+        ).select_related('room').order_by('-date_start')[:5]
 
         ctx['stats'] = {
             'pending':  RoomBooking.objects.filter(user=user, status='pending').count(),
@@ -63,32 +64,43 @@ class RoomBookingViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['post'])
     def check_availability(self, request):
-        """Check room availability"""
-        room_id = request.data.get('room_id')
-        date = request.data.get('date')
-        start_time = request.data.get('start_time')
-        end_time = request.data.get('end_time')
-        
-        # Check overlapping bookings
+        room_id    = request.data.get('room_id')
+        date_start = request.data.get('date_start')
+        date_end   = request.data.get('date_end') or date_start  # fallback 1 hari
+
+        if not room_id or not date_start:
+            return Response({'error': 'room_id dan date_start wajib diisi'}, status=400)
+
         conflicts = RoomBooking.objects.filter(
             room_id=room_id,
-            booking_date=date,
-            status__in=['approved', 'pending']
-        ).filter(
-            Q(start_time__lt=end_time) & Q(end_time__gt=start_time)
+            status__in=['approved', 'pending'],
+            date_start__lte=date_end,
+            date_end__gte=date_start,
         )
-        
+
         if conflicts.exists():
             return Response({
                 'available': False,
-                'message': 'Ruangan sudah dibooking pada waktu tersebut'
-            }, status=status.HTTP_200_OK)
-        
-        return Response({
-            'available': True,
-            'message': 'Ruangan tersedia'
-        })
-    
+                'message': 'Ruangan sudah dibooking pada rentang tanggal tersebut'
+            })
+
+        # Cek blokir rutin
+        from datetime import date as dt, timedelta
+        from django.utils.dateparse import parse_date
+        blocks = RoomBlockSchedule.objects.filter(room_id=room_id, is_active=True)
+        d = parse_date(date_start)
+        end = parse_date(date_end)
+        while d <= end:
+            for b in blocks:
+                if b.covers_date(d):
+                    return Response({
+                        'available': False,
+                        'message': f'Tanggal {d.strftime("%d %b %Y")} terblokir: {b.name}'
+                    })
+            d += timedelta(days=1)
+
+        return Response({'available': True, 'message': 'Ruangan tersedia'})
+
     @action(detail=True, methods=['post'], permission_classes=[IsAdminUser])
     def approve(self, request, pk=None):
         """Approve booking (admin only)"""
@@ -265,3 +277,148 @@ class RiwayatView(LoginRequiredMixin, TemplateView):
         ctx['research_reqs']  = ResearchRequest.objects.filter(student=user).order_by('-created_at')        # ← kemungkinan student juga
 
         return ctx
+
+# rooms/views.py — endpoint booking
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
+from django.utils import timezone
+from django.views import View
+from .forms import RoomBookingForm
+from .models import RoomBooking, RoomBlockSchedule, Room
+import calendar
+
+
+class RoomBookingCreateView(LoginRequiredMixin, View):
+    def post(self, request):
+        form = RoomBookingForm(request.POST)
+        if form.is_valid():
+            booking = form.save(commit=False)
+            booking.user = request.user
+            booking.save()
+            return JsonResponse({
+                'ok': True,
+                'msg': (
+                    f'Permohonan peminjaman {booking.room.name} '
+                    f'({booking.date_start.strftime("%d %b")} – '
+                    f'{booking.date_end.strftime("%d %b %Y")}) '
+                    f'berhasil dikirim!'
+                ),
+                'booking_id': booking.pk,
+                'duration': booking.duration_days,
+            })
+        return JsonResponse({'ok': False, 'errors': form.errors}, status=400)
+
+
+class RoomCalendarView(View):
+    """
+    GET /api/rooms/calendar/?year=2026&month=3&room=1
+    Return: { "2026-03-01": "free"|"booked"|"partial"|"blocked" }
+    """
+    def get(self, request):
+        try:
+            year    = int(request.GET.get('year',  timezone.localdate().year))
+            month   = int(request.GET.get('month', timezone.localdate().month))
+        except (ValueError, TypeError):
+            return JsonResponse({'error': 'Parameter tidak valid'}, status=400)
+
+        room_id = request.GET.get('room')
+        _, days_in_month = calendar.monthrange(year, month)
+
+        # Prefetch semua booking dan blokir untuk bulan ini sekali query
+        import datetime
+        month_start = datetime.date(year, month, 1)
+        month_end   = datetime.date(year, month, days_in_month)
+
+        booking_qs = RoomBooking.objects.filter(
+            status__in=['pending', 'approved'],
+            date_start__lte=month_end,
+            date_end__gte=month_start,
+        )
+        block_qs = RoomBlockSchedule.objects.filter(is_active=True)
+
+        if room_id:
+            booking_qs = booking_qs.filter(room_id=room_id)
+            block_qs   = block_qs.filter(room_id=room_id)
+
+        blocks   = list(block_qs)
+        bookings = list(booking_qs)
+
+        result = {}
+        for day in range(1, days_in_month + 1):
+            date = datetime.date(year, month, day)
+            iso  = date.isoformat()
+
+            # Cek blokir
+            if any(b.covers_date(date) for b in blocks):
+                result[iso] = 'blocked'
+                continue
+
+            # Hitung booking yang overlap hari ini
+            count = sum(
+                1 for bk in bookings
+                if bk.date_start <= date <= bk.date_end
+            )
+            if count == 0:
+                result[iso] = 'free'
+            elif count >= 2:
+                result[iso] = 'booked'
+            else:
+                result[iso] = 'partial'
+
+        return JsonResponse(result)
+
+
+class RoomDayScheduleView(View):
+    """
+    GET /api/rooms/day-schedule/?date=2026-03-05&room=1
+    Return: { "schedules": [...] }
+    """
+    def get(self, request):
+        from django.utils.dateparse import parse_date
+        date    = parse_date(request.GET.get('date', '')) or timezone.localdate()
+        room_id = request.GET.get('room')
+
+        schedules = []
+
+        # Blokir
+        block_qs = RoomBlockSchedule.objects.filter(is_active=True)
+        if room_id:
+            block_qs = block_qs.filter(room_id=room_id)
+        for b in block_qs:
+            if b.covers_date(date):
+                schedules.append({
+                    'title':  b.name,
+                    'time':   'Sepanjang hari',
+                    'room':   b.room.name,
+                    'reason': b.description or '',
+                    'type':   'block',
+                    'label':  b.get_block_type_display(),
+                    'icon':   'event_busy',
+                })
+
+        # Booking
+        booking_qs = RoomBooking.objects.filter(
+            status__in=['pending', 'approved'],
+            date_start__lte=date,
+            date_end__gte=date,
+        ).select_related('room', 'user')
+        if room_id:
+            booking_qs = booking_qs.filter(room_id=room_id)
+        for bk in booking_qs:
+            duration = bk.duration_days
+            time_str = (
+                f'{bk.date_start.strftime("%d %b")} – {bk.date_end.strftime("%d %b %Y")}'
+                if not bk.is_single_day else
+                bk.date_start.strftime('%d %b %Y')
+            )
+            schedules.append({
+                'title':  bk.purpose[:60] + ('...' if len(bk.purpose) > 60 else ''),
+                'time':   f'{time_str} ({duration} hari)',
+                'room':   bk.room.name,
+                'reason': (bk.user.get_full_name() or bk.user.email) + ' • ' + bk.get_status_display(),
+                'type':   'booking',
+                'label':  bk.get_status_display(),
+                'icon':   'meeting_room',
+            })
+
+        return JsonResponse({'schedules': schedules})

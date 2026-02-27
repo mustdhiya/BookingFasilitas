@@ -145,30 +145,99 @@
               <span class="text-slate-400 dark:text-slate-500">{{ sesi.waktu_preferensi }}</span>
             </td>
 
-            <td class="px-4 py-3">
-              <span id="kbadge-{{ sesi.pk }}"
-                    class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold
-                    {% if sesi.status == 'pending' %}
-                      bg-amber-100 text-amber-700 border border-amber-200
-                      dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800
-                    {% elif sesi.status == 'approved' %}
-                      bg-emerald-100 text-emerald-700 border border-emerald-200
-                      dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800
-                    {% elif sesi.status == 'done' %}
-                      bg-indigo-100 text-indigo-700 border border-indigo-200
-                      dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800
-                    {% elif sesi.status == 'rejected' %}
-                      bg-red-100 text-red-700 border border-red-200
-                      dark:bg-red-900/30 dark:text-red-400 dark:border-red-800
+            {# Aksi #}
+            <td class="px-4 py-3" id="kaction-{{ sesi.pk }}">
+              {% if sesi.status == 'pending' %}
+                <button onclick="kBukaModal({{ sesi.pk }})"
+                        class="inline-flex items-center gap-1 rounded-lg bg-primary-500
+                              hover:bg-primary-600 text-white font-semibold text-xs
+                              px-3 py-1.5 transition shadow-sm w-full justify-center">
+                  <span class="material-icons-outlined text-sm">rate_review</span>
+                  Review
+                </button>
+
+              {% elif sesi.status == 'approved' %}
+                <div class="flex flex-col gap-1.5">
+
+                  {# ── Bukti bayar ── #}
+                  {% if sesi.bukti_bayar %}
+                    {% if sesi.sudah_bayar %}
+                      <span class="inline-flex items-center gap-1 text-[10px] font-semibold
+                                  text-emerald-700 dark:text-emerald-400
+                                  bg-emerald-50 dark:bg-emerald-900/30
+                                  border border-emerald-200 dark:border-emerald-800
+                                  rounded-full px-2.5 py-1">
+                        <span class="material-icons text-xs">check_circle</span> Lunas
+                      </span>
                     {% else %}
-                      bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400
-                    {% endif %}">
-                {% if sesi.status == 'pending' %}
-                  <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5 animate-pulse"></span>
-                {% endif %}
-                {{ sesi.get_status_display }}
-              </span>
+                      {# Ada bukti, belum dikonfirmasi #}
+                      <button onclick="kKonfirmasiBayar({{ sesi.pk }})"
+                              class="inline-flex items-center justify-center gap-1 rounded-lg
+                                    bg-emerald-500 hover:bg-emerald-600
+                                    text-white font-semibold text-xs px-3 py-1.5 transition shadow-sm">
+                        <span class="material-icons-outlined text-sm">verified</span>
+                        Konfirmasi Lunas
+                      </button>
+                      <button onclick="kLihatBukti('{{ sesi.bukti_bayar.url }}')"
+                              class="inline-flex items-center justify-center gap-1 rounded-lg
+                                    border border-slate-200 dark:border-slate-600
+                                    bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300
+                                    hover:bg-slate-50 text-xs font-medium px-3 py-1.5 transition">
+                        <span class="material-icons-outlined text-sm">image</span>
+                        Lihat Bukti
+                      </button>
+                    {% endif %}
+                  {% else %}
+                    {# Belum ada bukti bayar — admin bisa upload manual #}
+                    <span class="inline-flex items-center gap-1 text-[10px] font-semibold
+                                text-amber-700 dark:text-amber-400
+                                bg-amber-50 dark:bg-amber-900/30
+                                border border-amber-200 dark:border-amber-800
+                                rounded-full px-2.5 py-1">
+                      <span class="material-icons text-xs">pending</span> Belum ada bukti
+                    </span>
+                    <button onclick="kBukaModalUploadBukti({{ sesi.pk }})"
+                            class="inline-flex items-center justify-center gap-1 rounded-lg
+                                  border border-slate-200 dark:border-slate-600
+                                  bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300
+                                  hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300
+                                  text-xs font-medium px-3 py-1.5 transition">
+                      <span class="material-icons-outlined text-sm">upload_file</span>
+                      Upload Bukti
+                    </button>
+                  {% endif %}
+
+
+                  {# ── Tandai Selesai ── hanya bisa jika sudah bayar #}
+                  {% if sesi.sudah_bayar %}
+                    <button onclick="kBukaModalSelesai({{ sesi.pk }})"
+                            class="inline-flex items-center justify-center gap-1 rounded-lg
+                                  bg-indigo-500 hover:bg-indigo-600
+                                  text-white font-semibold text-xs px-3 py-1.5 transition shadow-sm">
+                      <span class="material-icons-outlined text-sm">task_alt</span>
+                      Tandai Selesai
+                    </button>
+                  {% else %}
+                    <button disabled
+                            title="Konfirmasi pembayaran dulu sebelum menyelesaikan sesi"
+                            class="inline-flex items-center justify-center gap-1 rounded-lg
+                                  bg-slate-200 dark:bg-slate-700
+                                  text-slate-400 dark:text-slate-500
+                                  font-semibold text-xs px-3 py-1.5 cursor-not-allowed">
+                      <span class="material-icons-outlined text-sm">lock</span>
+                      Selesai
+                    </button>
+                  {% endif %}
+
+                </div>
+
+              {% else %}
+                <span class="text-xs text-slate-400 dark:text-slate-500 italic">
+                  {{ sesi.get_status_display }}
+                </span>
+              {% endif %}
             </td>
+
 
             <td class="px-4 py-3 text-xs text-slate-600 dark:text-slate-400">
               {{ sesi.psikolog|default:"—" }}
@@ -215,6 +284,276 @@
 
         </tbody>
       </table>
+    </div>
+  </div>
+  {# ── MODAL UPLOAD BUKTI BAYAR (Admin) ── #}
+<div id="k-modal-upload-bukti"
+     class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50
+            hidden items-center justify-center p-4"
+     onclick="if(event.target===this) kTutupModalUploadBukti()">
+  <div class="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md shadow-2xl"
+       onclick="event.stopPropagation()">
+
+    <div class="flex items-center justify-between px-6 pt-5 pb-4
+                border-b border-slate-100 dark:border-slate-700">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-900/40
+                    flex items-center justify-center">
+          <span class="material-icons text-blue-500">upload_file</span>
+        </div>
+        <div>
+          <h2 class="text-base font-bold text-slate-900 dark:text-slate-100">
+            Upload Bukti Bayar
+            <span id="k-upload-bukti-id" class="text-blue-500 ml-1 text-sm font-normal"></span>
+          </h2>
+          <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+            Upload bukti transfer/pembayaran dari klien
+          </p>
+        </div>
+      </div>
+      <button onclick="kTutupModalUploadBukti()"
+              class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300
+                     rounded-lg p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+        <span class="material-icons-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="px-6 py-5">
+      <div id="k-drop-bukti"
+           class="relative rounded-xl border-2 border-dashed border-slate-200
+                  dark:border-slate-600 hover:border-blue-400
+                  bg-slate-50 dark:bg-slate-700/50 transition cursor-pointer"
+           onclick="document.getElementById('k-input-bukti').click()"
+           ondragover="event.preventDefault(); this.classList.add('border-blue-400')"
+           ondragleave="this.classList.remove('border-blue-400')"
+           ondrop="kOnDropBuktiAdmin(event)">
+        <input type="file" id="k-input-bukti"
+               accept="image/*"
+               class="sr-only"
+               onchange="kOnBuktiChange(this)">
+        <div id="k-bukti-placeholder" class="flex flex-col items-center gap-2 py-8 pointer-events-none">
+          <span class="material-icons-outlined text-4xl text-slate-300 dark:text-slate-600">image</span>
+          <p class="text-xs font-medium text-slate-500 dark:text-slate-400">
+            Klik atau drag & drop gambar di sini
+          </p>
+          <p class="text-[10px] text-slate-400">JPG, PNG, WEBP — Maks. 5 MB</p>
+        </div>
+        <div id="k-bukti-admin-preview" class="hidden items-center gap-3 px-4 py-3 pointer-events-none">
+          <span class="material-icons text-blue-500 text-2xl flex-shrink-0">image</span>
+          <div class="flex-1 min-w-0">
+            <p id="k-bukti-admin-name" class="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate"></p>
+            <p id="k-bukti-admin-size" class="text-[10px] text-slate-400"></p>
+          </div>
+          <button type="button"
+                  class="pointer-events-auto text-slate-400 hover:text-rose-500 transition"
+                  onclick="event.stopPropagation(); kHapusBuktiAdmin()">
+            <span class="material-icons-outlined text-sm">close</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex gap-2 justify-end px-6 pb-5">
+      <button type="button" onclick="kTutupModalUploadBukti()"
+              class="rounded-lg border border-slate-200 dark:border-slate-600
+                     bg-white dark:bg-slate-700 hover:bg-slate-50
+                     text-slate-700 dark:text-slate-300 font-semibold text-sm
+                     px-4 py-2 transition">
+        Batal
+      </button>
+      <button type="button" onclick="kSubmitUploadBukti()"
+              id="k-btn-upload-bukti"
+              class="inline-flex items-center gap-1.5 rounded-lg bg-blue-500
+                     hover:bg-blue-600 text-white font-semibold text-sm px-4 py-2 transition">
+        <span class="material-icons-outlined text-base">upload</span>
+        Upload
+      </button>
+    </div>
+
+  </div>
+</div>
+
+  {# ── MODAL SELESAI (dengan upload laporan + rujukan) ── #}
+  <div id="k-modal-selesai"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50
+              hidden items-center justify-center p-4"
+      onclick="if(event.target===this) kTutupModalSelesai()">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-lg shadow-2xl"
+        onclick="event.stopPropagation()">
+
+      {# Header #}
+      <div class="flex items-center justify-between px-6 pt-5 pb-4
+                  border-b border-slate-100 dark:border-slate-700">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-indigo-100 dark:bg-indigo-900/40
+                      flex items-center justify-center">
+            <span class="material-icons text-indigo-500">task_alt</span>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-slate-900 dark:text-slate-100">
+              Tandai Sesi Selesai
+              <span id="k-selesai-id" class="text-indigo-500 ml-1 text-sm font-normal"></span>
+            </h2>
+            <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+              Upload laporan dan isi status rujukan
+            </p>
+          </div>
+        </div>
+        <button onclick="kTutupModalSelesai()"
+                class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300
+                      rounded-lg p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+          <span class="material-icons-outlined">close</span>
+        </button>
+      </div>
+
+      {# Body #}
+      <form id="k-form-selesai" class="px-6 py-5 space-y-4">
+        {% csrf_token %}
+
+        {# Upload PDF #}
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+            Laporan / Hasil Sesi (PDF)
+            <span class="text-slate-400 font-normal ml-1">— opsional</span>
+          </label>
+          <div id="k-drop-pdf"
+              class="relative rounded-xl border-2 border-dashed border-slate-200
+                      dark:border-slate-600 hover:border-indigo-400 dark:hover:border-indigo-600
+                      bg-slate-50 dark:bg-slate-700/50 transition cursor-pointer"
+              onclick="document.getElementById('k-input-pdf').click()"
+              ondragover="event.preventDefault(); this.classList.add('border-indigo-400')"
+              ondragleave="this.classList.remove('border-indigo-400')"
+              ondrop="kOnDropPdf(event)">
+            <input type="file" name="laporan_pdf" id="k-input-pdf"
+                  accept=".pdf,application/pdf"
+                  class="sr-only"
+                  onchange="kOnPdfChange(this)">
+            <div id="k-pdf-placeholder" class="flex flex-col items-center gap-2 py-6 pointer-events-none">
+              <span class="material-icons-outlined text-3xl text-slate-300 dark:text-slate-600">
+                picture_as_pdf
+              </span>
+              <p class="text-xs font-medium text-slate-500 dark:text-slate-400">
+                Klik atau drag & drop PDF di sini
+              </p>
+              <p class="text-[10px] text-slate-400">Maks. 10 MB</p>
+            </div>
+            <div id="k-pdf-preview"
+                class="hidden flex items-center gap-3 px-4 py-3 pointer-events-none">
+              <span class="material-icons text-red-500 text-2xl flex-shrink-0">picture_as_pdf</span>
+              <div class="flex-1 min-w-0">
+                <p id="k-pdf-name"
+                  class="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate"></p>
+                <p id="k-pdf-size" class="text-[10px] text-slate-400"></p>
+              </div>
+              <button type="button"
+                      class="pointer-events-auto text-slate-400 hover:text-rose-500 transition"
+                      onclick="event.stopPropagation(); kHapusPdf()">
+                <span class="material-icons-outlined text-sm">close</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {# Rujukan #}
+        <div class="rounded-xl border border-slate-200 dark:border-slate-700
+                    bg-slate-50 dark:bg-slate-700/50 p-4 space-y-3">
+          <p class="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+            <span class="material-icons-outlined text-sm text-slate-400">transfer_within_a_station</span>
+            Status Rujukan
+          </p>
+          <label class="flex items-center gap-3 cursor-pointer">
+            <div class="relative">
+              <input type="checkbox" name="dirujuk" id="k-chk-dirujuk" value="1"
+                    class="sr-only peer"
+                    onchange="kToggleRujukan(this.checked)">
+              <div class="w-10 h-5 bg-slate-200 dark:bg-slate-600 rounded-full peer
+                          peer-checked:bg-indigo-500 transition-colors"></div>
+              <div class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow
+                          peer-checked:translate-x-5 transition-transform"></div>
+            </div>
+            <span class="text-xs font-medium text-slate-700 dark:text-slate-300">
+              Klien perlu dirujuk ke layanan lain
+            </span>
+          </label>
+          <div id="k-rujukan-detail" class="hidden">
+            <textarea name="catatan_rujukan" id="k-inp-rujukan" rows="2"
+                      placeholder="Dirujuk ke mana? (contoh: Psikiater RS X, BK Prodi...)"
+                      class="w-full rounded-lg border border-slate-200 dark:border-slate-600
+                            dark:bg-slate-700 dark:text-slate-100 text-xs
+                            px-3 py-2 focus:ring-2 focus:ring-indigo-500 resize-none"></textarea>
+          </div>
+        </div>
+
+        {# Catatan psikolog #}
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+            Catatan Penutup
+            <span class="text-slate-400 font-normal ml-1">— opsional</span>
+          </label>
+          <textarea name="catatan_admin" rows="2"
+                    placeholder="Ringkasan singkat hasil sesi (tidak dilihat klien)"
+                    class="w-full rounded-lg border border-slate-200 dark:border-slate-600
+                          dark:bg-slate-700 dark:text-slate-100
+                          px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 resize-none"></textarea>
+        </div>
+      </form>
+
+      {# Footer #}
+      <div class="flex gap-2 justify-end px-6 pb-5">
+        <button type="button" onclick="kTutupModalSelesai()"
+                class="rounded-lg border border-slate-200 dark:border-slate-600
+                      bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600
+                      text-slate-700 dark:text-slate-300 font-semibold text-sm
+                      px-4 py-2 transition">
+          Batal
+        </button>
+        <button type="button" onclick="kSubmitSelesai()"
+                id="k-btn-selesai"
+                class="inline-flex items-center gap-1.5 rounded-lg bg-indigo-500
+                      hover:bg-indigo-600 text-white font-semibold text-sm px-4 py-2 transition">
+          <span class="material-icons-outlined text-base">task_alt</span>
+          Tandai Selesai
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+
+  {# ── MODAL LIHAT BUKTI BAYAR ── #}
+  <div id="k-modal-bukti"
+      class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50
+              hidden items-center justify-center p-4"
+      onclick="if(event.target===this) kTutupModalBukti()">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-lg shadow-2xl
+                flex flex-col max-h-[90vh]"
+        onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between px-5 py-4
+                  border-b border-slate-100 dark:border-slate-700 flex-shrink-0">
+        <div class="flex items-center gap-2">
+          <span class="material-icons text-emerald-500">receipt_long</span>
+          <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100">Bukti Pembayaran</h3>
+        </div>
+        <div class="flex items-center gap-2">
+          <a id="k-bukti-link" href="#" target="_blank"
+            class="inline-flex items-center gap-1 text-xs font-medium text-slate-500
+                    hover:text-primary-600 border border-slate-200 dark:border-slate-600
+                    bg-slate-50 dark:bg-slate-700 rounded-lg px-2.5 py-1.5 transition">
+            <span class="material-icons-outlined text-sm">open_in_new</span>
+            Buka Tab Baru
+          </a>
+          <button onclick="kTutupModalBukti()"
+                  class="text-slate-400 hover:text-slate-600 rounded-lg p-1.5
+                        hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+            <span class="material-icons-outlined">close</span>
+          </button>
+        </div>
+      </div>
+      <div class="flex-1 overflow-auto bg-slate-100 dark:bg-slate-900 flex items-center justify-center p-4">
+        <img id="k-bukti-img" src="" alt="Bukti bayar"
+            class="max-w-full max-h-[70vh] rounded-xl shadow-md object-contain
+                    border border-slate-200 dark:border-slate-700">
+      </div>
     </div>
   </div>
 
@@ -277,24 +616,63 @@
               <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Ruangan
               </label>
-              <input type="text" name="ruangan" id="k-inp-ruangan"
-                     placeholder="cth: Ruang B201"
-                     class="w-full rounded-lg border border-slate-200 dark:border-slate-600
+
+              <select id="k-sel-ruangan"
+                      onchange="kOnRuanganChange(this.value)"
+                      class="w-full rounded-lg border border-slate-200 dark:border-slate-600
                             dark:bg-slate-700 dark:text-slate-100
-                            px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500">
+                            px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 mb-1.5">
+                <option value="">— Pilih ruangan —</option>
+                {% for room in room_list %}
+                <option value="{{ room.name|escapejs }}">
+                  {{ room.name }}{% if room.capacity %} (Kap. {{ room.capacity }}){% endif %}
+                </option>
+                {% endfor %}
+                <option value="__lainnya__">Lainnya (input manual)</option>
+              </select>
+
+              <input type="text" name="ruangan" id="k-inp-ruangan"
+                    placeholder="Ketik nama ruangan..."
+                    class="hidden w-full rounded-lg border border-primary-300 dark:border-primary-700
+                            dark:bg-slate-700 dark:text-slate-100
+                            px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500
+                            transition-all duration-200">
+              <p id="k-ruangan-hint" class="hidden text-[10px] text-primary-500 mt-0.5">
+                Input manual aktif — ketik nama ruangan bebas.
+              </p>
             </div>
+
             <div>
               <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Psikolog
               </label>
-              <input type="text" name="psikolog" id="k-inp-psikolog"
-                     placeholder="Nama psikolog"
-                     class="w-full rounded-lg border border-slate-200 dark:border-slate-600
-                            dark:bg-slate-700 dark:text-slate-100
-                            px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500">
-            </div>
-          </div>
 
+              {# Dropdown dari daftar dosen #}
+              <select id="k-sel-psikolog"
+                      onchange="kOnPsikologChange(this.value)"
+                      class="w-full rounded-lg border border-slate-200 dark:border-slate-600
+                            dark:bg-slate-700 dark:text-slate-100
+                            px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 mb-1.5">
+                <option value="">— Pilih psikolog —</option>
+                {% for dosen in dosen_list %}
+                <option value="{{ dosen.name|escapejs }}">{{ dosen.name }}</option>
+                {% endfor %}
+                <option value="__lainnya__">Lainnya (input manual)</option>
+              </select>
+
+              {# Input manual — muncul hanya jika pilih "Lainnya" #}
+              <input type="text" name="psikolog" id="k-inp-psikolog"
+                    placeholder="Ketik nama psikolog..."
+                    class="hidden w-full rounded-lg border border-primary-300 dark:border-primary-700
+                            dark:bg-slate-700 dark:text-slate-100
+                            px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500
+                            transition-all duration-200">
+              <p id="k-psikolog-hint" class="hidden text-[10px] text-primary-500 mt-0.5">
+                Input manual aktif — ketik nama psikolog bebas.
+              </p>
+            </div>
+
+          </div>
           <div>
             <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
               Tarif (Rp)
@@ -346,235 +724,562 @@
     </div>
   </div>
 
-</div>{# end #admin-section-konseling #}
+</div>
 
 
 {# ── JAVASCRIPT ─────────────────────────────────────────────────────────── #}
+{# ── SCRIPT KONSELING ─────────────────────────────────────────────────── #}
 <script>
-(function () {   // ← IIFE: semua variabel terisolasi, tidak bocor ke global
+(function () {
 
-  // ── Data sesi dari Django ──────────────────────────────────────────────
-  const SESI = {
+  // ── Expose ke global ──────────────────────────────────────────────────
+  window.kBukaModal        = kBukaModal;
+  window.kTutupModal       = kTutupModal;
+  window.kSubmit           = kSubmit;
+  window.kAksiCepat        = kAksiCepat;
+  window.kFilterTable      = kFilterTable;
+  window.kFilterStatus     = kFilterStatus;
+  window.kOnPsikologChange = kOnPsikologChange;
+  window.kOnRuanganChange  = kOnRuanganChange;
+  window.kToggleRujukan    = kToggleRujukan;
+  window.kBukaModalSelesai  = kBukaModalSelesai;
+  window.kTutupModalSelesai = kTutupModalSelesai;
+  window.kSubmitSelesai     = kSubmitSelesai;
+  window.kKonfirmasiBayar   = kKonfirmasiBayar;
+  window.kLihatBukti        = kLihatBukti;
+  window.kTutupModalBukti   = kTutupModalBukti;
+  window.kOnDropPdf         = kOnDropPdf;
+  window.kOnPdfChange       = kOnPdfChange;
+  window.kHapusPdf          = kHapusPdf;
+
+  // ── Modal Upload Bukti (Admin) ────────────────────────────────────────
+  var _kUploadBuktiPk = null;
+
+  window.kBukaModalUploadBukti  = kBukaModalUploadBukti;
+  window.kTutupModalUploadBukti = kTutupModalUploadBukti;
+  window.kSubmitUploadBukti     = kSubmitUploadBukti;
+  window.kOnDropBuktiAdmin      = kOnDropBuktiAdmin;
+  window.kOnBuktiChange         = kOnBuktiChange;
+  window.kHapusBuktiAdmin       = kHapusBuktiAdmin;
+
+  function kBukaModalUploadBukti(pk) {
+    _kUploadBuktiPk = pk;
+    var elId = document.getElementById('k-upload-bukti-id');
+    if (elId) elId.textContent = '#' + pk;
+    kHapusBuktiAdmin();
+    var modal = document.getElementById('k-modal-upload-bukti');
+    if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); document.body.style.overflow = 'hidden'; }
+  }
+
+  function kTutupModalUploadBukti() {
+    var modal = document.getElementById('k-modal-upload-bukti');
+    if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); document.body.style.overflow = ''; }
+    _kUploadBuktiPk = null;
+  }
+
+  function kOnDropBuktiAdmin(event) {
+    event.preventDefault();
+    document.getElementById('k-drop-bukti').classList.remove('border-blue-400');
+    var file = event.dataTransfer && event.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      var dt = new DataTransfer();
+      dt.items.add(file);
+      var input = document.getElementById('k-input-bukti');
+      if (input) { input.files = dt.files; kOnBuktiChange(input); }
+    }
+  }
+
+  function kOnBuktiChange(input) {
+    if (!input || !input.files || !input.files[0]) return;
+    var file = input.files[0];
+    document.getElementById('k-bukti-placeholder').classList.add('hidden');
+    var prev = document.getElementById('k-bukti-admin-preview');
+    prev.classList.remove('hidden');
+    document.getElementById('k-bukti-admin-name').textContent = file.name;
+    document.getElementById('k-bukti-admin-size').textContent = (file.size / 1024).toFixed(1) + ' KB';
+  }
+
+  function kHapusBuktiAdmin() {
+    var input = document.getElementById('k-input-bukti');
+    if (input) input.value = '';
+    document.getElementById('k-bukti-placeholder').classList.remove('hidden');
+    var prev = document.getElementById('k-bukti-admin-preview');
+    if (prev) prev.classList.add('hidden');
+  }
+
+  function kSubmitUploadBukti() {
+    if (!_kUploadBuktiPk) return;
+    var input = document.getElementById('k-input-bukti');
+    if (!input || !input.files || !input.files[0]) {
+      alert('Pilih file gambar terlebih dahulu.'); return;
+    }
+    var s   = SESI[_kUploadBuktiPk];
+    if (!s) return;
+    var btn = document.getElementById('k-btn-upload-bukti');
+    if (btn) { btn.disabled = true; btn.textContent = 'Mengupload...'; }
+
+    var fd   = new FormData();
+    fd.append('aksi', 'upload_bukti');
+    fd.append('bukti_bayar', input.files[0]);
+    var csrf = (document.querySelector('[name=csrfmiddlewaretoken]') || {}).value || '';
+
+    fetch(s.url, {
+      method:  'POST',
+      headers: { 'X-CSRFToken': csrf, 'X-Requested-With': 'XMLHttpRequest' },
+      body:    fd,
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.ok || data.status === 'ok') {
+        kTutupModalUploadBukti();
+        kShowToast('Bukti bayar berhasil diupload!', 'success');
+        setTimeout(function() { location.reload(); }, 800);
+      } else {
+        alert(data.msg || 'Gagal mengupload bukti.');
+      }
+    })
+    .catch(function(err) { alert('Error: ' + err.message); })
+    .finally(function() {
+      if (btn) { btn.disabled = false; btn.textContent = 'Upload'; }
+    });
+  }
+
+
+  // ── State ─────────────────────────────────────────────────────────────
+  var _kActivePk = null;
+
+  // Data sesi dari Django — dipakai untuk prefill modal
+  var SESI = {
     {% for s in sesi_list %}
     {{ s.pk }}: {
-      id:      {{ s.pk }},
-      nama:    "{{ s.user.get_full_name|default:s.user.email|escapejs }}",
-      email:   "{{ s.user.email|escapejs }}",
-      wa:      "{{ s.user.phone|default:'-'|escapejs }}",
-      tujuan:  "{{ s.get_tujuan_display|escapejs }}",
-      keluhan: "{{ s.keluhan|truncatechars:150|escapejs }}",
-      tglPref: "{{ s.tanggal_preferensi|date:'Y-m-d' }}",
-      wktPref: "{{ s.waktu_preferensi }}",
-      url:     "{% url 'admin-konseling-aksi' s.pk %}",
+      id:         {{ s.pk }},
+      nama:       "{{ s.user.get_full_name|default:s.user.email|escapejs }}",
+      email:      "{{ s.user.email|escapejs }}",
+      wa:         "{{ s.user.phone|default:'-'|escapejs }}",
+      tujuan:     "{{ s.get_tujuan_display|escapejs }}",
+      keluhan:    "{{ s.keluhan|truncatechars:150|escapejs }}",
+      tglPref:    "{{ s.tanggal_preferensi|date:'Y-m-d' }}",
+      wktPref:    "{{ s.waktu_preferensi }}",
+      url: "{% url 'admin-konseling-aksi' s.pk %}",
+      sudahBayar: {{ s.sudah_bayar|yesno:"true,false" }},
+      buktiBayar: "{% if s.bukti_bayar %}{{ s.bukti_bayar.url }}{% endif %}",
     },
     {% endfor %}
   };
 
-  let activePk = null;
-
-  // ── Expose ke global (dipanggil dari onclick="...") ────────────────────
-  window.kBukaModal  = kBukaModal;
-  window.kTutupModal = kTutupModal;
-  window.kSubmit     = kSubmit;
-  window.kAksiCepat  = kAksiCepat;
-  window.kFilterTable  = kFilterTable;
-  window.kFilterStatus = kFilterStatus;
-
-  // ── Buka modal ─────────────────────────────────────────────────────────
+  // ── kBukaModal ────────────────────────────────────────────────────────
   function kBukaModal(pk) {
-    activePk = pk;
-    const d  = SESI[pk];
-    if (!d) return;
+    _kActivePk = pk;
+    var s = SESI[pk];
+    if (!s) { console.error('SESI tidak ditemukan untuk pk:', pk); return; }
 
-    document.getElementById('k-modal-id').textContent = `#${pk}`;
-    document.getElementById('k-modal-info').innerHTML = `
-      <div class="grid grid-cols-2 gap-x-4 gap-y-1">
-        <div><span class="text-slate-400">Nama</span>
-             <p class="font-semibold">${d.nama}</p></div>
-        <div><span class="text-slate-400">WhatsApp</span>
-             <p class="font-semibold">${d.wa}</p></div>
-        <div class="col-span-2"><span class="text-slate-400">Email</span>
-             <p class="font-semibold">${d.email}</p></div>
-        <div><span class="text-slate-400">Tujuan</span>
-             <p class="font-semibold">${d.tujuan}</p></div>
-        <div><span class="text-slate-400">Pref. Waktu</span>
-             <p class="font-semibold">${d.tglPref} ${d.wktPref}</p></div>
-        <div class="col-span-2 mt-1 pt-2 border-t border-slate-200 dark:border-slate-600">
-          <span class="text-slate-400">Keluhan / Tujuan</span>
-          <p class="italic mt-0.5">"${d.keluhan}"</p>
-        </div>
-      </div>`;
+    // Set judul modal
+    var elId = document.getElementById('k-modal-id');
+    if (elId) elId.textContent = '#' + pk;
 
-    document.getElementById('k-inp-tanggal').value  = d.tglPref;
-    document.getElementById('k-inp-waktu').value    = d.wktPref;
-    document.getElementById('k-inp-ruangan').value  = '';
-    document.getElementById('k-inp-psikolog').value = '';
-    document.getElementById('k-inp-tarif').value    = '';
-    document.getElementById('k-inp-catatan').value  = '';
+    // Prefill info klien
+    var elInfo = document.getElementById('k-modal-info');
+    if (elInfo) {
+      elInfo.innerHTML =
+        '<div class="grid grid-cols-2 gap-2">' +
+        '<div><span class="text-slate-400">Nama</span><p class="font-semibold mt-0.5">' + s.nama + '</p></div>' +
+        '<div><span class="text-slate-400">Email</span><p class="font-semibold mt-0.5">' + s.email + '</p></div>' +
+        '<div><span class="text-slate-400">WhatsApp</span><p class="font-semibold mt-0.5">' + s.wa + '</p></div>' +
+        '<div><span class="text-slate-400">Tujuan</span><p class="font-semibold mt-0.5">' + s.tujuan + '</p></div>' +
+        '<div class="col-span-2"><span class="text-slate-400">Keluhan</span><p class="font-semibold mt-0.5">' + s.keluhan + '</p></div>' +
+        '<div><span class="text-slate-400">Tgl Preferensi</span><p class="font-semibold mt-0.5">' + s.tglPref + '</p></div>' +
+        '<div><span class="text-slate-400">Waktu Preferensi</span><p class="font-semibold mt-0.5">' + s.wktPref + '</p></div>' +
+        '</div>';
+    }
 
-    const modal = document.getElementById('k-modal');
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-    document.body.style.overflow = 'hidden';
+    // Prefill tanggal & waktu preferensi ke form
+    var inpTgl = document.getElementById('k-inp-tanggal');
+    var inpWkt = document.getElementById('k-inp-waktu');
+    if (inpTgl) inpTgl.value = s.tglPref || '';
+    if (inpWkt) inpWkt.value = s.wktPref || '';
+
+    // Reset field lain
+    var inpTarif   = document.getElementById('k-inp-tarif');
+    var inpCatatan = document.getElementById('k-inp-catatan');
+    var selPsi     = document.getElementById('k-sel-psikolog');
+    var selRuang   = document.getElementById('k-sel-ruangan');
+    if (inpTarif)   inpTarif.value   = '';
+    if (inpCatatan) inpCatatan.value = '';
+    if (selPsi)     selPsi.value     = '';
+    if (selRuang)   selRuang.value   = '';
+
+    // Sembunyikan input manual psikolog & ruangan
+    kOnPsikologChange('');
+    kOnRuanganChange('');
+
+    // Set action form
+    var form = document.getElementById('k-form');
+    if (form) form.dataset.url = s.url;
+
+    // Tampilkan modal
+    var modal = document.getElementById('k-modal');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+    }
   }
 
-  // ── Tutup modal ────────────────────────────────────────────────────────
+  // ── kTutupModal ───────────────────────────────────────────────────────
   function kTutupModal() {
-    const modal = document.getElementById('k-modal');
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
-    document.body.style.overflow = '';
-    activePk = null;
+    var modal = document.getElementById('k-modal');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.style.overflow = '';
+    }
+    _kActivePk = null;
   }
 
-  document.getElementById('k-modal').addEventListener('click', function (e) {
-    if (e.target === this) kTutupModal();
-  });
+  // ── kSubmit ───────────────────────────────────────────────────────────
+  function kSubmit(aksi) {
+    var form     = document.getElementById('k-form');
+    var url      = (form && form.dataset.url) ? form.dataset.url : '';
+    if (!url) { alert('URL aksi tidak ditemukan.'); return; }
 
-  // ── Submit approve/reject ──────────────────────────────────────────────
-  async function kSubmit(aksi) {
-    if (!activePk) return;
-    const d       = SESI[activePk];
-    const catatan = document.getElementById('k-inp-catatan').value.trim();
-
-    if (aksi === 'reject' && !catatan) {
-      kToast('error', 'Catatan wajib diisi saat menolak sesi.');
-      document.getElementById('k-inp-catatan').focus();
+    var catatan  = document.getElementById('k-inp-catatan');
+    if (aksi === 'reject' && catatan && !catatan.value.trim()) {
+      catatan.focus();
+      catatan.classList.add('border-red-500');
+      catatan.placeholder = 'Wajib diisi jika ditolak!';
       return;
     }
+    if (catatan) catatan.classList.remove('border-red-500');
 
-    const fd = new FormData(document.getElementById('k-form'));
-    fd.append('aksi', aksi);
+    // Ambil nilai psikolog — manual atau dropdown
+    var selPsi   = document.getElementById('k-sel-psikolog');
+    var inpPsi   = document.getElementById('k-inp-psikolog');
+    var psikolog = (selPsi && selPsi.value !== '__lainnya__' && selPsi.value)
+      ? selPsi.value
+      : (inpPsi ? inpPsi.value.trim() : '');
 
-    try {
-      const res  = await fetch(d.url, {
-        method: 'POST',
-        headers: { 'X-Requested-With': 'XMLHttpRequest' },
-        body: fd,
-      });
-      const json = await res.json();
-      if (json.ok) {
+    // Ambil nilai ruangan — manual atau dropdown
+    var selRuang  = document.getElementById('k-sel-ruangan');
+    var inpRuang  = document.getElementById('k-inp-ruangan');
+    var ruangan   = (selRuang && selRuang.value !== '__lainnya__' && selRuang.value)
+      ? selRuang.value
+      : (inpRuang ? inpRuang.value.trim() : '');
+
+    var payload = {
+      aksi:          aksi,
+      tanggal_aktual: document.getElementById('k-inp-tanggal') ? document.getElementById('k-inp-tanggal').value : '',
+      waktu_aktual:   document.getElementById('k-inp-waktu')   ? document.getElementById('k-inp-waktu').value   : '',
+      psikolog:       psikolog,
+      ruangan:        ruangan,
+      tarif:          document.getElementById('k-inp-tarif')   ? document.getElementById('k-inp-tarif').value   : '',
+      catatan_admin:  catatan ? catatan.value.trim() : '',
+    };
+
+    var csrfEl = document.querySelector('[name=csrfmiddlewaretoken]');
+    var csrf   = csrfEl ? csrfEl.value : '';
+
+    // Loading state
+    var btnApprove = document.querySelector('#k-modal button[onclick="kSubmit(\'approve\')"]');
+    var btnReject  = document.querySelector('#k-modal button[onclick="kSubmit(\'reject\')"]');
+    if (btnApprove) btnApprove.disabled = true;
+    if (btnReject)  btnReject.disabled  = true;
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type':     'application/json',
+        'X-CSRFToken':      csrf,
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+      body: JSON.stringify(payload),
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.ok || data.status === 'ok') {
         kTutupModal();
-        kUpdateRow(activePk, json.status, json.label);
-        kUpdatePendingCounter();
-        kToast('success', json.msg);
+        kUpdateRow(_kActivePk, aksi, data);
+        kShowToast(aksi === 'approve' ? 'Sesi disetujui!' : 'Sesi ditolak.', aksi === 'approve' ? 'success' : 'error');
       } else {
-        kToast('error', json.msg || 'Terjadi kesalahan.');
+        alert(data.msg || data.message || 'Terjadi kesalahan.');
       }
-    } catch (e) {
-      kToast('error', 'Gagal menghubungi server.');
-    }
+    })
+    .catch(function(err) {
+      alert('Kesalahan jaringan: ' + err.message);
+    })
+    .finally(function() {
+      if (btnApprove) btnApprove.disabled = false;
+      if (btnReject)  btnReject.disabled  = false;
+    });
   }
 
-  // ── Aksi cepat (done) tanpa modal ─────────────────────────────────────
-  async function kAksiCepat(pk, aksi) {
-    const d = SESI[pk];
-    if (!d || !confirm(`Tandai sesi #${pk} sebagai selesai?`)) return;
-
-    const fd = new FormData();
-    fd.append('aksi', aksi);
-    fd.append('csrfmiddlewaretoken', getCsrf());
-
-    try {
-      const res  = await fetch(d.url, {
-        method: 'POST',
-        headers: { 'X-Requested-With': 'XMLHttpRequest' },
-        body: fd,
-      });
-      const json = await res.json();
-      if (json.ok) {
-        kUpdateRow(pk, json.status, json.label);
-        kUpdatePendingCounter();
-        kToast('success', json.msg);
+  // ── kAksiCepat ────────────────────────────────────────────────────────
+  function kAksiCepat(pk, aksi) {
+    if (!confirm('Tandai sesi #' + pk + ' sebagai ' + aksi + '?')) return;
+    var s = SESI[pk];
+    if (!s) return;
+    var csrf = (document.querySelector('[name=csrfmiddlewaretoken]') || {}).value || '';
+    fetch(s.url, {
+      method: 'POST',
+      headers: {
+        'Content-Type':     'application/json',
+        'X-CSRFToken':      csrf,
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+      body: JSON.stringify({ aksi: aksi }),
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.ok || data.status === 'ok') {
+        kUpdateRow(pk, aksi, data);
+        kShowToast('Status sesi diperbarui.', 'success');
       } else {
-        kToast('error', json.msg);
+        alert(data.msg || 'Gagal memperbarui status.');
       }
-    } catch (e) {
-      kToast('error', 'Gagal.');
-    }
+    })
+    .catch(function(err) { alert('Error: ' + err.message); });
   }
 
-  // ── Update badge + tombol aksi di baris ───────────────────────────────
-  function kUpdateRow(pk, status, label) {
-    const badge = document.getElementById(`kbadge-${pk}`);
-    if (badge) {
-      const cls = {
-        approved: 'bg-emerald-100 text-emerald-700 border border-emerald-200',
-        rejected:  'bg-red-100 text-red-700 border border-red-200',
-        done:      'bg-indigo-100 text-indigo-700 border border-indigo-200',
-        cancelled: 'bg-slate-100 text-slate-500',
-      };
-      badge.className = `inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${cls[status] || ''}`;
-      badge.textContent = label;
-      // update data-kstatus agar filter client-side tetap akurat
-      const row = document.getElementById(`krow-${pk}`);
-      if (row) row.dataset.kstatus = status;
+  // ── kUpdateRow — update baris tabel tanpa reload ──────────────────────
+  function kUpdateRow(pk, aksi, data) {
+    var row = document.getElementById('krow-' + pk);
+    if (!row) { setTimeout(function() { location.reload(); }, 800); return; }
+
+    var statusMap = {
+      approve: { label: 'Disetujui', cls: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
+      reject:  { label: 'Ditolak',   cls: 'bg-red-100 text-red-800 border-red-300'             },
+      done:    { label: 'Selesai',    cls: 'bg-indigo-100 text-indigo-800 border-indigo-300'    },
+    };
+    var s = statusMap[aksi] || { label: aksi, cls: '' };
+
+    // Update kolom status
+    var tdStatus = row.querySelector('[data-kstatus-cell]');
+    if (tdStatus) {
+      tdStatus.innerHTML =
+        '<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border ' + s.cls + '">' +
+        s.label + '</span>';
     }
 
-    const action = document.getElementById(`kaction-${pk}`);
-    if (action) {
-      action.innerHTML = `<span class="text-xs text-slate-400 italic">${label}</span>`;
+    // Update kolom aksi
+    var tdAction = document.getElementById('kaction-' + pk);
+    if (tdAction) {
+      tdAction.innerHTML =
+        '<span class="text-xs text-slate-400 italic">' + s.label + '</span>';
     }
+
+    // Update data-kstatus untuk filter
+    row.dataset.kstatus = aksi === 'approve' ? 'approved' : aksi === 'reject' ? 'rejected' : 'done';
   }
 
-  // ── Update counter stat "Menunggu" ────────────────────────────────────
-  function kUpdatePendingCounter() {
-    const el = document.getElementById('k-stat-pending');
-    if (!el) return;
-    const count = document.querySelectorAll('#k-tbody tr[data-kstatus="pending"]:not([style*="none"])').length;
-    el.textContent = count;
-  }
-
-  // ── Filter client-side: teks ──────────────────────────────────────────
+  // ── kFilterTable ──────────────────────────────────────────────────────
   function kFilterTable(q) {
-    q = q.toLowerCase();
-    document.querySelectorAll('#k-tbody tr[id^="krow-"]').forEach(row => {
+    q = (q || '').toLowerCase();
+    document.querySelectorAll('#k-tbody tr[data-ktext]').forEach(function(row) {
       row.style.display = row.dataset.ktext.includes(q) ? '' : 'none';
     });
   }
 
-  // ── Filter client-side: status ────────────────────────────────────────
+  // ── kFilterStatus ─────────────────────────────────────────────────────
   function kFilterStatus(val) {
     // Update tab aktif
-    document.querySelectorAll('.k-tab').forEach(t => {
-      const on = t.dataset.kval === val;
-      t.classList.toggle('bg-primary-500', on);
-      t.classList.toggle('text-white',     on);
-      t.classList.toggle('shadow-sm',      on);
-      t.classList.toggle('bg-slate-100',   !on);
-      t.classList.toggle('text-slate-600', !on);
+    document.querySelectorAll('.k-tab').forEach(function(btn) {
+      var active = btn.dataset.kval === val;
+      btn.classList.toggle('bg-primary-500', active);
+      btn.classList.toggle('text-white',     active);
+      btn.classList.toggle('shadow-sm',      active);
+      btn.classList.toggle('bg-slate-100',  !active);
+      btn.classList.toggle('dark:bg-slate-700', !active);
+      btn.classList.toggle('text-slate-600', !active);
     });
 
-    document.querySelectorAll('#k-tbody tr[id^="krow-"]').forEach(row => {
-      row.style.display =
-        (val === 'all' || row.dataset.kstatus === val) ? '' : 'none';
+    // Filter baris
+    document.querySelectorAll('#k-tbody tr[data-kstatus]').forEach(function(row) {
+      row.style.display = (val === 'all' || row.dataset.kstatus === val) ? '' : 'none';
     });
   }
 
-  // ── Toast ──────────────────────────────────────────────────────────────
-  function kToast(type, msg) {
-    const color = type === 'success' ? 'bg-emerald-500' : 'bg-red-500';
-    const icon  = type === 'success' ? 'check_circle'   : 'error';
-    const el    = document.createElement('div');
-    el.className = `fixed bottom-5 right-5 z-[60] ${color} text-white text-sm
-                    px-4 py-3 rounded-xl shadow-lg flex items-center gap-2
-                    opacity-0 translate-y-2 transition-all duration-300`;
-    el.innerHTML = `<span class="material-icons-outlined text-base">${icon}</span>
-                    <span>${msg}</span>`;
-    document.body.appendChild(el);
-    requestAnimationFrame(() => el.classList.remove('opacity-0', 'translate-y-2'));
-    setTimeout(() => {
-      el.classList.add('opacity-0', 'translate-y-2');
-      setTimeout(() => el.remove(), 300);
-    }, 4000);
+  // ── Dropdown helpers ──────────────────────────────────────────────────
+  function kOnPsikologChange(val) {
+    var inp  = document.getElementById('k-inp-psikolog');
+    var hint = document.getElementById('k-psikolog-hint');
+    var isManual = val === '__lainnya__';
+    if (inp)  { inp.classList.toggle('hidden', !isManual);  if (isManual) inp.focus(); else inp.value = ''; }
+    if (hint) hint.classList.toggle('hidden', !isManual);
   }
 
-  // ── CSRF ───────────────────────────────────────────────────────────────
-  function getCsrf() {
-    return document.querySelector('[name=csrfmiddlewaretoken]')?.value
-        || document.cookie.split('; ').find(r => r.startsWith('csrftoken='))?.split('=')[1]
-        || '';
+  function kOnRuanganChange(val) {
+    var inp  = document.getElementById('k-inp-ruangan');
+    var hint = document.getElementById('k-ruangan-hint');
+    var isManual = val === '__lainnya__';
+    if (inp)  { inp.classList.toggle('hidden', !isManual);  if (isManual) inp.focus(); else inp.value = ''; }
+    if (hint) hint.classList.toggle('hidden', !isManual);
   }
 
-})(); // end IIFE
+  // ── Modal Selesai ─────────────────────────────────────────────────────
+  var _kSelesaiPk = null;
+
+  function kBukaModalSelesai(pk) {
+    _kSelesaiPk = pk;
+    var elId = document.getElementById('k-selesai-id');
+    if (elId) elId.textContent = '#' + pk;
+    var form = document.getElementById('k-form-selesai');
+    if (form) form.reset();
+    kHapusPdf();
+    var rujukan = document.getElementById('k-rujukan-detail');
+    if (rujukan) rujukan.classList.add('hidden');
+    var modal = document.getElementById('k-modal-selesai');
+    if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); document.body.style.overflow = 'hidden'; }
+  }
+
+  function kTutupModalSelesai() {
+    var modal = document.getElementById('k-modal-selesai');
+    if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); document.body.style.overflow = ''; }
+    _kSelesaiPk = null;
+  }
+
+  function kSubmitSelesai() {
+    if (!_kSelesaiPk) return;
+    var s = SESI[_kSelesaiPk];
+    if (!s) return;
+
+    var btn  = document.getElementById('k-btn-selesai');
+    if (btn) { btn.disabled = true; btn.textContent = 'Menyimpan...'; }
+
+    var form = document.getElementById('k-form-selesai');
+    var fd   = new FormData(form);
+    fd.append('aksi', 'done');
+
+    var csrf = (document.querySelector('[name=csrfmiddlewaretoken]') || {}).value || '';
+    fetch(s.url, {
+      method:  'POST',
+      headers: { 'X-CSRFToken': csrf, 'X-Requested-With': 'XMLHttpRequest' },
+      body:    fd,
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.ok || data.status === 'ok') {
+        kTutupModalSelesai();
+        kUpdateRow(_kSelesaiPk, 'done', data);
+        kShowToast('Sesi ditandai selesai.', 'success');
+      } else {
+        alert(data.msg || 'Gagal menyimpan.');
+      }
+    })
+    .catch(function(err) { alert('Error: ' + err.message); })
+    .finally(function() {
+      if (btn) { btn.disabled = false; btn.textContent = 'Tandai Selesai'; }
+    });
+  }
+
+  // ── Konfirmasi Bayar ──────────────────────────────────────────────────
+  function kKonfirmasiBayar(pk) {
+    if (!confirm('Konfirmasi pembayaran sesi #' + pk + ' sebagai LUNAS?')) return;
+    var s    = SESI[pk];
+    if (!s) return;
+    var csrf = (document.querySelector('[name=csrfmiddlewaretoken]') || {}).value || '';
+    fetch(s.url, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf, 'X-Requested-With': 'XMLHttpRequest' },
+      body:    JSON.stringify({ aksi: 'konfirmasi_bayar' }),
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.ok || data.status === 'ok') {
+        kShowToast('Pembayaran dikonfirmasi!', 'success');
+        setTimeout(function() { location.reload(); }, 800);
+      } else {
+        alert(data.msg || 'Gagal konfirmasi.');
+      }
+    })
+    .catch(function(err) { alert('Error: ' + err.message); });
+  }
+
+  // ── Lihat Bukti Bayar ─────────────────────────────────────────────────
+  function kLihatBukti(url) {
+    var img  = document.getElementById('k-bukti-img');
+    var link = document.getElementById('k-bukti-link');
+    if (img)  img.src  = url;
+    if (link) link.href = url;
+    var modal = document.getElementById('k-modal-bukti');
+    if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); document.body.style.overflow = 'hidden'; }
+  }
+
+  function kTutupModalBukti() {
+    var modal = document.getElementById('k-modal-bukti');
+    if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); document.body.style.overflow = ''; }
+  }
+
+  // ── Rujukan toggle ────────────────────────────────────────────────────
+  function kToggleRujukan(checked) {
+    var detail = document.getElementById('k-rujukan-detail');
+    if (detail) detail.classList.toggle('hidden', !checked);
+  }
+
+  // ── PDF upload ────────────────────────────────────────────────────────
+  function kOnDropPdf(event) {
+    event.preventDefault();
+    var dropEl = document.getElementById('k-drop-pdf');
+    if (dropEl) dropEl.classList.remove('border-indigo-400');
+    var file = event.dataTransfer && event.dataTransfer.files[0];
+    if (file && file.type === 'application/pdf') {
+      var input = document.getElementById('k-input-pdf');
+      // Assign ke input file via DataTransfer
+      var dt = new DataTransfer();
+      dt.items.add(file);
+      if (input) input.files = dt.files;
+      kOnPdfChange(input);
+    }
+  }
+
+  function kOnPdfChange(input) {
+    if (!input || !input.files || !input.files[0]) return;
+    var file  = input.files[0];
+    var ph    = document.getElementById('k-pdf-placeholder');
+    var prev  = document.getElementById('k-pdf-preview');
+    var name  = document.getElementById('k-pdf-name');
+    var size  = document.getElementById('k-pdf-size');
+    if (ph)   ph.classList.add('hidden');
+    if (prev) prev.classList.remove('hidden');
+    if (name) name.textContent = file.name;
+    if (size) size.textContent = (file.size / 1024).toFixed(1) + ' KB';
+  }
+
+  function kHapusPdf() {
+    var input = document.getElementById('k-input-pdf');
+    var ph    = document.getElementById('k-pdf-placeholder');
+    var prev  = document.getElementById('k-pdf-preview');
+    if (input) input.value = '';
+    if (ph)    ph.classList.remove('hidden');
+    if (prev)  prev.classList.add('hidden');
+  }
+
+  // ── Toast ─────────────────────────────────────────────────────────────
+  function kShowToast(msg, type) {
+    var old = document.getElementById('k-toast');
+    if (old) old.remove();
+    var t = document.createElement('div');
+    t.id  = 'k-toast';
+    t.style.cssText =
+      'position:fixed;bottom:20px;right:20px;z-index:9999;padding:12px 18px;' +
+      'border-radius:12px;color:#fff;font-size:14px;font-weight:500;' +
+      'display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,.2);' +
+      (type === 'success' ? 'background:#059669' : 'background:#dc2626');
+    t.innerHTML =
+      '<span class="material-icons" style="font-size:18px">' +
+      (type === 'success' ? 'check_circle' : 'error') + '</span>' + msg;
+    document.body.appendChild(t);
+    setTimeout(function() {
+      t.style.opacity = '0'; t.style.transition = 'opacity .3s';
+      setTimeout(function() { t.remove(); }, 300);
+    }, 3000);
+  }
+
+  // ── Tutup modal via Escape ────────────────────────────────────────────
+  document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Escape') return;
+    kTutupModal();
+    kTutupModalSelesai();
+    kTutupModalBukti();
+  });
+
+})();
 </script>

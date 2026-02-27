@@ -195,38 +195,65 @@
 <script>
   // Module Switcher with Dark Mode Support
   function switchAdminModule(moduleName) {
-    // Get current theme
     const isDark = document.documentElement.classList.contains('dark');
-    
-    // Update module cards
+
+    // ── Reset SEMUA card ke default ──
     document.querySelectorAll('[id^="admin-card-"]').forEach(card => {
-      // Remove active classes
-      card.classList.remove('border-orange-300', 'border-orange-600', 'bg-gradient-to-br', 'from-orange-50', 'to-white', 'from-orange-900/20', 'to-slate-800');
-      
-      // Add inactive classes based on theme
+      card.classList.remove(
+        'border-orange-300', 'border-orange-600',
+        'bg-gradient-to-br', 'from-orange-50', 'to-white',
+        'from-orange-900/20', 'to-slate-800'
+      );
       if (isDark) {
-        card.classList.add('border-slate-700', 'bg-slate-800');
         card.classList.remove('border-slate-200', 'bg-white');
+        card.classList.add('border-slate-700', 'bg-slate-800');
       } else {
-        card.classList.add('border-slate-200', 'bg-white');
         card.classList.remove('border-slate-700', 'bg-slate-800');
+        card.classList.add('border-slate-200', 'bg-white');
       }
     });
-    
-    // Add active classes to selected card
+
+    // ── Aktifkan card yang dipilih ──
     const activeCard = document.getElementById(`admin-card-${moduleName}`);
-    if (isDark) {
-      activeCard.classList.remove('border-slate-700', 'bg-slate-800');
-      activeCard.classList.add('border-orange-600', 'bg-gradient-to-br', 'from-orange-900/20', 'to-slate-800');
-    } else {
-      activeCard.classList.remove('border-slate-200', 'bg-white');
-      activeCard.classList.add('border-orange-300', 'bg-gradient-to-br', 'from-orange-50', 'to-white');
+    if (activeCard) {
+      if (isDark) {
+        activeCard.classList.remove('border-slate-700', 'bg-slate-800');
+        activeCard.classList.add('border-orange-600', 'bg-gradient-to-br', 'from-orange-900/20', 'to-slate-800');
+      } else {
+        activeCard.classList.remove('border-slate-200', 'bg-white');
+        activeCard.classList.add('border-orange-300', 'bg-gradient-to-br', 'from-orange-50', 'to-white');
+      }
     }
 
-    // Show/hide sections
-    document.querySelectorAll('.admin-module-section').forEach(section => section.classList.add('hidden'));
-    document.getElementById(`admin-section-${moduleName}`).classList.remove('hidden');
+    // ── Show/hide sections ──
+    document.querySelectorAll('.admin-module-section').forEach(s => s.classList.add('hidden'));
+    const targetSection = document.getElementById(`admin-section-${moduleName}`);
+    if (targetSection) {
+      targetSection.classList.remove('hidden');
+    } else {
+      console.warn(`Section #admin-section-${moduleName} tidak ditemukan.`);
+    }
+
+    // ── Simpan ke URL agar refresh tetap di section yang sama ──
+    const url = new URL(window.location.href);
+    url.searchParams.set('section', moduleName);
+    window.history.pushState({ section: moduleName }, '', url.toString());
   }
+
+  // ── Init: baca ?section= dari URL saat halaman dibuka ──
+  window.addEventListener('DOMContentLoaded', () => {
+    updateCardStylesOnThemeChange();
+    const section = new URLSearchParams(window.location.search).get('section') || 'dashboard';
+    switchAdminModule(section);
+  });
+
+  // ── Handle back/forward browser ──
+  window.addEventListener('popstate', (e) => {
+    const section = e.state?.section
+      || new URLSearchParams(window.location.search).get('section')
+      || 'dashboard';
+    switchAdminModule(section);
+  });
 
   // Tab Switchers
   function switchPeminjamanTab(tab) {

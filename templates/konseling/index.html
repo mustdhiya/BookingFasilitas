@@ -18,14 +18,24 @@
       </p>
     </div>
     {% if user.is_verified %}
-    <a href="#form-ajukan"
-       class="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 dark:border-emerald-800
-              bg-white dark:bg-slate-800 px-4 py-2 text-xs font-semibold self-start
-              text-emerald-700 dark:text-emerald-400 shadow-sm
-              hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition">
-      <span class="material-icons text-sm">add_circle</span>
-      Ajukan Sesi Baru
-    </a>
+      {# Blokir jika sudah ada sesi pending/approved #}
+      {% if has_active_session %}
+      <span class="inline-flex items-center gap-1.5 rounded-full border border-amber-200 dark:border-amber-700
+                   bg-amber-50 dark:bg-amber-900/20 px-4 py-2 text-xs font-semibold self-start
+                   text-amber-700 dark:text-amber-400 cursor-not-allowed">
+        <span class="material-icons text-sm">hourglass_top</span>
+        Sesi Aktif
+      </span>
+      {% else %}
+      <a href="#form-ajukan"
+         class="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 dark:border-emerald-800
+                bg-white dark:bg-slate-800 px-4 py-2 text-xs font-semibold self-start
+                text-emerald-700 dark:text-emerald-400 shadow-sm
+                hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition">
+        <span class="material-icons text-sm">add_circle</span>
+        Ajukan Sesi Baru
+      </a>
+      {% endif %}
     {% endif %}
   </header>
 
@@ -40,6 +50,23 @@
         Form pengajuan konseling akan tersedia setelah verifikasi selesai (1–3 hari kerja).
         <a href="https://wa.me/6282190429519" target="_blank" rel="noopener noreferrer"
            class="font-semibold underline">Hubungi admin →</a>
+      </p>
+    </div>
+  </div>
+  {% endif %}
+
+  {# ── ALERT SESI AKTIF (sudah ada pending/approved) ── #}
+  {% if user.is_verified and has_active_session %}
+  <div class="rounded-2xl border border-amber-200 dark:border-amber-800
+              bg-amber-50 dark:bg-amber-900/20 px-5 py-4 flex items-start gap-3">
+    <span class="material-icons text-amber-500 mt-0.5">info</span>
+    <div>
+      <p class="text-sm font-semibold text-amber-800 dark:text-amber-300">
+        Anda memiliki sesi yang sedang berjalan
+      </p>
+      <p class="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
+        Pengajuan baru hanya bisa dilakukan setelah sesi aktif selesai atau dibatalkan.
+        Lihat status sesi di bawah.
       </p>
     </div>
   </div>
@@ -124,40 +151,201 @@
   {# ── RIWAYAT SESI ── #}
   <section>
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-sm font-semibold text-slate-900 dark:text-slate-100">Riwayat Sesi Konseling</h2>
+      <div>
+        <h2 class="text-sm font-semibold text-slate-900 dark:text-slate-100">Riwayat Sesi Konseling</h2>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Semua pengajuan sesi Anda</p>
+      </div>
       <span class="badge badge-gray text-[10px]">{{ sessions|length }} sesi</span>
     </div>
 
     {% if sessions %}
     <div class="space-y-3">
       {% for s in sessions %}
-      <div class="rounded-2xl border border-slate-100 dark:border-slate-700
-                  bg-white dark:bg-slate-800 px-4 py-3
-                  flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div class="space-y-0.5">
-          <p class="text-sm font-medium text-slate-900 dark:text-slate-100">
-            {{ s.get_tujuan_display }}
-          </p>
-          <p class="text-xs text-slate-500 dark:text-slate-400">
-            {{ s.tanggal_preferensi|date:"d M Y" }}
-            {% if s.waktu_preferensi %}· Pukul {{ s.waktu_preferensi|time:"H:i" }}{% endif %}
-            {% if s.psikolog %}· {{ s.psikolog }}{% endif %}
-          </p>
-          {% if s.catatan_admin and s.status == 'rejected' %}
-          <p class="text-xs text-rose-600 dark:text-rose-400">
-            <span class="font-semibold">Alasan:</span> {{ s.alasan_tolak|default:s.catatan_admin }}
-          </p>
-          {% endif %}
+
+      <div class="rounded-2xl border bg-white dark:bg-slate-800 overflow-hidden shadow-sm
+                  {% if s.status == 'approved' %}border-emerald-200 dark:border-emerald-800
+                  {% elif s.status == 'pending' %}border-amber-200 dark:border-amber-800
+                  {% elif s.status == 'done' %}border-indigo-200 dark:border-indigo-800
+                  {% elif s.status == 'rejected' %}border-rose-200 dark:border-rose-800
+                  {% else %}border-slate-200 dark:border-slate-700{% endif %}">
+
+        <div class="flex">
+
+          {# ── Strip warna kiri ── #}
+          <div class="w-1 flex-shrink-0
+                      {% if s.status == 'approved' %}bg-emerald-400
+                      {% elif s.status == 'pending' %}bg-amber-400
+                      {% elif s.status == 'done' %}bg-indigo-400
+                      {% elif s.status == 'rejected' %}bg-rose-400
+                      {% else %}bg-slate-300 dark:bg-slate-600{% endif %}">
+          </div>
+
+          <div class="flex-1 px-4 py-4">
+
+            {# ── Baris atas: judul + badge ── #}
+            <div class="flex items-start justify-between gap-3 flex-wrap">
+              <div class="flex items-center gap-2">
+                <span class="material-icons text-base
+                            {% if s.status == 'approved' %}text-emerald-500
+                            {% elif s.status == 'pending' %}text-amber-500
+                            {% elif s.status == 'done' %}text-indigo-500
+                            {% elif s.status == 'rejected' %}text-rose-500
+                            {% else %}text-slate-400{% endif %}">
+                  {% if s.status == 'approved' %}event_available
+                  {% elif s.status == 'pending' %}hourglass_top
+                  {% elif s.status == 'done' %}task_alt
+                  {% elif s.status == 'rejected' %}cancel
+                  {% else %}remove_circle{% endif %}
+                </span>
+                <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                  {{ s.get_tujuan_display }}
+                </p>
+              </div>
+
+              <div class="flex items-center gap-2 flex-shrink-0 flex-wrap">
+                <span class="text-[10px] px-2.5 py-1 rounded-full font-semibold
+                  {% if s.status == 'approved' %}bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800
+                  {% elif s.status == 'pending' %}bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800
+                  {% elif s.status == 'done' %}bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800
+                  {% elif s.status == 'rejected' %}bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800
+                  {% else %}bg-slate-50 dark:bg-slate-900/30 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700{% endif %}">
+                  {% if s.status == 'pending' %}
+                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-amber-500 mr-1 animate-pulse align-middle"></span>
+                  {% endif %}
+                  {{ s.get_status_display }}
+                </span>
+
+                {% if s.status == 'pending' %}
+                <button type="button" onclick="batalSesi({{ s.pk }}, this)"
+                        class="inline-flex items-center gap-0.5 text-[10px] font-medium
+                              text-rose-500 dark:text-rose-400
+                              hover:text-rose-700 dark:hover:text-rose-300
+                              border border-rose-200 dark:border-rose-800
+                              bg-rose-50 dark:bg-rose-900/20
+                              px-2 py-1 rounded-full transition">
+                  <span class="material-icons text-xs">close</span>
+                  Batalkan
+                </button>
+                {% endif %}
+              </div>
+            </div>
+
+            {# ── Divider ── #}
+            <div class="border-t border-slate-100 dark:border-slate-700 my-3"></div>
+
+            {# ── Grid info 4 kolom ── #}
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+
+              <div class="space-y-0.5">
+                <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Tanggal</p>
+                <p class="text-xs font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                  <span class="material-icons text-xs text-slate-400">calendar_today</span>
+                  {% if s.tanggal_aktual %}{{ s.tanggal_aktual|date:"d M Y" }}
+                  {% else %}{{ s.tanggal_preferensi|date:"d M Y" }}{% endif %}
+                </p>
+                <p class="text-[10px] {% if s.tanggal_aktual %}text-emerald-600 dark:text-emerald-400 font-medium{% else %}text-slate-400{% endif %}">
+                  {% if s.tanggal_aktual %}✓ Dikonfirmasi{% else %}Preferensi{% endif %}
+                </p>
+              </div>
+
+              <div class="space-y-0.5">
+                <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Waktu</p>
+                <p class="text-xs font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                  <span class="material-icons text-xs text-slate-400">schedule</span>
+                  {% if s.waktu_aktual %}{{ s.waktu_aktual|time:"H:i" }} WIB
+                  {% elif s.waktu_preferensi %}{{ s.waktu_preferensi|time:"H:i" }} WIB
+                  {% else %}—{% endif %}
+                </p>
+                <p class="text-[10px] {% if s.waktu_aktual %}text-emerald-600 dark:text-emerald-400 font-medium{% else %}text-slate-400{% endif %}">
+                  {% if s.waktu_aktual %}✓ Dikonfirmasi{% else %}Preferensi{% endif %}
+                </p>
+              </div>
+
+              <div class="space-y-0.5">
+                <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Psikolog</p>
+                <p class="text-xs font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                  <span class="material-icons text-xs text-slate-400">person</span>
+                  {{ s.psikolog|default:"Belum ditentukan" }}
+                </p>
+              </div>
+
+              <div class="space-y-0.5">
+                <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Ruangan</p>
+                <p class="text-xs font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                  <span class="material-icons text-xs text-slate-400">meeting_room</span>
+                  {{ s.ruangan|default:"Belum ditentukan" }}
+                </p>
+              </div>
+
+            </div>
+
+            {# ── Tarif ── #}
+            {% if s.status == 'approved' or s.status == 'done' %}
+              {% if s.tarif %}
+              <div class="mt-3 inline-flex items-center gap-1.5 rounded-lg
+                          bg-slate-50 dark:bg-slate-700/50
+                          border border-slate-200 dark:border-slate-600
+                          px-3 py-1.5">
+                <span class="material-icons text-sm text-slate-400">payments</span>
+                <span class="text-xs text-slate-600 dark:text-slate-300">
+                  Tarif: <strong class="text-slate-800 dark:text-slate-100">Rp {{ s.tarif|floatformat:0 }}</strong>
+                </span>
+                {% if s.sudah_bayar %}
+                <span class="inline-flex items-center gap-0.5 text-[10px] font-semibold
+                            text-emerald-700 dark:text-emerald-400
+                            bg-emerald-50 dark:bg-emerald-900/30
+                            border border-emerald-200 dark:border-emerald-800
+                            px-2 py-0.5 rounded-full ml-1">
+                  <span class="material-icons text-xs">check_circle</span> Lunas
+                </span>
+                {% else %}
+                <span class="inline-flex items-center gap-0.5 text-[10px] font-semibold
+                            text-amber-700 dark:text-amber-400
+                            bg-amber-50 dark:bg-amber-900/30
+                            border border-amber-200 dark:border-amber-800
+                            px-2 py-0.5 rounded-full ml-1">
+                  <span class="material-icons text-xs">pending</span> Belum dibayar
+                </span>
+                {% endif %}
+              </div>
+              {% endif %}
+            {% endif %}
+
+            {# ── Catatan admin ── #}
+            {% if s.catatan_admin and s.status == 'approved' %}
+            <div class="mt-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20
+                        border border-emerald-200 dark:border-emerald-800
+                        px-3 py-2 flex items-start gap-2">
+              <span class="material-icons text-sm text-emerald-500 flex-shrink-0 mt-0.5">info</span>
+              <p class="text-xs text-emerald-700 dark:text-emerald-400">
+                <span class="font-semibold">Catatan admin:</span> {{ s.catatan_admin }}
+              </p>
+            </div>
+            {% endif %}
+
+            {# ── Alasan tolak ── #}
+            {% if s.status == 'rejected' %}
+            <div class="mt-3 rounded-lg bg-rose-50 dark:bg-rose-900/20
+                        border border-rose-200 dark:border-rose-800
+                        px-3 py-2 flex items-start gap-2">
+              <span class="material-icons text-sm text-rose-500 flex-shrink-0 mt-0.5">error_outline</span>
+              <p class="text-xs text-rose-700 dark:text-rose-400">
+                <span class="font-semibold">Alasan penolakan:</span>
+                {{ s.alasan_tolak|default:s.catatan_admin|default:"Tidak ada keterangan." }}
+              </p>
+            </div>
+            {% endif %}
+
+            {# ── Timestamp ── #}
+            <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-3 flex items-center gap-1">
+              <span class="material-icons text-xs">history</span>
+              Diajukan {{ s.created_at|date:"d M Y" }} pukul {{ s.created_at|date:"H:i" }}
+            </p>
+
+          </div>
         </div>
-        <span class="self-start sm:self-center shrink-0 text-[10px] px-3 py-1 rounded-full font-semibold
-          {% if s.status == 'approved' %}bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800
-          {% elif s.status == 'pending' %}bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800
-          {% elif s.status == 'done' %}bg-slate-50 dark:bg-slate-900/30 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700
-          {% elif s.status == 'rejected' %}bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800
-          {% else %}bg-slate-50 dark:bg-slate-900/30 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700{% endif %}">
-          {{ s.get_status_display }}
-        </span>
       </div>
+
       {% endfor %}
     </div>
 
@@ -171,8 +359,10 @@
     {% endif %}
   </section>
 
+
+
   {# ── FORM PENGAJUAN ── #}
-  {% if user.is_verified %}
+  {% if user.is_verified and not has_active_session %}
   <section id="form-ajukan"
            class="rounded-2xl border border-slate-100 dark:border-slate-700
                   bg-white dark:bg-slate-800 shadow-sm p-6 space-y-6">
@@ -215,7 +405,8 @@
           <div class="relative">
             <span class="absolute left-3 top-1/2 -translate-y-1/2 material-icons-outlined mat-sm text-slate-400">schedule</span>
             <input type="time" id="waktu_preferensi" name="waktu_preferensi"
-                   required class="form-input pl-9">
+                   min="08:00" max="16:00" required
+                   class="form-input pl-9">
           </div>
           <p class="form-help">Jam operasional: 08:00 – 16:00 WIB.</p>
         </div>
@@ -246,7 +437,8 @@
                     class="form-input resize-none"></textarea>
           <p class="form-help flex items-center justify-between">
             <span>Informasi ini bersifat rahasia dan hanya dilihat oleh psikolog.</span>
-            <span id="keluhan-count" class="text-slate-400">0 karakter</span>
+            {# Warna counter berubah saat mendekati/melewati minimum #}
+            <span id="keluhan-count" class="transition-colors text-slate-400">0 / min. 20</span>
           </p>
         </div>
 
@@ -298,18 +490,38 @@
 
 {% block extra_js %}
 <script>
-  // ── Character counter ──
+  // ── Character counter dengan warna dinamis ──
   document.getElementById('keluhan')?.addEventListener('input', function () {
-    document.getElementById('keluhan-count').textContent = this.value.length + ' karakter';
+    const len     = this.value.length;
+    const counter = document.getElementById('keluhan-count');
+    counter.textContent = `${len} / min. 20`;
+    if (len === 0) {
+      counter.className = 'transition-colors text-slate-400';
+    } else if (len < 20) {
+      counter.className = 'transition-colors text-rose-500 dark:text-rose-400 font-semibold';
+    } else {
+      counter.className = 'transition-colors text-emerald-600 dark:text-emerald-400 font-semibold';
+    }
+  });
+
+  // ── Validasi jam operasional ──
+  document.getElementById('waktu_preferensi')?.addEventListener('change', function () {
+    const val  = this.value;
+    const alert = document.getElementById('konseling-alert');
+    if (val && (val < '08:00' || val > '16:00')) {
+      alert.textContent = 'Jam operasional 08:00–16:00 WIB. Silakan pilih jam yang sesuai.';
+      alert.className   = 'alert alert-error text-xs';
+      alert.classList.remove('hidden');
+      this.value = '';
+    }
   });
 
   // ── Submit via AJAX ──
   function submitKonseling() {
-    const form = document.getElementById('konseling-form');
-    const btn  = document.getElementById('btn-konseling-submit');
-    const alert = document.getElementById('konseling-alert');
+    const form    = document.getElementById('konseling-form');
+    const btn     = document.getElementById('btn-konseling-submit');
+    const alertEl = document.getElementById('konseling-alert');
 
-    // Client-side validation
     const tgl     = document.getElementById('tanggal_preferensi').value;
     const waktu   = document.getElementById('waktu_preferensi').value;
     const tujuan  = document.getElementById('tujuan').value;
@@ -317,50 +529,90 @@
     const consent = document.getElementById('consent').checked;
 
     const showErr = (msg) => {
-      alert.textContent = msg;
-      alert.className   = 'alert alert-error text-xs';
-      alert.classList.remove('hidden');
-      alert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      alertEl.textContent = msg;
+      alertEl.className   = 'alert alert-error text-xs';
+      alertEl.classList.remove('hidden');
+      alertEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     };
 
-    if (!tgl)             return showErr('Tanggal preferensi wajib diisi.');
-    if (!waktu)           return showErr('Waktu preferensi wajib diisi.');
-    if (!tujuan)          return showErr('Pilih tujuan konseling terlebih dahulu.');
-    if (keluhan.length < 20) return showErr('Keluhan minimal 20 karakter.');
-    if (!consent)         return showErr('Anda harus menyetujui informed consent.');
+    if (!tgl)                  return showErr('Tanggal preferensi wajib diisi.');
+    if (!waktu)                return showErr('Waktu preferensi wajib diisi.');
+    if (waktu < '08:00' || waktu > '16:00')
+                               return showErr('Waktu harus antara 08:00–16:00 WIB.');
+    if (!tujuan)               return showErr('Pilih tujuan konseling terlebih dahulu.');
+    if (keluhan.length < 20)   return showErr('Keluhan minimal 20 karakter.');
+    if (!consent)              return showErr('Anda harus menyetujui informed consent.');
 
-    alert.classList.add('hidden');
-    btn.disabled = true;
-    btn.innerHTML = '<span style="display:inline-block;width:14px;height:14px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 0.6s linear infinite;vertical-align:middle"></span> Mengirim...';
-
-    const fd = new FormData(form);
+    alertEl.classList.add('hidden');
+    btn.disabled  = true;
+    btn.innerHTML = `
+      <span style="display:inline-block;width:14px;height:14px;border:2px solid #fff;
+                   border-top-color:transparent;border-radius:50%;
+                   animation:spin 0.6s linear infinite;vertical-align:middle"></span>
+      Mengirim...`;
 
     fetch(window.location.pathname, {
-      method: 'POST',
+      method:  'POST',
       headers: { 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value },
-      body: fd,
+      body:    new FormData(form),
     })
     .then(r => r.json())
     .then(data => {
-      btn.disabled = false;
+      btn.disabled  = false;
       btn.innerHTML = '<span class="material-icons-outlined mat-sm">send</span> Kirim Pengajuan';
 
-      if (data.success) {
-        alert.textContent = data.message;
-        alert.className   = 'alert alert-success text-xs';
-        alert.classList.remove('hidden');
+      if (data.ok) {
+        alertEl.textContent = data.msg;
+        alertEl.className   = 'alert alert-success text-xs';
+        alertEl.classList.remove('hidden');
         form.reset();
-        document.getElementById('keluhan-count').textContent = '0 karakter';
-        // Reload riwayat setelah 1.5 detik
+        document.getElementById('keluhan-count').textContent = '0 / min. 20';
+        document.getElementById('keluhan-count').className   = 'transition-colors text-slate-400';
         setTimeout(() => window.location.reload(), 1500);
       } else {
-        showErr(data.message || 'Terjadi kesalahan, silakan coba lagi.');
+        // Tampilkan error per-field jika ada
+        if (data.errors) {
+          const firstKey = Object.keys(data.errors)[0];
+          showErr(data.errors[firstKey]);
+        } else {
+          showErr(data.msg || 'Terjadi kesalahan, silakan coba lagi.');
+        }
       }
     })
     .catch(err => {
-      btn.disabled = false;
+      btn.disabled  = false;
       btn.innerHTML = '<span class="material-icons-outlined mat-sm">send</span> Kirim Pengajuan';
       showErr('Gagal mengirim: ' + err.message);
+    });
+  }
+
+  // ── Batalkan sesi pending ──
+  function batalSesi(pk, btnEl) {
+    if (!confirm('Yakin ingin membatalkan sesi ini?')) return;
+
+    btnEl.disabled   = true;
+    btnEl.textContent = 'Membatalkan...';
+
+    fetch(`/konseling/${pk}/batal/`, {
+      method:  'POST',
+      headers: {
+        'X-CSRFToken':     document.querySelector('[name=csrfmiddlewaretoken]').value,
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.ok) {
+        setTimeout(() => window.location.reload(), 800);
+      } else {
+        alert(data.msg || 'Gagal membatalkan sesi.');
+        btnEl.disabled    = false;
+        btnEl.textContent = 'Batalkan';
+      }
+    })
+    .catch(() => {
+      btnEl.disabled    = false;
+      btnEl.textContent = 'Batalkan';
     });
   }
 </script>

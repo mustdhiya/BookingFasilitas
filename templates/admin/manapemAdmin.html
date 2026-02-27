@@ -712,4 +712,157 @@
   function applyFilters(type) { alert(`Apply filters for ${type}`); }
   function resetFilters(type) { alert(`Reset filters for ${type}`); }
   function printReport(type) { alert(`Print report for ${type}`); }
+  // ── Approve/Decline Ruangan ──────────────────────────────────────────
+async function approveRoomBooking(id) {
+  const note = document.getElementById(`note-room-${id}`)?.value || '';
+  if (!confirm('Approve peminjaman ruangan ini?')) return;
+
+  const btn = event.currentTarget;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="material-icons text-sm animate-spin">refresh</span>';
+
+  try {
+    const resp = await fetch(`/api/rooms/${id}/approve/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken'),
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+      body: JSON.stringify({ notes: note }),
+    });
+    const data = await resp.json();
+    if (resp.ok) {
+      showToast('Peminjaman berhasil diapprove! Email notifikasi dikirim.', 'success');
+      // Hilangkan tombol approve/decline, update badge
+      _updateRoomCard(id, 'approved');
+    } else {
+      showToast(data.detail || 'Gagal approve.', 'error');
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-icons text-sm">check</span>Approve';
+    }
+  } catch (e) {
+    showToast('Kesalahan jaringan: ' + e.message, 'error');
+    btn.disabled = false;
+  }
+}
+
+async function declineRoomBooking(id, name) {
+  declineAction = { type: 'room', id, name };
+  document.getElementById('decline-requester-name').textContent = name;
+  document.getElementById('decline-reason').value = '';
+  openModal('modal-decline-confirm');
+}
+
+async function approveToolRental(id) {
+  if (!confirm('Approve peminjaman alat tes ini?\nPastikan pembayaran sudah diterima.')) return;
+
+  try {
+    const resp = await fetch(`/api/tools/${id}/approve/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken'),
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+    });
+    const data = await resp.json();
+    if (resp.ok) {
+      showToast('Peminjaman alat berhasil diapprove!', 'success');
+      setTimeout(() => location.reload(), 900);
+    } else {
+      showToast(data.detail || 'Gagal approve.', 'error');
+    }
+  } catch (e) {
+    showToast('Kesalahan jaringan.', 'error');
+  }
+}
+
+async function declineToolRental(id, name) {
+  declineAction = { type: 'tool', id, name };
+  document.getElementById('decline-requester-name').textContent = name;
+  document.getElementById('decline-reason').value = '';
+  openModal('modal-decline-confirm');
+}
+
+async function markToolReturned(id) {
+  if (!confirm('Konfirmasi alat tes telah dikembalikan?')) return;
+  const resp = await fetch(`/api/tools/${id}/mark_returned/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': getCookie('csrftoken'),
+      'X-Requested-With': 'XMLHttpRequest',
+    },
+  });
+  const data = await resp.json();
+  if (resp.ok) {
+    showToast('Alat tes ditandai dikembalikan. Stok diperbarui.', 'success');
+    setTimeout(() => location.reload(), 900);
+  } else {
+    showToast(data.detail || 'Gagal.', 'error');
+  }
+}
+
+// ── Re-use executeDecline yang sudah ada ─────────────────────────────
+// Tambahkan handler 'room' dan 'tool' ke executeDecline yang ada:
+// Ganti isi executeDecline yang sudah ada menjadi:
+async function executeDecline() {
+  const reason = document.getElementById('decline-reason').value.trim();
+  if (!reason) {
+    document.getElementById('decline-reason').classList.add('border-rose-500');
+    return;
+  }
+
+  const urlMap = {
+    room: `/api/rooms/${declineAction.id}/decline/`,
+    tool: `/api/tools/${declineAction.id}/decline/`,
+    // ... existing types
+  };
+
+  const url = urlMap[declineAction.type];
+  if (!url) return;
+
+  const btn = document.querySelector('#modal-decline-confirm button[onclick="executeDecline()"]');
+  if (btn) { btn.disabled = true; btn.textContent = 'Memproses...'; }
+
+  try {
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken'),
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+      body: JSON.stringify({ notes: reason }),
+    });
+    const data = await resp.json();
+    closeModal('modal-decline-confirm');
+    if (resp.ok) {
+      showToast('Permohonan berhasil ditolak.', 'success');
+      setTimeout(() => location.reload(), 900);
+    } else {
+      showToast(data.detail || 'Gagal menolak.', 'error');
+    }
+  } catch (e) {
+    showToast('Kesalahan jaringan.', 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Ya, Tolak'; }
+  }
+}
+
+// ── Helper update card tanpa reload ──────────────────────────────────
+function _updateRoomCard(id, newStatus) {
+  const card = document.getElementById(`room-card-${id}`);
+  if (!card) { setTimeout(() => location.reload(), 500); return; }
+  // Simple: reload halaman untuk konsistensi server-side render
+  setTimeout(() => location.reload(), 700);
+}
+
+// ── Tab persistence dari URL ──────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function () {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('peminjaman_tab') === 'alat') {
+    switchPeminjamanTab('alat');
+  }
+});
+
 </script>

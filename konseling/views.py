@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db.models import Q
-
+import json
 from .models import KonselingSession
 from accounts.models import User
 from practicum.models import Practicum
@@ -44,6 +44,11 @@ class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
         return self.request.user.is_staff or getattr(self.request.user, 'role', '') == 'admin'
 
+    # ← Tambahkan ini: kalau AJAX, return JSON bukan redirect
+    def handle_no_permission(self):
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'ok': False, 'msg': 'Akses ditolak. Login sebagai admin.'}, status=403)
+        return super().handle_no_permission()
 
 # ══════════════════════════════════════════════════════════════════════════════
 # HELPER
@@ -85,17 +90,31 @@ def kirim_email_status(sesi):
 # USER VIEWS
 # ══════════════════════════════════════════════════════════════════════════════
 
+from django.utils import timezone
+
 class KonselingPageView(LoginRequiredMixin, TemplateView):
     template_name = 'konseling/index.html'
 
     def get_context_data(self, **kwargs):
         ctx  = super().get_context_data(**kwargs)
         user = self.request.user
-        ctx['is_umkt']   = getattr(user, 'role', '') == 'umkt'
-        ctx['sesi_list'] = KonselingSession.objects.filter(
-            user=user
-        ).order_by('-created_at')[:5]
+
+        ctx['is_umkt']        = getattr(user, 'user_type', '') == 'umkt'
+        ctx['sessions']       = KonselingSession.objects.filter(
+                                    user=user
+                                ).order_by('-created_at')
+        ctx['tujuan_choices'] = KonselingSession.TUJUAN_CHOICES
+        ctx['min_date']       = (timezone.now().date() + timezone.timedelta(days=1)).isoformat()
+        ctx['tarif']          = {
+            'umkt':     'Rp 50.000',
+            'non_umkt': 'Rp 150.000',
+        }
         return ctx
+
+    # Delegasi POST ke KonselingSubmitView
+    def post(self, request, *args, **kwargs):
+        return KonselingSubmitView.as_view()(request, *args, **kwargs)
+
 
 
 class KonselingSubmitView(LoginRequiredMixin, View):
@@ -171,6 +190,12 @@ class KonselingSubmitView(LoginRequiredMixin, View):
 # ══════════════════════════════════════════════════════════════════════════════
 
 from rooms.models import Room
+from django.utils import timezone
+from django.db.models import Q
+from rooms.models import Room, RoomBooking
+from tools.models import TestTool, ToolRental
+
+
 class AdminPanelView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     template_name = 'admin.html'
 
@@ -179,8 +204,117 @@ class AdminPanelView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+        today = timezone.localdate()
 
-        # Pastikan ini ADA — ini yang bikin dosen tampil di tab
+        # ── Filter params ───────────────────────────────────────────
+        room_status  = self.request.GET.get('room_status', 'all')
+        room_filter  = self.request.GET.get('room_filter', '')
+        room_date    = self.request.GET.get('room_date', '')
+        room_search  = self.request.GET.get('room_search', '')
+        room_page    = int(self.request.GET.get('room_page', 1))
+
+        tool_status  = self.request.GET.get('tool_status', 'all')
+        tool_search  = self.request.GET.get('tool_search', '')
+        tool_page    = int(self.request.GET.get('tool_page', 1))
+        PER_PAGE     = 10
+
+        # ── Queryset ruangan ────────────────────────────────────────
+        room_qs = RoomBooking.objects.select_related('room', 'user', 'approved_by') \
+                             .order_by('-date_start', '-created_at')
+
+        if room_status == 'ongoing':
+            room_qs = room_qs.filter(
+                status='approved',
+                date_start__lte=today,
+                date_end__gte=today,
+            )
+        elif room_status != 'all':
+            room_qs = room_qs.filter(status=room_status)
+
+        if room_filter:
+            room_qs = room_qs.filter(room_id=room_filter)
+        if room_date:
+            room_qs = room_qs.filter(
+                date_start__lte=room_date,
+                date_end__gte=room_date,
+            )
+        if room_search:
+            room_qs = room_qs.filter(
+                Q(user__first_name__icontains=room_search) |
+                Q(user__last_name__icontains=room_search)  |
+                Q(user__email__icontains=room_search)      |
+                Q(room__name__icontains=room_search)
+            )
+
+        # ── Stats ruangan ───────────────────────────────────────────
+        ctx['peminjaman_stats'] = {
+            'pending': RoomBooking.objects.filter(status='pending').count(),
+            'approved': RoomBooking.objects.filter(status='approved').count(),
+            'ongoing': RoomBooking.objects.filter(
+                status='approved',
+                date_start__lte=today,
+                date_end__gte=today,
+            ).count(),
+            'total_month': RoomBooking.objects.filter(
+                date_start__year=today.year,
+                date_start__month=today.month,
+            ).count(),
+        }
+
+        # ── Pagination ruangan ──────────────────────────────────────
+        from django.core.paginator import Paginator
+        room_paginator = Paginator(room_qs, PER_PAGE)
+        ctx['room_bookings_page'] = room_paginator.get_page(room_page)
+        ctx['room_paginator']     = room_paginator
+
+        # ── Queryset alat ───────────────────────────────────────────
+        tool_qs = ToolRental.objects.select_related('tool', 'user', 'approved_by') \
+                            .order_by('-date_start', '-created_at')
+
+        if tool_status != 'all':
+            tool_qs = tool_qs.filter(status=tool_status)
+        if tool_search:
+            tool_qs = tool_qs.filter(
+                Q(user__first_name__icontains=tool_search) |
+                Q(user__last_name__icontains=tool_search)  |
+                Q(user__email__icontains=tool_search)      |
+                Q(tool__name__icontains=tool_search)
+            )
+
+        # ── Stats alat ──────────────────────────────────────────────
+        ctx['tool_stats'] = {
+            'pending':  ToolRental.objects.filter(status='pending').count(),
+            'approved': ToolRental.objects.filter(status='approved').count(),
+            'borrowed': ToolRental.objects.filter(status='borrowed').count(),
+            'overdue':  ToolRental.objects.filter(
+                status='borrowed', date_end__lt=today
+            ).count(),
+        }
+
+        tool_paginator = Paginator(tool_qs, PER_PAGE)
+        ctx['tool_rentals_page'] = tool_paginator.get_page(tool_page)
+        ctx['tool_paginator']    = tool_paginator
+
+        # ── Data pendukung filter ───────────────────────────────────
+        ctx['room_list']      = Room.objects.filter(is_active=True).order_by('code')
+        ctx['tool_list']      = TestTool.objects.filter(is_active=True).order_by('code')
+
+        # ── Filter aktif (untuk persist state) ─────────────────────
+        ctx['room_filter_active'] = {
+            'status': room_status, 'room': room_filter,
+            'date': room_date,     'search': room_search,
+        }
+        ctx['tool_filter_active'] = {
+            'status': tool_status, 'search': tool_search,
+        }
+
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+
         ctx['lecturer_list'] = Lecturer.objects.prefetch_related(
             'research_titles'
         ).order_by('name')
@@ -206,6 +340,46 @@ class AdminPanelView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
 
         ctx['active_room_count'] = Room.objects.filter(is_active=True).count()
         ctx['room_list'] = Room.objects.all().order_by('code')
+
+        ctx['sesi_list'] = KonselingSession.objects.select_related('user').order_by('-created_at')
+        ctx['stats'] = {
+            'pending':  KonselingSession.objects.filter(status='pending').count(),
+            'approved': KonselingSession.objects.filter(status='approved').count(),
+            'done':     KonselingSession.objects.filter(status='done').count(),
+            'rejected': KonselingSession.objects.filter(status='rejected').count(),
+            'total':    KonselingSession.objects.count(),
+        }
+        ctx['status_tabs'] = [
+            ('all',       'Semua'),
+            ('pending',   'Menunggu'),
+            ('approved',  'Disetujui'),
+            ('done',      'Selesai'),
+            ('rejected',  'Ditolak'),
+            ('cancelled', 'Dibatalkan'),
+        ]
+        ctx['status_filter'] = 'all'
+        ctx['dosen_list'] = Lecturer.objects.filter(
+            is_active=True
+        ).order_by('name')   
+        ctx['akun_stats'] = {
+            'pending':  User.objects.exclude(is_superuser=True).filter(is_active=False, is_verified=False).count(),
+            'active':   User.objects.exclude(is_superuser=True).filter(is_active=True,  is_verified=True).count(),
+            'inactive': User.objects.exclude(is_superuser=True).filter(is_active=False, is_verified=True).count(),
+            'total':    User.objects.exclude(is_superuser=True).count(),
+        }
+
+        ctx['akun_status_filter'] = 'all'
+        ctx['akun_status_tabs'] = [
+            ('all',      'Semua'),
+            ('pending',  'Menunggu Verifikasi'),
+            ('active',   'Aktif & Terverifikasi'),
+            ('rejected', 'Nonaktif'),
+        ]
+
+        ctx['user_list'] = User.objects.exclude(
+            is_superuser=True
+        ).select_related('verified_by').order_by('-created_at')
+
 
 
         return ctx
@@ -269,53 +443,100 @@ class AdminKonselingAksiView(AdminRequiredMixin, View):
 
     def post(self, request, pk):
         sesi    = get_object_or_404(KonselingSession, pk=pk)
-        aksi    = request.POST.get('aksi')
         is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
-        if aksi == 'approve' and sesi.status == 'pending':
-            sesi.status         = 'approved'
-            sesi.tanggal_aktual = request.POST.get('tanggal_aktual') or sesi.tanggal_preferensi
-            sesi.waktu_aktual   = request.POST.get('waktu_aktual')   or sesi.waktu_preferensi
-            sesi.ruangan        = request.POST.get('ruangan', '')
-            sesi.psikolog       = request.POST.get('psikolog', '')
-            sesi.catatan_admin  = request.POST.get('catatan_admin', '')
-            sesi.tarif          = request.POST.get('tarif') or getattr(sesi, 'tarif', None)
-            sesi.save()
-            kirim_email_status(sesi)
-            msg = 'Sesi berhasil disetujui dan email notifikasi terkirim.'
-
-        elif aksi == 'reject' and sesi.status == 'pending':
-            sesi.status        = 'rejected'
-            sesi.catatan_admin = request.POST.get('catatan_admin', '')
-            sesi.save()
-            kirim_email_status(sesi)
-            msg = 'Sesi ditolak dan klien telah diberitahu.'
-
-        elif aksi == 'done' and sesi.status == 'approved':
-            sesi.status = 'done'
-            sesi.save()
-            kirim_email_status(sesi)
-            msg = 'Sesi ditandai selesai.'
-
-        elif aksi == 'cancel':
-            sesi.status = 'cancelled'
-            sesi.save()
-            msg = 'Sesi dibatalkan.'
-
+        # ── Baca payload: JSON atau form-data ────────────────────────────
+        content_type = request.content_type or ''
+        if 'application/json' in content_type:
+            try:
+                data = json.loads(request.body)
+            except (ValueError, KeyError):
+                return JsonResponse({'ok': False, 'msg': 'Payload JSON tidak valid.'}, status=400)
+            # Helper agar akses sama seperti POST
+            def get(key, default=''):
+                return data.get(key, default)
+            files = {}
         else:
-            msg = 'Aksi tidak valid atau status tidak sesuai.'
-            if is_ajax:
-                return JsonResponse({'ok': False, 'msg': msg}, status=400)
-            messages.error(request, msg)
-            return redirect('admin_panel')
+            # multipart/form-data (kSubmitSelesai pakai FormData)
+            def get(key, default=''):
+                return request.POST.get(key, default)
+            files = request.FILES
 
-        if is_ajax:
-            return JsonResponse({
-                'ok':     True,
-                'msg':    msg,
-                'status': sesi.status,
-                'label':  sesi.get_status_display(),
-            })
+        aksi = get('aksi')
 
-        messages.success(request, msg)
-        return redirect('admin_panel')
+        # ── Approve ──────────────────────────────────────────────────────
+        if aksi == 'approve':
+            tanggal  = get('tanggal_aktual')
+            waktu    = get('waktu_aktual')
+            psikolog = get('psikolog').strip()
+            ruangan  = get('ruangan').strip()
+            tarif    = get('tarif').strip()
+            catatan  = get('catatan_admin').strip()
+
+            if not tanggal or not psikolog:
+                return JsonResponse({'ok': False, 'msg': 'Tanggal aktual dan psikolog wajib diisi.'})
+
+            sesi.status         = 'approved'
+            sesi.tanggal_aktual = tanggal
+            sesi.waktu_aktual   = waktu or None
+            sesi.psikolog       = psikolog
+            sesi.ruangan        = ruangan
+            sesi.catatan_admin  = catatan
+            if tarif:
+                sesi.tarif = tarif
+            sesi.save()
+            kirim_email_status(sesi)
+            return JsonResponse({'ok': True, 'msg': 'Sesi disetujui.', 'status': 'approved', 'label': 'Disetujui'})
+
+        # ── Reject ───────────────────────────────────────────────────────
+        elif aksi == 'reject':
+            catatan = get('catatan_admin').strip()
+            if not catatan:
+                return JsonResponse({'ok': False, 'msg': 'Catatan wajib diisi saat menolak.'})
+            sesi.status        = 'rejected'
+            sesi.alasan_tolak  = catatan
+            sesi.catatan_admin = catatan
+            sesi.save()
+            kirim_email_status(sesi)
+            return JsonResponse({'ok': True, 'msg': 'Sesi ditolak.', 'status': 'rejected', 'label': 'Ditolak'})
+
+        # ── Konfirmasi Bayar ─────────────────────────────────────────────
+        elif aksi == 'konfirmasi_bayar':
+            if not sesi.bukti_bayar:
+                return JsonResponse({'ok': False, 'msg': 'Bukti bayar belum ada.'})
+            sesi.sudah_bayar       = True
+            sesi.bayar_verified_at = timezone.now()
+            sesi.bayar_verified_by = request.user
+            sesi.save()
+            return JsonResponse({'ok': True, 'msg': 'Pembayaran dikonfirmasi lunas.'})
+
+        # ── Selesai ──────────────────────────────────────────────────────
+        elif aksi == 'done':
+            laporan       = files.get('laporan_pdf')
+            dirujuk       = get('dirujuk') == '1'
+            cat_rujukan   = get('catatan_rujukan', '').strip()
+            catatan_admin = get('catatan_admin', '').strip()
+
+            sesi.status     = 'done'
+            sesi.dirujuk    = dirujuk
+            sesi.selesai_at = timezone.now()
+            if laporan:
+                sesi.laporan_pdf = laporan
+            if cat_rujukan:
+                sesi.catatan_rujukan = cat_rujukan
+            if catatan_admin:
+                sesi.catatan_admin = catatan_admin
+            sesi.save()
+            kirim_email_status(sesi)
+            return JsonResponse({'ok': True, 'msg': 'Sesi ditandai selesai.', 'status': 'done', 'label': 'Selesai'})
+
+        # ── Upload Bukti ─────────────────────────────────────────────────
+        elif aksi == 'upload_bukti':
+            if 'bukti_bayar' not in files:
+                return JsonResponse({'ok': False, 'msg': 'File bukti bayar wajib diupload.'})
+            sesi.bukti_bayar = files['bukti_bayar']
+            sesi.save()
+            return JsonResponse({'ok': True, 'msg': 'Bukti bayar berhasil diupload.',
+                                 'bukti_url': sesi.bukti_bayar.url})
+
+        return JsonResponse({'ok': False, 'msg': f'Aksi tidak dikenali: {aksi}'})

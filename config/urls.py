@@ -26,10 +26,11 @@ from accounts.views import (
     RegisterPageView, LogoutView, DashboardPageView, 
     AdminAkunView, AdminAkunAksiView
 )
-from rooms.views import PeminjamRuanganView, RiwayatView
+from rooms.views import PeminjamRuanganView, RiwayatView, RoomCalendarView, RoomDayScheduleView
 from konseling.views import AdminPanelView   
 from practicum.views import PracticumListView as PracticumPageView
 from research.views import ResearchListView
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -59,6 +60,10 @@ urlpatterns = [
     path('api/tools/',    include('tools.urls')),
     path('api/practicum/', include('practicum.urls')),
     path('api/research/',  include('research.urls')),
+
+    path('api/rooms/calendar/',     RoomCalendarView.as_view(),     name='api-room-calendar'),
+    path('api/rooms/day-schedule/', RoomDayScheduleView.as_view(),  name='api-room-day-schedule'),
+
 ]
 
 urlpatterns += [

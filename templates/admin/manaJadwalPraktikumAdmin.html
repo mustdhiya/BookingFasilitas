@@ -720,6 +720,242 @@
 </div>
 {# ===== END SECTION 4 ===== #}
 
+{# MODAL: BUAT / EDIT JADWAL PRAKTIKUM #}
+<div id="modal-jadwal"
+     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+     onclick="closeModal('modal-jadwal')">
+  <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-sm"></div>
+
+  <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl
+              w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden"
+       onclick="event.stopPropagation()">
+
+    {# ── Header ── #}
+    <div class="flex items-center justify-between px-6 py-4
+                border-b border-slate-100 dark:border-slate-700 flex-shrink-0">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-900/40
+                    flex items-center justify-center">
+          <span class="material-icons text-primary-600 dark:text-primary-400"
+                id="modal-jadwal-icon">add_circle</span>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-slate-900 dark:text-slate-100"
+              id="modal-jadwal-title">Buat Jadwal Baru</h3>
+          <p class="text-xs text-slate-400 dark:text-slate-500"
+             id="modal-jadwal-subtitle">Isi semua field yang diperlukan</p>
+        </div>
+      </div>
+      <button onclick="closeModal('modal-jadwal')"
+              class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300
+                     rounded-lg p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+        <span class="material-icons-outlined">close</span>
+      </button>
+    </div>
+
+    {# ── Body ── #}
+    <div class="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+
+      {# Baris 1: Tipe & Nama Sesi #}
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold text-slate-700
+                         dark:text-slate-300 mb-1.5">
+            Tipe Praktikum <span class="text-rose-500">*</span>
+          </label>
+          <select id="jdw-type"
+                  class="w-full rounded-lg border border-slate-300 dark:border-slate-600
+                         dark:bg-slate-700 dark:text-slate-100
+                         px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500">
+            <option value="">— Pilih Tipe —</option>
+            <option value="inteligensi">Inteligensi</option>
+            <option value="inventory">Inventory</option>
+            <option value="wawancara">Wawancara</option>
+            <option value="konseling">Konseling</option>
+          </select>
+          <p class="text-rose-500 text-xs mt-1 hidden" id="err-jdw-type">Wajib dipilih.</p>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700
+                         dark:text-slate-300 mb-1.5">
+            Nama Sesi <span class="text-rose-500">*</span>
+          </label>
+          <input type="text" id="jdw-session-name"
+                 placeholder="cth: Sesi A – Kelas 3B"
+                 class="w-full rounded-lg border border-slate-300 dark:border-slate-600
+                        dark:bg-slate-700 dark:text-slate-100
+                        px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500">
+          <p class="text-rose-500 text-xs mt-1 hidden" id="err-jdw-session-name">Wajib diisi.</p>
+        </div>
+      </div>
+
+      {# Baris 2: Dosen #}
+      <div>
+        <label class="block text-sm font-semibold text-slate-700
+                       dark:text-slate-300 mb-1.5">
+          Dosen Pengampu <span class="text-rose-500">*</span>
+        </label>
+        <select id="jdw-lecturer"
+                class="w-full rounded-lg border border-slate-300 dark:border-slate-600
+                       dark:bg-slate-700 dark:text-slate-100
+                       px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500">
+          <option value="">— Pilih Dosen —</option>
+          {% for lecturer in lecturer_list %}
+          <option value="{{ lecturer.pk }}">{{ lecturer.name }}</option>
+          {% endfor %}
+        </select>
+        <p class="text-rose-500 text-xs mt-1 hidden" id="err-jdw-lecturer">Wajib dipilih.</p>
+      </div>
+
+      {# Baris 3: Tanggal & Ruangan #}
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold text-slate-700
+                         dark:text-slate-300 mb-1.5">
+            Tanggal <span class="text-rose-500">*</span>
+          </label>
+          <input type="date" id="jdw-date"
+                 class="w-full rounded-lg border border-slate-300 dark:border-slate-600
+                        dark:bg-slate-700 dark:text-slate-100
+                        px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500">
+          <p class="text-rose-500 text-xs mt-1 hidden" id="err-jdw-date">Wajib diisi.</p>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700
+                         dark:text-slate-300 mb-1.5">
+            Ruangan <span class="text-rose-500">*</span>
+          </label>
+          <select id="jdw-room"
+                  class="w-full rounded-lg border border-slate-300 dark:border-slate-600
+                         dark:bg-slate-700 dark:text-slate-100
+                         px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500">
+            <option value="">— Pilih Ruangan —</option>
+            {% for room in room_list %}
+            <option value="{{ room.pk }}">{{ room.name }}</option>
+            {% endfor %}
+          </select>
+          <p class="text-rose-500 text-xs mt-1 hidden" id="err-jdw-room">Wajib dipilih.</p>
+        </div>
+      </div>
+
+      {# Baris 4: Jam Mulai & Selesai #}
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold text-slate-700
+                         dark:text-slate-300 mb-1.5">
+            Jam Mulai <span class="text-rose-500">*</span>
+          </label>
+          <input type="time" id="jdw-start-time"
+                 class="w-full rounded-lg border border-slate-300 dark:border-slate-600
+                        dark:bg-slate-700 dark:text-slate-100
+                        px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500">
+          <p class="text-rose-500 text-xs mt-1 hidden" id="err-jdw-start-time">Wajib diisi.</p>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700
+                         dark:text-slate-300 mb-1.5">
+            Jam Selesai <span class="text-rose-500">*</span>
+          </label>
+          <input type="time" id="jdw-end-time"
+                 class="w-full rounded-lg border border-slate-300 dark:border-slate-600
+                        dark:bg-slate-700 dark:text-slate-100
+                        px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500">
+          <p class="text-rose-500 text-xs mt-1 hidden" id="err-jdw-end-time">Wajib diisi.</p>
+        </div>
+      </div>
+
+      {# Baris 5: Kapasitas & Status #}
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold text-slate-700
+                         dark:text-slate-300 mb-1.5">
+            Kapasitas <span class="text-rose-500">*</span>
+          </label>
+          <input type="number" id="jdw-capacity" min="1" max="200"
+                 placeholder="cth: 30"
+                 class="w-full rounded-lg border border-slate-300 dark:border-slate-600
+                        dark:bg-slate-700 dark:text-slate-100
+                        px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500">
+          <p class="text-rose-500 text-xs mt-1 hidden" id="err-jdw-capacity">Wajib diisi.</p>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700
+                         dark:text-slate-300 mb-1.5">
+            Status
+          </label>
+          <label class="flex items-center gap-3 cursor-pointer mt-2">
+            <div class="relative">
+              <input type="checkbox" id="jdw-is-active" class="sr-only peer" checked>
+              <div class="w-11 h-6 bg-slate-200 dark:bg-slate-600 rounded-full
+                          peer-checked:bg-primary-500 transition-colors"></div>
+              <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow
+                          peer-checked:translate-x-5 transition-transform"></div>
+            </div>
+            <span class="text-sm font-medium text-slate-700 dark:text-slate-300"
+                  id="jdw-status-label">Aktif</span>
+          </label>
+        </div>
+      </div>
+
+      {# Baris 6: Catatan (opsional) #}
+      <div>
+        <label class="block text-sm font-semibold text-slate-700
+                       dark:text-slate-300 mb-1.5">
+          Catatan <span class="text-slate-400 font-normal">(opsional)</span>
+        </label>
+        <textarea id="jdw-notes" rows="2"
+                  placeholder="Catatan tambahan untuk peserta..."
+                  class="w-full rounded-lg border border-slate-300 dark:border-slate-600
+                         dark:bg-slate-700 dark:text-slate-100
+                         px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500
+                         resize-none"></textarea>
+      </div>
+
+      {# Error global #}
+      <div id="jadwal-modal-error"
+           class="hidden rounded-lg bg-rose-50 dark:bg-rose-900/20
+                  border border-rose-200 dark:border-rose-800 px-4 py-3
+                  flex items-start gap-2">
+        <span class="material-icons text-rose-500 text-sm flex-shrink-0 mt-0.5">error</span>
+        <p class="text-sm text-rose-700 dark:text-rose-400" id="jadwal-modal-error-msg"></p>
+      </div>
+
+    </div>
+
+    {# ── Footer ── #}
+    <div class="border-t border-slate-100 dark:border-slate-700 px-6 py-4
+                flex items-center justify-between gap-3 bg-slate-50 dark:bg-slate-800/80
+                flex-shrink-0">
+      <p class="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1">
+        <span class="material-icons text-xs">info</span>
+        Field bertanda <span class="text-rose-500 font-bold mx-0.5">*</span> wajib diisi
+      </p>
+      <div class="flex gap-2">
+        <button onclick="closeModal('modal-jadwal')"
+                class="inline-flex items-center gap-1.5 rounded-lg
+                       border border-slate-300 dark:border-slate-600
+                       bg-white dark:bg-slate-700 hover:bg-slate-50
+                       text-slate-700 dark:text-slate-300
+                       font-medium text-sm px-4 py-2 transition">
+          Batal
+        </button>
+        <button onclick="submitJadwalModal()"
+                id="btn-jadwal-submit"
+                class="inline-flex items-center gap-1.5 rounded-lg
+                       bg-primary-500 hover:bg-primary-600
+                       text-white font-semibold text-sm px-5 py-2
+                       transition shadow-sm disabled:opacity-60
+                       disabled:cursor-not-allowed">
+          <span class="material-icons text-base" id="btn-jadwal-submit-icon">save</span>
+          <span id="btn-jadwal-submit-label">Simpan Jadwal</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+{# end modal #}
+
 
 
 {# Modal: Hapus Konfirmasi #}
@@ -1456,197 +1692,425 @@
   </div>
 </div>
 
-
 <script>
 (function () {
-    window.switchPraktikumTab   = switchPraktikumTab;
-window.closeModal           = closeModal;
-window.openModal            = openModal;
-window.confirmDelete        = confirmDelete;
-window.executeDelete        = executeDelete;
-window.confirmDecline       = confirmDecline;
-window.executeDecline       = executeDecline;
-window.openJadwalModal      = openJadwalModal;
-window.submitJadwalForm     = submitJadwalForm;
-window.openDosenModal       = openDosenModal;
-window.submitDosenForm      = submitDosenForm;
-window.openJudulModal       = openJudulModal;
-window.submitJudulForm      = submitJudulForm;
-window.previewDosenPhoto    = previewDosenPhoto;
-window.viewPeserta          = viewPeserta;
-window.approveRequest       = approveRequest;
-window.filterRequestStatus  = filterRequestStatus;
-window.filterDosenCards     = filterDosenCards;
-window.filterPraktikumTable = filterPraktikumTable; 
-window.filterPraktikumTipe  = filterPraktikumTipe;  
-window.lihatMahasiswaPayung = lihatMahasiswaPayung; 
-window.showDeactivateDialog = showDeactivateDialog; 
-window.doDeactivate         = doDeactivate;         
-window.exportData           = exportData;
-window.handleExport         = handleExport;
-// ── Lihat Mahasiswa Payung ─────────────────────────────────────────────
-function lihatMahasiswaPayung(titleId, titleName) {
-  // Buat modal dinamis jika belum ada
-  var existing = document.getElementById('modal-mahasiswa-payung');
-  if (existing) existing.remove();
+  // ── Expose ke global ───────────────────────────────────────────────────
+  window.switchPraktikumTab   = switchPraktikumTab;
+  window.closeModal           = closeModal;
+  window.openModal            = openModal;
+  window.confirmDelete        = confirmDelete;
+  window.executeDelete        = executeDelete;
+  window.confirmDecline       = confirmDecline;
+  window.executeDecline       = executeDecline;
+  window.openJadwalModal      = openJadwalModal;
+  window.submitJadwalForm     = submitJadwalForm;
+  window.openDosenModal       = openDosenModal;
+  window.submitDosenForm      = submitDosenForm;
+  window.openJudulModal       = openJudulModal;
+  window.submitJudulForm      = submitJudulForm;
+  window.previewDosenPhoto    = previewDosenPhoto;
+  window.viewPeserta          = viewPeserta;
+  window.approveRequest       = approveRequest;
+  window.filterRequestStatus  = filterRequestStatus;
+  window.filterDosenCards     = filterDosenCards;
+  window.filterPraktikumTable = filterPraktikumTable;
+  window.filterPraktikumTipe  = filterPraktikumTipe;
+  window.lihatMahasiswaPayung = lihatMahasiswaPayung;
+  window.showDeactivateDialog = showDeactivateDialog;
+  window.doDeactivate         = doDeactivate;
+  window.exportData           = exportData;
+  window.handleExport         = handleExport;
 
-  var modal = document.createElement('div');
-  modal.id = 'modal-mahasiswa-payung';
-  modal.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;' +
-    'justify-content:center;padding:16px;background:rgba(15,23,42,.7);backdrop-filter:blur(4px)';
-  modal.innerHTML =
-    '<div style="background:#fff;border-radius:16px;width:100%;max-width:520px;' +
-    'max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 40px rgba(0,0,0,.3)"' +
-    ' onclick="event.stopPropagation()">' +
-    // Header
-    '<div style="padding:20px 24px 16px;border-bottom:1px solid #e2e8f0;' +
-    'display:flex;align-items:center;justify-content:space-between">' +
-    '<div>' +
-    '<p style="font-size:11px;font-weight:600;color:#6366f1;text-transform:uppercase;' +
-    'letter-spacing:.05em;margin:0 0 2px">Judul Payung</p>' +
-    '<h3 style="font-size:15px;font-weight:700;color:#0f172a;margin:0">' + titleName + '</h3>' +
-    '</div>' +
-    '<button onclick="document.getElementById(\'modal-mahasiswa-payung\').remove()" ' +
-    'style="width:32px;height:32px;border-radius:8px;border:1px solid #e2e8f0;' +
-    'background:#f8fafc;cursor:pointer;display:flex;align-items:center;justify-content:center">' +
-    '<span class="material-icons" style="font-size:18px;color:#64748b">close</span></button>' +
-    '</div>' +
-    // Body — loading state
-    '<div id="mahasiswa-payung-body" style="flex:1;overflow-y:auto;padding:16px 24px">' +
-    '<div style="text-align:center;padding:32px;color:#94a3b8">' +
-    '<span class="material-icons" style="font-size:40px;display:block;margin-bottom:8px">hourglass_empty</span>' +
-    '<p style="font-size:13px;margin:0">Memuat data...</p></div>' +
-    '</div>' +
-    '</div>';
+  // ══════════════════════════════════════════════════════════════════════
+  // JADWAL MODAL — CREATE / EDIT
+  // ══════════════════════════════════════════════════════════════════════
 
-  document.body.appendChild(modal);
-  // Klik backdrop untuk tutup
-  modal.addEventListener('click', function() { modal.remove(); });
+  // State
+  var _jadwalMode = 'create';
+  var _jadwalPk   = null;
 
-  // Fetch mahasiswa yang terdaftar di judul payung ini
-  fetch('/api/research/judul/' + titleId + '/mahasiswa/', {
-    headers: { 'X-Requested-With': 'XMLHttpRequest' }
-  })
-  .then(function(r) { return r.json(); })
-  .then(function(data) {
-    var body = document.getElementById('mahasiswa-payung-body');
-    if (!body) return;
+  // Field helpers
+  var JF = {
+    type:        function() { return document.getElementById('jdw-type'); },
+    sessionName: function() { return document.getElementById('jdw-session-name'); },
+    lecturer:    function() { return document.getElementById('jdw-lecturer'); },
+    date:        function() { return document.getElementById('jdw-date'); },
+    room:        function() { return document.getElementById('jdw-room'); },
+    startTime:   function() { return document.getElementById('jdw-start-time'); },
+    endTime:     function() { return document.getElementById('jdw-end-time'); },
+    capacity:    function() { return document.getElementById('jdw-capacity'); },
+    isActive:    function() { return document.getElementById('jdw-is-active'); },
+    notes:       function() { return document.getElementById('jdw-notes'); },
+  };
 
-    if (!data.mahasiswa || data.mahasiswa.length === 0) {
-      body.innerHTML =
-        '<div style="text-align:center;padding:32px;color:#94a3b8">' +
-        '<span class="material-icons" style="font-size:40px;display:block;margin-bottom:8px">group_off</span>' +
-        '<p style="font-size:13px;margin:0">Belum ada mahasiswa terdaftar</p></div>';
-      return;
+  function resetJadwalForm() {
+    Object.values(JF).forEach(function(fn) {
+      var el = fn();
+      if (!el) return;
+      if (el.type === 'checkbox') el.checked = true;
+      else el.value = '';
+    });
+    document.querySelectorAll('[id^="err-jdw-"]').forEach(function(e) {
+      e.classList.add('hidden');
+    });
+    var globalErr = document.getElementById('jadwal-modal-error');
+    if (globalErr) globalErr.classList.add('hidden');
+    var statusLabel = document.getElementById('jdw-status-label');
+    if (statusLabel) statusLabel.textContent = 'Aktif';
+  }
+
+  function setJadwalLoading(on) {
+    var btn   = document.getElementById('btn-jadwal-submit');
+    var icon  = document.getElementById('btn-jadwal-submit-icon');
+    var label = document.getElementById('btn-jadwal-submit-label');
+    if (!btn) return;
+    btn.disabled      = on;
+    icon.textContent  = on ? 'hourglass_top' : 'save';
+    label.textContent = on
+      ? 'Menyimpan...'
+      : (_jadwalMode === 'edit' ? 'Perbarui Jadwal' : 'Simpan Jadwal');
+  }
+
+  // Toggle label status aktif/nonaktif
+  var jdwActiveEl = document.getElementById('jdw-is-active');
+  if (jdwActiveEl) {
+    jdwActiveEl.addEventListener('change', function() {
+      var lbl = document.getElementById('jdw-status-label');
+      if (lbl) lbl.textContent = this.checked ? 'Aktif' : 'Nonaktif';
+    });
+  }
+
+  // Validasi form
+  function validateJadwal() {
+    var ok = true;
+    var required = [
+      ['jdw-type',         'err-jdw-type'],
+      ['jdw-session-name', 'err-jdw-session-name'],
+      ['jdw-lecturer',     'err-jdw-lecturer'],
+      ['jdw-date',         'err-jdw-date'],
+      ['jdw-room',         'err-jdw-room'],
+      ['jdw-start-time',   'err-jdw-start-time'],
+      ['jdw-end-time',     'err-jdw-end-time'],
+      ['jdw-capacity',     'err-jdw-capacity'],
+    ];
+    required.forEach(function(pair) {
+      var val = document.getElementById(pair[0]).value.trim();
+      var err = document.getElementById(pair[1]);
+      if (!val) { err.classList.remove('hidden'); ok = false; }
+      else       err.classList.add('hidden');
+    });
+
+    // Validasi jam selesai > jam mulai
+    var s = JF.startTime().value, e = JF.endTime().value;
+    if (s && e && e <= s) {
+      var endErr = document.getElementById('err-jdw-end-time');
+      endErr.textContent = 'Jam selesai harus setelah jam mulai.';
+      endErr.classList.remove('hidden');
+      ok = false;
     }
+    return ok;
+  }
 
-    var rows = data.mahasiswa.map(function(m, i) {
-      return '<tr style="border-bottom:1px solid #f1f5f9">' +
-        '<td style="padding:10px 12px;font-size:13px;color:#64748b">' + (i + 1) + '</td>' +
-        '<td style="padding:10px 12px">' +
-        '<p style="font-size:13px;font-weight:600;color:#0f172a;margin:0">' + m.name + '</p>' +
-        '<p style="font-size:11px;color:#94a3b8;margin:2px 0 0">' + (m.nim || '—') + '</p>' +
-        '</td>' +
-        '<td style="padding:10px 12px;font-size:12px;color:#64748b">' + (m.thesis_title || '<em>—</em>') + '</td>' +
-        '<td style="padding:10px 12px;text-align:center">' +
-        '<span style="display:inline-block;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:600;' +
-        (m.status === 'approved'
-          ? 'background:#d1fae5;color:#065f46'
-          : m.status === 'pending'
-          ? 'background:#fef3c7;color:#92400e'
-          : 'background:#fee2e2;color:#991b1b') + '">' +
-        (m.status === 'approved' ? 'Disetujui' : m.status === 'pending' ? 'Pending' : 'Ditolak') +
-        '</span></td>' +
-        '</tr>';
-    }).join('');
+  function showJadwalGlobalError(msg) {
+    var box = document.getElementById('jadwal-modal-error');
+    var txt = document.getElementById('jadwal-modal-error-msg');
+    if (!box || !txt) return;
+    txt.textContent = msg;
+    box.classList.remove('hidden');
+    box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
 
-    body.innerHTML =
-      '<p style="font-size:12px;color:#94a3b8;margin:0 0 12px">' +
-      data.mahasiswa.length + ' mahasiswa terdaftar</p>' +
-      '<table style="width:100%;border-collapse:collapse">' +
-      '<thead><tr style="background:#f8fafc">' +
-      '<th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase">#</th>' +
-      '<th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase">Mahasiswa</th>' +
-      '<th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase">Judul Skripsi</th>' +
-      '<th style="padding:8px 12px;text-align:center;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase">Status</th>' +
-      '</tr></thead>' +
-      '<tbody>' + rows + '</tbody>' +
-      '</table>';
-  })
-  .catch(function(err) {
-    var body = document.getElementById('mahasiswa-payung-body');
-    if (body) body.innerHTML =
-      '<div style="text-align:center;padding:32px;color:#ef4444">' +
-      '<span class="material-icons" style="font-size:40px;display:block;margin-bottom:8px">error_outline</span>' +
-      '<p style="font-size:13px;margin:0">Gagal memuat data: ' + err.message + '</p></div>';
-  });
-}
+  // ── openJadwalModal ────────────────────────────────────────────────────
+  function openJadwalModal(mode, id) {
+    id = id || null;
+    _jadwalMode = mode;
+    _jadwalPk   = id;
 
+    resetJadwalForm();
 
-function filterPraktikumTable(query) {
+    var icon     = document.getElementById('modal-jadwal-icon');
+    var title    = document.getElementById('modal-jadwal-title');
+    var subtitle = document.getElementById('modal-jadwal-subtitle');
+    var btnLabel = document.getElementById('btn-jadwal-submit-label');
+    var btnIcon  = document.getElementById('btn-jadwal-submit-icon');
+
+    if (mode === 'create') {
+      if (icon)     icon.textContent     = 'add_circle';
+      if (title)    title.textContent    = 'Buat Jadwal Baru';
+      if (subtitle) subtitle.textContent = 'Isi semua field yang diperlukan';
+      if (btnLabel) btnLabel.textContent = 'Simpan Jadwal';
+      if (btnIcon)  btnIcon.textContent  = 'save';
+
+      openModal('modal-jadwal');
+      setTimeout(function() {
+        var firstField = JF.type();
+        if (firstField) firstField.focus();
+      }, 100);
+
+    } else {
+      // Edit — prefill dulu sebelum buka
+      if (icon)     icon.textContent     = 'edit';
+      if (title)    title.textContent    = 'Edit Jadwal';
+      if (subtitle) subtitle.textContent = 'Memuat data...';
+      if (btnLabel) btnLabel.textContent = 'Perbarui Jadwal';
+      if (btnIcon)  btnIcon.textContent  = 'save';
+
+      openModal('modal-jadwal');
+      setJadwalLoading(true);
+
+      fetch('/api/research/jadwal/' + id + '/json/', {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      })
+      .then(function(r) {
+        if (!r.ok) throw new Error('Server error: ' + r.status);
+        return r.json();
+      })
+      .then(function(data) {
+        JF.type().value        = data.type         || '';
+        JF.sessionName().value = data.session_name  || '';
+        JF.lecturer().value    = data.lecturer_id   || '';
+        JF.date().value        = data.date          || '';
+        JF.room().value        = data.room_id       || '';
+        JF.startTime().value   = data.start_time    || '';
+        JF.endTime().value     = data.end_time      || '';
+        JF.capacity().value    = data.capacity      || '';
+        JF.isActive().checked  = data.is_active !== false;
+        JF.notes().value       = data.notes         || '';
+
+        var lbl = document.getElementById('jdw-status-label');
+        if (lbl) lbl.textContent = JF.isActive().checked ? 'Aktif' : 'Nonaktif';
+        if (subtitle) subtitle.textContent = data.session_name || ('ID #' + id);
+      })
+      .catch(function(err) {
+        showJadwalGlobalError('Gagal memuat data jadwal: ' + err.message);
+      })
+      .finally(function() {
+        setJadwalLoading(false);
+      });
+    }
+  }
+
+  // ── submitJadwalForm ───────────────────────────────────────────────────
+  function submitJadwalForm() {
+    if (!validateJadwal()) return;
+
+    setJadwalLoading(true);
+    var globalErr = document.getElementById('jadwal-modal-error');
+    if (globalErr) globalErr.classList.add('hidden');
+
+    var url = _jadwalMode === 'edit'
+      ? '/api/research/jadwal/' + _jadwalPk + '/update/'
+      : '/api/research/jadwal/create/';
+
+    var payload = {
+      type:         JF.type().value,
+      session_name: JF.sessionName().value.trim(),
+      lecturer_id:  JF.lecturer().value,
+      date:         JF.date().value,
+      room_id:      JF.room().value,
+      start_time:   JF.startTime().value,
+      end_time:     JF.endTime().value,
+      capacity:     parseInt(JF.capacity().value),
+      is_active:    JF.isActive().checked,
+      notes:        JF.notes().value.trim(),
+    };
+
+    fetch(url, {
+      method:  'POST',
+      headers: {
+        'Content-Type':     'application/json',
+        'X-CSRFToken':      getCookie('csrftoken'),
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+      body: JSON.stringify(payload),
+    })
+    .then(function(r) {
+      var ct = r.headers.get('content-type') || '';
+      if (!ct.includes('application/json')) {
+        throw new Error('Server error (' + r.status + '). Cek terminal Django.');
+      }
+      return r.json();
+    })
+    .then(function(data) {
+      if (data.ok || data.status === 'ok') {
+        closeModal('modal-jadwal');
+        showToast(data.msg || 'Jadwal berhasil disimpan!', 'success');
+        setTimeout(function() { location.reload(); }, 800);
+      } else {
+        var errMsg = data.errors
+          ? Object.values(data.errors).map(function(e) { return e[0] || e; }).join(', ')
+          : (data.msg || 'Gagal menyimpan jadwal.');
+        showJadwalGlobalError(errMsg);
+      }
+    })
+    .catch(function(err) {
+      showJadwalGlobalError(err.message);
+    })
+    .finally(function() {
+      setJadwalLoading(false);
+    });
+  }
+
+  // ══════════════════════════════════════════════════════════════════════
+  // LIHAT MAHASISWA PAYUNG
+  // ══════════════════════════════════════════════════════════════════════
+
+  function lihatMahasiswaPayung(titleId, titleName) {
+    var existing = document.getElementById('modal-mahasiswa-payung');
+    if (existing) existing.remove();
+
+    var modal = document.createElement('div');
+    modal.id = 'modal-mahasiswa-payung';
+    modal.style.cssText =
+      'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;' +
+      'justify-content:center;padding:16px;background:rgba(15,23,42,.7);backdrop-filter:blur(4px)';
+    modal.innerHTML =
+      '<div style="background:#fff;border-radius:16px;width:100%;max-width:520px;' +
+      'max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 40px rgba(0,0,0,.3)"' +
+      ' onclick="event.stopPropagation()">' +
+      '<div style="padding:20px 24px 16px;border-bottom:1px solid #e2e8f0;' +
+      'display:flex;align-items:center;justify-content:space-between">' +
+      '<div>' +
+      '<p style="font-size:11px;font-weight:600;color:#6366f1;text-transform:uppercase;' +
+      'letter-spacing:.05em;margin:0 0 2px">Judul Payung</p>' +
+      '<h3 style="font-size:15px;font-weight:700;color:#0f172a;margin:0">' + titleName + '</h3>' +
+      '</div>' +
+      '<button onclick="document.getElementById(\'modal-mahasiswa-payung\').remove()" ' +
+      'style="width:32px;height:32px;border-radius:8px;border:1px solid #e2e8f0;' +
+      'background:#f8fafc;cursor:pointer;display:flex;align-items:center;justify-content:center">' +
+      '<span class="material-icons" style="font-size:18px;color:#64748b">close</span></button>' +
+      '</div>' +
+      '<div id="mahasiswa-payung-body" style="flex:1;overflow-y:auto;padding:16px 24px">' +
+      '<div style="text-align:center;padding:32px;color:#94a3b8">' +
+      '<span class="material-icons" style="font-size:40px;display:block;margin-bottom:8px">hourglass_empty</span>' +
+      '<p style="font-size:13px;margin:0">Memuat data...</p></div>' +
+      '</div></div>';
+
+    document.body.appendChild(modal);
+    modal.addEventListener('click', function() { modal.remove(); });
+
+    fetch('/api/research/judul/' + titleId + '/mahasiswa/', {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var body = document.getElementById('mahasiswa-payung-body');
+      if (!body) return;
+      if (!data.mahasiswa || data.mahasiswa.length === 0) {
+        body.innerHTML =
+          '<div style="text-align:center;padding:32px;color:#94a3b8">' +
+          '<span class="material-icons" style="font-size:40px;display:block;margin-bottom:8px">group_off</span>' +
+          '<p style="font-size:13px;margin:0">Belum ada mahasiswa terdaftar</p></div>';
+        return;
+      }
+      var rows = data.mahasiswa.map(function(m, i) {
+        return '<tr style="border-bottom:1px solid #f1f5f9">' +
+          '<td style="padding:10px 12px;font-size:13px;color:#64748b">' + (i + 1) + '</td>' +
+          '<td style="padding:10px 12px">' +
+          '<p style="font-size:13px;font-weight:600;color:#0f172a;margin:0">' + m.name + '</p>' +
+          '<p style="font-size:11px;color:#94a3b8;margin:2px 0 0">' + (m.nim || '—') + '</p>' +
+          '</td>' +
+          '<td style="padding:10px 12px;font-size:12px;color:#64748b">' + (m.thesis_title || '<em>—</em>') + '</td>' +
+          '<td style="padding:10px 12px;text-align:center">' +
+          '<span style="display:inline-block;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:600;' +
+          (m.status === 'approved' ? 'background:#d1fae5;color:#065f46' :
+           m.status === 'pending'  ? 'background:#fef3c7;color:#92400e' :
+                                     'background:#fee2e2;color:#991b1b') + '">' +
+          (m.status === 'approved' ? 'Disetujui' : m.status === 'pending' ? 'Pending' : 'Ditolak') +
+          '</span></td></tr>';
+      }).join('');
+      body.innerHTML =
+        '<p style="font-size:12px;color:#94a3b8;margin:0 0 12px">' +
+        data.mahasiswa.length + ' mahasiswa terdaftar</p>' +
+        '<table style="width:100%;border-collapse:collapse"><thead>' +
+        '<tr style="background:#f8fafc">' +
+        '<th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase">#</th>' +
+        '<th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase">Mahasiswa</th>' +
+        '<th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase">Judul Skripsi</th>' +
+        '<th style="padding:8px 12px;text-align:center;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase">Status</th>' +
+        '</tr></thead><tbody>' + rows + '</tbody></table>';
+    })
+    .catch(function(err) {
+      var body = document.getElementById('mahasiswa-payung-body');
+      if (body) body.innerHTML =
+        '<div style="text-align:center;padding:32px;color:#ef4444">' +
+        '<span class="material-icons" style="font-size:40px;display:block;margin-bottom:8px">error_outline</span>' +
+        '<p style="font-size:13px;margin:0">Gagal memuat: ' + err.message + '</p></div>';
+    });
+  }
+
+  // ══════════════════════════════════════════════════════════════════════
+  // FILTER FUNCTIONS
+  // ══════════════════════════════════════════════════════════════════════
+
+  function filterPraktikumTable(query) {
     var q = query.toLowerCase();
     document.querySelectorAll('#praktikum-table tbody tr[data-tipe]').forEach(function(row) {
-        var sesi = (row.dataset.sesi || '').toLowerCase();
-        var tipe = (row.dataset.tipe || '').toLowerCase();
-        row.style.display = (sesi.includes(q) || tipe.includes(q)) ? '' : 'none';
+      var sesi = (row.dataset.sesi || '').toLowerCase();
+      var tipe = (row.dataset.tipe || '').toLowerCase();
+      row.style.display = (sesi.includes(q) || tipe.includes(q)) ? '' : 'none';
     });
-}
+  }
 
-function filterPraktikumTipe(tipe) {
+  function filterPraktikumTipe(tipe) {
     document.querySelectorAll('#praktikum-table tbody tr[data-tipe]').forEach(function(row) {
-        row.style.display = (!tipe || tipe === 'Semua Tipe' || row.dataset.tipe === tipe) ? '' : 'none';
+      row.style.display = (!tipe || tipe === 'Semua Tipe' || row.dataset.tipe === tipe) ? '' : 'none';
     });
-}
+  }
 
-// ── Filter request status ───────────────────────────────────────────────
-function filterRequestStatus(status) {
-  document.querySelectorAll('.req-status-tab').forEach(btn => {
-    const isActive = btn.dataset.reqStatus === status;
-    btn.classList.toggle('bg-primary-500', isActive);
-    btn.classList.toggle('text-white', isActive);
-    btn.classList.toggle('shadow-sm', isActive);
-    btn.classList.toggle('bg-slate-100', !isActive);
-    btn.classList.toggle('dark:bg-slate-700', !isActive);
-    btn.classList.toggle('text-slate-600', !isActive);
-  });
+  function filterRequestStatus(status) {
+    document.querySelectorAll('.req-status-tab').forEach(function(btn) {
+      var isActive = btn.dataset.reqStatus === status;
+      btn.classList.toggle('bg-primary-500',        isActive);
+      btn.classList.toggle('text-white',            isActive);
+      btn.classList.toggle('shadow-sm',             isActive);
+      btn.classList.toggle('bg-slate-100',         !isActive);
+      btn.classList.toggle('dark:bg-slate-700',    !isActive);
+      btn.classList.toggle('text-slate-600',       !isActive);
+    });
+    document.querySelectorAll('#request-list > div[data-req-status]').forEach(function(item) {
+      if (status === 'all' || item.dataset.reqStatus === status) {
+        item.classList.remove('hidden');
+      } else {
+        item.classList.add('hidden');
+      }
+    });
+  }
 
-  document.querySelectorAll('#request-list > div[data-req-status]').forEach(item => {
-    if (status === 'all' || item.dataset.reqStatus === status) {
-      item.classList.remove('hidden');
-    } else {
-      item.classList.add('hidden');
-    }
-  });
-}
-function filterDosenCards(query) {
+  function filterDosenCards(query) {
     var q = query.toLowerCase();
     document.querySelectorAll('#dosen-grid [data-dosen-name]').forEach(function(card) {
-        card.style.display = card.dataset.dosenName.includes(q) ? '' : 'none';
+      card.style.display = card.dataset.dosenName.includes(q) ? '' : 'none';
     });
-}
+  }
 
+  // ══════════════════════════════════════════════════════════════════════
+  // TAB SWITCHING
+  // ══════════════════════════════════════════════════════════════════════
 
-  // ── Tab switching ──────────────────────────────────────────────────────
   function switchPraktikumTab(tab) {
-    document.querySelectorAll('.praktikum-tab').forEach(t => {
+    document.querySelectorAll('.praktikum-tab').forEach(function(t) {
       t.classList.remove('text-primary-600', 'border-primary-600');
       t.classList.add('text-slate-500', 'border-transparent');
     });
-    const activeTab = document.getElementById(`praktikum-tab-${tab}`);
+    var activeTab = document.getElementById('praktikum-tab-' + tab);
     if (activeTab) {
       activeTab.classList.add('text-primary-600', 'border-primary-600');
       activeTab.classList.remove('text-slate-500', 'border-transparent');
     }
-    document.querySelectorAll('.praktikum-content').forEach(c =>
-      c.classList.add('hidden')
-    );
-    const activeContent = document.getElementById(`praktikum-content-${tab}`);
+    document.querySelectorAll('.praktikum-content').forEach(function(c) {
+      c.classList.add('hidden');
+    });
+    var activeContent = document.getElementById('praktikum-content-' + tab);
     if (activeContent) activeContent.classList.remove('hidden');
   }
 
-  // ── Modal helpers ──────────────────────────────────────────────────────
+  // ══════════════════════════════════════════════════════════════════════
+  // MODAL HELPERS
+  // ══════════════════════════════════════════════════════════════════════
+
   function openModal(id) {
-    const el = document.getElementById(id);
+    var el = document.getElementById(id);
     if (el) {
       el.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
@@ -1654,38 +2118,41 @@ function filterDosenCards(query) {
   }
 
   function closeModal(id) {
-    const el = document.getElementById(id);
+    var el = document.getElementById(id);
     if (el) {
       el.classList.add('hidden');
       document.body.style.overflow = '';
     }
   }
 
-  document.addEventListener('keydown', e => {
+  document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
-      document.querySelectorAll('[id^="modal-"]').forEach(m => {
+      document.querySelectorAll('[id^="modal-"]').forEach(function(m) {
         if (!m.classList.contains('hidden')) closeModal(m.id);
       });
     }
   });
 
-  // ── Delete ─────────────────────────────────────────────────────────────
-var deleteAction = { type: null, id: null };   // ← var bukan let
+  // ══════════════════════════════════════════════════════════════════════
+  // DELETE
+  // ══════════════════════════════════════════════════════════════════════
 
-function confirmDelete(type, id, name) {
+  var deleteAction = { type: null, id: null };
+
+  function confirmDelete(type, id, name) {
     deleteAction = { type: type, id: id };
     document.getElementById('delete-item-name').textContent = name;
     openModal('modal-delete-confirm');
-}
+  }
 
-async function executeDelete() {
+  async function executeDelete() {
     var type = deleteAction.type;
     var id   = deleteAction.id;
     if (!type || !id) return;
 
     var urlMap = {
-        'dosen':  '/api/research/dosen/' + id + '/delete/',
-        'jadwal': '/api/research/jadwal/' + id + '/delete/',
+      'dosen':  '/api/research/dosen/'  + id + '/delete/',
+      'jadwal': '/api/research/jadwal/' + id + '/delete/',
     };
     var url = urlMap[type];
     if (!url) { alert('Tipe tidak dikenal: ' + type); return; }
@@ -1695,502 +2162,468 @@ async function executeDelete() {
     btn.innerHTML = '<span class="material-icons text-sm">refresh</span> Menghapus...';
 
     try {
-        var res = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken':      getCookie('csrftoken'),
-                'X-Requested-With': 'XMLHttpRequest',
-            },
-        });
-
-        // ← Cek content-type sebelum parse JSON
-        var contentType = res.headers.get('content-type') || '';
-        if (!contentType.includes('application/json')) {
-            // Server return HTML (error page) — tampilkan pesan generik
-            console.error('[executeDelete] Response bukan JSON, status:', res.status);
-            closeModal('modal-delete-confirm');
-            showToast('Server error (' + res.status + '). Cek terminal Django.', 'error');
-            return;
-        }
-
-        var data = await res.json();
+      var res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken':      getCookie('csrftoken'),
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      });
+      var ct = res.headers.get('content-type') || '';
+      if (!ct.includes('application/json')) {
+        console.error('[executeDelete] Response bukan JSON, status:', res.status);
         closeModal('modal-delete-confirm');
-
-        if (data.ok) {
-            showToast(data.msg, 'success');
-            var card = document.querySelector('[data-dosen-id="' + id + '"]');
-            if (card) {
-                card.style.transition = 'opacity 0.3s, transform 0.3s';
-                card.style.opacity    = '0';
-                card.style.transform  = 'scale(0.95)';
-                setTimeout(function() { card.remove(); }, 300);
-            } else {
-                setTimeout(function() { location.reload(); }, 900);
-            }
-        } else if (data.action === 'suggest_deactivate') {
-            showDeactivateDialog(id, data.msg);
+        showToast('Server error (' + res.status + '). Cek terminal Django.', 'error');
+        return;
+      }
+      var data = await res.json();
+      closeModal('modal-delete-confirm');
+      if (data.ok) {
+        showToast(data.msg, 'success');
+        var card = document.querySelector('[data-dosen-id="' + id + '"]');
+        if (card) {
+          card.style.transition = 'opacity 0.3s, transform 0.3s';
+          card.style.opacity    = '0';
+          card.style.transform  = 'scale(0.95)';
+          setTimeout(function() { card.remove(); }, 300);
         } else {
-            showToast(data.msg || 'Gagal menghapus.', 'error');
+          setTimeout(function() { location.reload(); }, 900);
         }
-
+      } else if (data.action === 'suggest_deactivate') {
+        showDeactivateDialog(id, data.msg);
+      } else {
+        showToast(data.msg || 'Gagal menghapus.', 'error');
+      }
     } catch (err) {
-        closeModal('modal-delete-confirm');
-        showToast('Kesalahan tak terduga: ' + err.message, 'error');
-        console.error('[executeDelete catch]', err);
+      closeModal('modal-delete-confirm');
+      showToast('Kesalahan tak terduga: ' + err.message, 'error');
     } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<span class="material-icons text-sm">delete</span>Ya, Hapus';
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-icons text-sm">delete</span>Ya, Hapus';
     }
-}
+  }
 
-function showDeactivateDialog(id, msg) {
+  function showDeactivateDialog(id, msg) {
     var old = document.getElementById('modal-deactivate-inline');
     if (old) old.remove();
-
     var div = document.createElement('div');
     div.id  = 'modal-deactivate-inline';
-    div.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;' +
-        'justify-content:center;padding:16px;background:rgba(15,23,42,.7);backdrop-filter:blur(4px)';
+    div.style.cssText =
+      'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;' +
+      'justify-content:center;padding:16px;background:rgba(15,23,42,.7);backdrop-filter:blur(4px)';
     div.innerHTML =
-        '<div style="background:#fff;border-radius:16px;padding:24px;max-width:400px;width:100%;' +
-        'box-shadow:0 20px 40px rgba(0,0,0,.3)" onclick="event.stopPropagation()">' +
-        '<div style="display:flex;gap:12px;margin-bottom:16px">' +
-        '<div style="width:44px;height:44px;border-radius:50%;background:#fef3c7;display:flex;' +
-        'align-items:center;justify-content:center;flex-shrink:0">' +
-        '<span class="material-icons" style="color:#d97706">warning</span></div>' +
-        '<div><p style="font-weight:600;color:#0f172a;margin:0 0 4px">Tidak Dapat Dihapus</p>' +
-        '<p style="font-size:13px;color:#64748b;margin:0">' + msg + '</p></div></div>' +
-        '<div style="display:flex;gap:8px;justify-content:flex-end">' +
-        '<button onclick="document.getElementById(\'modal-deactivate-inline\').remove()" ' +
-        'style="padding:8px 16px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;' +
-        'color:#475569;font-size:14px;cursor:pointer">Batal</button>' +
-        '<button onclick="doDeactivate(' + id + ')" ' +
-        'style="padding:8px 20px;border-radius:8px;background:#f59e0b;border:none;color:#fff;' +
-        'font-size:14px;font-weight:600;cursor:pointer">Nonaktifkan</button></div></div>';
+      '<div style="background:#fff;border-radius:16px;padding:24px;max-width:400px;width:100%;' +
+      'box-shadow:0 20px 40px rgba(0,0,0,.3)" onclick="event.stopPropagation()">' +
+      '<div style="display:flex;gap:12px;margin-bottom:16px">' +
+      '<div style="width:44px;height:44px;border-radius:50%;background:#fef3c7;display:flex;' +
+      'align-items:center;justify-content:center;flex-shrink:0">' +
+      '<span class="material-icons" style="color:#d97706">warning</span></div>' +
+      '<div><p style="font-weight:600;color:#0f172a;margin:0 0 4px">Tidak Dapat Dihapus</p>' +
+      '<p style="font-size:13px;color:#64748b;margin:0">' + msg + '</p></div></div>' +
+      '<div style="display:flex;gap:8px;justify-content:flex-end">' +
+      '<button onclick="document.getElementById(\'modal-deactivate-inline\').remove()" ' +
+      'style="padding:8px 16px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;' +
+      'color:#475569;font-size:14px;cursor:pointer">Batal</button>' +
+      '<button onclick="doDeactivate(' + id + ')" ' +
+      'style="padding:8px 20px;border-radius:8px;background:#f59e0b;border:none;color:#fff;' +
+      'font-size:14px;font-weight:600;cursor:pointer">Nonaktifkan</button>' +
+      '</div></div>';
     document.body.appendChild(div);
-}
+  }
 
-async function doDeactivate(id) {
+  async function doDeactivate(id) {
     var overlay = document.getElementById('modal-deactivate-inline');
     if (overlay) overlay.remove();
-
     var res  = await fetch('/api/research/dosen/' + id + '/deactivate/', {
-        method: 'POST',
-        headers: { 'X-CSRFToken': getCookie('csrftoken'), 'X-Requested-With': 'XMLHttpRequest' },
+      method:  'POST',
+      headers: { 'X-CSRFToken': getCookie('csrftoken'), 'X-Requested-With': 'XMLHttpRequest' },
     });
     var data = await res.json();
     if (data.ok) {
-        showToast(data.msg, 'success');
-        var card = document.querySelector('[data-dosen-id="' + id + '"]');
-        if (card) card.style.opacity = '0.45';
+      showToast(data.msg, 'success');
+      var card = document.querySelector('[data-dosen-id="' + id + '"]');
+      if (card) card.style.opacity = '0.45';
     } else {
-        showToast(data.msg || 'Gagal nonaktifkan.', 'error');
+      showToast(data.msg || 'Gagal nonaktifkan.', 'error');
     }
-}
+  }
 
-function getCookie(name) {
-    var v = '; ' + document.cookie, p = v.split('; ' + name + '=');
+  // ══════════════════════════════════════════════════════════════════════
+  // DECLINE / APPROVE REQUEST
+  // ══════════════════════════════════════════════════════════════════════
+
+  var declineAction = { type: null, id: null };
+
+  function confirmDecline(type, id, name) {
+    declineAction = { type: type, id: id };
+    document.getElementById('decline-requester-name').textContent = name;
+    document.getElementById('decline-reason').value = '';
+    document.getElementById('decline-reason').classList.remove('border-rose-500');
+    openModal('modal-decline-confirm');
+  }
+
+  async function executeDecline() {
+    var reason = document.getElementById('decline-reason').value.trim();
+    if (!reason) {
+      document.getElementById('decline-reason').classList.add('border-rose-500');
+      return;
+    }
+    var btn = document.querySelector('#modal-decline-confirm button[onclick="executeDecline()"]');
+    var originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-icons text-sm animate-spin">refresh</span> Memproses...';
+    try {
+      var url  = '/api/research/requests/' + declineAction.id + '/reject/';
+      var resp = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type':     'application/json',
+          'X-CSRFToken':      getCsrfToken(),
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: JSON.stringify({ admin_notes: reason }),
+      });
+      var data = await resp.json();
+      if (resp.ok && data.status === 'ok') {
+        closeModal('modal-decline-confirm');
+        showToast('Request penelitian berhasil ditolak.', 'success');
+        updateRequestCard(declineAction.id, 'rejected', null, reason);
+      } else {
+        showToast(data.message || 'Terjadi kesalahan.', 'error');
+      }
+    } catch (err) {
+      showToast('Error: ' + err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    }
+  }
+
+  async function approveRequest(id) {
+    if (!confirm('Setujui request penelitian ini?')) return;
+    try {
+      var resp = await fetch('/api/research/requests/' + id + '/approve/', {
+        method: 'POST',
+        headers: {
+          'Content-Type':     'application/json',
+          'X-CSRFToken':      getCsrfToken(),
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      });
+      var data = await resp.json();
+      if (resp.ok && data.status === 'ok') {
+        showToast('Request penelitian berhasil disetujui.', 'success');
+        updateRequestCard(id, 'approved', data.approved_at, null);
+      } else {
+        showToast(data.message || 'Terjadi kesalahan.', 'error');
+      }
+    } catch (err) {
+      showToast('Error: ' + err.message, 'error');
+    }
+  }
+
+  function updateRequestCard(id, newStatus, approvedAt, notes) {
+    var allCards = document.querySelectorAll('#request-list [data-req-status]');
+    var targetCard = null;
+    allCards.forEach(function(card) {
+      var btn = card.querySelector(
+        'button[onclick*="approveRequest(' + id + ')"],' +
+        'button[onclick*="confirmDecline(\'request\', ' + id + '"]'
+      );
+      if (btn) targetCard = card;
+    });
+    if (!targetCard) { window.location.reload(); return; }
+
+    targetCard.dataset.reqStatus = newStatus;
+    targetCard.classList.remove(
+      'border-amber-200','dark:border-amber-800','bg-amber-50/30','dark:bg-amber-900/5',
+      'border-emerald-200','dark:border-emerald-800','bg-emerald-50/20','dark:bg-emerald-900/5',
+      'border-rose-200','dark:border-rose-800','bg-rose-50/20','dark:bg-rose-900/5'
+    );
+    if (newStatus === 'approved') {
+      targetCard.classList.add('border-emerald-200','dark:border-emerald-800','bg-emerald-50/20','dark:bg-emerald-900/5');
+    } else {
+      targetCard.classList.add('border-rose-200','dark:border-rose-800','bg-rose-50/20','dark:bg-rose-900/5');
+    }
+
+    var iconEl    = targetCard.querySelector('.material-icons');
+    var badgeEl   = targetCard.querySelector('.inline-flex.items-center.px-2\\.5');
+    var actionDiv = targetCard.querySelector('.flex.items-center.gap-2.flex-wrap');
+
+    if (newStatus === 'approved') {
+      if (iconEl)  { iconEl.textContent = 'check_circle'; iconEl.className = 'material-icons text-emerald-600'; }
+      if (badgeEl) {
+        badgeEl.className = 'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0 bg-emerald-100 text-emerald-800 border border-emerald-300';
+        badgeEl.innerHTML = '<span class="w-1.5 h-1.5 rounded-full mr-1.5 bg-emerald-500"></span>Disetujui';
+      }
+      if (actionDiv) actionDiv.innerHTML =
+        '<p class="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1">' +
+        '<span class="material-icons text-sm">verified</span>' +
+        'Disetujui ' + (approvedAt || 'baru saja') + '</p>';
+    } else {
+      if (iconEl)  { iconEl.textContent = 'cancel'; iconEl.className = 'material-icons text-rose-600'; }
+      if (badgeEl) {
+        badgeEl.className = 'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0 bg-rose-100 text-rose-800 border border-rose-300';
+        badgeEl.innerHTML = '<span class="w-1.5 h-1.5 rounded-full mr-1.5 bg-rose-500"></span>Ditolak';
+      }
+      if (actionDiv) actionDiv.innerHTML =
+        '<p class="text-xs text-rose-500 dark:text-rose-400 flex items-center gap-1">' +
+        '<span class="material-icons text-sm">cancel</span>' +
+        'Ditolak' + (notes ? ': ' + notes.substring(0, 60) : '') + '</p>';
+    }
+
+    filterRequestStatus(
+      (document.querySelector('.req-status-tab.bg-primary-500') || {}).dataset
+        ? document.querySelector('.req-status-tab.bg-primary-500').dataset.reqStatus
+        : 'pending'
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════════════
+  // DOSEN FORM
+  // ══════════════════════════════════════════════════════════════════════
+
+  function openDosenModal(mode, id) {
+    id = id || null;
+    document.getElementById('dosen-modal-title').textContent =
+      mode === 'create' ? 'Tambah Dosen Baru' : 'Edit Data Dosen';
+    document.getElementById('dosen-submit-label').textContent =
+      mode === 'create' ? 'Simpan Dosen' : 'Update Dosen';
+    document.getElementById('dosen-pk').value = id || '';
+
+    if (mode === 'create') {
+      document.getElementById('form-dosen').reset();
+      document.getElementById('dosen-photo-preview').classList.add('hidden');
+    } else {
+      fetch('/api/research/dosen/' + id + '/json/', {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        document.getElementById('dosen-name').value     = data.name    || '';
+        document.getElementById('dosen-nip').value      = data.nip     || '';
+        document.getElementById('dosen-focus').value    = data.focus   || '';
+        document.getElementById('dosen-email').value    = data.email   || '';
+        document.getElementById('dosen-phone').value    = data.phone   || '';
+        document.getElementById('dosen-bio').value      = data.bio     || '';
+        document.getElementById('dosen-active').checked = data.is_active !== false;
+        if (data.photo_url) {
+          document.getElementById('dosen-photo-img').src = data.photo_url;
+          document.getElementById('dosen-photo-preview').classList.remove('hidden');
+        }
+      });
+    }
+    openModal('modal-dosen-form');
+  }
+
+  function submitDosenForm() {
+    var form = document.getElementById('form-dosen');
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+    var btn = document.getElementById('dosen-submit-label');
+    btn.textContent = 'Menyimpan...';
+    var data = new FormData(form);
+    var pk   = document.getElementById('dosen-pk').value;
+    var url  = pk
+      ? '/api/research/dosen/' + pk + '/edit/'
+      : "{% url 'dosen-create' %}";
+    fetch(url, {
+      method:  'POST',
+      body:    data,
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      if (res.status === 'ok') {
+        closeModal('modal-dosen-form');
+        window.location.href = "{% url 'admin_panel' %}?tab=dosen";
+      } else {
+        var errs = Object.entries(res.errors).map(function(e) { return e[0] + ': ' + e[1][0]; }).join('\n');
+        alert('Validasi gagal:\n' + errs);
+        btn.textContent = 'Simpan Dosen';
+      }
+    })
+    .catch(function() {
+      alert('Terjadi kesalahan jaringan.');
+      btn.textContent = 'Simpan Dosen';
+    });
+  }
+
+  function previewDosenPhoto(input) {
+    if (input.files && input.files[0]) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('dosen-photo-img').src = e.target.result;
+        document.getElementById('dosen-photo-preview').classList.remove('hidden');
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════════════════
+  // JUDUL PAYUNG FORM
+  // ══════════════════════════════════════════════════════════════════════
+
+  function openJudulModal(mode, lecturerId, titleId) {
+    lecturerId = lecturerId || null;
+    titleId    = titleId    || null;
+    document.getElementById('judul-modal-title').textContent =
+      mode === 'create' ? 'Tambah Judul Payung' : 'Edit Judul Payung';
+    document.getElementById('judul-submit-label').textContent =
+      mode === 'create' ? 'Simpan Judul' : 'Update Judul';
+    document.getElementById('judul-pk').value = titleId || '';
+    if (mode === 'create') {
+      document.getElementById('form-judul').reset();
+      document.getElementById('judul-quota').value = 5;
+      if (lecturerId) document.getElementById('judul-lecturer').value = lecturerId;
+    }
+    openModal('modal-judul-form');
+  }
+
+  function submitJudulForm() {
+    var form = document.getElementById('form-judul');
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+    var btn  = document.getElementById('judul-submit-label');
+    btn.textContent = 'Menyimpan...';
+    var data = new FormData(form);
+    var pk   = document.getElementById('judul-pk').value;
+    var url  = pk
+      ? '/api/research/judul/' + pk + '/edit/'
+      : "{% url 'judul-create' %}";
+    fetch(url, {
+      method:  'POST',
+      body:    data,
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      if (res.status === 'ok') {
+        closeModal('modal-judul-form');
+        window.location.href = "{% url 'admin_panel' %}?tab=dosen";
+      } else {
+        var errs = Object.entries(res.errors).map(function(e) { return e[0] + ': ' + e[1][0]; }).join('\n');
+        alert('Validasi gagal:\n' + errs);
+        btn.textContent = 'Simpan Judul';
+      }
+    })
+    .catch(function() {
+      alert('Terjadi kesalahan jaringan.');
+      btn.textContent = 'Simpan Judul';
+    });
+  }
+
+  // ══════════════════════════════════════════════════════════════════════
+  // VIEW PESERTA (placeholder — implement sesuai kebutuhan)
+  // ══════════════════════════════════════════════════════════════════════
+
+  function viewPeserta(pk) {
+    switchPraktikumTab('peserta');
+    var area = document.getElementById('peserta-content-area');
+    var placeholder = document.querySelector('#praktikum-content-peserta .text-center');
+    if (placeholder) placeholder.classList.add('hidden');
+    if (area) {
+      area.classList.remove('hidden');
+      area.innerHTML =
+        '<div class="text-center py-8 text-slate-400">' +
+        '<span class="material-icons text-4xl block mb-2">hourglass_empty</span>' +
+        '<p class="text-sm">Memuat peserta jadwal #' + pk + '...</p></div>';
+    }
+    fetch('/api/research/jadwal/' + pk + '/peserta/', {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (!area) return;
+      if (!data.peserta || data.peserta.length === 0) {
+        area.innerHTML =
+          '<div class="text-center py-12 text-slate-400">' +
+          '<span class="material-icons-outlined text-5xl block mb-3 text-slate-300">group_off</span>' +
+          '<p class="text-sm font-medium">Belum ada peserta terdaftar</p></div>';
+        return;
+      }
+      var rows = data.peserta.map(function(p, i) {
+        return '<tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">' +
+          '<td class="px-4 py-3 text-xs text-slate-400">' + (i + 1) + '</td>' +
+          '<td class="px-4 py-3">' +
+          '<p class="text-sm font-medium text-slate-900 dark:text-slate-100">' + p.name + '</p>' +
+          '<p class="text-xs text-slate-400">' + (p.nim || p.email || '—') + '</p></td>' +
+          '<td class="px-4 py-3 text-xs text-slate-500">' + (p.prodi || '—') + '</td>' +
+          '<td class="px-4 py-3 text-xs text-slate-500">' + (p.registered_at || '—') + '</td>' +
+          '</tr>';
+      }).join('');
+      area.innerHTML =
+        '<div class="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-xl">' +
+        '<table class="w-full text-sm">' +
+        '<thead class="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700">' +
+        '<tr>' +
+        '<th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">#</th>' +
+        '<th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Peserta</th>' +
+        '<th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Prodi</th>' +
+        '<th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Tgl Daftar</th>' +
+        '</tr></thead>' +
+        '<tbody class="divide-y divide-slate-100 dark:divide-slate-700">' + rows + '</tbody>' +
+        '</table></div>';
+    })
+    .catch(function(err) {
+      if (area) area.innerHTML =
+        '<div class="text-center py-8 text-rose-400">' +
+        '<span class="material-icons text-4xl block mb-2">error_outline</span>' +
+        '<p class="text-sm">Gagal memuat: ' + err.message + '</p></div>';
+    });
+  }
+
+  // ══════════════════════════════════════════════════════════════════════
+  // EXPORT
+  // ══════════════════════════════════════════════════════════════════════
+
+  function exportData(module) {
+    openModal('modal-export');
+  }
+
+  function handleExport(type) {
+    var urls = {
+      'praktikum':  '/research/export/praktikum/',
+      'dosen':      '/research/export/dosen/',
+      'penelitian': '/research/export/penelitian/',
+    };
+    if (urls[type]) window.location.href = urls[type];
+  }
+
+  // ══════════════════════════════════════════════════════════════════════
+  // UTILITIES
+  // ══════════════════════════════════════════════════════════════════════
+
+  function getCookie(name) {
+    var v = '; ' + document.cookie;
+    var p = v.split('; ' + name + '=');
     if (p.length === 2) return p.pop().split(';').shift();
     return '';
-}
+  }
 
-function showToast(msg, type) {
+  function getCsrfToken() {
+    var el = document.querySelector('[name=csrfmiddlewaretoken]');
+    return el ? el.value : getCookie('csrftoken');
+  }
+
+  function showToast(msg, type) {
     var old = document.getElementById('toast-notif');
     if (old) old.remove();
     var t = document.createElement('div');
     t.id  = 'toast-notif';
-    t.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;padding:12px 18px;' +
-        'border-radius:12px;color:#fff;font-size:14px;font-weight:500;' +
-        'display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,.2);' +
-        (type === 'success' ? 'background:#059669' : 'background:#dc2626');
-    t.innerHTML = '<span class="material-icons" style="font-size:18px">' +
-        (type === 'success' ? 'check_circle' : 'error') + '</span>' + msg;
+    t.style.cssText =
+      'position:fixed;bottom:20px;right:20px;z-index:9999;padding:12px 18px;' +
+      'border-radius:12px;color:#fff;font-size:14px;font-weight:500;' +
+      'display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,.2);' +
+      (type === 'success' ? 'background:#059669' : 'background:#dc2626');
+    t.innerHTML =
+      '<span class="material-icons" style="font-size:18px">' +
+      (type === 'success' ? 'check_circle' : 'error') + '</span>' + msg;
     document.body.appendChild(t);
     setTimeout(function() {
-        t.style.opacity = '0'; t.style.transition = 'opacity .3s';
-        setTimeout(function() { t.remove(); }, 300);
+      t.style.opacity    = '0';
+      t.style.transition = 'opacity .3s';
+      setTimeout(function() { t.remove(); }, 300);
     }, 3000);
-}
-
-
-// ─── DECLINE (Tolak Request) ────────────────────────────────────────────────
-var declineAction = { type: null, id: null };
-
-function confirmDecline(type, id, name) {
-  declineAction = { type, id };
-  document.getElementById('decline-requester-name').textContent = name;
-  document.getElementById('decline-reason').value = '';
-  document.getElementById('decline-reason').classList.remove('border-rose-500');
-  openModal('modal-decline-confirm');
-}
-
-async function executeDecline() {
-  const reason = document.getElementById('decline-reason').value.trim();
-  if (!reason) {
-    document.getElementById('decline-reason').classList.add('border-rose-500');
-    return;
   }
-
-  const btn = document.querySelector('#modal-decline-confirm button[onclick="executeDecline()"]');
-  const originalText = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '<span class="material-icons text-sm animate-spin">refresh</span> Memproses...';
-
-  try {
-    const url = `/api/research/requests/${declineAction.id}/reject/`;
-    const resp = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': getCsrfToken(),
-        'X-Requested-With': 'XMLHttpRequest',
-      },
-      body: JSON.stringify({ admin_notes: reason }),
-    });
-
-    const data = await resp.json();
-    if (resp.ok && data.status === 'ok') {
-      closeModal('modal-decline-confirm');
-      showToast('success', 'Request Ditolak', 'Request penelitian berhasil ditolak.');
-      // Update DOM — ubah card tanpa reload halaman
-      updateRequestCard(declineAction.id, 'rejected', null, reason);
-    } else {
-      showToast('error', 'Gagal', data.message || 'Terjadi kesalahan.');
-    }
-  } catch (err) {
-    showToast('error', 'Error Jaringan', err.message);
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = originalText;
-  }
-}
-
-// ─── APPROVE (Setujui Request) ──────────────────────────────────────────────
-async function approveRequest(id) {
-  if (!confirm('Setujui request penelitian ini?')) return;
-
-  try {
-    const resp = await fetch(`/api/research/requests/${id}/approve/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': getCsrfToken(),
-        'X-Requested-With': 'XMLHttpRequest',
-      },
-    });
-
-    const data = await resp.json();
-    if (resp.ok && data.status === 'ok') {
-      showToast('success', 'Disetujui!', 'Request penelitian berhasil disetujui.');
-      updateRequestCard(id, 'approved', data.approved_at, null);
-    } else {
-      showToast('error', 'Gagal', data.message || 'Terjadi kesalahan.');
-    }
-  } catch (err) {
-    showToast('error', 'Error Jaringan', err.message);
-  }
-}
-
-// ─── UPDATE CARD TANPA RELOAD ───────────────────────────────────────────────
-function updateRequestCard(id, newStatus, approvedAt, notes) {
-  // Cari card berdasarkan tombol yang memiliki onclick dengan id tersebut
-  const allCards = document.querySelectorAll('#request-list [data-req-status]');
-  let targetCard = null;
-
-  allCards.forEach(card => {
-    const btn = card.querySelector(`button[onclick*="approveRequest(${id})"],
-                                   button[onclick*="confirmDecline('request', ${id}"]`);
-    if (btn) targetCard = card;
-  });
-
-  if (!targetCard) {
-    // Fallback: reload halaman jika card tidak ditemukan
-    window.location.reload();
-    return;
-  }
-
-  // Update data-req-status dan tampilan
-  targetCard.dataset.reqStatus = newStatus;
-
-  // Update border/bg class
-  targetCard.classList.remove(
-    'border-amber-200','dark:border-amber-800','bg-amber-50/30','dark:bg-amber-900/5',
-    'border-emerald-200','dark:border-emerald-800','bg-emerald-50/20','dark:bg-emerald-900/5',
-    'border-rose-200','dark:border-rose-800','bg-rose-50/20','dark:bg-rose-900/5'
-  );
-
-  if (newStatus === 'approved') {
-    targetCard.classList.add('border-emerald-200','dark:border-emerald-800','bg-emerald-50/20','dark:bg-emerald-900/5');
-  } else {
-    targetCard.classList.add('border-rose-200','dark:border-rose-800','bg-rose-50/20','dark:bg-rose-900/5');
-  }
-
-  // Ganti icon + badge status
-  const iconEl = targetCard.querySelector('.material-icons');
-  const badgeEl = targetCard.querySelector('.inline-flex.items-center.px-2\\.5');
-  const actionDiv = targetCard.querySelector('.flex.items-center.gap-2.flex-wrap');
-
-  if (newStatus === 'approved') {
-    iconEl.textContent = 'check_circle';
-    iconEl.className = 'material-icons text-emerald-600';
-    badgeEl.className = 'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0 bg-emerald-100 text-emerald-800 border border-emerald-300';
-    badgeEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full mr-1.5 bg-emerald-500"></span> Disetujui`;
-    actionDiv.innerHTML = `<p class="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-      <span class="material-icons text-sm">verified</span>
-      Disetujui ${approvedAt || 'baru saja'}
-    </p>`;
-  } else {
-    iconEl.textContent = 'cancel';
-    iconEl.className = 'material-icons text-rose-600';
-    badgeEl.className = 'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0 bg-rose-100 text-rose-800 border border-rose-300';
-    badgeEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full mr-1.5 bg-rose-500"></span> Ditolak`;
-    actionDiv.innerHTML = `<p class="text-xs text-rose-500 dark:text-rose-400 flex items-center gap-1">
-      <span class="material-icons text-sm">cancel</span>
-      Ditolak${notes ? ': ' + notes.substring(0, 60) : ''}
-    </p>`;
-  }
-
-  // Re-filter agar card tersembunyi jika tab aktif bukan statusnya
-  filterRequestStatus(document.querySelector('.req-status-tab.bg-primary-500')?.dataset.reqStatus || 'pending');
-}
-
-// ─── getCsrfToken (jika belum ada) ──────────────────────────────────────────
-function getCsrfToken() {
-  return document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
-}
-
-
-  // ── Jadwal form ────────────────────────────────────────────────────────
-  function openJadwalModal(mode, id = null) {
-    document.getElementById('jadwal-modal-title').textContent =
-      mode === 'create' ? 'Buat Jadwal Praktikum Baru' : 'Edit Jadwal Praktikum';
-    document.getElementById('jadwal-pk').value = id || '';
-    if (mode === 'create') document.getElementById('form-jadwal').reset();
-    openModal('modal-jadwal-form');
-  }
-
-  function submitJadwalForm() {
-    var form   = document.getElementById('form-jadwal');
-    var pk     = document.getElementById('jadwal-pk').value;
-    var url    = pk
-        ? '/api/research/jadwal/' + pk + '/update/'   // edit
-        : '/api/research/jadwal/create/';              // buat baru
-    var data   = new FormData(form);
-
-    fetch(url, {
-        method: 'POST',
-        headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': getCookie('csrftoken') },
-        body: data,
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-        if (data.status === 'ok' || data.ok) {
-            closeModal('modal-jadwal-form');
-            showToast('Jadwal berhasil disimpan!', 'success');
-            setTimeout(function() { location.reload(); }, 800);
-        } else {
-            var errs = data.errors
-                ? Object.values(data.errors).map(function(e) { return e[0]; }).join(', ')
-                : (data.msg || 'Gagal menyimpan');
-            showToast(errs, 'error');
-        }
-    })
-    .catch(function(e) { showToast('Kesalahan jaringan.', 'error'); });
-}
-
-  // ── Dosen Form ─────────────────────────────────────────────────────────
-
-
-function openDosenModal(mode, id = null) {
-  document.getElementById('dosen-modal-title').textContent =
-    mode === 'create' ? 'Tambah Dosen Baru' : 'Edit Data Dosen';
-  document.getElementById('dosen-submit-label').textContent =
-    mode === 'create' ? 'Simpan Dosen' : 'Update Dosen';
-  document.getElementById('dosen-pk').value = id || '';
-
-  if (mode === 'create') {
-    document.getElementById('form-dosen').reset();
-    document.getElementById('dosen-photo-preview').classList.add('hidden');
-  } else {
-    fetch(`/api/research/dosen/${id}/json/`, {
-      headers: { 'X-Requested-With': 'XMLHttpRequest' }
-    })
-    .then(r => r.json())
-    .then(data => {
-      document.getElementById('dosen-name').value     = data.name;
-      document.getElementById('dosen-nip').value      = data.nip;
-      document.getElementById('dosen-focus').value    = data.focus;
-      document.getElementById('dosen-email').value    = data.email;
-      document.getElementById('dosen-phone').value    = data.phone;
-      document.getElementById('dosen-bio').value      = data.bio;
-      document.getElementById('dosen-active').checked = data.is_active;
-      if (data.photo_url) {
-        document.getElementById('dosen-photo-img').src = data.photo_url;
-        document.getElementById('dosen-photo-preview').classList.remove('hidden');
-      }
-    });
-  }
-  openModal('modal-dosen-form');
-}
-function submitDosenForm() {
-  const form = document.getElementById('form-dosen');
-  if (!form.checkValidity()) { form.reportValidity(); return; }
-
-  const btn = document.getElementById('dosen-submit-label');
-  btn.textContent = 'Menyimpan...';
-
-  const data   = new FormData(form);
-  const pk     = document.getElementById('dosen-pk').value;
-  const url    = pk
-    ? `/api/research/dosen/${pk}/edit/`
-    : "{% url 'dosen-create' %}";
-
-  fetch(url, {
-    method:  'POST',
-    body:    data,
-    headers: { 'X-Requested-With': 'XMLHttpRequest' },
-  })
-  .then(r => r.json())
-  .then(res => {
-    if (res.status === 'ok') {
-      closeModal('modal-dosen-form');
-      // Reload halaman lalu buka tab dosen
-      window.location.href = "{% url 'admin_panel' %}?tab=dosen";
-    } else {
-      const errs = Object.entries(res.errors)
-        .map(([k, v]) => `${k}: ${v[0]}`).join('\n');
-      alert('Validasi gagal:\n' + errs);
-      btn.textContent = 'Simpan Dosen';
-    }
-  })
-  .catch(() => {
-    alert('Terjadi kesalahan jaringan.');
-    btn.textContent = 'Simpan Dosen';
-  });
-}
-
-// ── Edit Dosen — prefill modal ─────────────────────────────────────────
-function openDosenModal(mode, id = null) {
-  document.getElementById('dosen-modal-title').textContent =
-    mode === 'create' ? 'Tambah Dosen Baru' : 'Edit Data Dosen';
-  document.getElementById('dosen-submit-label').textContent =
-    mode === 'create' ? 'Simpan Dosen' : 'Update Dosen';
-  document.getElementById('dosen-pk').value = id || '';
-
-  if (mode === 'create') {
-    document.getElementById('form-dosen').reset();
-    document.getElementById('dosen-photo-preview').classList.add('hidden');
-  } else {
-    fetch(`/api/research/dosen/${id}/json/`, {
-      headers: { 'X-Requested-With': 'XMLHttpRequest' }
-    })
-    .then(r => r.json())
-    .then(data => {
-      document.getElementById('dosen-name').value    = data.name;
-      document.getElementById('dosen-nip').value     = data.nip;
-      document.getElementById('dosen-focus').value   = data.focus;
-      document.getElementById('dosen-email').value   = data.email;
-      document.getElementById('dosen-phone').value   = data.phone;
-      document.getElementById('dosen-bio').value     = data.bio;
-      document.getElementById('dosen-active').checked = data.is_active;
-      if (data.photo_url) {
-        document.getElementById('dosen-photo-img').src = data.photo_url;
-        document.getElementById('dosen-photo-preview').classList.remove('hidden');
-      }
-    });
-  }
-  openModal('modal-dosen-form');
-}
-
-
-
-
-function previewDosenPhoto(input) {
-  if (input.files && input.files[0]) {
-    const reader = new FileReader();
-    reader.onload = e => {
-      document.getElementById('dosen-photo-img').src = e.target.result;
-      document.getElementById('dosen-photo-preview').classList.remove('hidden');
-    };
-    reader.readAsDataURL(input.files[0]);
-  }
-}
-
-// ── Judul Payung Form ──────────────────────────────────────────────────
-function openJudulModal(mode, lecturerId = null, titleId = null) {
-  const form = document.getElementById('form-judul');
-
-  document.getElementById('judul-modal-title').textContent =
-    mode === 'create' ? 'Tambah Judul Payung' : 'Edit Judul Payung';
-  document.getElementById('judul-submit-label').textContent =
-    mode === 'create' ? 'Simpan Judul' : 'Update Judul';
-  document.getElementById('judul-pk').value = titleId || '';
-
-  if (mode === 'create') {
-    form.action = "{% url 'judul-create' %}";
-    form.reset();
-    document.getElementById('judul-quota').value = 5;
-    if (lecturerId) {
-      document.getElementById('judul-lecturer').value = lecturerId;
-    }
-  } else {
-    form.action = `/research/judul/${titleId}/edit/`;
-  }
-  openModal('modal-judul-form');
-}
-
-function handleExport(type) {
-  const urls = {
-    'praktikum' : '/research/export/praktikum/',
-    'dosen'     : '/research/export/dosen/',
-    'penelitian': '/research/export/penelitian/',
-  };
-  window.location.href = urls[type];
-}
-
-
-function submitJudulForm() {
-  const form = document.getElementById('form-judul');
-  if (!form.checkValidity()) { form.reportValidity(); return; }
-
-  const btn = document.getElementById('judul-submit-label');
-  btn.textContent = 'Menyimpan...';
-
-  const data  = new FormData(form);
-  const pk    = document.getElementById('judul-pk').value;
-  const url   = pk
-    ? `/api/research/judul/${pk}/edit/`
-    : "{% url 'judul-create' %}";
-
-  fetch(url, {
-    method:  'POST',
-    body:    data,
-    headers: { 'X-Requested-With': 'XMLHttpRequest' },
-  })
-  .then(r => r.json())
-  .then(res => {
-    if (res.status === 'ok') {
-      closeModal('modal-judul-form');
-      window.location.href = "{% url 'admin_panel' %}?tab=dosen";
-    } else {
-      const errs = Object.entries(res.errors)
-        .map(([k, v]) => `${k}: ${v[0]}`).join('\n');
-      alert('Validasi gagal:\n' + errs);
-      btn.textContent = 'Simpan Judul';
-    }
-  })
-  .catch(() => {
-    alert('Terjadi kesalahan jaringan.');
-    btn.textContent = 'Simpan Judul';
-  });
-}
-
-
-// ── Export ─────────────────────────────────────────────────────────────
-function exportData(module) {
-  openModal('modal-export');
-}
-
 
 })();
 </script>
