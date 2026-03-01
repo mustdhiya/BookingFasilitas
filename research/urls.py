@@ -25,10 +25,11 @@ urlpatterns = [
     path('dosen/<int:pk>/json/',         views.DosenJsonView.as_view(),             name='dosen-json'),
 
     # ── CRUD Judul Payung ─────────────────────────────────────────────
-    path('judul/create/',                views.JudulCreateView.as_view(),           name='judul-create'),
-    path('judul/<int:pk>/edit/',         views.JudulUpdateView.as_view(),           name='judul-edit'),
-    path('judul/<int:pk>/delete/',       views.JudulDeleteView.as_view(),           name='judul-delete'),
-    path('judul/<int:pk>/json/',         views.JudulJsonView.as_view(),             name='judul-json'),
+    path('judul/create/',             views.JudulCreateView.as_view(),      name='judul-create'),
+    path('judul/<int:pk>/edit/',      views.JudulUpdateView.as_view(),       name='judul-edit'),
+    path('judul/<int:pk>/delete/',    views.JudulDeleteView.as_view(),       name='judul-delete'),
+    path('judul/<int:pk>/json/',      views.JudulJsonView.as_view(),         name='judul-json'),
+    path('judul/<int:pk>/mahasiswa/', views.JudulMahasiswaView.as_view(),    name='judul-mahasiswa'),
 
     # ── CRUD Jadwal Praktikum ─────────────────────────────────────────
     path('jadwal/create/',               views.JadwalCreateView.as_view(),          name='jadwal-create'),

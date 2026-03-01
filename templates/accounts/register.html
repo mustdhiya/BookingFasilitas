@@ -253,7 +253,7 @@
             </label>
             <div class="relative">
               <span class="absolute left-3 top-1/2 -translate-y-1/2 material-icons-outlined mat-sm text-slate-400">badge</span>
-              <input type="text" id="nim" name="nim"
+              <input type="text" id="nim" name="nim_nip"
                      placeholder="contoh: 2023123456"
                      class="form-input pl-9">
             </div>
@@ -806,6 +806,7 @@
       const value = card.dataset.value;
       selectedUserType = value;
       card.querySelector('input[type=radio]').checked = true;
+      toggleUmktFields(value); 
 
       document.querySelectorAll('.user-type-card > div').forEach(c => {
         c.classList.remove('border-primary-500', 'dark:border-primary-500');
@@ -837,6 +838,25 @@
       document.getElementById('upload-type-note').textContent = '(Masyarakat Umum)';
     }
   }
+  function toggleUmktFields(type) {
+      const isUmkt = type === 'umkt';
+
+      // Field khusus UMKT
+      ['nim-field', 'prodi-field', 'angkatan-field'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.classList.toggle('hidden', !isUmkt);
+      });
+
+      // Field khusus non-UMKT
+      const instansiField = document.getElementById('instansi-field');
+      if (instansiField) instansiField.classList.toggle('hidden', isUmkt);
+
+      // Required attribute
+      document.getElementById('nim').required    = isUmkt;
+      document.getElementById('prodi').required  = isUmkt;
+      document.getElementById('angkatan').required = isUmkt;
+  }
+
 
   // ================================================================
   // FILE UPLOAD

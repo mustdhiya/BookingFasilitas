@@ -86,13 +86,21 @@
               Pilih Ruangan
               <span class="text-rose-500 dark:text-rose-400">*</span>
             </label>
-            <select id="room" name="room" required class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-200 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition">
-              <option value="">-- Pilih Ruangan --</option>
-              <option value="1" data-capacity="40">Lab Psikometri (Kapasitas: 40 orang)</option>
-              <option value="2" data-capacity="30">Lab Psikologi Klinis (Kapasitas: 30 orang)</option>
-              <option value="3" data-capacity="25">Lab Perkembangan (Kapasitas: 25 orang)</option>
-              <option value="4" data-capacity="2">Ruang Asesmen Individual (Kapasitas: 2 orang)</option>
-            </select>
+            <select id="room" name="room" required class="w-full rounded-xl border border-slate-200 dark:border-slate-600
+                          bg-white dark:bg-slate-900 px-4 py-2.5 text-sm
+                          text-slate-900 dark:text-slate-200
+                          focus:border-primary-400 dark:focus:border-primary-500
+                          focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition">
+              <option value="">-- Pilih Ruangan Lab --</option>
+              {% for room in room_list %}
+              <option value="{{ room.pk }}" data-capacity="{{ room.capacity }}">
+                  {{ room.name }} — Kapasitas {{ room.capacity }} orang
+              </option>
+              {% empty %}
+              <option disabled>Belum ada ruangan lab tersedia</option>
+              {% endfor %}
+          </select>
+
           </div>
 
           <div class="space-y-1.5">
@@ -129,8 +137,7 @@
               Durasi: <strong id="duration-display" class="text-primary-600 dark:text-primary-400 ml-1">0 hari</strong>
             </p>
           </div>
-
-          <div class="grid sm:grid-cols-2 gap-4">
+          <!-- <div class="grid sm:grid-cols-2 gap-4">
             <div class="space-y-1.5">
               <label for="start_time" class="flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
                 <span class="material-icons text-base">schedule</span>
@@ -148,7 +155,7 @@
               </label>
               <input type="time" id="end_time" name="end_time" required class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-200 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition" />
             </div>
-          </div>
+          </div> -->
 
           <div class="space-y-1.5">
             <label for="participants" class="flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -190,344 +197,8 @@
     </div>
   </div>
 
-  {# ===== CONTENT SECTION: PEMINJAMAN ALAT TES (12-STEP WIZARD) ===== #}
-  <div id="section-tool" class="module-section hidden">
-    <div class="rounded-2xl dark:border-slate-700 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-6 space-y-6">
-      <div class="pb-4 border-b border-slate-100 dark:border-slate-700">
-        <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-          <span class="material-icons text-primary-600 dark:text-primary-400">science</span>
-          Form Peminjaman Alat Tes (12 Langkah)
-        </h3>
-      </div>
-
-      {# Progress Stepper #}
-      <div class="flex items-center justify-between px-4">
-        <div class="flex flex-col items-center gap-2 relative flex-1">
-          <div id="step-circle-1" class="w-8 h-8 rounded-full bg-primary-500 dark:bg-primary-600 border-2 border-primary-500 dark:border-primary-600 flex items-center justify-center text-white text-xs font-semibold z-10">1</div>
-          <span class="text-[10px] text-slate-600 dark:text-slate-400 font-medium">Data</span>
-          <div class="absolute top-4 left-1/2 w-full h-0.5 bg-slate-200 dark:bg-slate-700 -z-10"></div>
-        </div>
-        <div class="flex flex-col items-center gap-2 relative flex-1">
-          <div id="step-circle-2" class="w-8 h-8 rounded-full bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 text-xs font-semibold z-10">2</div>
-          <span class="text-[10px] text-slate-400">Alat</span>
-          <div class="absolute top-4 left-1/2 w-full h-0.5 bg-slate-200 dark:bg-slate-700 -z-10"></div>
-        </div>
-        <div class="flex flex-col items-center gap-2 relative flex-1">
-          <div id="step-circle-3" class="w-8 h-8 rounded-full bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 text-xs font-semibold z-10">3</div>
-          <span class="text-[10px] text-slate-400">Waktu</span>
-          <div class="absolute top-4 left-1/2 w-full h-0.5 bg-slate-200 dark:bg-slate-700 -z-10"></div>
-        </div>
-        <div class="flex flex-col items-center gap-2 relative flex-1">
-          <div id="step-circle-4" class="w-8 h-8 rounded-full bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 text-xs font-semibold z-10">4</div>
-          <span class="text-[10px] text-slate-400">Pembayaran</span>
-          <div class="absolute top-4 left-1/2 w-full h-0.5 bg-slate-200 dark:bg-slate-700 -z-10"></div>
-        </div>
-        <div class="flex flex-col items-center gap-2 relative flex-1">
-          <div id="step-circle-5" class="w-8 h-8 rounded-full bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 text-xs font-semibold z-10">5</div>
-          <span class="text-[10px] text-slate-400">Review</span>
-        </div>
-      </div>
-
-      <div id="alert-tool" class="hidden rounded-xl px-4 py-3 text-sm"></div>
-
-      {# WIZARD FORM #}
-      <div class="grid lg:grid-cols-[1fr_320px] gap-6">
-        {# LEFT: Form Steps #}
-        <form id="tool-form" onsubmit="handleToolSubmit(event)" class="space-y-4">
-          {% csrf_token %}
-
-          {# STEP 1: Data Peminjam #}
-          <div id="wizard-step-1" class="wizard-step space-y-4">
-            <h4 class="text-base font-semibold text-slate-900 dark:text-slate-100 pb-2 border-b border-slate-100 dark:border-slate-700">Step 1-3: Data Peminjam</h4>
-            
-            <div class="space-y-1.5">
-              <label class="flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
-                <span class="material-icons text-base">person</span>
-                Nama Peminjam
-                <span class="text-rose-500 dark:text-rose-400">*</span>
-              </label>
-              <input type="text" id="tool-name" value="Mahasiswa Demo" required class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300" readonly />
-            </div>
-
-            <div class="space-y-1.5">
-              <label class="flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
-                <span class="material-icons text-base">business</span>
-                Instansi
-                <span class="text-rose-500 dark:text-rose-400">*</span>
-              </label>
-              <select id="tool-instansi" required class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-200 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition">
-                <option value="">-- Pilih Instansi --</option>
-                <option value="umkt">UMKT</option>
-                <option value="non-umkt">Non-UMKT</option>
-              </select>
-            </div>
-
-            <div class="space-y-1.5">
-              <label class="flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
-                <span class="material-icons text-base">label</span>
-                Tujuan Peminjaman
-                <span class="text-rose-500 dark:text-rose-400">*</span>
-              </label>
-              <select id="tool-purpose" required class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-200 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition">
-                <option value="">-- Pilih Tujuan --</option>
-                <option value="seleksi-dosen">Seleksi Dosen UMKT</option>
-                <option value="seleksi-karyawan">Seleksi Karyawan non-UMKT</option>
-                <option value="pelatihan">Pelatihan Alat Tes Internal</option>
-                <option value="penelitian">Penelitian Individu/Kelompok</option>
-                <option value="lainnya">Kegiatan Lainnya</option>
-              </select>
-            </div>
-
-            <div class="space-y-1.5">
-              <label class="flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
-                <span class="material-icons text-base">upload_file</span>
-                Upload Surat Kegiatan
-                <span class="text-rose-500 dark:text-rose-400">*</span>
-              </label>
-              <input type="file" id="tool-letter" accept=".pdf,.jpg,.png" required class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-200" />
-              <p class="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
-                <span class="material-icons text-xs">info</span>
-                Format: PDF, JPG, PNG (Max: 2MB)
-              </p>
-            </div>
-
-            <div class="pt-2">
-              <button type="button" onclick="nextStep(2)" class="inline-flex items-center gap-1.5 rounded-full bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 dark:hover:bg-primary-700 text-white font-semibold text-sm px-5 py-2.5 shadow-md hover:shadow-lg transition">
-                Lanjut
-                <span class="material-icons text-base">arrow_forward</span>
-              </button>
-            </div>
-          </div>
-
-          {# STEP 2: Pilih Alat Tes #}
-          <div id="wizard-step-2" class="wizard-step hidden space-y-4">
-            <h4 class="text-base font-semibold text-slate-900 dark:text-slate-100 pb-2 border-b border-slate-100 dark:border-slate-700">Step 5-8: Pilih Alat Tes</h4>
-            
-            <div class="rounded-lg bg-primary-50 dark:bg-primary-900/30 border border-primary-200 dark:border-primary-800 px-4 py-2">
-              <p class="text-sm font-semibold text-primary-700 dark:text-primary-300">Alat Tes #1</p>
-            </div>
-
-            <div class="space-y-1.5">
-              <label class="flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
-                <span class="material-icons text-base">science</span>
-                Nama Alat Tes
-                <span class="text-rose-500 dark:text-rose-400">*</span>
-              </label>
-              <select id="tool-test" onchange="updatePrice()" required class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-200 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition">
-                <option value="">-- Pilih Alat Tes --</option>
-                <option value="wais" data-price="50000">WAIS-IV (Rp 50.000/lembar)</option>
-                <option value="mmpi" data-price="45000">MMPI-2 (Rp 45.000/lembar)</option>
-                <option value="mbti" data-price="30000">MBTI (Rp 30.000/lembar)</option>
-              </select>
-            </div>
-
-            <div class="space-y-1.5">
-              <label class="flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
-                <span class="material-icons text-base">numbers</span>
-                Jumlah (lembar)
-                <span class="text-rose-500 dark:text-rose-400">*</span>
-              </label>
-              <input type="number" id="tool-qty" onchange="updatePrice()" min="1" required placeholder="contoh: 10" class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition" />
-            </div>
-
-            <div class="space-y-1.5">
-              <label class="flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
-                <span class="material-icons text-base">checklist</span>
-                Komponen yang Dipinjam
-              </label>
-              <div class="flex flex-wrap gap-4 pt-2">
-                <label class="inline-flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" class="rounded border-slate-300 dark:border-slate-600 text-primary-600 dark:bg-slate-900" />
-                  <span class="text-sm text-slate-700 dark:text-slate-300">Buku Tes</span>
-                </label>
-                <label class="inline-flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" class="rounded border-slate-300 dark:border-slate-600 text-primary-600 dark:bg-slate-900" />
-                  <span class="text-sm text-slate-700 dark:text-slate-300">Lembar Jawaban (LJ)</span>
-                </label>
-                <label class="inline-flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" class="rounded border-slate-300 dark:border-slate-600 text-primary-600 dark:bg-slate-900" />
-                  <span class="text-sm text-slate-700 dark:text-slate-300">Norma</span>
-                </label>
-              </div>
-            </div>
-
-            <div class="flex gap-3 pt-2">
-              <button type="button" onclick="prevStep(1)" class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium text-sm px-5 py-2.5 transition">
-                <span class="material-icons text-base">arrow_back</span>
-                Kembali
-              </button>
-              <button type="button" onclick="nextStep(3)" class="inline-flex items-center gap-1.5 rounded-full bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 dark:hover:bg-primary-700 text-white font-semibold text-sm px-5 py-2.5 shadow-md hover:shadow-lg transition">
-                Lanjut
-                <span class="material-icons text-base">arrow_forward</span>
-              </button>
-            </div>
-          </div>
-
-          {# STEP 3: Lama Peminjaman #}
-          <div id="wizard-step-3" class="wizard-step hidden space-y-4">
-            <h4 class="text-base font-semibold text-slate-900 dark:text-slate-100 pb-2 border-b border-slate-100 dark:border-slate-700">Step 9: Lama Peminjaman</h4>
-            
-            <div class="space-y-1.5">
-              <label class="flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
-                <span class="material-icons text-base">calendar_today</span>
-                Tanggal Mulai
-                <span class="text-rose-500 dark:text-rose-400">*</span>
-              </label>
-              <input type="date" id="tool-start" onchange="calculateDuration()" required min="2026-01-18" class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-200 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition" />
-            </div>
-
-            <div class="space-y-1.5">
-              <label class="flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
-                <span class="material-icons text-base">event</span>
-                Tanggal Selesai
-                <span class="text-rose-500 dark:text-rose-400">*</span>
-              </label>
-              <input type="date" id="tool-end" onchange="calculateDuration()" required min="2026-01-18" class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-200 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition" />
-              <p class="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
-                <span class="material-icons text-xs">info</span>
-                Durasi: <strong id="duration-display" class="text-primary-600 dark:text-primary-400">0 hari</strong>
-              </p>
-            </div>
-
-            <div class="flex gap-3 pt-2">
-              <button type="button" onclick="prevStep(2)" class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium text-sm px-5 py-2.5 transition">
-                <span class="material-icons text-base">arrow_back</span>
-                Kembali
-              </button>
-              <button type="button" onclick="nextStep(4)" class="inline-flex items-center gap-1.5 rounded-full bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 dark:hover:bg-primary-700 text-white font-semibold text-sm px-5 py-2.5 shadow-md hover:shadow-lg transition">
-                Lanjut
-                <span class="material-icons text-base">arrow_forward</span>
-              </button>
-            </div>
-          </div>
-
-          {# STEP 4: Pembayaran & Perjanjian #}
-          <div id="wizard-step-4" class="wizard-step hidden space-y-4">
-            <h4 class="text-base font-semibold text-slate-900 dark:text-slate-100 pb-2 border-b border-slate-100 dark:border-slate-700">Step 10-11: Pembayaran & Perjanjian</h4>
-            
-            <div class="space-y-1.5">
-              <label class="flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
-                <span class="material-icons text-base">payments</span>
-                Waktu Pembayaran
-                <span class="text-rose-500 dark:text-rose-400">*</span>
-              </label>
-              <select id="tool-payment" required class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-200 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition">
-                <option value="">-- Pilih Waktu --</option>
-                <option value="before">Sebelum Peminjaman</option>
-                <option value="after">Sesudah Peminjaman</option>
-              </select>
-            </div>
-
-            <div class="space-y-1.5">
-              <label class="flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-300">
-                <span class="material-icons text-base">description</span>
-                Surat Perjanjian
-                <span class="text-rose-500 dark:text-rose-400">*</span>
-              </label>
-              <button type="button" class="mb-2 inline-flex items-center gap-1.5 rounded-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium text-sm px-4 py-2 transition">
-                <span class="material-icons text-base">download</span>
-                Download Template Perjanjian
-              </button>
-              <input type="file" id="tool-agreement" accept=".pdf" required class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-200" />
-              <p class="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
-                <span class="material-icons text-xs">info</span>
-                Upload surat perjanjian yang sudah ditandatangani (PDF)
-              </p>
-            </div>
-
-            <div class="flex gap-3 pt-2">
-              <button type="button" onclick="prevStep(3)" class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium text-sm px-5 py-2.5 transition">
-                <span class="material-icons text-base">arrow_back</span>
-                Kembali
-              </button>
-              <button type="button" onclick="nextStep(5)" class="inline-flex items-center gap-1.5 rounded-full bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 dark:hover:bg-primary-700 text-white font-semibold text-sm px-5 py-2.5 shadow-md hover:shadow-lg transition">
-                Lanjut ke Review
-                <span class="material-icons text-base">arrow_forward</span>
-              </button>
-            </div>
-          </div>
-
-          {# STEP 5: Review & Submit #}
-          <div id="wizard-step-5" class="wizard-step hidden space-y-4">
-            <h4 class="text-base font-semibold text-slate-900 dark:text-slate-100 pb-2 border-b border-slate-100 dark:border-slate-700">Step 12: Review & Submit</h4>
-            
-            <div class="rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4 space-y-2">
-              <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase mb-3">Ringkasan Peminjaman</p>
-              <div class="space-y-1.5 text-sm">
-                <div class="flex justify-between">
-                  <span class="text-slate-600 dark:text-slate-400">Peminjam:</span>
-                  <strong class="text-slate-900 dark:text-slate-100">Mahasiswa Demo</strong>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-slate-600 dark:text-slate-400">Instansi:</span>
-                  <strong class="text-slate-900 dark:text-slate-100" id="review-instansi">-</strong>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-slate-600 dark:text-slate-400">Tujuan:</span>
-                  <strong class="text-slate-900 dark:text-slate-100" id="review-purpose">-</strong>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-slate-600 dark:text-slate-400">Alat Tes:</span>
-                  <strong class="text-slate-900 dark:text-slate-100" id="review-test">-</strong>
-                </div>
-                <div class="flex justify-between">
-                  <span class="text-slate-600 dark:text-slate-400">Durasi:</span>
-                  <strong class="text-slate-900 dark:text-slate-100" id="review-duration">-</strong>
-                </div>
-                <div class="flex justify-between pt-2 border-t border-slate-200 dark:border-slate-700">
-                  <span class="text-slate-700 dark:text-slate-300 font-semibold">Total Biaya:</span>
-                  <strong class="text-primary-600 dark:text-primary-400 text-base" id="review-total">Rp 0</strong>
-                </div>
-              </div>
-            </div>
-
-            <div class="flex gap-3 pt-2">
-              <button type="button" onclick="prevStep(4)" class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium text-sm px-5 py-2.5 transition">
-                <span class="material-icons text-base">arrow_back</span>
-                Kembali
-              </button>
-              <button type="submit" class="inline-flex items-center gap-1.5 rounded-full bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 dark:hover:bg-primary-700 text-white font-semibold text-sm px-5 py-2.5 shadow-md hover:shadow-lg transition">
-                <span class="material-icons text-base">send</span>
-                Kirim Permohonan
-              </button>
-            </div>
-          </div>
-        </form>
-
-        {# RIGHT: Summary Panel #}
-        <div class="hidden lg:block">
-          <div class="sticky top-24 rounded-xl bg-gradient-to-br from-primary-50 to-blue-50 dark:from-primary-900/30 dark:to-blue-900/30 border border-primary-200 dark:border-primary-800 p-5 space-y-4">
-            <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-              <span class="material-icons text-base text-primary-600 dark:text-primary-400">receipt</span>
-              Ringkasan Biaya
-            </h4>
-            <div class="space-y-2 text-sm">
-              <div class="flex justify-between pb-2 border-b border-primary-100 dark:border-primary-800">
-                <span class="text-slate-600 dark:text-slate-400">Alat Tes:</span>
-                <strong id="summary-test" class="text-slate-900 dark:text-slate-100">-</strong>
-              </div>
-              <div class="flex justify-between pb-2 border-b border-primary-100 dark:border-primary-800">
-                <span class="text-slate-600 dark:text-slate-400">Jumlah:</span>
-                <strong id="summary-qty" class="text-slate-900 dark:text-slate-100">0 lembar</strong>
-              </div>
-              <div class="flex justify-between pb-2 border-b border-primary-100 dark:border-primary-800">
-                <span class="text-slate-600 dark:text-slate-400">Harga/lembar:</span>
-                <strong id="summary-price" class="text-slate-900 dark:text-slate-100">Rp 0</strong>
-              </div>
-              <div class="flex justify-between pb-2 border-b border-primary-100 dark:border-primary-800">
-                <span class="text-slate-600 dark:text-slate-400">Durasi:</span>
-                <strong id="summary-duration" class="text-slate-900 dark:text-slate-100">0 hari</strong>
-              </div>
-              <div class="flex justify-between pt-2">
-                <span class="text-slate-900 dark:text-slate-100 font-semibold">TOTAL:</span>
-                <strong id="summary-total" class="text-primary-600 dark:text-primary-400 text-lg">Rp 0</strong>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  {# ===== CONTENT SECTION: RIWAYAT ===== #}
+  {% include 'pemalatinclude.html' %}
 
   {# ===== CONTENT SECTION: RIWAYAT ===== #}
   {% include 'pemriwayatinclude.html' %}
@@ -667,29 +338,104 @@
   }
 
   // ── Room Form Submit ───────────────────────────────────────────────────
-  function handleRoomSubmit(e) {
-    e.preventDefault();
-    const participants = parseInt(document.getElementById('participants').value);
-    const roomSelect   = document.getElementById('room');
-    const capacity     = parseInt(roomSelect.options[roomSelect.selectedIndex].dataset.capacity);
+  async function handleRoomSubmit(e) {
+      e.preventDefault();
 
-    if (participants > capacity) {
-      showAlert('alert-room', `Jumlah peserta (${participants}) melebihi kapasitas ruangan (${capacity} orang).`, 'error');
-      return false;
-    }
+      const roomSelect   = document.getElementById('room');
+      const participants = parseInt(document.getElementById('participants').value);
+      const capacity     = parseInt(roomSelect.options[roomSelect.selectedIndex]?.dataset.capacity || 9999);
 
-    showAlert('alert-room', '✓ Permohonan berhasil dikirim! (Simulasi)', 'success');
-    setTimeout(() => document.getElementById('room-form').reset(), 2000);
+      // Validasi kapasitas di sisi client
+      if (participants > capacity) {
+          showAlert('alert-room', `Jumlah peserta ${participants} melebihi kapasitas ruangan ${capacity} orang.`, 'error');
+          return;
+      }
+
+      const submitBtn = e.target.querySelector('[type="submit"]');
+      const originalHTML = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="material-icons text-base animate-spin">autorenew</span> Mengirim...';
+
+      const formData = new FormData(document.getElementById('room-form'));
+
+      try {
+          const res = await fetch("{% url 'room-booking-create' %}", {
+              method: 'POST',
+              headers: { 'X-Requested-With': 'XMLHttpRequest' },
+              body: formData,
+          });
+          const data = await res.json();
+
+          if (data.ok) {
+              showAlert('alert-room',
+                  `✓ ${data.msg}`,
+                  'success'
+              );
+              document.getElementById('room-form').reset();
+              document.getElementById('duration-display').textContent = '0 hari';
+
+              // Refresh stats tanpa reload penuh (opsional)
+              setTimeout(() => window.location.reload(), 2500);
+          } else {
+              // Tampilkan error validasi dari Django
+              const errList = Object.entries(data.errors)
+                  .map(([k, v]) => `• ${k}: ${v[0]}`)
+                  .join('\n');
+              showAlert('alert-room', `Gagal mengirim:\n${errList}`, 'error');
+          }
+      } catch (err) {
+          showAlert('alert-room', 'Terjadi kesalahan jaringan. Coba lagi.', 'error');
+      } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalHTML;
+      }
   }
 
   // ── Tool Form Submit ───────────────────────────────────────────────────
-  function handleToolSubmit(e) {
-    e.preventDefault();
-    showAlert('alert-tool', '✓ Permohonan peminjaman alat tes berhasil dikirim! Invoice akan dikirim ke email Anda.', 'success');
-    setTimeout(() => {
-      document.getElementById('tool-form').reset();
-      nextStep(1);
-    }, 2500);
+  async function handleToolSubmit(e) {
+      e.preventDefault();
+
+      const formData = new FormData(document.getElementById('tool-form'));
+
+      // Pastikan transaction_type ikut terkirim
+      formData.set('transaction_type', document.getElementById('tool-transaction-type').value);
+      formData.set('tool_id',    document.getElementById('tool-test').value);
+      formData.set('quantity',   document.getElementById('tool-qty').value);
+      formData.set('date_start', document.getElementById('tool-start').value);
+      formData.set('date_end',   document.getElementById('tool-end').value || document.getElementById('tool-start').value);
+      formData.set('instansi',   document.getElementById('tool-instansi').value);
+      formData.set('purpose',    document.getElementById('tool-purpose').value);
+      formData.set('payment',    document.getElementById('tool-payment').value);
+
+      const submitBtn = document.querySelector('#wizard-step-5 button[type="submit"]');
+      const orig = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="material-icons text-base animate-spin">autorenew</span> Mengirim...';
+
+      try {
+          const res  = await fetch("{% url 'tool-rental-create' %}", {
+              method:  'POST',
+              headers: { 'X-Requested-With': 'XMLHttpRequest' },
+              body:    formData,
+          });
+          const data = await res.json();
+
+          if (data.ok || data.status === 'ok') {
+              showAlert('alert-tool',
+                  `Permohonan (${document.getElementById('tool-transaction-type').value}) berhasil dikirim! Invoice akan dikirim ke email Anda.`,
+                  'success');
+              setTimeout(() => { document.getElementById('tool-form').reset(); nextStep(1); }, 2500);
+          } else {
+              const errs = Object.entries(data.errors || {})
+                  .map(([k, v]) => `${k}: ${Array.isArray(v) ? v[0] : v}`).join(' | ');
+              showAlert('alert-tool', errs || data.error || 'Gagal mengirim permohonan.', 'error');
+          }
+      } catch {
+          showAlert('alert-tool', 'Terjadi kesalahan jaringan. Coba lagi.', 'error');
+      } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = orig;
+      }
   }
 
   // ── Utility Functions ─────────────────────────────────────────────────

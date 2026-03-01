@@ -7,19 +7,36 @@ from core.models import TimeStampedModel
 
 class Room(TimeStampedModel):
     """Master data ruangan"""
+    ROOM_TYPE_CHOICES = (
+        ('lab',     'Laboratorium'),
+        ('class',   'Kelas / Ruang Teori'),
+        ('office',  'Ruang Kantor'),
+        ('other',   'Lainnya'),
+    )
+
     code        = models.CharField(max_length=10, unique=True)
     name        = models.CharField(max_length=100)
+    room_type   = models.CharField(
+        max_length=20,
+        choices=ROOM_TYPE_CHOICES,
+        default='lab',
+    )
     capacity    = models.PositiveIntegerField(validators=[MinValueValidator(1)])
     description = models.TextField(blank=True, null=True)
     is_active   = models.BooleanField(default=True)
 
     class Meta:
-        ordering       = ['code']
-        verbose_name   = 'Room'
+        ordering = ['code']
+        verbose_name = 'Room'
         verbose_name_plural = 'Rooms'
 
     def __str__(self):
         return f"{self.code} - {self.name} (Cap: {self.capacity})"
+
+    @property
+    def is_lab(self):
+        return self.room_type == 'lab'
+
 
 
 class RoomBooking(TimeStampedModel):

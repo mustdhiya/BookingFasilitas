@@ -5,8 +5,9 @@ from accounts.models import User
 from core.models import TimeStampedModel
 
 
+# tools/models.py — tambahkan KATEGORI_CHOICES dan field kategori ke TestTool
+
 class TestTool(TimeStampedModel):
-    """Master data alat tes"""
 
     UNIT_CHOICES = (
         ('lembar', 'Lembar'),
@@ -14,20 +15,37 @@ class TestTool(TimeStampedModel):
         ('buah',   'Buah'),
     )
 
-    code        = models.CharField(max_length=20, unique=True)
-    name        = models.CharField(max_length=150)
-    description = models.TextField(blank=True, null=True)
-    unit        = models.CharField(max_length=20, choices=UNIT_CHOICES, default='lembar')
-    stock       = models.PositiveIntegerField(default=0)
-    price_per_unit = models.PositiveIntegerField(
-        default=0,
-        help_text='Harga per unit dalam rupiah'
+    KATEGORI_CHOICES = (
+        ('inteligensi', 'Inteligensi'),
+        ('kepribadian', 'Kepribadian'),
+        ('minat',       'Minat & Bakat'),
+        ('klinis',      'Klinis'),
+        ('lainnya',     'Lainnya'),
     )
-    is_active   = models.BooleanField(default=True)
+
+    TRANSACTION_TYPE_CHOICES = (
+        ('pinjam', 'Peminjaman'),
+        ('sewa',   'Penyewaan'),
+        ('beli',   'Pembelian'),
+    )
+
+    code             = models.CharField(max_length=20, unique=True)
+    name             = models.CharField(max_length=150)
+    description      = models.TextField(blank=True, null=True)
+    kategori         = models.CharField(max_length=20, choices=KATEGORI_CHOICES, default='lainnya')
+    unit             = models.CharField(max_length=20, choices=UNIT_CHOICES, default='lembar')
+    stock            = models.PositiveIntegerField(default=0)
+    price_per_unit   = models.PositiveIntegerField(default=0)
+    is_active        = models.BooleanField(default=True)
+    transaction_type = models.CharField(
+        max_length=10,
+        choices=TRANSACTION_TYPE_CHOICES,
+        default='pinjam',
+    )
 
     class Meta:
-        ordering       = ['code']
-        verbose_name   = 'Test Tool'
+        ordering            = ['code']
+        verbose_name        = 'Test Tool'
         verbose_name_plural = 'Test Tools'
 
     def __str__(self):
@@ -36,6 +54,7 @@ class TestTool(TimeStampedModel):
     @property
     def is_available(self):
         return self.is_active and self.stock > 0
+
 
 
 class ToolRental(TimeStampedModel):
@@ -49,6 +68,25 @@ class ToolRental(TimeStampedModel):
         ('declined',  'Ditolak'),
         ('cancelled', 'Dibatalkan'),
     )
+    TRANSACTION_TYPE_CHOICES = (
+        ('pinjam', 'Peminjaman'),
+        ('sewa',   'Penyewaan'),
+        ('beli',   'Pembelian'),
+    )
+
+    # Tambahkan field ini setelah field `user`:
+    transaction_type = models.CharField(
+        max_length=10,
+        choices=TRANSACTION_TYPE_CHOICES,
+        default='pinjam',
+    )
+
+    # Tambahkan field ini setelah field `is_paid`:
+    fine_amount = models.PositiveIntegerField(
+        default=0,
+        help_text='Denda keterlambatan dalam Rupiah'
+    )
+
 
     INSTITUTION_CHOICES = (
         ('umkt',     'UMKT'),
@@ -158,3 +196,4 @@ class ToolRental(TimeStampedModel):
             raise ValidationError(
                 f'Stok tidak cukup. Stok tersedia: {self.tool.stock} {self.tool.unit}.'
             )
+

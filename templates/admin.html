@@ -243,7 +243,8 @@
   // ── Init: baca ?section= dari URL saat halaman dibuka ──
   window.addEventListener('DOMContentLoaded', () => {
     updateCardStylesOnThemeChange();
-    const section = new URLSearchParams(window.location.search).get('section') || 'dashboard';
+    const section = new URLSearchParams(window.location.search).get('tab') 
+             || new URLSearchParams(window.location.search).get('section');
     switchAdminModule(section);
   });
 

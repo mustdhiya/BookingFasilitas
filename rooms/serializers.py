@@ -3,35 +3,37 @@ from .models import Room, RoomBooking, RoomBlockSchedule
 from accounts.serializers import UserSerializer
 
 class RoomSerializer(serializers.ModelSerializer):
+    is_lab = serializers.BooleanField(read_only=True)  
+
     class Meta:
-        model = Room
+        model  = Room
         fields = '__all__'
 
 
 class RoomBookingSerializer(serializers.ModelSerializer):
     user_detail = UserSerializer(source='user', read_only=True)
     room_detail = RoomSerializer(source='room', read_only=True)
-    
+
     class Meta:
-        model = RoomBooking
+        model  = RoomBooking
         fields = '__all__'
         read_only_fields = ['user', 'status', 'approved_by', 'approved_at']
-    
-    def validate(self, data):
-        # Check capacity
-        if data['participants'] > data['room'].capacity:
-            raise serializers.ValidationError(
-                f"Jumlah peserta melebihi kapasitas ({data['room'].capacity})"
-            )
-        
-        # Check time logic
-        if data['start_time'] >= data['end_time']:
-            raise serializers.ValidationError(
-                "Jam mulai harus lebih awal dari jam selesai"
-            )
-        
-        return data
 
+    def validate(self, data):
+        room = data.get('room')
+        participants = data.get('participants')
+
+        if room and participants and participants > room.capacity:
+            raise serializers.ValidationError(
+                f'Jumlah peserta ({participants}) melebihi kapasitas ruangan ({room.capacity} orang).'
+            )
+
+        date_start = data.get('date_start')
+        date_end   = data.get('date_end')
+        if date_start and date_end and date_end < date_start:
+            raise serializers.ValidationError('Tanggal selesai tidak boleh sebelum tanggal mulai.')
+
+        return data
 
 class RoomBlockScheduleSerializer(serializers.ModelSerializer):
     class Meta:

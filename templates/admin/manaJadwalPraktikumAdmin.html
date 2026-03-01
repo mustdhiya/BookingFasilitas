@@ -1,5 +1,5 @@
 {# ===== SECTION 4: PRAKTIKUM & PENELITIAN ===== #}
-<div id="admin-section-praktikum" class="admin-module-section hidden">
+<div id="admin-section-dosen" class="admin-module-section hidden">
   <div class="rounded-2xl border border-slate-200 dark:border-slate-700
               bg-white dark:bg-slate-800 shadow-sm p-6 space-y-6">
 
@@ -505,6 +505,14 @@
 
                     <div class="flex gap-1 opacity-0 group-hover/title:opacity-100
                                 transition-opacity flex-shrink-0">
+                        <button onclick="deleteJudul({{ title.id }}, '{{ title.title|escapejs }}')"
+                                class="w-6 h-6 rounded border border-slate-200
+                                    dark:border-slate-600 bg-white dark:bg-slate-700
+                                    hover:bg-amber-50 flex items-center
+                                    justify-center transition"
+                                title="Hapus Judul Payung">
+                            <span class="material-icons text-sm text-rose-500">delete</span>
+                        </button>
                         <button onclick="openJudulModal('edit', {{ lecturer.pk }}, {{ title.pk }})"
                                 class="w-6 h-6 rounded border border-slate-200
                                     dark:border-slate-600 bg-white dark:bg-slate-700
@@ -1704,6 +1712,7 @@
   window.executeDecline       = executeDecline;
   window.openJadwalModal      = openJadwalModal;
   window.submitJadwalForm     = submitJadwalForm;
+  window.deleteJudul          = deleteJudul; 
   window.openDosenModal       = openDosenModal;
   window.submitDosenForm      = submitDosenForm;
   window.openJudulModal       = openJudulModal;
@@ -1720,6 +1729,19 @@
   window.doDeactivate         = doDeactivate;
   window.exportData           = exportData;
   window.handleExport         = handleExport;
+  window.switchSection        = switchSection;
+
+  function switchSection(section) {
+      document.querySelectorAll('[id^="admin-section-"]').forEach(function(el) {
+          el.classList.add('hidden');
+      });
+      var target = document.getElementById('admin-section-' + section);
+      if (target) {
+          target.classList.remove('hidden');
+      } else {
+          console.warn('Section #admin-section-' + section + ' tidak ditemukan.');
+      }
+  }
 
   // ══════════════════════════════════════════════════════════════════════
   // JADWAL MODAL — CREATE / EDIT
@@ -1779,6 +1801,28 @@
       if (lbl) lbl.textContent = this.checked ? 'Aktif' : 'Nonaktif';
     });
   }
+  // ── Delete Judul payung ──
+  function deleteJudul(pk, titleText) {
+    if (!confirm(`Hapus judul payung "${titleText}"?\nSemua request terkait juga akan dihapus.`)) return;
+    var csrfToken = getCookie('csrftoken'); 
+    fetch('/api/research/judul/' + pk + '/delete/', { 
+      method: 'POST',
+      headers: { 'X-CSRFToken': csrfToken }
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      if (res.status === 'ok') {
+        showToast(res.msg, 'success');
+        setTimeout(function() { location.reload(); }, 800);
+      } else {
+        showToast(res.msg || 'Gagal hapus.', 'error');
+      }
+    })
+    .catch(function() { showToast('Terjadi kesalahan koneksi.', 'error'); });
+  }
+
+
+
 
   // Validasi form
   function validateJadwal() {

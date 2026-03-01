@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
-from django.db.models import Q
+from django.db.models import Avg, Count, Q
 import json
 from .models import KonselingSession
 from accounts.models import User
@@ -191,7 +191,6 @@ class KonselingSubmitView(LoginRequiredMixin, View):
 
 from rooms.models import Room
 from django.utils import timezone
-from django.db.models import Q
 from rooms.models import Room, RoomBooking
 from tools.models import TestTool, ToolRental
 
@@ -207,18 +206,19 @@ class AdminPanelView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
         today = timezone.localdate()
 
         # ── Filter params ───────────────────────────────────────────
-        room_status  = self.request.GET.get('room_status', 'all')
-        room_filter  = self.request.GET.get('room_filter', '')
-        room_date    = self.request.GET.get('room_date', '')
-        room_search  = self.request.GET.get('room_search', '')
-        room_page    = int(self.request.GET.get('room_page', 1))
+        room_status = self.request.GET.get('room_status', 'all')
+        room_filter = self.request.GET.get('room_filter', '')
+        room_date   = self.request.GET.get('room_date', '')
+        room_search = self.request.GET.get('room_search', '')
+        room_page   = int(self.request.GET.get('room_page', 1))
 
-        tool_status  = self.request.GET.get('tool_status', 'all')
-        tool_search  = self.request.GET.get('tool_search', '')
-        tool_page    = int(self.request.GET.get('tool_page', 1))
-        PER_PAGE     = 10
+        tool_status = self.request.GET.get('tool_status', 'all')
+        tool_search = self.request.GET.get('tool_search', '')
+        tool_page   = int(self.request.GET.get('tool_page', 1))
+        tool_filter_id = self.request.GET.get('tool_filter_id', '')
+        PER_PAGE = 10
 
-        # ── Queryset ruangan ────────────────────────────────────────
+        # ── Queryset ruangan ─────────────────────────────────────────
         room_qs = RoomBooking.objects.select_related('room', 'user', 'approved_by') \
                              .order_by('-date_start', '-created_at')
 
@@ -234,10 +234,7 @@ class AdminPanelView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
         if room_filter:
             room_qs = room_qs.filter(room_id=room_filter)
         if room_date:
-            room_qs = room_qs.filter(
-                date_start__lte=room_date,
-                date_end__gte=room_date,
-            )
+            room_qs = room_qs.filter(date_start__lte=room_date, date_end__gte=room_date)
         if room_search:
             room_qs = room_qs.filter(
                 Q(user__first_name__icontains=room_search) |
@@ -246,28 +243,26 @@ class AdminPanelView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
                 Q(room__name__icontains=room_search)
             )
 
-        # ── Stats ruangan ───────────────────────────────────────────
         ctx['peminjaman_stats'] = {
-            'pending': RoomBooking.objects.filter(status='pending').count(),
-            'approved': RoomBooking.objects.filter(status='approved').count(),
-            'ongoing': RoomBooking.objects.filter(
-                status='approved',
-                date_start__lte=today,
-                date_end__gte=today,
-            ).count(),
+            'pending':     RoomBooking.objects.filter(status='pending').count(),
+            'approved':    RoomBooking.objects.filter(status='approved').count(),
+            'ongoing':     RoomBooking.objects.filter(
+                               status='approved',
+                               date_start__lte=today,
+                               date_end__gte=today,
+                           ).count(),
             'total_month': RoomBooking.objects.filter(
-                date_start__year=today.year,
-                date_start__month=today.month,
-            ).count(),
+                               date_start__year=today.year,
+                               date_start__month=today.month,
+                           ).count(),
         }
 
-        # ── Pagination ruangan ──────────────────────────────────────
         from django.core.paginator import Paginator
         room_paginator = Paginator(room_qs, PER_PAGE)
         ctx['room_bookings_page'] = room_paginator.get_page(room_page)
         ctx['room_paginator']     = room_paginator
 
-        # ── Queryset alat ───────────────────────────────────────────
+        # ── Queryset alat ────────────────────────────────────────────
         tool_qs = ToolRental.objects.select_related('tool', 'user', 'approved_by') \
                             .order_by('-date_start', '-created_at')
 
@@ -280,49 +275,37 @@ class AdminPanelView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
                 Q(user__email__icontains=tool_search)      |
                 Q(tool__name__icontains=tool_search)
             )
+        if tool_filter_id:
+            tool_qs = tool_qs.filter(tool_id=tool_filter_id)
 
-        # ── Stats alat ──────────────────────────────────────────────
         ctx['tool_stats'] = {
             'pending':  ToolRental.objects.filter(status='pending').count(),
             'approved': ToolRental.objects.filter(status='approved').count(),
             'borrowed': ToolRental.objects.filter(status='borrowed').count(),
             'overdue':  ToolRental.objects.filter(
-                status='borrowed', date_end__lt=today
-            ).count(),
+                            status='borrowed', date_end__lt=today
+                        ).count(),
         }
 
         tool_paginator = Paginator(tool_qs, PER_PAGE)
         ctx['tool_rentals_page'] = tool_paginator.get_page(tool_page)
         ctx['tool_paginator']    = tool_paginator
 
-        # ── Data pendukung filter ───────────────────────────────────
-        ctx['room_list']      = Room.objects.filter(is_active=True).order_by('code')
-        ctx['tool_list']      = TestTool.objects.filter(is_active=True).order_by('code')
+        ctx['room_list'] = Room.objects.filter(is_active=True).order_by('code')
+        ctx['tool_list'] = TestTool.objects.filter(is_active=True).order_by('code')
 
-        # ── Filter aktif (untuk persist state) ─────────────────────
         ctx['room_filter_active'] = {
             'status': room_status, 'room': room_filter,
             'date': room_date,     'search': room_search,
         }
         ctx['tool_filter_active'] = {
             'status': tool_status, 'search': tool_search,
+            'tool_id': tool_filter_id,
         }
 
-
-    def test_func(self):
-        return self.request.user.is_staff
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-
-        ctx['lecturer_list'] = Lecturer.objects.prefetch_related(
-            'research_titles'
-        ).order_by('name')
-
-        ctx['practicum_list'] = Practicum.objects.select_related(
-            'lecturer', 'room'
-        ).order_by('-date')
-
+        # ── Data lainnya (konseling, akun, practicum, dll) ───────────
+        ctx['lecturer_list'] = Lecturer.objects.prefetch_related('research_titles').order_by('name')
+        ctx['practicum_list'] = Practicum.objects.select_related('lecturer', 'room').order_by('-date')
         ctx['research_request_list'] = ResearchRequest.objects.select_related(
             'student', 'lecturer', 'research_title'
         ).order_by('-created_at')
@@ -330,16 +313,12 @@ class AdminPanelView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
         ctx['penelitian_stats'] = {
             'pending': ResearchRequest.objects.filter(status='pending').count()
         }
-
         ctx['request_status_tabs'] = [
-            ('all',      'Semua'),
-            ('pending',  'Pending'),
-            ('approved', 'Disetujui'),
-            ('rejected', 'Ditolak'),
+            ('all', 'Semua'), ('pending', 'Pending'),
+            ('approved', 'Disetujui'), ('rejected', 'Ditolak'),
         ]
 
         ctx['active_room_count'] = Room.objects.filter(is_active=True).count()
-        ctx['room_list'] = Room.objects.all().order_by('code')
 
         ctx['sesi_list'] = KonselingSession.objects.select_related('user').order_by('-created_at')
         ctx['stats'] = {
@@ -350,40 +329,32 @@ class AdminPanelView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
             'total':    KonselingSession.objects.count(),
         }
         ctx['status_tabs'] = [
-            ('all',       'Semua'),
-            ('pending',   'Menunggu'),
-            ('approved',  'Disetujui'),
-            ('done',      'Selesai'),
-            ('rejected',  'Ditolak'),
-            ('cancelled', 'Dibatalkan'),
+            ('all', 'Semua'), ('pending', 'Menunggu'), ('approved', 'Disetujui'),
+            ('done', 'Selesai'), ('rejected', 'Ditolak'), ('cancelled', 'Dibatalkan'),
         ]
         ctx['status_filter'] = 'all'
-        ctx['dosen_list'] = Lecturer.objects.filter(
-            is_active=True
-        ).order_by('name')   
+        ctx['dosen_list'] = Lecturer.objects.filter(is_active=True).order_by('name')
+
         ctx['akun_stats'] = {
             'pending':  User.objects.exclude(is_superuser=True).filter(is_active=False, is_verified=False).count(),
-            'active':   User.objects.exclude(is_superuser=True).filter(is_active=True,  is_verified=True).count(),
+            'active':   User.objects.exclude(is_superuser=True).filter(is_active=True, is_verified=True).count(),
             'inactive': User.objects.exclude(is_superuser=True).filter(is_active=False, is_verified=True).count(),
             'total':    User.objects.exclude(is_superuser=True).count(),
         }
-
         ctx['akun_status_filter'] = 'all'
         ctx['akun_status_tabs'] = [
-            ('all',      'Semua'),
-            ('pending',  'Menunggu Verifikasi'),
-            ('active',   'Aktif & Terverifikasi'),
-            ('rejected', 'Nonaktif'),
+            ('all', 'Semua'), ('pending', 'Menunggu Verifikasi'),
+            ('active', 'Aktif & Terverifikasi'), ('rejected', 'Nonaktif'),
         ]
+        ctx['user_list'] = User.objects.exclude(is_superuser=True) \
+                              .select_related('verified_by').order_by('-created_at')
+        
+        ctx['alat_list'] = TestTool.objects.annotate(
+            borrow_count=Count('rentals', filter=~Q(rentals__status='cancelled'))
+        ).order_by('code')
+        ctx['low_stock_count'] = TestTool.objects.filter(stock__lte=10, is_active=True).count()
 
-        ctx['user_list'] = User.objects.exclude(
-            is_superuser=True
-        ).select_related('verified_by').order_by('-created_at')
-
-
-
-        return ctx
-
+        return ctx 
 
 class AdminKonselingListView(AdminRequiredMixin, ListView):
     model               = KonselingSession

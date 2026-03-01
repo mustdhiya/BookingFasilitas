@@ -1,22 +1,51 @@
+{# ===== SECTION: RIWAYAT & DOKUMEN ===== #}
 <div id="section-history" class="module-section hidden">
   <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-6 space-y-6">
-    
+
     {# Header #}
     <div class="pb-4 border-b border-slate-100 dark:border-slate-700">
       <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
         <span class="material-icons text-primary-600 dark:text-primary-400">history</span>
         Riwayat Peminjaman
       </h3>
-      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Lihat semua aktivitas peminjaman Anda dan download dokumen terkait</p>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+        Lihat semua aktivitas peminjaman Anda
+      </p>
     </div>
 
-    {# Tabs #}
+    {# Stats ringkas #}
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div class="rounded-xl border border-purple-200 bg-purple-50 dark:bg-purple-900/20 dark:border-purple-800 p-4 flex items-center gap-4">
+        <div class="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">
+          <span class="material-icons text-purple-600 dark:text-purple-400">meeting_room</span>
+        </div>
+        <div>
+          <p class="text-xs text-purple-600 dark:text-purple-400">Total Peminjaman Ruangan</p>
+          <p class="text-2xl font-bold text-purple-900 dark:text-purple-100">{{ history_room_bookings|length }}</p>
+        </div>
+      </div>
+      <div class="rounded-xl border border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-800 p-4 flex items-center gap-4">
+        <div class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
+          <span class="material-icons text-blue-600 dark:text-blue-400">science</span>
+        </div>
+        <div>
+          <p class="text-xs text-blue-600 dark:text-blue-400">Total Peminjaman Alat Tes</p>
+          <p class="text-2xl font-bold text-blue-900 dark:text-blue-100">{{ history_tool_rentals|length }}</p>
+        </div>
+      </div>
+    </div>
+
+    {# Sub-tabs #}
     <div class="flex gap-2 border-b border-slate-200 dark:border-slate-700">
-      <button onclick="switchHistoryTab('room')" id="history-tab-room" class="history-tab px-4 py-2.5 text-sm font-medium text-primary-600 dark:text-primary-400 border-b-2 border-primary-600 dark:border-primary-400 transition">
+      <button onclick="switchHistoryTab('room')" id="history-tab-room"
+              class="history-tab px-4 py-2.5 text-sm font-medium whitespace-nowrap
+                     text-primary-600 dark:text-primary-400 border-b-2 border-primary-600 dark:border-primary-400 transition">
         <span class="material-icons text-base mr-1.5 align-middle">meeting_room</span>
         Ruangan
       </button>
-      <button onclick="switchHistoryTab('tool')" id="history-tab-tool" class="history-tab px-4 py-2.5 text-sm font-medium text-slate-500 dark:text-slate-400 border-b-2 border-transparent hover:text-slate-700 dark:hover:text-slate-300 transition">
+      <button onclick="switchHistoryTab('tool')" id="history-tab-tool"
+              class="history-tab px-4 py-2.5 text-sm font-medium whitespace-nowrap
+                     text-slate-500 dark:text-slate-400 border-b-2 border-transparent hover:text-slate-700 dark:hover:text-slate-300 transition">
         <span class="material-icons text-base mr-1.5 align-middle">science</span>
         Alat Tes
       </button>
@@ -24,209 +53,202 @@
 
     {# Filter & Search Bar #}
     <div class="flex flex-col sm:flex-row gap-3">
-      <div class="flex-1">
-        <div class="relative">
-          <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-lg">search</span>
-          <input
-            type="text"
-            id="history-search"
-            placeholder="Cari berdasarkan nama ruangan/alat, tanggal..."
-            onkeyup="filterHistory()"
-            class="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition"
-          />
-        </div>
+      <div class="flex-1 relative">
+        <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+        <input type="text" id="history-search" placeholder="Cari nama ruangan / alat tes..."
+               onkeyup="filterHistory()"
+               class="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 dark:border-slate-600
+                      bg-white dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-200
+                      placeholder:text-slate-400 dark:placeholder:text-slate-500
+                      focus:border-primary-400 dark:focus:border-primary-500
+                      focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition"/>
       </div>
-      <div class="flex gap-2">
-        <select id="history-status-filter" onchange="filterHistory()" class="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-sm text-slate-700 dark:text-slate-300 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition">
-          <option value="">Semua Status</option>
-          <option value="approved">Disetujui</option>
-          <option value="pending">Pending</option>
-          <option value="rejected">Ditolak</option>
-          <option value="completed">Selesai</option>
-        </select>
-      </div>
+      <select id="history-status-filter" onchange="filterHistory()"
+              class="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600
+                     bg-white dark:bg-slate-900 text-sm text-slate-700 dark:text-slate-300
+                     focus:border-primary-400 dark:focus:border-primary-500 transition">
+        <option value="">Semua Status</option>
+        <option value="approved">Disetujui</option>
+        <option value="pending">Pending</option>
+        <option value="declined">Ditolak</option>
+        <option value="cancelled">Dibatalkan</option>
+        <option value="completed">Selesai</option>
+      </select>
     </div>
 
-    {# TABLE: RUANGAN #}
+    {# ── TABLE: RUANGAN ── #}
     <div id="history-content-room" class="history-content">
       <div class="overflow-x-auto">
         <table class="w-full">
           <thead>
             <tr class="border-b border-slate-100 dark:border-slate-700">
-              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Tanggal</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">#</th>
               <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Ruangan</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Waktu</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Tanggal</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Durasi</th>
               <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Peserta</th>
               <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Status</th>
               <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Aksi</th>
             </tr>
           </thead>
           <tbody id="room-history-tbody" class="divide-y divide-slate-100 dark:divide-slate-700">
-            <tr class="history-row hover:bg-slate-50 dark:hover:bg-slate-700/50 transition" data-status="approved">
-              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">15 Jan 2026</td>
-              <td class="px-4 py-3 text-sm text-slate-900 dark:text-slate-100 font-medium">Lab Psikometri</td>
-              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">09:00 - 11:00</td>
-              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300">30 orang</td>
-              <td class="px-4 py-3">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">Disetujui</span>
+            {% for booking in history_room_bookings %}
+            <tr class="history-row hover:bg-slate-50 dark:hover:bg-slate-700/50 transition"
+                data-status="{{ booking.status }}"
+                data-search="{{ booking.room.name|lower }} {{ booking.purpose|lower }}">
+              <td class="px-4 py-3 text-xs text-slate-400 dark:text-slate-500 whitespace-nowrap">
+                #PEM-{{ booking.pk|stringformat:"04d" }}
+              </td>
+              <td class="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-100">
+                {{ booking.room.name }}
+              </td>
+              <td class="px-4 py-3 text-sm text-slate-600 dark:text-slate-300 whitespace-nowrap">
+                {{ booking.date_start|date:"d M Y" }}
+                {% if not booking.is_single_day %}
+                  <span class="text-slate-400">–</span> {{ booking.date_end|date:"d M Y" }}
+                {% endif %}
+              </td>
+              <td class="px-4 py-3 text-sm text-slate-600 dark:text-slate-300 whitespace-nowrap">
+                {{ booking.duration_days }} hari
+              </td>
+              <td class="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">
+                {{ booking.participants }} orang
               </td>
               <td class="px-4 py-3">
-                <div class="flex gap-2">
-                  <button type="button" onclick="viewRoomDetail(1)" class="w-7 h-7 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 flex items-center justify-center transition" title="Lihat Detail">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border
+                  {% if booking.status == 'approved' %}bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800
+                  {% elif booking.status == 'pending' %}bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800
+                  {% elif booking.status == 'declined' or booking.status == 'cancelled' %}bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800
+                  {% else %}bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800
+                  {% endif %}">
+                  {{ booking.get_status_display }}
+                </span>
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex gap-1.5">
+                  {# Detail #}
+                  <button type="button"
+                          onclick="openRoomModal('{{ booking.pk }}','{{ booking.room.name|escapejs }}','{{ booking.date_start|date:"d M Y"|escapejs }}','{{ booking.date_end|date:"d M Y"|escapejs }}','{{ booking.duration_days }}','{{ booking.participants }}','{{ booking.purpose|escapejs }}','{{ booking.get_status_display|escapejs }}','{{ booking.approved_by.get_full_name|default:"-"|escapejs }}','{{ booking.admin_notes|default:"-"|escapejs }}')"
+                          class="w-7 h-7 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700
+                                 hover:bg-slate-50 dark:hover:bg-slate-600 flex items-center justify-center transition"
+                          title="Lihat Detail">
                     <span class="material-icons text-base text-slate-600 dark:text-slate-300">visibility</span>
                   </button>
-                  <button type="button" onclick="downloadBookingProof(1)" class="w-7 h-7 rounded-lg border border-primary-200 dark:border-primary-700 bg-primary-50 dark:bg-primary-900/30 hover:bg-primary-100 dark:hover:bg-primary-800/50 flex items-center justify-center transition" title="Download Bukti">
-                    <span class="material-icons text-base text-primary-600 dark:text-primary-400">download</span>
-                  </button>
-                </div>
-              </td>
-            </tr>
-
-            <tr class="history-row hover:bg-slate-50 dark:hover:bg-slate-700/50 transition" data-status="pending">
-              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">12 Jan 2026</td>
-              <td class="px-4 py-3 text-sm text-slate-900 dark:text-slate-100 font-medium">Lab Klinis</td>
-              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">14:00 - 16:00</td>
-              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300">25 orang</td>
-              <td class="px-4 py-3">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Pending</span>
-              </td>
-              <td class="px-4 py-3">
-                <div class="flex gap-2">
-                  <button type="button" onclick="viewRoomDetail(2)" class="w-7 h-7 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 flex items-center justify-center transition" title="Lihat Detail">
-                    <span class="material-icons text-base text-slate-600 dark:text-slate-300">visibility</span>
-                  </button>
-                  <button type="button" onclick="cancelBooking(2, 'room')" class="w-7 h-7 rounded-lg border border-rose-200 dark:border-rose-700 bg-rose-50 dark:bg-rose-900/30 hover:bg-rose-100 dark:hover:bg-rose-800/50 flex items-center justify-center transition" title="Batalkan">
+                  {# Cancel — hanya pending #}
+                  {% if booking.status == 'pending' %}
+                  <button type="button"
+                          onclick="cancelBooking({{ booking.pk }}, 'room')"
+                          class="w-7 h-7 rounded-lg border border-rose-200 dark:border-rose-700 bg-rose-50 dark:bg-rose-900/30
+                                 hover:bg-rose-100 dark:hover:bg-rose-800/50 flex items-center justify-center transition"
+                          title="Batalkan">
                     <span class="material-icons text-base text-rose-600 dark:text-rose-400">cancel</span>
                   </button>
+                  {% endif %}
                 </div>
               </td>
             </tr>
-
-            <tr class="history-row hover:bg-slate-50 dark:hover:bg-slate-700/50 transition" data-status="rejected">
-              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">10 Jan 2026</td>
-              <td class="px-4 py-3 text-sm text-slate-900 dark:text-slate-100 font-medium">Lab Perkembangan</td>
-              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">10:00 - 12:00</td>
-              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300">20 orang</td>
-              <td class="px-4 py-3">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">Ditolak</span>
-              </td>
-              <td class="px-4 py-3">
-                <button type="button" onclick="viewRoomDetail(3)" class="w-7 h-7 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 flex items-center justify-center transition" title="Lihat Detail">
-                  <span class="material-icons text-base text-slate-600 dark:text-slate-300">visibility</span>
-                </button>
-              </td>
-            </tr>
-
-            <tr class="history-row hover:bg-slate-50 dark:hover:bg-slate-700/50 transition" data-status="completed">
-              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">5 Jan 2026</td>
-              <td class="px-4 py-3 text-sm text-slate-900 dark:text-slate-100 font-medium">Ruang Asesmen</td>
-              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">13:00 - 15:00</td>
-              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300">2 orang</td>
-              <td class="px-4 py-3">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">Selesai</span>
-              </td>
-              <td class="px-4 py-3">
-                <button type="button" onclick="viewRoomDetail(4)" class="w-7 h-7 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 flex items-center justify-center transition" title="Lihat Detail">
-                  <span class="material-icons text-base text-slate-600 dark:text-slate-300">visibility</span>
-                </button>
-              </td>
-            </tr>
+            {% empty %}
+            {# baris ini tidak tampil karena empty state di bawah handle via JS #}
+            {% endfor %}
           </tbody>
         </table>
       </div>
-
-      {# Empty State #}
-      <div id="room-empty-state" class="hidden py-16 text-center">
-        <span class="material-icons text-6xl text-slate-300 dark:text-slate-600 mb-3">inbox</span>
-        <p class="text-sm text-slate-400 dark:text-slate-500">Tidak ada riwayat peminjaman ruangan</p>
+      <div id="room-empty-state" class="{% if history_room_bookings %}hidden{% endif %} py-16 text-center">
+        <span class="material-icons text-6xl text-slate-300 dark:text-slate-600 mb-3 block">inbox</span>
+        <p class="text-sm text-slate-400 dark:text-slate-500">Belum ada riwayat peminjaman ruangan</p>
       </div>
     </div>
 
-    {# TABLE: ALAT TES #}
+    {# ── TABLE: ALAT TES ── #}
     <div id="history-content-tool" class="history-content hidden">
       <div class="overflow-x-auto">
         <table class="w-full">
           <thead>
             <tr class="border-b border-slate-100 dark:border-slate-700">
-              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Tanggal</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">#</th>
               <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Alat Tes</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Periode</th>
               <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Jumlah</th>
               <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Total</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Bayar</th>
               <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Status</th>
               <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Aksi</th>
             </tr>
           </thead>
           <tbody id="tool-history-tbody" class="divide-y divide-slate-100 dark:divide-slate-700">
-            <tr class="history-row hover:bg-slate-50 dark:hover:bg-slate-700/50 transition" data-status="approved">
-              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">12 Jan 2026</td>
-              <td class="px-4 py-3 text-sm text-slate-900 dark:text-slate-100 font-medium">WAIS-IV</td>
-              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300">10 lembar</td>
-              <td class="px-4 py-3 text-sm text-slate-900 dark:text-slate-100 font-semibold">Rp 500.000</td>
-              <td class="px-4 py-3">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">Disetujui</span>
+            {% for rental in history_tool_rentals %}
+            <tr class="history-row hover:bg-slate-50 dark:hover:bg-slate-700/50 transition"
+                data-status="{{ rental.status }}"
+                data-search="{{ rental.tool.name|lower }} {{ rental.get_purpose_display|lower }}">
+              <td class="px-4 py-3 text-xs text-slate-400 dark:text-slate-500 whitespace-nowrap">
+                #ALT-{{ rental.pk|stringformat:"04d" }}
+              </td>
+              <td class="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-100">
+                {{ rental.tool.name }}
+              </td>
+              <td class="px-4 py-3 text-sm text-slate-600 dark:text-slate-300 whitespace-nowrap">
+                {{ rental.date_start|date:"d M Y" }} – {{ rental.date_end|date:"d M Y" }}
+              </td>
+              <td class="px-4 py-3 text-sm text-slate-600 dark:text-slate-300 whitespace-nowrap">
+                {{ rental.quantity }} {{ rental.tool.unit }}
+              </td>
+              <td class="px-4 py-3 text-sm font-semibold text-slate-900 dark:text-slate-100 whitespace-nowrap">
+                Rp {{ rental.total_cost|floatformat:0 }}
               </td>
               <td class="px-4 py-3">
-                <div class="flex gap-2">
-                  <button type="button" onclick="viewToolDetail(1)" class="w-7 h-7 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 flex items-center justify-center transition" title="Lihat Detail">
+                {% if rental.is_paid %}
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold
+                             bg-emerald-100 text-emerald-800 border border-emerald-300 dark:border-emerald-700">
+                  <span class="material-icons text-xs mr-1">check</span>Lunas
+                </span>
+                {% else %}
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold
+                             bg-amber-100 text-amber-800 border border-amber-300 dark:border-amber-700">
+                  Belum
+                </span>
+                {% endif %}
+              </td>
+              <td class="px-4 py-3">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border
+                  {% if rental.status == 'approved' or rental.status == 'borrowed' %}bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800
+                  {% elif rental.status == 'pending' %}bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800
+                  {% elif rental.status == 'returned' or rental.status == 'completed' %}bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800
+                  {% else %}bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800
+                  {% endif %}">
+                  {{ rental.get_status_display }}
+                </span>
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex gap-1.5">
+                  {# Detail #}
+                  <button type="button"
+                          onclick="openToolModal('{{ rental.pk }}','{{ rental.tool.name|escapejs }}','{{ rental.quantity }}','{{ rental.tool.unit }}','{{ rental.total_cost }}','{{ rental.date_start|date:"d M Y"|escapejs }}','{{ rental.date_end|date:"d M Y"|escapejs }}','{{ rental.get_purpose_display|escapejs }}','{{ rental.get_status_display|escapejs }}','{{ rental.get_payment_time_display|escapejs }}','{% if rental.is_paid %}Lunas{% else %}Belum Bayar{% endif %}','{{ rental.admin_notes|default:"-"|escapejs }}')"
+                          class="w-7 h-7 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700
+                                 hover:bg-slate-50 dark:hover:bg-slate-600 flex items-center justify-center transition"
+                          title="Lihat Detail">
                     <span class="material-icons text-base text-slate-600 dark:text-slate-300">visibility</span>
                   </button>
-                  <button type="button" onclick="downloadInvoice(1)" class="w-7 h-7 rounded-lg border border-emerald-200 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-800/50 flex items-center justify-center transition" title="Download Invoice">
-                    <span class="material-icons text-base text-emerald-600 dark:text-emerald-400">receipt</span>
-                  </button>
-                  <button type="button" onclick="downloadAgreement(1)" class="w-7 h-7 rounded-lg border border-primary-200 dark:border-primary-700 bg-primary-50 dark:bg-primary-900/30 hover:bg-primary-100 dark:hover:bg-primary-800/50 flex items-center justify-center transition" title="Download Perjanjian">
-                    <span class="material-icons text-base text-primary-600 dark:text-primary-400">description</span>
-                  </button>
-                </div>
-              </td>
-            </tr>
-
-            <tr class="history-row hover:bg-slate-50 dark:hover:bg-slate-700/50 transition" data-status="pending">
-              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">8 Jan 2026</td>
-              <td class="px-4 py-3 text-sm text-slate-900 dark:text-slate-100 font-medium">MMPI-2</td>
-              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300">5 lembar</td>
-              <td class="px-4 py-3 text-sm text-slate-900 dark:text-slate-100 font-semibold">Rp 225.000</td>
-              <td class="px-4 py-3">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">Pending</span>
-              </td>
-              <td class="px-4 py-3">
-                <div class="flex gap-2">
-                  <button type="button" onclick="viewToolDetail(2)" class="w-7 h-7 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 flex items-center justify-center transition" title="Lihat Detail">
-                    <span class="material-icons text-base text-slate-600 dark:text-slate-300">visibility</span>
-                  </button>
-                  <button type="button" onclick="cancelBooking(2, 'tool')" class="w-7 h-7 rounded-lg border border-rose-200 dark:border-rose-700 bg-rose-50 dark:bg-rose-900/30 hover:bg-rose-100 dark:hover:bg-rose-800/50 flex items-center justify-center transition" title="Batalkan">
+                  {# Cancel — hanya pending #}
+                  {% if rental.status == 'pending' %}
+                  <button type="button"
+                          onclick="cancelBooking({{ rental.pk }}, 'tool')"
+                          class="w-7 h-7 rounded-lg border border-rose-200 dark:border-rose-700 bg-rose-50 dark:bg-rose-900/30
+                                 hover:bg-rose-100 dark:hover:bg-rose-800/50 flex items-center justify-center transition"
+                          title="Batalkan">
                     <span class="material-icons text-base text-rose-600 dark:text-rose-400">cancel</span>
                   </button>
+                  {% endif %}
                 </div>
               </td>
             </tr>
-
-            <tr class="history-row hover:bg-slate-50 dark:hover:bg-slate-700/50 transition" data-status="completed">
-              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">3 Jan 2026</td>
-              <td class="px-4 py-3 text-sm text-slate-900 dark:text-slate-100 font-medium">MBTI</td>
-              <td class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300">15 lembar</td>
-              <td class="px-4 py-3 text-sm text-slate-900 dark:text-slate-100 font-semibold">Rp 450.000</td>
-              <td class="px-4 py-3">
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">Selesai</span>
-              </td>
-              <td class="px-4 py-3">
-                <div class="flex gap-2">
-                  <button type="button" onclick="viewToolDetail(3)" class="w-7 h-7 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600 flex items-center justify-center transition" title="Lihat Detail">
-                    <span class="material-icons text-base text-slate-600 dark:text-slate-300">visibility</span>
-                  </button>
-                  <button type="button" onclick="downloadInvoice(3)" class="w-7 h-7 rounded-lg border border-emerald-200 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-800/50 flex items-center justify-center transition" title="Download Invoice">
-                    <span class="material-icons text-base text-emerald-600 dark:text-emerald-400">receipt</span>
-                  </button>
-                </div>
-              </td>
-            </tr>
+            {% empty %}
+            {% endfor %}
           </tbody>
         </table>
       </div>
-
-      {# Empty State #}
-      <div id="tool-empty-state" class="hidden py-16 text-center">
-        <span class="material-icons text-6xl text-slate-300 dark:text-slate-600 mb-3">science</span>
-        <p class="text-sm text-slate-400 dark:text-slate-500">Tidak ada riwayat peminjaman alat tes</p>
+      <div id="tool-empty-state" class="{% if history_tool_rentals %}hidden{% endif %} py-16 text-center">
+        <span class="material-icons text-6xl text-slate-300 dark:text-slate-600 mb-3 block">science</span>
+        <p class="text-sm text-slate-400 dark:text-slate-500">Belum ada riwayat peminjaman alat tes</p>
       </div>
     </div>
 
@@ -241,253 +263,193 @@
         <span class="material-icons text-primary-600 dark:text-primary-400">info</span>
         Detail Peminjaman
       </h3>
-      <button onclick="closeModal()" class="w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center justify-center transition">
+      <button onclick="closeModal()"
+              class="w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center justify-center transition">
         <span class="material-icons text-slate-600 dark:text-slate-400">close</span>
       </button>
     </div>
-    <div id="modal-content" class="p-6">
-      {# Dynamic content will be inserted here #}
-    </div>
+    <div id="modal-content" class="p-6"></div>
   </div>
 </div>
-
 <script>
-  // Tab Switching
-  function switchHistoryTab(tab) {
-    // Update tabs
+  // ── History Tab Switching ────────────────────────────────
+function switchHistoryTab(tab) {
     document.querySelectorAll('.history-tab').forEach(t => {
-      t.classList.remove('text-primary-600', 'dark:text-primary-400', 'border-primary-600', 'dark:border-primary-400');
-      t.classList.add('text-slate-500', 'dark:text-slate-400', 'border-transparent');
+        t.classList.remove('text-primary-600', 'dark:text-primary-400', 'border-primary-600', 'dark:border-primary-400');
+        t.classList.add('text-slate-500', 'dark:text-slate-400', 'border-transparent');
     });
     const activeTab = document.getElementById(`history-tab-${tab}`);
     activeTab.classList.remove('text-slate-500', 'dark:text-slate-400', 'border-transparent');
     activeTab.classList.add('text-primary-600', 'dark:text-primary-400', 'border-primary-600', 'dark:border-primary-400');
 
-    // Update content
     document.querySelectorAll('.history-content').forEach(c => c.classList.add('hidden'));
     document.getElementById(`history-content-${tab}`).classList.remove('hidden');
 
-    // Reset filters
+    // Reset filter saat ganti tab
     document.getElementById('history-search').value = '';
     document.getElementById('history-status-filter').value = '';
     filterHistory();
-  }
+}
 
-  // Filter History
-  function filterHistory() {
-    const searchTerm = document.getElementById('history-search').value.toLowerCase();
-    const statusFilter = document.getElementById('history-status-filter').value;
-    
-    // Determine which tab is active
-    const activeTab = document.getElementById('history-tab-room').classList.contains('text-primary-600') ? 'room' : 'tool';
+// ── Filter History ───────────────────────────────────────
+function filterHistory() {
+    const search = document.getElementById('history-search').value.toLowerCase();
+    const status = document.getElementById('history-status-filter').value;
+    const activeTab = document.getElementById('history-tab-room')
+        .classList.contains('text-primary-600') ? 'room' : 'tool';
+
     const tbody = document.getElementById(`${activeTab}-history-tbody`);
-    const rows = tbody.querySelectorAll('.history-row');
-    
-    let visibleCount = 0;
-    
+    const rows  = tbody.querySelectorAll('.history-row');
+    let visible = 0;
+
     rows.forEach(row => {
-      const text = row.textContent.toLowerCase();
-      const status = row.dataset.status;
-      const matchesSearch = text.includes(searchTerm);
-      const matchesStatus = !statusFilter || status === statusFilter;
-      
-      if (matchesSearch && matchesStatus) {
-        row.classList.remove('hidden');
-        visibleCount++;
-      } else {
-        row.classList.add('hidden');
-      }
+        const matchSearch = !search || row.dataset.search?.includes(search)
+                            || row.textContent.toLowerCase().includes(search);
+        const matchStatus = !status || row.dataset.status === status;
+        if (matchSearch && matchStatus) {
+            row.classList.remove('hidden');
+            visible++;
+        } else {
+            row.classList.add('hidden');
+        }
     });
-    
-    // Show/hide empty state
+
     const emptyState = document.getElementById(`${activeTab}-empty-state`);
     const table = tbody.closest('table');
-    if (visibleCount === 0) {
-      table.classList.add('hidden');
-      emptyState.classList.remove('hidden');
+    if (visible === 0) {
+        table.classList.add('hidden');
+        emptyState.classList.remove('hidden');
     } else {
-      table.classList.remove('hidden');
-      emptyState.classList.add('hidden');
+        table.classList.remove('hidden');
+        emptyState.classList.add('hidden');
     }
-  }
+}
 
-  // View Room Detail
-  function viewRoomDetail(id) {
-    const mockData = {
-      1: { room: 'Lab Psikometri', date: '15 Jan 2026', time: '09:00 - 11:00', participants: 30, purpose: 'Praktikum Psikometri Semester 5', status: 'Disetujui', approver: 'Dr. Ahmad Subhan', notes: 'Pastikan ruangan dikembalikan dalam kondisi bersih' },
-      2: { room: 'Lab Klinis', date: '12 Jan 2026', time: '14:00 - 16:00', participants: 25, purpose: 'Workshop Asesmen Klinis', status: 'Pending', approver: '-', notes: 'Menunggu approval koordinator lab' },
-      3: { room: 'Lab Perkembangan', date: '10 Jan 2026', time: '10:00 - 12:00', participants: 20, purpose: 'Penelitian Kelompok', status: 'Ditolak', approver: 'Dr. Ahmad Subhan', notes: 'Bentrok dengan kegiatan rutin lab' },
-      4: { room: 'Ruang Asesmen', date: '5 Jan 2026', time: '13:00 - 15:00', participants: 2, purpose: 'Asesmen Individual Klien', status: 'Selesai', approver: 'Dr. Ahmad Subhan', notes: 'Peminjaman selesai dengan baik' }
-    };
-    
-    const data = mockData[id];
-    const statusColors = {
-      'Disetujui': 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
-      'Pending': 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800',
-      'Ditolak': 'bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800',
-      'Selesai': 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800'
-    };
-    
+// ── Modal Room ───────────────────────────────────────────
+function openRoomModal(id, room, start, end, duration, participants, purpose, status, approver, notes) {
+    const statusColor = {
+        'Disetujui':   'bg-emerald-50 text-emerald-700 border-emerald-200',
+        'Pending':     'bg-amber-50 text-amber-700 border-amber-200',
+        'Ditolak':     'bg-rose-50 text-rose-700 border-rose-200',
+        'Dibatalkan':  'bg-rose-50 text-rose-700 border-rose-200',
+        'Selesai':     'bg-blue-50 text-blue-700 border-blue-200',
+    }[status] || 'bg-slate-100 text-slate-700 border-slate-300';
+
     document.getElementById('modal-content').innerHTML = `
       <div class="space-y-4">
         <div class="rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4">
           <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Informasi Peminjaman</h4>
           <dl class="space-y-2 text-sm">
-            <div class="flex justify-between">
-              <dt class="text-slate-600 dark:text-slate-400">Ruangan:</dt>
-              <dd class="font-medium text-slate-900 dark:text-slate-100">${data.room}</dd>
-            </div>
-            <div class="flex justify-between">
-              <dt class="text-slate-600 dark:text-slate-400">Tanggal:</dt>
-              <dd class="font-medium text-slate-900 dark:text-slate-100">${data.date}</dd>
-            </div>
-            <div class="flex justify-between">
-              <dt class="text-slate-600 dark:text-slate-400">Waktu:</dt>
-              <dd class="font-medium text-slate-900 dark:text-slate-100">${data.time}</dd>
-            </div>
-            <div class="flex justify-between">
-              <dt class="text-slate-600 dark:text-slate-400">Jumlah Peserta:</dt>
-              <dd class="font-medium text-slate-900 dark:text-slate-100">${data.participants} orang</dd>
-            </div>
-            <div class="flex justify-between">
-              <dt class="text-slate-600 dark:text-slate-400">Status:</dt>
-              <dd><span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${statusColors[data.status]}">${data.status}</span></dd>
+            <div class="flex justify-between"><dt class="text-slate-500">No. Booking</dt><dd class="font-medium">#PEM-${String(id).padStart(4,'0')}</dd></div>
+            <div class="flex justify-between"><dt class="text-slate-500">Ruangan</dt><dd class="font-medium">${room}</dd></div>
+            <div class="flex justify-between"><dt class="text-slate-500">Tanggal</dt><dd class="font-medium">${start}${start !== end ? ' – ' + end : ''}</dd></div>
+            <div class="flex justify-between"><dt class="text-slate-500">Durasi</dt><dd class="font-medium">${duration} hari</dd></div>
+            <div class="flex justify-between"><dt class="text-slate-500">Peserta</dt><dd class="font-medium">${participants} orang</dd></div>
+            <div class="flex justify-between items-center">
+              <dt class="text-slate-500">Status</dt>
+              <dd><span class="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold border ${statusColor}">${status}</span></dd>
             </div>
           </dl>
         </div>
-
         <div class="rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4">
           <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2">Keperluan</h4>
-          <p class="text-sm text-slate-700 dark:text-slate-300">${data.purpose}</p>
+          <p class="text-sm text-slate-700 dark:text-slate-300">${purpose}</p>
         </div>
-
         <div class="rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4">
-          <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2">Informasi Approval</h4>
+          <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2">Keterangan Admin</h4>
           <dl class="space-y-2 text-sm">
-            <div class="flex justify-between">
-              <dt class="text-slate-600 dark:text-slate-400">Disetujui oleh:</dt>
-              <dd class="font-medium text-slate-900 dark:text-slate-100">${data.approver}</dd>
-            </div>
-            <div class="flex flex-col gap-1">
-              <dt class="text-slate-600 dark:text-slate-400">Catatan:</dt>
-              <dd class="text-slate-700 dark:text-slate-300">${data.notes}</dd>
-            </div>
+            <div class="flex justify-between"><dt class="text-slate-500">Diproses oleh</dt><dd class="font-medium">${approver}</dd></div>
+            <div class="flex flex-col gap-1"><dt class="text-slate-500">Catatan</dt><dd class="text-slate-700 dark:text-slate-300">${notes}</dd></div>
           </dl>
         </div>
-
-        ${data.status === 'Disetujui' ? `
-          <button onclick="downloadBookingProof(${id})" class="w-full inline-flex items-center justify-center gap-2 rounded-full bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 dark:hover:bg-primary-700 text-white font-semibold text-sm px-5 py-2.5 shadow-md hover:shadow-lg transition">
-            <span class="material-icons text-base">download</span>
-            Download Bukti Peminjaman
-          </button>
-        ` : ''}
-      </div>
-    `;
-    
+      </div>`;
     document.getElementById('detail-modal').classList.remove('hidden');
-  }
+}
 
-  // View Tool Detail
-  function viewToolDetail(id) {
-    const mockData = {
-      1: { test: 'WAIS-IV', qty: 10, price: 50000, total: 500000, date: '12-15 Jan 2026', purpose: 'Penelitian Skripsi', status: 'Disetujui', payment: 'Sebelum Peminjaman', paymentStatus: 'Lunas' },
-      2: { test: 'MMPI-2', qty: 5, price: 45000, total: 225000, date: '8-10 Jan 2026', purpose: 'Workshop Internal', status: 'Pending', payment: 'Sesudah Peminjaman', paymentStatus: 'Belum Lunas' },
-      3: { test: 'MBTI', qty: 15, price: 30000, total: 450000, date: '3-5 Jan 2026', purpose: 'Pelatihan Mahasiswa', status: 'Selesai', payment: 'Sebelum Peminjaman', paymentStatus: 'Lunas' }
-    };
-    
-    const data = mockData[id];
-    
+// ── Modal Tool ───────────────────────────────────────────
+function openToolModal(id, tool, qty, unit, total, start, end, purpose, status, paymentTime, paymentStatus, notes) {
+    const statusColor = {
+        'Disetujui':     'bg-emerald-50 text-emerald-700 border-emerald-200',
+        'Dipinjam':      'bg-emerald-50 text-emerald-700 border-emerald-200',
+        'Pending':       'bg-amber-50 text-amber-700 border-amber-200',
+        'Dikembalikan':  'bg-blue-50 text-blue-700 border-blue-200',
+        'Ditolak':       'bg-rose-50 text-rose-700 border-rose-200',
+    }[status] || 'bg-slate-100 text-slate-700 border-slate-300';
+
+    const totalFormatted = parseInt(total).toLocaleString('id-ID');
+
     document.getElementById('modal-content').innerHTML = `
       <div class="space-y-4">
         <div class="rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4">
           <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Informasi Alat Tes</h4>
           <dl class="space-y-2 text-sm">
-            <div class="flex justify-between">
-              <dt class="text-slate-600 dark:text-slate-400">Nama Alat:</dt>
-              <dd class="font-medium text-slate-900 dark:text-slate-100">${data.test}</dd>
-            </div>
-            <div class="flex justify-between">
-              <dt class="text-slate-600 dark:text-slate-400">Jumlah:</dt>
-              <dd class="font-medium text-slate-900 dark:text-slate-100">${data.qty} lembar</dd>
-            </div>
-            <div class="flex justify-between">
-              <dt class="text-slate-600 dark:text-slate-400">Harga/lembar:</dt>
-              <dd class="font-medium text-slate-900 dark:text-slate-100">Rp ${data.price.toLocaleString('id-ID')}</dd>
-            </div>
-            <div class="flex justify-between">
-              <dt class="text-slate-600 dark:text-slate-400">Periode:</dt>
-              <dd class="font-medium text-slate-900 dark:text-slate-100">${data.date}</dd>
-            </div>
+            <div class="flex justify-between"><dt class="text-slate-500">No. Peminjaman</dt><dd class="font-medium">#ALT-${String(id).padStart(4,'0')}</dd></div>
+            <div class="flex justify-between"><dt class="text-slate-500">Alat Tes</dt><dd class="font-medium">${tool}</dd></div>
+            <div class="flex justify-between"><dt class="text-slate-500">Jumlah</dt><dd class="font-medium">${qty} ${unit}</dd></div>
+            <div class="flex justify-between"><dt class="text-slate-500">Periode</dt><dd class="font-medium">${start} – ${end}</dd></div>
             <div class="flex justify-between pt-2 border-t border-slate-200 dark:border-slate-700">
-              <dt class="text-slate-700 dark:text-slate-300 font-semibold">Total Biaya:</dt>
-              <dd class="font-semibold text-primary-600 dark:text-primary-400">Rp ${data.total.toLocaleString('id-ID')}</dd>
+              <dt class="font-semibold text-slate-700 dark:text-slate-300">Total Biaya</dt>
+              <dd class="font-bold text-primary-600 dark:text-primary-400">Rp ${totalFormatted}</dd>
             </div>
           </dl>
         </div>
-
         <div class="rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4">
-          <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2">Tujuan Peminjaman</h4>
-          <p class="text-sm text-slate-700 dark:text-slate-300">${data.purpose}</p>
-        </div>
-
-        <div class="rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4">
-          <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Informasi Pembayaran</h4>
+          <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2">Pembayaran & Status</h4>
           <dl class="space-y-2 text-sm">
-            <div class="flex justify-between">
-              <dt class="text-slate-600 dark:text-slate-400">Waktu Pembayaran:</dt>
-              <dd class="font-medium text-slate-900 dark:text-slate-100">${data.payment}</dd>
-            </div>
-            <div class="flex justify-between">
-              <dt class="text-slate-600 dark:text-slate-400">Status Pembayaran:</dt>
-              <dd><span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${data.paymentStatus === 'Lunas' ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800' : 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'}">${data.paymentStatus}</span></dd>
+            <div class="flex justify-between"><dt class="text-slate-500">Waktu Bayar</dt><dd class="font-medium">${paymentTime}</dd></div>
+            <div class="flex justify-between"><dt class="text-slate-500">Status Bayar</dt><dd class="font-medium">${paymentStatus}</dd></div>
+            <div class="flex justify-between items-center">
+              <dt class="text-slate-500">Status</dt>
+              <dd><span class="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold border ${statusColor}">${status}</span></dd>
             </div>
           </dl>
         </div>
-
-        <div class="flex gap-2">
-          <button onclick="downloadInvoice(${id})" class="flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-emerald-200 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-800/50 text-emerald-700 dark:text-emerald-300 font-semibold text-sm px-4 py-2.5 transition">
-            <span class="material-icons text-base">receipt</span>
-            Invoice
-          </button>
-          <button onclick="downloadAgreement(${id})" class="flex-1 inline-flex items-center justify-center gap-2 rounded-full border border-primary-200 dark:border-primary-700 bg-primary-50 dark:bg-primary-900/30 hover:bg-primary-100 dark:hover:bg-primary-800/50 text-primary-700 dark:text-primary-300 font-semibold text-sm px-4 py-2.5 transition">
-            <span class="material-icons text-base">description</span>
-            Perjanjian
-          </button>
+        <div class="rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4">
+          <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2">Tujuan & Catatan</h4>
+          <p class="text-sm text-slate-700 dark:text-slate-300 mb-2">${purpose}</p>
+          ${notes !== '-' ? `<p class="text-xs italic text-slate-500">Catatan admin: ${notes}</p>` : ''}
         </div>
-      </div>
-    `;
-    
+      </div>`;
     document.getElementById('detail-modal').classList.remove('hidden');
-  }
+}
 
-  // Close Modal
-  function closeModal() {
+// ── Close Modal ──────────────────────────────────────────
+function closeModal() {
     document.getElementById('detail-modal').classList.add('hidden');
-  }
-
-  // Cancel Booking
-  function cancelBooking(id, type) {
-    if (confirm(`Yakin ingin membatalkan peminjaman ${type === 'room' ? 'ruangan' : 'alat tes'} ini?`)) {
-      showAlert(`alert-${type === 'room' ? 'room' : 'tool'}`, 'Peminjaman berhasil dibatalkan (simulasi).', 'success');
-      setTimeout(() => location.reload(), 1500);
-    }
-  }
-
-  // Download Functions
-  function downloadBookingProof(id) {
-    showAlert('alert-room', `Downloading bukti peminjaman #${id} (simulasi)...`, 'success');
-  }
-
-  function downloadInvoice(id) {
-    showAlert('alert-tool', `Downloading invoice #${id} (simulasi)...`, 'success');
-  }
-
-  function downloadAgreement(id) {
-    showAlert('alert-tool', `Downloading surat perjanjian #${id} (simulasi)...`, 'success');
-  }
-
-  // Close modal when clicking outside
-  document.getElementById('detail-modal').addEventListener('click', function(e) {
+}
+// Tutup modal klik backdrop
+document.getElementById('detail-modal').addEventListener('click', function(e) {
     if (e.target === this) closeModal();
-  });
+});
+
+// ── Cancel Booking ───────────────────────────────────────
+async function cancelBooking(id, type) {
+    if (!confirm('Batalkan peminjaman ini?')) return;
+    const url = type === 'room'
+        ? `/api/rooms/bookings/${id}/cancel/`
+        : `/api/tools/rentals/${id}/cancel/`;
+    try {
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        });
+        if (res.ok) {
+            showToast('Peminjaman berhasil dibatalkan.', 'success');
+            setTimeout(() => {
+                const url = new URL(window.location.href);
+                url.searchParams.set('tab', 'history');
+                window.location.href = url.toString();
+            }, 1200);
+        } else {
+            const data = await res.json();
+            showToast(data.error || 'Gagal membatalkan.', 'error');
+        }
+    } catch {
+        showToast('Terjadi kesalahan jaringan.', 'error');
+    }
+}
+
 </script>

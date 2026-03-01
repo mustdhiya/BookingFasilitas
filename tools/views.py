@@ -1,149 +1,305 @@
-from rest_framework import viewsets, status
-from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from rest_framework.response import Response
-from django.utils import timezone
-from .models import TestTool, ToolRental
-from .serializers import ToolSerializer, ToolRentalSerializer
+# tools/views.py
+import json
+from django.http              import JsonResponse
+from django.shortcuts         import get_object_or_404
+from django.views             import View
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.utils             import timezone
+from .models                  import TestTool, ToolRental
+from .forms                   import TestToolForm, ToolRentalForm
 
 
-class ToolViewSet(viewsets.ModelViewSet):
-    queryset = TestTool.objects.filter(is_active=True)
-    serializer_class = ToolSerializer
+# ── Mixins ────────────────────────────────────────────────────────────────────
 
-    def get_permissions(self):
-        if self.action in ['list', 'retrieve']:
-            return [IsAuthenticated()]
-        return [IsAdminUser()]
+class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.is_staff
 
-    @action(detail=True, methods=['post'], permission_classes=[IsAdminUser])
-    def adjust_stock(self, request, pk=None):
-        tool = self.get_object()
-        adjustment = int(request.data.get('adjustment', 0))
+
+# ── Helpers ───────────────────────────────────────────────────────────────────
+
+def _parse_json(request):
+    try:
+        return json.loads(request.body), None
+    except (ValueError, json.JSONDecodeError) as e:
+        return None, JsonResponse({'status': 'error', 'errors': {'__all__': [str(e)]}}, status=400)
+
+
+def _rental_to_dict(r):
+    """Serialisasi ToolRental untuk JSON response frontend."""
+    return {
+        'id':               r.pk,
+        'tool_detail': {
+            'name': r.tool.name,
+            'code': r.tool.code,
+        },
+        'transaction_type': r.transaction_type,
+        'institution':      r.institution,
+        'purpose':          r.purpose,
+        'quantity':         r.quantity,
+        'date_start':       r.date_start.strftime('%d %b %Y') if r.date_start else None,
+        'date_end':         r.date_end.strftime('%d %b %Y')   if r.date_end   else None,
+        'status':           r.status,
+        'total_cost':       r.total_cost,
+        'fine_amount':      r.fine_amount,
+        'is_paid':          r.is_paid,
+        'created_at':       r.created_at.strftime('%d %b %Y'),
+    }
+
+
+# ── Admin: Master Data ────────────────────────────────────────────────────────
+
+class ToolCreateView(AdminRequiredMixin, View):
+    def post(self, request):
+        body, err = _parse_json(request)
+        if err:
+            return err
+        form = TestToolForm(body)
+        if form.is_valid():
+            tool = form.save()
+            return JsonResponse({'status': 'ok', 'id': tool.pk, 'name': tool.name})
+        return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+
+
+class ToolUpdateView(AdminRequiredMixin, View):
+    def post(self, request, pk):
+        tool = get_object_or_404(TestTool, pk=pk)
+        body, err = _parse_json(request)
+        if err:
+            return err
+        body.pop('stock', None)   # stok tidak boleh diubah via form edit
+        form = TestToolForm(body, instance=tool)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'status': 'ok', 'id': tool.pk})
+        return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+
+
+class ToolJsonView(AdminRequiredMixin, View):
+    def get(self, request, pk):
+        tool = get_object_or_404(TestTool, pk=pk)
+        return JsonResponse({
+            'pk':               tool.pk,
+            'code':             tool.code,
+            'name':             tool.name,
+            'description':      tool.description or '',
+            'kategori':         tool.kategori,
+            'unit':             tool.unit,
+            'stock':            tool.stock,
+            'price_per_unit':   tool.price_per_unit,
+            'is_active':        tool.is_active,
+            'transaction_type': tool.transaction_type, 
+            'borrow_count':     tool.rentals.exclude(status='cancelled').count(),
+            'created_at':       tool.created_at.strftime('%d %b %Y'),
+        })
+
+class ToolToggleView(AdminRequiredMixin, View):
+    def post(self, request, pk):
+        tool           = get_object_or_404(TestTool, pk=pk)
+        tool.is_active = not tool.is_active
+        tool.save()
+        return JsonResponse({'status': 'ok', 'is_active': tool.is_active})
+
+
+class ToolAdjustStockView(AdminRequiredMixin, View):
+    def post(self, request, pk):
+        tool = get_object_or_404(TestTool, pk=pk)
+        body, err = _parse_json(request)
+        if err:
+            return err
+        try:
+            adjustment = int(body.get('adjustment', 0))
+        except (ValueError, TypeError):
+            return JsonResponse({'error': 'Nilai adjustment tidak valid'}, status=400)
+
         new_stock = tool.stock + adjustment
         if new_stock < 0:
-            return Response(
-                {'error': 'Stock tidak boleh negatif'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return JsonResponse({'error': 'Stok tidak boleh negatif'}, status=400)
         tool.stock = new_stock
         tool.save()
-        return Response({
-            'message': 'Stock berhasil diupdate',
-            'tool': self.get_serializer(tool).data
+        return JsonResponse({'status': 'ok', 'new_stock': tool.stock})
+
+
+# ── Public: List Alat Tes ────────────────────────────────────────────────────
+
+class ToolListView(LoginRequiredMixin, View):
+    """
+    GET /api/tools/list/
+    Mengembalikan semua alat aktif untuk card grid di halaman user.
+    """
+    def get(self, request):
+        tools = TestTool.objects.filter(is_active=True).order_by('code')
+        results = [{
+            'id':                tool.pk,
+            'code':              tool.code,
+            'name':              tool.name,
+            'description':       tool.description or '',
+            'category':          tool.kategori,
+            'category_display':  tool.get_kategori_display(),
+            'unit':              tool.unit,
+            'unit_display':      tool.get_unit_display(),
+            'stock':             tool.stock,
+            'price_per_unit':    tool.price_per_unit,
+            'is_available':      tool.is_available,
+            # item_type: semua model TestTool dianggap 'tool' untuk sekarang
+            # jika kelak ada model Consumable terpisah, bisa diubah
+            'item_type':         'tool',
+        } for tool in tools]
+        return JsonResponse({'status': 'ok', 'results': results})
+
+
+# ── User: Rental CRUD ────────────────────────────────────────────────────────
+
+class ToolRentalCreateView(LoginRequiredMixin, View):
+    """
+    POST /api/tools/rentals/
+    Menerima multipart/form-data (ada file upload: activity_letter, agreement_file).
+    """
+    def post(self, request):
+        form = ToolRentalForm(request.POST, request.FILES)
+        if form.is_valid():
+            rental = form.save(commit=False)
+            rental.user             = request.user
+            rental.transaction_type = request.POST.get('transaction_type', 'pinjam')
+            # Hitung total_cost sebelum save (override save() sudah ada, tapi pastikan)
+            rental.save()
+            return JsonResponse({'status': 'ok', 'id': rental.pk})
+        return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
+
+
+class MyRentalsView(LoginRequiredMixin, View):
+    """
+    GET /api/tools/rentals/my/
+    Daftar rental milik user yang sedang login.
+    """
+    def get(self, request):
+        rentals = (
+            ToolRental.objects
+            .filter(user=request.user)
+            .select_related('tool')
+            .order_by('-created_at')[:50]
+        )
+        return JsonResponse({
+            'status':  'ok',
+            'results': [_rental_to_dict(r) for r in rentals],
         })
 
 
-class ToolRentalViewSet(viewsets.ModelViewSet):
-    serializer_class = ToolRentalSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.is_staff or getattr(user, 'role', None) in ['laboran', 'dosen']:
-            return ToolRental.objects.select_related('tool', 'user').all()
-        return ToolRental.objects.select_related('tool', 'user').filter(user=user)
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
-    @action(detail=False, methods=['get'])
-    def my_rentals(self, request):
-        rentals = ToolRental.objects.filter(
-            user=request.user
-        ).order_by('-created_at')[:5]
-        serializer = self.get_serializer(rentals, many=True)
-        return Response(serializer.data)
-
-    @action(detail=True, methods=['post'], permission_classes=[IsAdminUser])
-    def approve(self, request, pk=None):
-        rental = self.get_object()
-
+class ToolRentalCancelView(LoginRequiredMixin, View):
+    """POST /api/tools/rentals/<pk>/cancel/"""
+    def post(self, request, pk):
+        rental = get_object_or_404(ToolRental, pk=pk)
+        if rental.user != request.user:
+            return JsonResponse({'error': 'Tidak diizinkan'}, status=403)
         if rental.status != 'pending':
-            return Response(
-                {'error': f'Rental berstatus {rental.status}, tidak bisa diapprove.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return JsonResponse({'error': 'Hanya rental pending yang bisa dibatalkan'}, status=400)
+        rental.status = 'cancelled'
+        rental.save()
+        return JsonResponse({'status': 'ok'})
 
+
+class ToolRentalRequestReturnView(LoginRequiredMixin, View):
+    """
+    POST /api/tools/rentals/<pk>/request-return/
+    User mengajukan pengembalian — status jadi 'returning', admin yang konfirmasi fisik.
+    """
+    def post(self, request, pk):
+        rental = get_object_or_404(ToolRental, pk=pk, user=request.user)
+        if rental.status not in ('borrowed', 'overdue'):
+            return JsonResponse(
+                {'error': f'Tidak bisa ajukan kembali dari status: {rental.status}'},
+                status=400
+            )
+        rental.status = 'returning'
+        rental.save()
+        return JsonResponse({'status': 'ok'})
+
+
+class ToolRentalUploadPaymentView(LoginRequiredMixin, View):
+    """
+    POST /api/tools/rentals/<pk>/upload-payment/
+    User upload bukti bayar sewa — multipart, field: payment_proof.
+    """
+    def post(self, request, pk):
+        rental = get_object_or_404(ToolRental, pk=pk, user=request.user)
+        if rental.status != 'approved':
+            return JsonResponse({'error': 'Rental belum disetujui'}, status=400)
+        proof = request.FILES.get('payment_proof')
+        if not proof:
+            return JsonResponse({'error': 'File bukti bayar tidak ditemukan'}, status=400)
+        rental.payment_proof = proof
+        rental.save()
+        return JsonResponse({'status': 'ok'})
+
+
+class ToolRentalUploadFineProofView(LoginRequiredMixin, View):
+    """
+    POST /api/tools/rentals/<pk>/upload-fine-proof/
+    User upload bukti bayar denda — multipart, field: fine_proof.
+    """
+    def post(self, request, pk):
+        rental = get_object_or_404(ToolRental, pk=pk, user=request.user)
+        if rental.status not in ('borrowed', 'overdue'):
+            return JsonResponse({'error': 'Status tidak valid untuk upload bukti denda'}, status=400)
+        proof = request.FILES.get('fine_proof')
+        if not proof:
+            return JsonResponse({'error': 'File tidak ditemukan'}, status=400)
+        # Simpan ke field payment_proof (reuse), atau tambah field fine_proof di model
+        rental.payment_proof = proof
+        rental.save()
+        return JsonResponse({'status': 'ok'})
+
+
+# ── Admin: Rental Actions ────────────────────────────────────────────────────
+
+class ToolRentalApproveView(AdminRequiredMixin, View):
+    def post(self, request, pk):
+        rental = get_object_or_404(ToolRental, pk=pk)
+        if rental.status != 'pending':
+            return JsonResponse({'error': f'Status saat ini: {rental.status}'}, status=400)
         tool = rental.tool
         if tool.stock < rental.quantity:
-            return Response(
-                {'error': f'Stock tidak mencukupi. Tersedia: {tool.stock} {tool.unit}.'},
-                status=status.HTTP_400_BAD_REQUEST
+            return JsonResponse(
+                {'error': f'Stok tidak mencukupi ({tool.stock} tersedia)'},
+                status=400
             )
-
-        # Kurangi stok
-        tool.stock -= rental.quantity
+        tool.stock    -= rental.quantity
         tool.save()
-
-        rental.status = 'approved'
+        rental.status      = 'approved'
         rental.approved_by = request.user
         rental.approved_at = timezone.now()
         rental.save()
+        return JsonResponse({'status': 'ok'})
 
-        return Response({
-            'message': 'Rental berhasil diapprove',
-            'rental': self.get_serializer(rental).data
-        })
 
-    @action(detail=True, methods=['post'], permission_classes=[IsAdminUser])
-    def decline(self, request, pk=None):
-        rental = self.get_object()
-
-        if rental.status not in ['pending', 'approved']:
-            return Response(
-                {'error': 'Rental tidak bisa ditolak dari status ini.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        rental.status = 'declined'
-        rental.admin_notes = request.data.get('notes', '')
+class ToolRentalDeclineView(AdminRequiredMixin, View):
+    def post(self, request, pk):
+        rental = get_object_or_404(ToolRental, pk=pk)
+        if rental.status not in ('pending', 'approved'):
+            return JsonResponse({'error': 'Tidak bisa ditolak dari status ini'}, status=400)
+        body, _            = _parse_json(request)
+        rental.status      = 'declined'
+        rental.admin_notes = (body or {}).get('notes', '')
         rental.save()
+        return JsonResponse({'status': 'ok'})
 
-        return Response({
-            'message': 'Rental berhasil ditolak',
-            'rental': self.get_serializer(rental).data
-        })
 
-    @action(detail=True, methods=['post'], permission_classes=[IsAdminUser])
-    def mark_returned(self, request, pk=None):
-        rental = self.get_object()
-
-        if rental.status != 'borrowed':
-            return Response(
-                {'error': 'Hanya rental berstatus "borrowed" yang bisa dikembalikan.'},
-                status=status.HTTP_400_BAD_REQUEST
+class ToolRentalReturnView(AdminRequiredMixin, View):
+    """
+    POST /api/tools/rentals/<pk>/return/
+    Admin konfirmasi fisik alat sudah diterima — stok dikembalikan.
+    """
+    def post(self, request, pk):
+        rental = get_object_or_404(ToolRental, pk=pk)
+        if rental.status not in ('borrowed', 'returning', 'overdue'):
+            return JsonResponse(
+                {'error': f'Status "{rental.status}" tidak bisa dikembalikan'},
+                status=400
             )
-
-        # Kembalikan stok
-        tool = rental.tool
+        tool        = rental.tool
         tool.stock += rental.quantity
         tool.save()
-
-        rental.status = 'returned'
+        rental.status      = 'returned'
         rental.returned_at = timezone.now()
         rental.save()
-
-        return Response({
-            'message': 'Alat berhasil ditandai dikembalikan. Stok diperbarui.',
-            'rental': self.get_serializer(rental).data
-        })
-
-    @action(detail=True, methods=['post'])
-    def cancel(self, request, pk=None):
-        rental = self.get_object()
-
-        if rental.user != request.user:
-            return Response(
-                {'error': 'Anda tidak berhak membatalkan rental ini.'},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        if rental.status != 'pending':
-            return Response(
-                {'error': 'Hanya rental pending yang bisa dibatalkan.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        rental.status = 'cancelled'
-        rental.save()
-        return Response({'message': 'Rental berhasil dibatalkan.'})
+        return JsonResponse({'status': 'ok', 'new_stock': tool.stock})

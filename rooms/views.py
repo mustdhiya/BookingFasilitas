@@ -17,9 +17,11 @@ class PeminjamRuanganView(LoginRequiredMixin, TemplateView):
         ctx = super().get_context_data(**kwargs)
         user = self.request.user
 
-        ctx['room_list'] = Room.objects.filter(is_active=True).order_by('code')
+        ctx['room_list'] = Room.objects.filter(
+            is_active=True,
+            room_type='lab'          
+        ).order_by('code')
 
-        # ← ganti booking_date → date_start
         ctx['recent_bookings'] = RoomBooking.objects.filter(
             user=user
         ).select_related('room').order_by('-date_start')[:5]
@@ -28,14 +30,22 @@ class PeminjamRuanganView(LoginRequiredMixin, TemplateView):
             'pending':  RoomBooking.objects.filter(user=user, status='pending').count(),
             'approved': RoomBooking.objects.filter(user=user, status='approved').count(),
         }
+        ctx['history_room_bookings'] = RoomBooking.objects.filter(
+            user=user
+        ).select_related('room').order_by('-created_at')
+
+        ctx['history_tool_rentals'] = ToolRental.objects.filter(
+            user=user
+        ).select_related('tool').order_by('-created_at')
+
 
         return ctx
 
 # API ViewSets
 class RoomViewSet(viewsets.ModelViewSet):
-    queryset = Room.objects.filter(is_active=True)
+    queryset = Room.objects.filter(is_active=True, room_type='lab')
     serializer_class = RoomSerializer
-    
+
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
             return [IsAuthenticated()]
@@ -176,7 +186,7 @@ class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 class RoomCreateView(AdminRequiredMixin, CreateView):
     model  = Room
-    fields = ['code', 'name', 'capacity', 'description', 'is_active']
+    fields = ['code', 'name', 'capacity', 'description', 'is_active', 'room_type']
 
     def get_success_url(self):
         return reverse_lazy('admin_panel') + '?tab=masterdata&sub=ruangan'
@@ -198,7 +208,7 @@ class RoomCreateView(AdminRequiredMixin, CreateView):
 
 class RoomUpdateView(AdminRequiredMixin, UpdateView):
     model  = Room
-    fields = ['code', 'name', 'capacity', 'description', 'is_active']
+    fields = ['code', 'name', 'capacity', 'description', 'is_active', 'room_type']
 
     def get_success_url(self):
         return reverse_lazy('admin_panel') + '?tab=masterdata&sub=ruangan'
@@ -229,18 +239,24 @@ class RoomDeleteView(AdminRequiredMixin, DeleteView):
         return result
 
 
-class RoomJsonView(AdminRequiredMixin, View):
-    """Prefill data untuk edit modal"""
+
+class RoomJsonView(View):
     def get(self, request, pk):
         room = get_object_or_404(Room, pk=pk)
         return JsonResponse({
-            'pk':          room.pk,
-            'code':        room.code,
-            'name':        room.name,
-            'capacity':    room.capacity,
-            'description': room.description or '',
-            'is_active':   room.is_active,
+            'pk':            room.pk,
+            'code':          room.code,
+            'name':          room.name,
+            'capacity':      room.capacity,
+            'description':   room.description or '',
+            'is_active':     room.is_active,
+            'room_type':     room.room_type,
+            'is_lab':        room.is_lab,
+            'booking_count': room.bookings.count(),
+            'created_at':    room.created_at.strftime('%d %b %Y'),
+            'updated_at':    room.updated_at.strftime('%d %b %Y'),
         })
+
 
 
 # ── Toggle aktif/nonaktif tanpa delete ────────────────────────────────
@@ -293,6 +309,13 @@ class RoomBookingCreateView(LoginRequiredMixin, View):
         form = RoomBookingForm(request.POST)
         if form.is_valid():
             booking = form.save(commit=False)
+
+            if not booking.room.is_lab:
+                return JsonResponse({
+                    'ok': False,
+                    'errors': {'room': ['Ruangan ini tidak tersedia untuk peminjaman mandiri.']}
+                }, status=400)
+
             booking.user = request.user
             booking.save()
             return JsonResponse({
@@ -307,7 +330,6 @@ class RoomBookingCreateView(LoginRequiredMixin, View):
                 'duration': booking.duration_days,
             })
         return JsonResponse({'ok': False, 'errors': form.errors}, status=400)
-
 
 class RoomCalendarView(View):
     """
@@ -422,3 +444,5 @@ class RoomDayScheduleView(View):
             })
 
         return JsonResponse({'schedules': schedules})
+
+

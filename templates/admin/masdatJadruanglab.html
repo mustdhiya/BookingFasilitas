@@ -1,0 +1,245 @@
+
+    <div id="master-content-ruangan" class="master-content">
+
+      {# Action Bar #}
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+        <button onclick="openRuanganModal('create')"
+                class="inline-flex items-center gap-1.5 rounded-lg
+                       bg-primary-500 hover:bg-primary-600 text-white
+                       font-semibold text-sm px-4 py-2 transition shadow-sm">
+          <span class="material-icons text-base">add</span>
+          Tambah Ruangan Baru
+        </button>
+        <div class="flex gap-2">
+          <div class="relative">
+            <input type="text" placeholder="Cari ruangan..."
+                   oninput="filterRuanganCards(this.value)"
+                   class="rounded-lg border border-slate-200
+                          dark:border-slate-600 dark:bg-slate-700
+                          dark:text-slate-100 pl-9 pr-3 py-2 text-sm
+                          focus:ring-2 focus:ring-primary-500 w-56">
+            <span class="material-icons absolute left-2.5 top-2.5
+                         text-slate-400 text-base">search</span>
+          </div>
+          <select onchange="filterRuanganStatus(this.value)"
+                  class="rounded-lg border border-slate-200
+                         dark:border-slate-600 dark:bg-slate-700
+                         dark:text-slate-100 px-3 py-2 text-sm
+                         focus:ring-2 focus:ring-primary-500">
+            <option value="all">Semua Status</option>
+            <option value="aktif">Aktif</option>
+            <option value="nonaktif">Nonaktif</option>
+          </select>
+        </div>
+      </div>
+
+      {# Summary bar #}
+      <div class="flex items-center gap-6 mb-4 text-xs text-slate-500
+                  dark:text-slate-400">
+        <span>Total:
+          <strong class="text-slate-700 dark:text-slate-200">
+            {{ room_list|length }} ruangan
+          </strong>
+        </span>
+        <span>Aktif:
+          <strong class="text-emerald-600 dark:text-emerald-400">
+            {{ active_room_count }} ruangan
+          </strong>
+        </span>
+        <span>Nonaktif:
+          <strong class="text-slate-500">
+            {{ room_list|length|add:"-"|add:active_room_count }} ruangan
+          </strong>
+        </span>
+      </div>
+
+      {# Cards Grid #}
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" id="ruangan-grid">
+
+        {% for room in room_list %}
+        {% with booking_count=room.bookings.count %}
+        <div class="group rounded-xl border-2 transition p-5
+                    {% if room.is_active %}
+                      border-slate-200 dark:border-slate-700
+                      bg-white dark:bg-slate-800
+                      hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-lg
+                    {% else %}
+                      border-slate-200 dark:border-slate-700
+                      bg-slate-50 dark:bg-slate-800/50 opacity-70
+                    {% endif %}"
+            data-room-name="{{ room.name|lower }} {{ room.code|lower }}"
+            data-room-status="{% if room.is_active %}aktif{% else %}nonaktif{% endif %}"
+            data-room-type="{{ room.room_type }}">
+
+          {# Card Header #}
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0
+                          {% if room.room_type == 'lab' %}bg-blue-100 dark:bg-blue-900/30
+                          {% elif room.room_type == 'class' %}bg-amber-100 dark:bg-amber-900/30
+                          {% elif room.room_type == 'office' %}bg-purple-100 dark:bg-purple-900/30
+                          {% else %}bg-slate-100 dark:bg-slate-700{% endif %}">
+                <span class="material-icons text-xl
+                            {% if room.room_type == 'lab' %}text-blue-600 dark:text-blue-400
+                            {% elif room.room_type == 'class' %}text-amber-600 dark:text-amber-400
+                            {% elif room.room_type == 'office' %}text-purple-600 dark:text-purple-400
+                            {% else %}text-slate-500{% endif %}">
+                  {% if room.room_type == 'lab' %}biotech
+                  {% elif room.room_type == 'class' %}school
+                  {% elif room.room_type == 'office' %}business_center
+                  {% else %}meeting_room{% endif %}
+                </span>
+              </div>
+              <div>
+                <p class="text-xs font-mono text-slate-400 dark:text-slate-500 mb-0.5">{{ room.code }}</p>
+                <h4 class="text-base font-semibold text-slate-900 dark:text-slate-100 leading-tight">
+                  {{ room.name }}
+                </h4>
+              </div>
+            </div>
+
+            {# Badges kanan atas: tipe + status #}
+            <div class="flex flex-col items-end gap-1.5 flex-shrink-0 ml-2">
+              {# Badge tipe ruangan #}
+              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold
+                          {% if room.is_lab %}
+                            bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300
+                            border border-blue-300 dark:border-blue-700
+                          {% elif room.room_type == 'class' %}
+                            bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300
+                            border border-amber-300 dark:border-amber-700
+                          {% elif room.room_type == 'office' %}
+                            bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300
+                            border border-purple-300 dark:border-purple-700
+                          {% else %}
+                            bg-slate-100 dark:bg-slate-700 text-slate-600
+                            border border-slate-300
+                          {% endif %}">
+                {% if room.is_lab %}
+                <span class="material-icons text-xs mr-1">biotech</span>Lab
+                {% elif room.room_type == 'class' %}
+                <span class="material-icons text-xs mr-1">school</span>Kelas
+                {% elif room.room_type == 'office' %}
+                <span class="material-icons text-xs mr-1">business_center</span>Kantor
+                {% else %}
+                <span class="material-icons text-xs mr-1">meeting_room</span>Lainnya
+                {% endif %}
+              </span>
+
+              {# Badge aktif/nonaktif #}
+              {% if room.is_active %}
+              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold
+                          bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400
+                          border border-emerald-200 dark:border-emerald-800">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>Aktif
+              </span>
+              {% else %}
+              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold
+                          bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400
+                          border border-slate-200 dark:border-slate-600">
+                <span class="w-1.5 h-1.5 rounded-full bg-slate-400 mr-1.5"></span>Nonaktif
+              </span>
+              {% endif %}
+            </div>
+          </div>
+
+          {# Card Body #}
+          <div class="space-y-2.5 mb-4">
+            <div class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+              <span class="material-icons text-xs text-slate-400">groups</span>
+              <span>Kapasitas:
+                <span class="font-semibold text-slate-900 dark:text-slate-100">{{ room.capacity }} orang</span>
+              </span>
+            </div>
+
+            {# Info aksesibilitas booking berdasarkan tipe #}
+            {% if room.is_lab %}
+            <div class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5
+                        bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+              <span class="material-icons text-xs text-blue-600">check_circle</span>
+              <span class="text-xs text-blue-700 dark:text-blue-300 font-medium">Tersedia untuk Peminjaman Mandiri</span>
+            </div>
+            {% else %}
+            <div class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5
+                        bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+              <span class="material-icons text-xs text-amber-600">calendar_month</span>
+              <span class="text-xs text-amber-700 dark:text-amber-300 font-medium">Hanya via Jadwal Praktikum</span>
+            </div>
+            {% endif %}
+
+            {% if room.description %}
+            <div class="flex items-start gap-2 text-sm text-slate-500 dark:text-slate-400">
+              <span class="material-icons text-xs text-slate-400 mt-0.5">info</span>
+              <span class="line-clamp-2 text-xs">{{ room.description }}</span>
+            </div>
+            {% endif %}
+
+            {% with monthly=room.bookings.count %}
+            <div class="flex items-center gap-2 text-sm">
+              <span class="material-icons text-xs text-slate-400">event_available</span>
+              <div class="flex-1">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-xs text-slate-500 dark:text-slate-400">Total Booking</span>
+                  <span class="text-xs font-semibold text-blue-600 dark:text-blue-400">{{ monthly }} bookings</span>
+                </div>
+                <div class="w-full h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                  <div class="h-full bg-blue-500 rounded-full"
+                      style="width: {% widthratio monthly 50 100 %}%; max-width: 100%"></div>
+                </div>
+              </div>
+            </div>
+            {% endwith %}
+
+            <div class="pt-2 border-t border-slate-100 dark:border-slate-700">
+              <div class="flex items-center justify-between text-xs text-slate-400 dark:text-slate-500">
+                <span>Terakhir diperbarui</span>
+                <span class="font-medium">{{ room.updated_at|date:"d M Y" }}</span>
+              </div>
+            </div>
+          </div>
+
+          {# Card Actions #}
+          <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button onclick="viewRuanganDetail({{ room.pk }})"
+                    class="flex-1 inline-flex items-center justify-center gap-1 rounded-lg
+                          border border-slate-200 dark:border-slate-600
+                          bg-white dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/20
+                          hover:border-blue-300 text-slate-700 dark:text-slate-300
+                          font-medium text-sm px-3 py-2 transition">
+              <span class="material-icons text-sm">visibility</span>Detail
+            </button>
+            <button onclick="openRuanganModal('edit', {{ room.pk }})"
+                    class="inline-flex items-center justify-center rounded-lg
+                          border border-slate-200 dark:border-slate-600
+                          bg-white dark:bg-slate-700 hover:bg-amber-50 hover:border-amber-300
+                          w-10 h-10 transition" title="Edit Ruangan">
+              <span class="material-icons text-sm text-slate-600 dark:text-slate-400">edit</span>
+            </button>
+            <button onclick="toggleStatusRuangan({{ room.pk }}, {{ room.is_active|yesno:'true,false' }})"
+                    class="inline-flex items-center justify-center rounded-lg
+                          border border-slate-200 dark:border-slate-600
+                          bg-white dark:bg-slate-700
+                          {% if room.is_active %}hover:bg-rose-50 hover:border-rose-300
+                          {% else %}hover:bg-emerald-50 hover:border-emerald-300{% endif %}
+                          w-10 h-10 transition"
+                    title="{% if room.is_active %}Nonaktifkan{% else %}Aktifkan{% endif %}">
+              <span class="material-icons text-sm
+                          {% if room.is_active %}text-rose-500{% else %}text-emerald-500{% endif %}">
+                {% if room.is_active %}block{% else %}check_circle{% endif %}
+              </span>
+            </button>
+          </div>
+
+        </div>
+        {% endwith %}
+        {% empty %}
+        <div class="col-span-3 text-center py-16 text-slate-400">
+          <span class="material-icons-outlined text-5xl block mb-3
+                       text-slate-300">meeting_room</span>
+          <p class="text-sm font-medium">Belum ada data ruangan</p>
+          <p class="text-xs mt-1">Klik "Tambah Ruangan Baru" untuk memulai</p>
+        </div>
+        {% endfor %}
+
+      </div>{# /ruangan-grid #}
+    </div>

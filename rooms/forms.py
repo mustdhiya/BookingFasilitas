@@ -1,4 +1,3 @@
-# rooms/forms.py
 from django import forms
 from django.utils import timezone
 from .models import RoomBooking, Room
@@ -7,14 +6,14 @@ from .models import RoomBooking, Room
 class RoomBookingForm(forms.ModelForm):
     class Meta:
         model  = RoomBooking
-        fields = ['room', 'date_start', 'date_end', 'participants', 'purpose']
+        fields = ['room', 'date_start', 'date_end', 'participants', 'purpose']  # ← hapus start_time, end_time
         widgets = {
             'date_start': forms.DateInput(attrs={'type': 'date'}),
             'date_end':   forms.DateInput(attrs={'type': 'date'}),
         }
 
     def clean(self):
-        cleaned = super().clean()
+        cleaned      = super().clean()
         date_start   = cleaned.get('date_start')
         date_end     = cleaned.get('date_end')
         room         = cleaned.get('room')
@@ -35,7 +34,6 @@ class RoomBookingForm(forms.ModelForm):
                 f'Jumlah peserta melebihi kapasitas ruangan ({room.capacity} orang).'
             )
 
-        # Cek konflik dengan booking yang sudah ada
         if room and date_start and date_end:
             conflict = RoomBooking.objects.filter(
                 room=room,
@@ -51,7 +49,6 @@ class RoomBookingForm(forms.ModelForm):
                     'Silakan pilih tanggal lain atau cek kalender ketersediaan.'
                 )
 
-        # Cek blokir rutin
         if room and date_start and date_end:
             from .models import RoomBlockSchedule
             from datetime import timedelta

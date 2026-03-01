@@ -668,6 +668,27 @@
     document.getElementById('dosen-empty')?.classList.toggle('hidden', visible > 0);
   }
 
+  // ── Delete Judul payung ──
+  function deleteJudul(pk, titleText) {
+      if (!confirm(`Hapus judul payung "${titleText}"?\nSemua request terkait juga akan dihapus.`)) return;
+      fetch(`/penelitian/judul/${pk}/delete/`, {
+          method: 'POST',
+          headers: {
+              'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+          }
+      })
+      .then(r => r.json())
+      .then(res => {
+          if (res.status === 'ok') {
+              showToast(res.msg, 'success');
+              setTimeout(() => location.reload(), 800);
+          } else {
+              showToast(res.msg || 'Gagal hapus.', 'error');
+          }
+      });
+  }
+
+
   // ── Modal Request ──
   function openRequestModal(titleId, titleName, lecturerId, lecturerName) {
     selectedTitleId    = titleId;

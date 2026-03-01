@@ -1,0 +1,1445 @@
+{# ===== MASTER: ALAT TES ===== #}
+<div id="master-content-alat" class="master-content hidden">
+
+  {# ── Action Bar ── #}
+  <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+    <button onclick="openAlatModal('create')"
+            class="inline-flex items-center gap-1.5 rounded-lg
+                   bg-primary-500 hover:bg-primary-600 text-white
+                   font-semibold text-sm px-4 py-2 transition shadow-sm">
+      <span class="material-icons text-base">add</span>
+      Tambah Alat Baru
+    </button>
+
+    <div class="flex flex-wrap gap-2">
+      <div class="relative">
+        <span class="material-icons absolute left-2.5 top-1/2 -translate-y-1/2
+                     text-slate-400 text-base pointer-events-none">search</span>
+        <input type="text" placeholder="Cari alat tes..."
+               oninput="filterAlatTable(this.value)"
+               class="rounded-lg border border-slate-200 dark:border-slate-600
+                      dark:bg-slate-700 dark:text-slate-100
+                      pl-9 pr-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 w-52">
+      </div>
+
+      <select onchange="filterAlatKategori(this.value)"
+              class="rounded-lg border border-slate-200 dark:border-slate-600
+                     dark:bg-slate-700 dark:text-slate-100 px-3 py-2 text-sm
+                     focus:ring-2 focus:ring-primary-500">
+        <option value="all">Semua Kategori</option>
+        <option value="inteligensi">Inteligensi</option>
+        <option value="kepribadian">Kepribadian</option>
+        <option value="minat">Minat & Bakat</option>
+        <option value="klinis">Klinis</option>
+        <option value="lainnya">Lainnya</option>
+      </select>
+
+      <select onchange="filterAlatStatus(this.value)"
+              class="rounded-lg border border-slate-200 dark:border-slate-600
+                     dark:bg-slate-700 dark:text-slate-100 px-3 py-2 text-sm
+                     focus:ring-2 focus:ring-primary-500">
+        <option value="all">Semua Status</option>
+        <option value="aktif">Aktif</option>
+        <option value="nonaktif">Nonaktif</option>
+      </select>
+    </div>
+  </div>
+
+  {# ── Tabel ── #}
+  <div class="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-xl">
+    <table class="w-full text-sm" id="alat-table">
+      <thead class="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700">
+        <tr>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Kode</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Alat Tes</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Kategori</th>
+          <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Jenis Transaksi</th>
+          <th class="px-4 py-3 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Harga / Satuan</th>
+          <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Stok</th>
+          <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Peminjaman</th>
+          <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Status</th>
+          <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Aksi</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 dark:divide-slate-700 bg-white dark:bg-slate-800"
+             id="alat-tbody">
+        {% for alat in alat_list %}
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition group
+                   {% if alat.stock <= 10 %}bg-rose-50/30 dark:bg-rose-900/10{% endif %}"
+            data-alat-name="{{ alat.name|lower }} {{ alat.code|lower }}"
+            data-alat-kategori="{{ alat.kategori }}"
+            data-alat-status="{% if alat.is_active %}aktif{% else %}nonaktif{% endif %}">
+
+          <td class="px-4 py-3">
+            <span class="font-mono font-semibold text-sm text-slate-700 dark:text-slate-300">
+              {{ alat.code }}
+            </span>
+          </td>
+
+          <td class="px-4 py-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0
+                          {% if alat.kategori == 'inteligensi' %}bg-blue-100 dark:bg-blue-900/30
+                          {% elif alat.kategori == 'kepribadian' %}bg-purple-100 dark:bg-purple-900/30
+                          {% elif alat.kategori == 'klinis' %}bg-rose-100 dark:bg-rose-900/30
+                          {% else %}bg-amber-100 dark:bg-amber-900/30{% endif %}">
+                <span class="material-icons text-base
+                             {% if alat.kategori == 'inteligensi' %}text-blue-600 dark:text-blue-400
+                             {% elif alat.kategori == 'kepribadian' %}text-purple-600 dark:text-purple-400
+                             {% elif alat.kategori == 'klinis' %}text-rose-600 dark:text-rose-400
+                             {% else %}text-amber-600 dark:text-amber-400{% endif %}">science</span>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-slate-900 dark:text-slate-100">{{ alat.name }}</p>
+                {% if alat.description %}
+                <p class="text-xs text-slate-400 dark:text-slate-500 truncate max-w-[180px]">
+                  {{ alat.description|truncatechars:50 }}
+                </p>
+                {% endif %}
+              </div>
+            </div>
+          </td>
+
+          <td class="px-4 py-3">
+            <span class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium
+                         {% if alat.kategori == 'inteligensi' %}bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300
+                         {% elif alat.kategori == 'kepribadian' %}bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300
+                         {% elif alat.kategori == 'klinis' %}bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-300
+                         {% else %}bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300{% endif %}">
+              <span class="material-icons text-xs">category</span>
+              {{ alat.get_kategori_display }}
+            </span>
+          </td>
+
+          {# ── Kolom Jenis Transaksi (default) ── #}
+          <td class="px-4 py-3 text-center">
+            {% if alat.transaction_type == 'pinjam' %}
+            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium
+                         bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400">
+              <span class="material-icons text-xs">swap_horiz</span>Pinjam
+            </span>
+            {% elif alat.transaction_type == 'sewa' %}
+            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium
+                         bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400">
+              <span class="material-icons text-xs">event_available</span>Sewa
+            </span>
+            {% elif alat.transaction_type == 'beli' %}
+            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium
+                         bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-400">
+              <span class="material-icons text-xs">shopping_cart</span>Beli
+            </span>
+            {% else %}
+            <span class="text-xs text-slate-400">—</span>
+            {% endif %}
+          </td>
+
+          <td class="px-4 py-3 text-right">
+            <span class="text-sm font-semibold text-slate-900 dark:text-slate-100">
+              Rp {{ alat.price_per_unit|floatformat:0 }}
+            </span>
+            <p class="text-xs text-slate-400 dark:text-slate-500">/ {{ alat.get_unit_display }}</p>
+          </td>
+
+          <td class="px-4 py-3">
+            <div class="flex flex-col items-center gap-1">
+              {% if alat.stock <= 10 %}
+              <div class="flex items-center gap-1">
+                <span class="material-icons text-xs text-rose-500">warning</span>
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold
+                             bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-300
+                             border border-rose-200 dark:border-rose-800">
+                  {{ alat.stock }} {{ alat.get_unit_display }}
+                </span>
+              </div>
+              {% elif alat.stock >= 20 %}
+              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold
+                           bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300
+                           border border-emerald-200 dark:border-emerald-800">
+                {{ alat.stock }} {{ alat.get_unit_display }}
+              </span>
+              {% else %}
+              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold
+                           bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300
+                           border border-amber-200 dark:border-amber-800">
+                {{ alat.stock }} {{ alat.get_unit_display }}
+              </span>
+              {% endif %}
+              <button onclick="openAdjustStockModal({{ alat.pk }}, '{{ alat.name|escapejs }}', {{ alat.stock }}, '{{ alat.get_unit_display|escapejs }}')"
+                      class="text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700
+                             font-medium flex items-center gap-0.5">
+                <span class="material-icons text-xs">tune</span>Adjust
+              </button>
+            </div>
+          </td>
+
+          <td class="px-4 py-3 text-center">
+            <button onclick="openRentalHistoryModal({{ alat.pk }}, '{{ alat.name|escapejs }}')"
+                    class="inline-flex items-center gap-1 text-sm font-medium
+                           text-slate-600 dark:text-slate-400
+                           hover:text-primary-600 dark:hover:text-primary-400 transition">
+              {{ alat.borrow_count }}x
+              <span class="material-icons text-xs">open_in_new</span>
+            </button>
+          </td>
+
+          <td class="px-4 py-3 text-center">
+            {% if alat.is_active %}
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold
+                         bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300
+                         border border-emerald-200 dark:border-emerald-800">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>Aktif
+            </span>
+            {% else %}
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold
+                         bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400
+                         border border-slate-200 dark:border-slate-600">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-400 inline-block"></span>Nonaktif
+            </span>
+            {% endif %}
+          </td>
+
+          <td class="px-4 py-3">
+            <div class="flex items-center justify-center gap-1
+                        opacity-0 group-hover:opacity-100 transition-opacity">
+              <button onclick="openAlatModal('edit', {{ alat.pk }})"
+                      class="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-600
+                             bg-white dark:bg-slate-700 hover:bg-amber-50 dark:hover:bg-amber-900/20
+                             hover:border-amber-300 flex items-center justify-center transition"
+                      title="Edit Alat">
+                <span class="material-icons text-sm text-slate-500 dark:text-slate-400">edit</span>
+              </button>
+              <button onclick="toggleStatusAlat({{ alat.pk }}, {{ alat.is_active|yesno:'true,false' }})"
+                      class="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-600
+                             bg-white dark:bg-slate-700
+                             {% if alat.is_active %}hover:bg-rose-50 dark:hover:bg-rose-900/20 hover:border-rose-300
+                             {% else %}hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:border-emerald-300{% endif %}
+                             flex items-center justify-center transition"
+                      title="{% if alat.is_active %}Nonaktifkan{% else %}Aktifkan{% endif %}">
+                <span class="material-icons text-sm
+                             {% if alat.is_active %}text-rose-500{% else %}text-emerald-500{% endif %}">
+                  {% if alat.is_active %}block{% else %}check_circle{% endif %}
+                </span>
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="9" class="text-center py-16 text-slate-400">
+            <span class="material-icons text-5xl block mb-3 text-slate-300">science</span>
+            <p class="text-sm font-medium">Belum ada data alat tes</p>
+            <button onclick="openAlatModal('create')"
+                    class="mt-3 inline-flex items-center gap-1.5 text-sm text-primary-600
+                           dark:text-primary-400 hover:text-primary-700 font-medium">
+              <span class="material-icons text-base">add_circle</span>Tambah alat pertama
+            </button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {# Empty state filter #}
+  <div id="alat-filter-empty" class="hidden py-16 text-center text-slate-400">
+    <span class="material-icons text-5xl block mb-3 text-slate-300">search_off</span>
+    <p class="text-sm font-medium">Tidak ada alat tes yang cocok dengan filter</p>
+    <button onclick="resetAlatFilter()"
+            class="mt-3 text-sm text-primary-600 dark:text-primary-400 hover:underline">
+      Reset filter
+    </button>
+  </div>
+
+  {% if low_stock_count > 0 %}
+  <div class="mt-4 rounded-lg border border-rose-200 dark:border-rose-800
+              bg-rose-50 dark:bg-rose-900/20 p-4">
+    <div class="flex items-start gap-3">
+      <span class="material-icons text-rose-500 flex-shrink-0 mt-0.5">warning</span>
+      <div>
+        <h4 class="text-sm font-semibold text-rose-900 dark:text-rose-300 mb-1">
+          Peringatan Stok Rendah
+        </h4>
+        <p class="text-xs text-rose-700 dark:text-rose-400">
+          {{ low_stock_count }} alat tes memiliki stok di bawah 10 unit. Segera lakukan restocking.
+        </p>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+
+
+{# ===== MASTER: MANAJEMEN RENTAL ===== #}
+<div id="master-content-rental" class="master-content hidden">
+
+  <div class="flex flex-wrap gap-2 mb-5">
+    <div class="relative flex-1 min-w-[200px]">
+      <span class="material-icons absolute left-2.5 top-1/2 -translate-y-1/2
+                   text-slate-400 text-base pointer-events-none">search</span>
+      <input type="text" id="rental-search" placeholder="Cari peminjam atau alat..."
+             oninput="filterAdminRentals()"
+             class="w-full rounded-lg border border-slate-200 dark:border-slate-600
+                    dark:bg-slate-700 dark:text-slate-100
+                    pl-9 pr-3 py-2 text-sm focus:ring-2 focus:ring-primary-500">
+    </div>
+
+    <select id="rental-filter-status" onchange="filterAdminRentals()"
+            class="rounded-lg border border-slate-200 dark:border-slate-600
+                   dark:bg-slate-700 dark:text-slate-100 px-3 py-2 text-sm
+                   focus:ring-2 focus:ring-primary-500">
+      <option value="all">Semua Status</option>
+      <option value="pending">Pending</option>
+      <option value="approved">Disetujui</option>
+      <option value="borrowed">Aktif / Dipinjam</option>
+      <option value="returning">Ajukan Kembali</option>
+      <option value="overdue">Terlambat</option>
+      <option value="returned">Selesai</option>
+      <option value="declined">Ditolak</option>
+      <option value="cancelled">Dibatalkan</option>
+    </select>
+
+    <select id="rental-filter-type" onchange="filterAdminRentals()"
+            class="rounded-lg border border-slate-200 dark:border-slate-600
+                   dark:bg-slate-700 dark:text-slate-100 px-3 py-2 text-sm
+                   focus:ring-2 focus:ring-primary-500">
+      <option value="all">Semua Jenis</option>
+      <option value="pinjam">Peminjaman</option>
+      <option value="sewa">Penyewaan</option>
+      <option value="beli">Pembelian</option>
+    </select>
+
+    <button onclick="loadAdminRentals()"
+            class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200
+                   dark:border-slate-600 bg-white dark:bg-slate-700
+                   hover:bg-slate-50 dark:hover:bg-slate-600
+                   text-slate-600 dark:text-slate-300 text-sm px-3 py-2 transition">
+      <span class="material-icons text-base">refresh</span>Refresh
+    </button>
+  </div>
+
+  <div id="rental-summary-badges" class="flex flex-wrap gap-2 mb-4"></div>
+
+  <div class="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-xl">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700">
+        <tr>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Peminjam</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Alat Tes</th>
+          <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Jenis</th>
+          <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Qty</th>
+          <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Periode</th>
+          <th class="px-4 py-3 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Total</th>
+          <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Status</th>
+          <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="admin-rental-tbody"
+             class="divide-y divide-slate-100 dark:divide-slate-700 bg-white dark:bg-slate-800">
+        <tr>
+          <td colspan="8" class="text-center py-12 text-slate-400">
+            <span class="material-icons text-4xl block mb-2 text-slate-300">hourglass_empty</span>
+            <p class="text-sm">Memuat data rental...</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div id="rental-filter-empty" class="hidden py-16 text-center text-slate-400">
+    <span class="material-icons text-5xl block mb-3 text-slate-300">search_off</span>
+    <p class="text-sm font-medium">Tidak ada rental yang cocok dengan filter</p>
+  </div>
+
+</div>
+
+
+{# ===== MODAL: CREATE / EDIT ALAT TES ===== #}
+<div id="modal-alat-form"
+     class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50
+            flex items-center justify-center p-4">
+  <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl
+              w-full max-w-lg max-h-[90vh] overflow-y-auto">
+
+    <div class="sticky top-0 bg-white dark:bg-slate-800
+                border-b border-slate-200 dark:border-slate-700
+                px-6 py-4 flex items-center justify-between z-10">
+      <h3 id="alat-modal-title"
+          class="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+        <span class="material-icons text-primary-600 dark:text-primary-400">science</span>
+        Tambah Alat Tes Baru
+      </h3>
+      <button onclick="closeModal('modal-alat-form')"
+              class="w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700
+                     flex items-center justify-center transition">
+        <span class="material-icons text-slate-500 dark:text-slate-400">close</span>
+      </button>
+    </div>
+
+    <div class="p-6 space-y-5">
+      {% csrf_token %}
+      <input type="hidden" id="alat-pk">
+
+      {# Kode #}
+      <div class="space-y-1.5">
+        <label class="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+          <span class="material-icons text-base text-slate-400">tag</span>
+          Kode Alat <span class="text-rose-500 ml-0.5">*</span>
+        </label>
+        <input type="text" id="alat-code" required placeholder="Contoh: WAIS4"
+               class="w-full rounded-xl border border-slate-200 dark:border-slate-600
+                      bg-white dark:bg-slate-900 px-4 py-2.5 text-sm
+                      text-slate-900 dark:text-slate-200 uppercase
+                      placeholder:text-slate-400 dark:placeholder:text-slate-500
+                      focus:border-primary-400 dark:focus:border-primary-500
+                      focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition"/>
+        <p class="text-xs text-slate-400 dark:text-slate-500">Huruf kapital, tanpa spasi, unik</p>
+      </div>
+
+      {# Nama #}
+      <div class="space-y-1.5">
+        <label class="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+          <span class="material-icons text-base text-slate-400">label</span>
+          Nama Alat Tes <span class="text-rose-500 ml-0.5">*</span>
+        </label>
+        <input type="text" id="alat-name" required
+               placeholder="Contoh: Wechsler Adult Intelligence Scale IV"
+               class="w-full rounded-xl border border-slate-200 dark:border-slate-600
+                      bg-white dark:bg-slate-900 px-4 py-2.5 text-sm
+                      text-slate-900 dark:text-slate-200
+                      placeholder:text-slate-400 dark:placeholder:text-slate-500
+                      focus:border-primary-400 dark:focus:border-primary-500
+                      focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition"/>
+      </div>
+
+      {# Kategori #}
+      <div class="space-y-1.5">
+        <label class="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+          <span class="material-icons text-base text-slate-400">category</span>
+          Kategori <span class="text-rose-500 ml-0.5">*</span>
+        </label>
+        <select id="alat-kategori" required
+                class="w-full rounded-xl border border-slate-200 dark:border-slate-600
+                       bg-white dark:bg-slate-900 px-4 py-2.5 text-sm
+                       text-slate-900 dark:text-slate-200
+                       focus:border-primary-400 dark:focus:border-primary-500
+                       focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition">
+          <option value="">Pilih kategori...</option>
+          <option value="inteligensi">Inteligensi</option>
+          <option value="kepribadian">Kepribadian</option>
+          <option value="minat">Minat & Bakat</option>
+          <option value="klinis">Klinis</option>
+          <option value="lainnya">Lainnya</option>
+        </select>
+      </div>
+      <div class="space-y-1.5">
+        <label class="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+          <span class="material-icons text-base text-slate-400">swap_horiz</span>
+          Jenis Transaksi Default <span class="text-rose-500 ml-0.5">*</span>
+        </label>
+        <p class="text-xs text-slate-400 dark:text-slate-500 -mt-1">
+          Menentukan cara pengguna menggunakan alat ini (pinjam / sewa / beli).
+        </p>
+        <div class="grid grid-cols-3 gap-2">
+          <button type="button" onclick="setAlatTransactionType('pinjam')" data-type="pinjam"
+                  class="alat-type-btn rounded-xl border-2 border-primary-400 bg-primary-50
+                         dark:bg-primary-900/20 dark:border-primary-500
+                         px-3 py-3 text-center transition">
+            <span class="material-icons block text-primary-600 dark:text-primary-400 mb-1 text-2xl">swap_horiz</span>
+            <span class="text-xs font-semibold text-primary-700 dark:text-primary-300">Pinjam</span>
+            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Dikembalikan</p>
+          </button>
+          <button type="button" onclick="setAlatTransactionType('sewa')" data-type="sewa"
+                  class="alat-type-btn rounded-xl border-2 border-slate-200 dark:border-slate-600
+                         bg-white dark:bg-slate-800 px-3 py-3 text-center transition
+                         hover:border-amber-300 hover:bg-amber-50 dark:hover:bg-amber-900/20">
+            <span class="material-icons block text-amber-500 mb-1 text-2xl">event_available</span>
+            <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">Sewa</span>
+            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Berbatas waktu</p>
+          </button>
+          <button type="button" onclick="setAlatTransactionType('beli')" data-type="beli"
+                  class="alat-type-btn rounded-xl border-2 border-slate-200 dark:border-slate-600
+                         bg-white dark:bg-slate-800 px-3 py-3 text-center transition
+                         hover:border-violet-300 hover:bg-violet-50 dark:hover:bg-violet-900/20">
+            <span class="material-icons block text-violet-500 mb-1 text-2xl">shopping_cart</span>
+            <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">Beli</span>
+            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Tidak kembali</p>
+          </button>
+        </div>
+        {# Hidden input — nilai ini yang dikirim ke server sebagai field TestTool #}
+        <input type="hidden" id="alat-transaction-type" value="pinjam">
+      </div>
+
+      {# Deskripsi #}
+      <div class="space-y-1.5">
+        <label class="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+          <span class="material-icons text-base text-slate-400">description</span>
+          Deskripsi
+        </label>
+        <textarea id="alat-description" rows="3"
+                  placeholder="Keterangan singkat tentang alat tes ini..."
+                  class="w-full rounded-xl border border-slate-200 dark:border-slate-600
+                         bg-white dark:bg-slate-900 px-4 py-2.5 text-sm
+                         text-slate-900 dark:text-slate-200
+                         placeholder:text-slate-400 dark:placeholder:text-slate-500
+                         focus:border-primary-400 dark:focus:border-primary-500
+                         focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50
+                         transition resize-none"></textarea>
+      </div>
+
+      {# Satuan & Harga #}
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div class="space-y-1.5">
+          <label class="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+            <span class="material-icons text-base text-slate-400">straighten</span>
+            Satuan <span class="text-rose-500 ml-0.5">*</span>
+          </label>
+          <select id="alat-unit" required
+                  class="w-full rounded-xl border border-slate-200 dark:border-slate-600
+                         bg-white dark:bg-slate-900 px-4 py-2.5 text-sm
+                         text-slate-900 dark:text-slate-200
+                         focus:border-primary-400 dark:focus:border-primary-500
+                         focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition">
+            <option value="lembar">Lembar</option>
+            <option value="set">Set</option>
+            <option value="buah">Buah</option>
+          </select>
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+            <span class="material-icons text-base text-slate-400">payments</span>
+            Harga / Satuan (Rp) <span class="text-rose-500 ml-0.5">*</span>
+          </label>
+          <input type="number" id="alat-price" required min="0" placeholder="50000"
+                 class="w-full rounded-xl border border-slate-200 dark:border-slate-600
+                        bg-white dark:bg-slate-900 px-4 py-2.5 text-sm
+                        text-slate-900 dark:text-slate-200
+                        placeholder:text-slate-400 dark:placeholder:text-slate-500
+                        focus:border-primary-400 dark:focus:border-primary-500
+                        focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition"/>
+        </div>
+      </div>
+
+      {# Stok #}
+      <div id="alat-stock-wrap" class="space-y-1.5">
+        <label class="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+          <span class="material-icons text-base text-slate-400">inventory_2</span>
+          Stok Awal <span class="text-rose-500 ml-0.5">*</span>
+        </label>
+        <input type="number" id="alat-stock" min="0" placeholder="100"
+               class="w-full rounded-xl border border-slate-200 dark:border-slate-600
+                      bg-white dark:bg-slate-900 px-4 py-2.5 text-sm
+                      text-slate-900 dark:text-slate-200
+                      placeholder:text-slate-400 dark:placeholder:text-slate-500
+                      focus:border-primary-400 dark:focus:border-primary-500
+                      focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition"/>
+        <p id="alat-stock-hint" class="text-xs text-slate-400 dark:text-slate-500">
+          Untuk mengubah stok setelah tersimpan, gunakan tombol
+          <span class="inline-flex items-center gap-0.5 font-medium text-primary-600 dark:text-primary-400">
+            <span class="material-icons text-xs">tune</span>Adjust
+          </span> di tabel.
+        </p>
+      </div>
+
+      {# Status Aktif #}
+      <div class="flex items-center justify-between rounded-xl
+                  border border-slate-200 dark:border-slate-600 px-4 py-3">
+        <div>
+          <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Status Aktif</p>
+          <p class="text-xs text-slate-400 dark:text-slate-500">Alat dapat dipinjam oleh pengguna</p>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" id="alat-active" class="sr-only peer" checked>
+          <div class="w-11 h-6 bg-slate-200 dark:bg-slate-600 rounded-full peer
+                      peer-checked:bg-primary-500
+                      after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                      after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all
+                      peer-checked:after:translate-x-full
+                      peer-focus:ring-2 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-700">
+          </div>
+        </label>
+      </div>
+
+      {# Error Box #}
+      <div id="alat-form-error"
+           class="hidden rounded-xl bg-rose-50 dark:bg-rose-900/20
+                  border border-rose-200 dark:border-rose-800
+                  px-4 py-3 text-sm text-rose-700 dark:text-rose-300 flex items-start gap-2">
+        <span class="material-icons text-base flex-shrink-0 mt-0.5">error_outline</span>
+        <span id="alat-form-error-text"></span>
+      </div>
+
+      {# Footer Buttons #}
+      <div class="flex gap-3 pt-1">
+        <button type="button" onclick="closeModal('modal-alat-form')"
+                class="flex-1 rounded-full border border-slate-200 dark:border-slate-600
+                       bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600
+                       text-slate-700 dark:text-slate-300 font-medium text-sm px-5 py-2.5 transition">
+          Batal
+        </button>
+        <button type="button" onclick="submitAlatForm()"
+                class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full
+                       bg-primary-500 hover:bg-primary-600 text-white font-semibold text-sm
+                       px-5 py-2.5 shadow-md hover:shadow-lg transition">
+          <span class="material-icons text-base">save</span>
+          <span id="alat-submit-label">Simpan Alat</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{# ===== MODAL: ADJUST STOCK ===== #}
+<div id="modal-adjust-stock"
+     class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50
+            flex items-center justify-center p-4">
+  <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-sm">
+    <div class="border-b border-slate-200 dark:border-slate-700 px-6 py-4
+                flex items-center justify-between">
+      <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+        <span class="material-icons text-amber-500">tune</span>Adjust Stok
+      </h3>
+      <button onclick="closeModal('modal-adjust-stock')"
+              class="w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700
+                     flex items-center justify-center transition">
+        <span class="material-icons text-slate-500 dark:text-slate-400">close</span>
+      </button>
+    </div>
+
+    <div class="p-6 space-y-4">
+      <input type="hidden" id="adjust-tool-pk">
+      <input type="hidden" id="adjust-tool-unit">
+
+      <div class="rounded-xl bg-slate-50 dark:bg-slate-900
+                  border border-slate-200 dark:border-slate-700 p-4">
+        <p class="text-xs text-slate-500 dark:text-slate-400 mb-1">Alat Tes</p>
+        <p id="adjust-tool-name"
+           class="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3"></p>
+        <div class="flex items-center justify-between">
+          <p class="text-xs text-slate-500 dark:text-slate-400">Stok saat ini</p>
+          <p id="adjust-current-stock"
+             class="text-2xl font-bold text-primary-600 dark:text-primary-400"></p>
+        </div>
+      </div>
+
+      <div class="space-y-1.5">
+        <label class="text-sm font-medium text-slate-700 dark:text-slate-300">Penyesuaian Stok</label>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="adjustStockStep(-1)"
+                  class="w-10 h-10 rounded-lg border border-slate-200 dark:border-slate-600
+                         bg-white dark:bg-slate-700 hover:bg-rose-50 dark:hover:bg-rose-900/20
+                         hover:border-rose-300 flex items-center justify-center transition">
+            <span class="material-icons text-slate-600 dark:text-slate-400">remove</span>
+          </button>
+          <input type="number" id="adjust-value" value="0" oninput="updateAdjustPreview()"
+                 class="flex-1 text-center rounded-xl border border-slate-200 dark:border-slate-600
+                        bg-white dark:bg-slate-900 px-4 py-2.5 text-lg font-bold
+                        text-slate-900 dark:text-slate-100
+                        focus:border-primary-400 dark:focus:border-primary-500
+                        focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition"/>
+          <button type="button" onclick="adjustStockStep(1)"
+                  class="w-10 h-10 rounded-lg border border-slate-200 dark:border-slate-600
+                         bg-white dark:bg-slate-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20
+                         hover:border-emerald-300 flex items-center justify-center transition">
+            <span class="material-icons text-slate-600 dark:text-slate-400">add</span>
+          </button>
+        </div>
+        <p class="text-xs text-slate-400 dark:text-slate-500">
+          Nilai positif menambah stok, nilai negatif mengurangi stok
+        </p>
+      </div>
+
+      <div class="rounded-xl bg-primary-50 dark:bg-primary-900/20
+                  border border-primary-200 dark:border-primary-800
+                  px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-2 text-sm text-primary-700 dark:text-primary-300">
+          <span class="material-icons text-base">inventory_2</span>Stok baru
+        </div>
+        <p class="text-xl font-bold text-primary-600 dark:text-primary-400">
+          <span id="adjust-new-stock">-</span>
+          <span id="adjust-unit-label" class="text-sm font-normal ml-1"></span>
+        </p>
+      </div>
+
+      <div id="adjust-error"
+           class="hidden rounded-xl bg-rose-50 dark:bg-rose-900/20
+                  border border-rose-200 dark:border-rose-800
+                  px-4 py-3 text-sm text-rose-700 dark:text-rose-300 flex items-center gap-2">
+        <span class="material-icons text-base flex-shrink-0">error_outline</span>
+        <span id="adjust-error-text"></span>
+      </div>
+
+      <div class="flex gap-3">
+        <button type="button" onclick="closeModal('modal-adjust-stock')"
+                class="flex-1 rounded-full border border-slate-200 dark:border-slate-600
+                       bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600
+                       text-slate-700 dark:text-slate-300 font-medium text-sm px-5 py-2.5 transition">
+          Batal
+        </button>
+        <button type="button" onclick="submitAdjustStock()"
+                class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full
+                       bg-amber-500 hover:bg-amber-600 text-white font-semibold text-sm
+                       px-5 py-2.5 shadow-md hover:shadow-lg transition">
+          <span class="material-icons text-base">save</span>Simpan
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{# ===== MODAL: AKSI RENTAL ===== #}
+<div id="modal-rental-admin-aksi"
+     class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50
+            flex items-center justify-center p-4">
+  <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md">
+    <div class="border-b border-slate-200 dark:border-slate-700 px-6 py-4
+                flex items-center justify-between">
+      <h3 id="admin-aksi-title"
+          class="text-base font-semibold text-slate-900 dark:text-slate-100">Aksi Rental</h3>
+      <button onclick="closeModal('modal-rental-admin-aksi')"
+              class="w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700
+                     flex items-center justify-center transition">
+        <span class="material-icons text-slate-500 dark:text-slate-400">close</span>
+      </button>
+    </div>
+    <div id="admin-aksi-body" class="p-6 space-y-4 max-h-[70vh] overflow-y-auto"></div>
+    <div class="border-t border-slate-200 dark:border-slate-700 px-6 py-4 flex justify-end gap-3">
+      <button onclick="closeModal('modal-rental-admin-aksi')"
+              class="rounded-full border border-slate-200 dark:border-slate-600
+                     bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600
+                     text-slate-700 dark:text-slate-300 font-medium text-sm px-5 py-2.5 transition">
+        Batal
+      </button>
+      <button type="button" id="btn-admin-aksi-submit" onclick="submitAdminAksi()"
+              class="inline-flex items-center gap-1.5 rounded-full
+                     bg-primary-500 hover:bg-primary-600 text-white font-semibold text-sm
+                     px-5 py-2.5 shadow-md transition">
+        <span class="material-icons text-base">check</span>
+        <span id="btn-admin-aksi-label">Konfirmasi</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+{# ===== MODAL: RIWAYAT RENTAL PER ALAT ===== #}
+<div id="modal-rental-history"
+     class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50
+            flex items-center justify-center p-4">
+  <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl
+              w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
+    <div class="border-b border-slate-200 dark:border-slate-700 px-6 py-4
+                flex items-center justify-between flex-shrink-0">
+      <h3 id="history-modal-title"
+          class="text-base font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+        <span class="material-icons text-primary-500">history</span>
+        Riwayat Peminjaman
+      </h3>
+      <button onclick="closeModal('modal-rental-history')"
+              class="w-8 h-8 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700
+                     flex items-center justify-center transition">
+        <span class="material-icons text-slate-500 dark:text-slate-400">close</span>
+      </button>
+    </div>
+    <div id="history-modal-body" class="overflow-y-auto flex-1 p-4"></div>
+  </div>
+</div>
+
+
+{# ================================================================ #}
+{# JAVASCRIPT — letakkan di akhir file ini                          #}
+{# ================================================================ #}
+<script>
+/* ══════════════════════════════════════════════════════════════════
+   ALAT TES — Filter
+══════════════════════════════════════════════════════════════════ */
+let _alatFilterSearch   = '';
+let _alatFilterKategori = 'all';
+let _alatFilterStatus   = 'all';
+
+function filterAlatTable(q)    { _alatFilterSearch   = q.toLowerCase(); _applyAlatFilter(); }
+function filterAlatKategori(v) { _alatFilterKategori = v;               _applyAlatFilter(); }
+function filterAlatStatus(v)   { _alatFilterStatus   = v;               _applyAlatFilter(); }
+
+function resetAlatFilter() {
+    _alatFilterSearch = ''; _alatFilterKategori = 'all'; _alatFilterStatus = 'all';
+    document.querySelector('#master-content-alat input[type="text"]').value = '';
+    document.querySelectorAll('#master-content-alat select').forEach(s => s.value = 'all');
+    _applyAlatFilter();
+}
+
+function _applyAlatFilter() {
+    const rows = document.querySelectorAll('#alat-tbody tr[data-alat-name]');
+    let visible = 0;
+    rows.forEach(row => {
+        const ok = (!_alatFilterSearch   || row.dataset.alatName.includes(_alatFilterSearch))
+                && (_alatFilterKategori === 'all' || row.dataset.alatKategori === _alatFilterKategori)
+                && (_alatFilterStatus   === 'all' || row.dataset.alatStatus   === _alatFilterStatus);
+        row.classList.toggle('hidden', !ok);
+        if (ok) visible++;
+    });
+    if (rows.length > 0)
+        document.getElementById('alat-filter-empty').classList.toggle('hidden', visible > 0);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   JENIS TRANSAKSI DEFAULT — khusus untuk modal alat admin
+   FIX: fungsi & selector terpisah dari form rental user
+        menggunakan class "alat-type-btn" dan id "alat-transaction-type"
+══════════════════════════════════════════════════════════════════ */
+function setAlatTransactionType(type) {
+    // Simpan ke hidden input field alat
+    document.getElementById('alat-transaction-type').value = type;
+
+    const colorMap = {
+        pinjam: ['border-primary-400', 'bg-primary-50', 'dark:bg-primary-900/20', 'dark:border-primary-500'],
+        sewa:   ['border-amber-400',   'bg-amber-50',   'dark:bg-amber-900/20',   'dark:border-amber-500'],
+        beli:   ['border-violet-400',  'bg-violet-50',  'dark:bg-violet-900/20',  'dark:border-violet-500'],
+    };
+    const inactiveClasses  = ['border-slate-200', 'dark:border-slate-600', 'bg-white', 'dark:bg-slate-800'];
+    const allActiveClasses = Object.values(colorMap).flat();
+
+    // Hanya target tombol di dalam modal alat (class "alat-type-btn")
+    document.querySelectorAll('#modal-alat-form .alat-type-btn').forEach(btn => {
+        const isActive = btn.dataset.type === type;
+        allActiveClasses.forEach(c => btn.classList.remove(c));
+        inactiveClasses.forEach(c  => btn.classList.remove(c));
+        if (isActive) {
+            colorMap[type].forEach(c => btn.classList.add(c));
+        } else {
+            inactiveClasses.forEach(c => btn.classList.add(c));
+        }
+    });
+}
+
+/* ── Create / Edit Alat ─────────────────────────────────────────── */
+function openAlatModal(mode, id = null) {
+    const isCreate = mode === 'create';
+    document.getElementById('alat-modal-title').innerHTML =
+        `<span class="material-icons text-primary-600 dark:text-primary-400">science</span>
+         ${isCreate ? 'Tambah Alat Tes Baru' : 'Edit Alat Tes'}`;
+    document.getElementById('alat-submit-label').textContent = isCreate ? 'Simpan Alat' : 'Update Alat';
+    document.getElementById('alat-pk').value = id || '';
+    document.getElementById('alat-form-error').classList.add('hidden');
+    document.getElementById('alat-form-error-text').textContent = '';
+
+    const stockWrap  = document.getElementById('alat-stock-wrap');
+    const stockInput = document.getElementById('alat-stock');
+    const stockHint  = document.getElementById('alat-stock-hint');
+
+    if (isCreate) {
+        stockWrap.classList.remove('opacity-50');
+        stockInput.required = true;
+        stockHint.classList.remove('hidden');
+        ['alat-code','alat-name','alat-description','alat-price','alat-stock']
+            .forEach(elId => document.getElementById(elId).value = '');
+        document.getElementById('alat-kategori').value = '';
+        document.getElementById('alat-unit').value     = 'lembar';
+        document.getElementById('alat-active').checked = true;
+        // Default transaction type = pinjam saat create baru
+        setAlatTransactionType('pinjam');
+        openModal('modal-alat-form');
+    } else {
+        stockWrap.classList.add('opacity-50');
+        stockInput.required = false;
+        stockHint.textContent = 'Stok hanya bisa diubah via tombol Adjust di tabel.';
+        fetch(`/api/tools/admin/alat/${id}/json/`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('alat-code').value        = data.code;
+            document.getElementById('alat-name').value        = data.name;
+            document.getElementById('alat-description').value = data.description;
+            document.getElementById('alat-kategori').value    = data.kategori;
+            document.getElementById('alat-unit').value        = data.unit;
+            document.getElementById('alat-price').value       = data.price_per_unit;
+            document.getElementById('alat-stock').value       = data.stock;
+            document.getElementById('alat-active').checked    = data.is_active;
+            // ✅ FIX: load transaction_type dari data server saat edit
+            setAlatTransactionType(data.transaction_type || 'pinjam');
+            openModal('modal-alat-form');
+        })
+        .catch(() => showToast('Gagal memuat data alat.', 'error'));
+    }
+}
+
+function submitAlatForm() {
+    const pk    = document.getElementById('alat-pk').value;
+    const isNew = !pk;
+    const url   = isNew
+        ? "{% url 'tool-create' %}"
+        : `/api/tools/admin/alat/${pk}/edit/`;
+
+    const payload = {
+        code:             document.getElementById('alat-code').value.toUpperCase().trim(),
+        name:             document.getElementById('alat-name').value.trim(),
+        description:      document.getElementById('alat-description').value.trim(),
+        kategori:         document.getElementById('alat-kategori').value,
+        unit:             document.getElementById('alat-unit').value,
+        price_per_unit:   parseInt(document.getElementById('alat-price').value) || 0,
+        is_active:        document.getElementById('alat-active').checked,
+        // ✅ FIX: transaction_type sekarang ikut terkirim ke server
+        transaction_type: document.getElementById('alat-transaction-type').value,
+    };
+    if (isNew) payload.stock = parseInt(document.getElementById('alat-stock').value) || 0;
+
+    if (!payload.code || !payload.name || !payload.kategori) {
+        _setAlatFormError('Kode, Nama, dan Kategori wajib diisi.');
+        return;
+    }
+    if (!payload.transaction_type) {
+        _setAlatFormError('Jenis transaksi wajib dipilih.');
+        return;
+    }
+
+    const lbl  = document.getElementById('alat-submit-label');
+    const prev = lbl.textContent;
+    lbl.textContent = 'Menyimpan...';
+
+    fetch(url, {
+        method:  'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+    })
+    .then(r => r.json())
+    .then(res => {
+        if (res.status === 'ok') {
+            closeModal('modal-alat-form');
+            showToast(isNew ? 'Alat tes berhasil ditambahkan.' : 'Alat tes berhasil diperbarui.', 'success');
+            setTimeout(() => window.location.reload(), 1200);
+        } else {
+            const errs = Object.entries(res.errors || {})
+                .map(([k, v]) => `${k}: ${Array.isArray(v) ? v[0] : v}`).join(' | ');
+            _setAlatFormError(errs || 'Validasi gagal.');
+            lbl.textContent = prev;
+        }
+    })
+    .catch(() => { showToast('Kesalahan jaringan.', 'error'); lbl.textContent = prev; });
+}
+
+function _setAlatFormError(msg) {
+    document.getElementById('alat-form-error-text').textContent = msg;
+    document.getElementById('alat-form-error').classList.remove('hidden');
+}
+
+/* ── Toggle Status ───────────────────────────────────────────────── */
+function toggleStatusAlat(id, isActive) {
+    if (!confirm(isActive ? 'Nonaktifkan alat tes ini?' : 'Aktifkan alat tes ini?')) return;
+    fetch(`/api/tools/admin/alat/${id}/toggle/`, {
+        method:  'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+    })
+    .then(r => r.json())
+    .then(res => {
+        if (res.status === 'ok') {
+            showToast(res.is_active ? 'Alat tes diaktifkan.' : 'Alat tes dinonaktifkan.', 'success');
+            setTimeout(() => window.location.reload(), 1000);
+        }
+    })
+    .catch(() => showToast('Gagal mengubah status.', 'error'));
+}
+
+/* ── Adjust Stock ────────────────────────────────────────────────── */
+let _adjustCurrentStock = 0;
+
+function openAdjustStockModal(id, name, currentStock, unit) {
+    _adjustCurrentStock = currentStock;
+    document.getElementById('adjust-tool-pk').value             = id;
+    document.getElementById('adjust-tool-unit').value           = unit;
+    document.getElementById('adjust-tool-name').textContent     = name;
+    document.getElementById('adjust-current-stock').textContent = `${currentStock} ${unit}`;
+    document.getElementById('adjust-value').value               = 0;
+    document.getElementById('adjust-new-stock').textContent     = currentStock;
+    document.getElementById('adjust-unit-label').textContent    = unit;
+    document.getElementById('adjust-error').classList.add('hidden');
+    openModal('modal-adjust-stock');
+}
+
+function adjustStockStep(delta) {
+    const input = document.getElementById('adjust-value');
+    input.value = (parseInt(input.value) || 0) + delta;
+    updateAdjustPreview();
+}
+
+function updateAdjustPreview() {
+    const adj      = parseInt(document.getElementById('adjust-value').value) || 0;
+    const newStock = _adjustCurrentStock + adj;
+    document.getElementById('adjust-new-stock').textContent = newStock;
+    const errEl = document.getElementById('adjust-error');
+    if (newStock < 0) {
+        document.getElementById('adjust-error-text').textContent =
+            `Stok tidak boleh negatif. Minimum: -${_adjustCurrentStock}`;
+        errEl.classList.remove('hidden');
+    } else {
+        errEl.classList.add('hidden');
+    }
+}
+
+function submitAdjustStock() {
+    const id  = document.getElementById('adjust-tool-pk').value;
+    const adj = parseInt(document.getElementById('adjust-value').value) || 0;
+    if (_adjustCurrentStock + adj < 0) {
+        document.getElementById('adjust-error-text').textContent = 'Stok tidak boleh negatif.';
+        document.getElementById('adjust-error').classList.remove('hidden');
+        return;
+    }
+    if (adj === 0) { closeModal('modal-adjust-stock'); return; }
+
+    fetch(`/api/tools/admin/alat/${id}/adjust-stock/`, {
+        method:  'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ adjustment: adj }),
+    })
+    .then(r => r.json())
+    .then(res => {
+        if (res.status === 'ok') {
+            closeModal('modal-adjust-stock');
+            showToast(`Stok diperbarui: ${res.new_stock} ${document.getElementById('adjust-tool-unit').value}.`, 'success');
+            setTimeout(() => window.location.reload(), 1200);
+        } else {
+            document.getElementById('adjust-error-text').textContent = res.error || 'Gagal menyimpan.';
+            document.getElementById('adjust-error').classList.remove('hidden');
+        }
+    })
+    .catch(() => showToast('Kesalahan jaringan.', 'error'));
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   MANAJEMEN RENTAL — Admin
+══════════════════════════════════════════════════════════════════ */
+let _adminRentalsData   = [];
+let _currentAdminRental = null;
+let _currentAdminAksi   = null;
+
+const ADMIN_STATUS_BADGE = {
+    pending:   'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300',
+    approved:  'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400',
+    borrowed:  'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400',
+    returning: 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400',
+    overdue:   'bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-400',
+    returned:  'bg-sky-100 dark:bg-sky-900/50 text-sky-700 dark:text-sky-400',
+    declined:  'bg-rose-100 dark:bg-rose-900/50 text-rose-500 dark:text-rose-400',
+    cancelled: 'bg-slate-100 dark:bg-slate-700 text-slate-400',
+};
+const ADMIN_STATUS_LABEL = {
+    pending: 'Pending', approved: 'Disetujui', borrowed: 'Dipinjam',
+    returning: 'Ajukan Kembali', overdue: 'Terlambat',
+    returned: 'Selesai', declined: 'Ditolak', cancelled: 'Dibatalkan',
+};
+const TYPE_BADGE_ADMIN = {
+    pinjam: 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400',
+    sewa:   'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400',
+    beli:   'bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-400',
+};
+const TYPE_LABEL = { pinjam: 'Pinjam', sewa: 'Sewa', beli: 'Beli' };
+
+async function loadAdminRentals() {
+    const tbody = document.getElementById('admin-rental-tbody');
+    tbody.innerHTML = `<tr><td colspan="8" class="text-center py-10 text-slate-400">
+        <span class="material-icons animate-spin block text-3xl mb-2 text-slate-300">autorenew</span>
+        <p class="text-sm">Memuat data...</p></td></tr>`;
+    try {
+        const res  = await fetch('/api/tools/rentals/admin/all/', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const data = await res.json();
+        _adminRentalsData = data.results || [];
+        _renderAdminRentalSummary();
+        filterAdminRentals();
+    } catch {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-10 text-rose-400 text-sm">
+            Gagal memuat data rental.</td></tr>`;
+    }
+}
+
+function _renderAdminRentalSummary() {
+    const counts = {};
+    _adminRentalsData.forEach(r => { counts[r.status] = (counts[r.status] || 0) + 1; });
+    const badges = document.getElementById('rental-summary-badges');
+    const order  = ['pending', 'returning', 'overdue', 'borrowed', 'approved'];
+    const colors = {
+        pending:   'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300',
+        returning: 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400',
+        overdue:   'bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-400',
+        borrowed:  'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400',
+        approved:  'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400',
+    };
+    badges.innerHTML = order.filter(s => counts[s]).map(s => `
+        <button onclick="document.getElementById('rental-filter-status').value='${s}'; filterAdminRentals();"
+                class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold
+                       ${colors[s]} transition hover:opacity-80">
+          ${ADMIN_STATUS_LABEL[s]}
+          <span class="rounded-full bg-white/50 dark:bg-black/20 px-1.5 py-0.5 font-bold">${counts[s]}</span>
+        </button>`).join('');
+}
+
+function filterAdminRentals() {
+    const searchV = (document.getElementById('rental-search')?.value || '').toLowerCase();
+    const statusV = document.getElementById('rental-filter-status')?.value || 'all';
+    const typeV   = document.getElementById('rental-filter-type')?.value   || 'all';
+    let data = _adminRentalsData;
+    if (statusV !== 'all') data = data.filter(r => r.status === statusV);
+    if (typeV   !== 'all') data = data.filter(r => r.transaction_type === typeV);
+    if (searchV) data = data.filter(r =>
+        (r.user_name || '').toLowerCase().includes(searchV) ||
+        (r.tool_name || '').toLowerCase().includes(searchV)
+    );
+    _renderAdminRentalTable(data);
+}
+
+function _renderAdminRentalTable(data) {
+    const tbody   = document.getElementById('admin-rental-tbody');
+    const emptyEl = document.getElementById('rental-filter-empty');
+    if (!data.length) {
+        tbody.innerHTML = `<tr><td colspan="8" class="py-1"></td></tr>`;
+        emptyEl.classList.remove('hidden');
+        return;
+    }
+    emptyEl.classList.add('hidden');
+    tbody.innerHTML = data.map(r => {
+        const tType  = r.transaction_type || 'pinjam';
+        const tLabel = TYPE_LABEL[tType] || tType;
+        let aksi = '';
+        if (r.status === 'pending') {
+            aksi = `
+              <button onclick="openAdminAksiModal(${r.id},'approve')"
+                      class="inline-flex items-center gap-0.5 rounded-lg bg-emerald-500 hover:bg-emerald-600
+                             text-white text-xs font-medium px-2.5 py-1.5 transition">
+                <span class="material-icons text-sm">check</span>Setujui
+              </button>
+              <button onclick="openAdminAksiModal(${r.id},'decline')"
+                      class="inline-flex items-center gap-0.5 rounded-lg border border-rose-200
+                             dark:border-rose-800 bg-rose-50 dark:bg-rose-900/20
+                             hover:bg-rose-100 dark:hover:bg-rose-900/40
+                             text-rose-600 dark:text-rose-400 text-xs font-medium px-2.5 py-1.5 transition">
+                <span class="material-icons text-sm">close</span>Tolak
+              </button>`;
+        } else if (r.status === 'returning' || r.status === 'borrowed') {
+            aksi = `
+              <button onclick="openAdminAksiModal(${r.id},'return')"
+                      class="inline-flex items-center gap-0.5 rounded-lg bg-sky-500 hover:bg-sky-600
+                             text-white text-xs font-medium px-2.5 py-1.5 transition">
+                <span class="material-icons text-sm">assignment_return</span>Terima Kembali
+              </button>`;
+        } else if (r.status === 'overdue') {
+            aksi = `
+              <button onclick="openAdminAksiModal(${r.id},'return')"
+                      class="inline-flex items-center gap-0.5 rounded-lg bg-rose-500 hover:bg-rose-600
+                             text-white text-xs font-medium px-2.5 py-1.5 transition">
+                <span class="material-icons text-sm">assignment_return</span>Terima + Denda
+              </button>`;
+        } else if (r.status === 'approved' && tType === 'sewa') {
+            aksi = `
+              <button onclick="openAdminAksiModal(${r.id},'mark_borrowed')"
+                      class="inline-flex items-center gap-0.5 rounded-lg bg-blue-500 hover:bg-blue-600
+                             text-white text-xs font-medium px-2.5 py-1.5 transition">
+                <span class="material-icons text-sm">outbox</span>Keluarkan
+              </button>`;
+        } else {
+            aksi = `<span class="text-xs text-slate-400">—</span>`;
+        }
+        return `
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
+            <td class="px-4 py-3">
+              <p class="text-sm font-medium text-slate-900 dark:text-slate-100">${r.user_name || '-'}</p>
+              <p class="text-xs text-slate-400">${r.institution_display || ''}</p>
+            </td>
+            <td class="px-4 py-3">
+              <p class="text-sm font-medium text-slate-800 dark:text-slate-200">${r.tool_name || '-'}</p>
+              <p class="text-xs text-slate-400">${r.tool_code || ''}</p>
+            </td>
+            <td class="px-4 py-3 text-center">
+              <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+                           ${TYPE_BADGE_ADMIN[tType] || ''}">
+                ${tLabel}
+              </span>
+            </td>
+            <td class="px-4 py-3 text-center text-sm text-slate-600 dark:text-slate-400">
+              ${r.quantity} ${r.unit || ''}
+            </td>
+            <td class="px-4 py-3 text-center">
+              <p class="text-xs text-slate-600 dark:text-slate-400">${r.date_start || '-'}</p>
+              <p class="text-xs text-slate-400">s/d ${r.date_end || '-'}</p>
+            </td>
+            <td class="px-4 py-3 text-right">
+              <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                Rp ${Number(r.total_cost || 0).toLocaleString('id-ID')}
+              </p>
+              ${r.fine_amount > 0
+                ? `<p class="text-xs text-rose-500">Denda: Rp ${Number(r.fine_amount).toLocaleString('id-ID')}</p>`
+                : ''}
+            </td>
+            <td class="px-4 py-3 text-center">
+              <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+                           ${ADMIN_STATUS_BADGE[r.status] || ''}">
+                ${ADMIN_STATUS_LABEL[r.status] || r.status}
+              </span>
+            </td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-1.5 flex-wrap">${aksi}</div>
+            </td>
+          </tr>`;
+    }).join('');
+}
+
+/* ── Admin Aksi Modal ────────────────────────────────────────────── */
+function openAdminAksiModal(rentalId, aksi) {
+    _currentAdminRental = rentalId;
+    _currentAdminAksi   = aksi;
+    const r = _adminRentalsData.find(x => x.id === rentalId);
+    if (!r) return;
+
+    const titleMap    = { approve: 'Setujui Permohonan', decline: 'Tolak Permohonan',
+                          return: 'Konfirmasi Pengembalian', mark_borrowed: 'Tandai Sudah Diambil' };
+    const btnLabelMap = { approve: 'Setujui', decline: 'Tolak',
+                          return: 'Konfirmasi Kembali', mark_borrowed: 'Konfirmasi' };
+    const btnClsMap   = { approve: 'bg-emerald-500 hover:bg-emerald-600',
+                          decline: 'bg-rose-500 hover:bg-rose-600',
+                          return:  'bg-sky-500 hover:bg-sky-600',
+                          mark_borrowed: 'bg-blue-500 hover:bg-blue-600' };
+
+    document.getElementById('admin-aksi-title').textContent     = titleMap[aksi] || 'Aksi';
+    document.getElementById('btn-admin-aksi-label').textContent = btnLabelMap[aksi] || 'OK';
+    const btn = document.getElementById('btn-admin-aksi-submit');
+    btn.className = `inline-flex items-center gap-1.5 rounded-full ${btnClsMap[aksi]}
+                     text-white font-semibold text-sm px-5 py-2.5 shadow-md transition`;
+
+    const tType = r.transaction_type || 'pinjam';
+    const infoHtml = `
+      <div class="rounded-xl bg-slate-50 dark:bg-slate-900
+                  border border-slate-200 dark:border-slate-700 p-4 space-y-2 text-sm">
+        <div class="flex justify-between">
+          <span class="text-slate-500">Peminjam:</span>
+          <strong class="text-slate-900 dark:text-slate-100">${r.user_name}</strong>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-500">Alat:</span>
+          <strong class="text-slate-900 dark:text-slate-100">${r.tool_name}</strong>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-500">Jenis:</span>
+          <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium
+                       ${TYPE_BADGE_ADMIN[tType] || ''}">
+            ${TYPE_LABEL[tType] || tType}
+          </span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-500">Qty:</span>
+          <strong class="text-slate-900 dark:text-slate-100">${r.quantity} ${r.unit || ''}</strong>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-500">Periode:</span>
+          <strong class="text-slate-900 dark:text-slate-100">${r.date_start} – ${r.date_end}</strong>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-500">Total:</span>
+          <strong class="text-primary-600 dark:text-primary-400">
+            Rp ${Number(r.total_cost || 0).toLocaleString('id-ID')}
+          </strong>
+        </div>
+      </div>`;
+
+    let extraHtml = '';
+    if (aksi === 'decline') {
+        extraHtml = `
+          <div class="space-y-1.5">
+            <label class="text-xs font-medium text-slate-600 dark:text-slate-400">
+              Alasan Penolakan
+            </label>
+            <textarea id="admin-decline-notes" rows="3" placeholder="Tulis alasan penolakan..."
+                      class="w-full rounded-xl border border-slate-200 dark:border-slate-600
+                             bg-white dark:bg-slate-900 px-3 py-2 text-sm
+                             text-slate-900 dark:text-slate-200
+                             focus:border-rose-400 focus:ring-2 focus:ring-rose-100
+                             dark:focus:ring-rose-900/50 resize-none transition"></textarea>
+          </div>`;
+    } else if (aksi === 'return') {
+        const isOverdue = r.status === 'overdue' || r.fine_amount > 0;
+        extraHtml = `
+          ${isOverdue ? `
+          <div class="rounded-xl bg-rose-50 dark:bg-rose-900/20
+                      border border-rose-200 dark:border-rose-800 px-4 py-3 text-sm">
+            <p class="font-semibold text-rose-700 dark:text-rose-400 mb-1">⚠ Terlambat</p>
+            <p class="text-slate-600 dark:text-slate-400">
+              Denda: <strong class="text-rose-600">
+                Rp ${Number(r.fine_amount).toLocaleString('id-ID')}
+              </strong>
+            </p>
+          </div>` : ''}
+          <div class="space-y-2">
+            <p class="text-xs font-semibold text-slate-600 dark:text-slate-400">
+              Konfirmasi Kondisi Fisik
+            </p>
+            <label class="flex items-center gap-2 cursor-pointer select-none">
+              <input type="checkbox" id="admin-confirm-lengkap"
+                     class="w-4 h-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"/>
+              <span class="text-sm text-slate-700 dark:text-slate-300">Semua komponen lengkap</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer select-none">
+              <input type="checkbox" id="admin-confirm-baik"
+                     class="w-4 h-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"/>
+              <span class="text-sm text-slate-700 dark:text-slate-300">Alat dalam kondisi baik</span>
+            </label>
+          </div>`;
+    }
+
+    document.getElementById('admin-aksi-body').innerHTML = infoHtml + extraHtml;
+    openModal('modal-rental-admin-aksi');
+}
+
+async function submitAdminAksi() {
+    if (!_currentAdminRental || !_currentAdminAksi) return;
+    const csrf   = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const urlMap = {
+        approve:       `/api/tools/rentals/${_currentAdminRental}/approve/`,
+        decline:       `/api/tools/rentals/${_currentAdminRental}/decline/`,
+        return:        `/api/tools/rentals/${_currentAdminRental}/return/`,
+        mark_borrowed: `/api/tools/rentals/${_currentAdminRental}/mark-borrowed/`,
+    };
+    if (_currentAdminAksi === 'return') {
+        if (!document.getElementById('admin-confirm-lengkap')?.checked ||
+            !document.getElementById('admin-confirm-baik')?.checked) {
+            showToast('Centang semua konfirmasi kondisi alat terlebih dahulu.', 'error');
+            return;
+        }
+    }
+    const body = {};
+    if (_currentAdminAksi === 'decline') {
+        body.notes = document.getElementById('admin-decline-notes')?.value || '';
+    }
+    const btn  = document.getElementById('btn-admin-aksi-submit');
+    const orig = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-icons text-base animate-spin">autorenew</span>';
+    try {
+        const res  = await fetch(urlMap[_currentAdminAksi], {
+            method:  'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrf,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (res.ok && data.status === 'ok') {
+            closeModal('modal-rental-admin-aksi');
+            const msgMap = {
+                approve:       'Permohonan berhasil disetujui.',
+                decline:       'Permohonan berhasil ditolak.',
+                return:        'Pengembalian dikonfirmasi. Stok dipulihkan.',
+                mark_borrowed: 'Status diperbarui: Dipinjam.',
+            };
+            showToast(msgMap[_currentAdminAksi], 'success');
+            loadAdminRentals();
+        } else {
+            showToast(data.error || 'Aksi gagal.', 'error');
+        }
+    } catch {
+        showToast('Kesalahan jaringan.', 'error');
+    } finally {
+        btn.disabled  = false;
+        btn.innerHTML = orig;
+    }
+}
+
+/* ── Riwayat Rental per Alat ─────────────────────────────────────── */
+async function openRentalHistoryModal(toolId, toolName) {
+    document.getElementById('history-modal-title').innerHTML =
+        `<span class="material-icons text-primary-500">history</span> Riwayat: ${toolName}`;
+    document.getElementById('history-modal-body').innerHTML =
+        `<div class="flex items-center justify-center py-12 text-slate-400">
+          <span class="material-icons animate-spin mr-2">autorenew</span>
+          <span class="text-sm">Memuat riwayat...</span>
+        </div>`;
+    openModal('modal-rental-history');
+    try {
+        const res  = await fetch(`/api/tools/rentals/admin/all/?tool=${toolId}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const data = await res.json();
+        const list = data.results || [];
+        if (!list.length) {
+            document.getElementById('history-modal-body').innerHTML =
+                `<p class="text-sm text-center text-slate-400 py-12">
+                   Belum ada riwayat untuk alat ini.
+                 </p>`;
+            return;
+        }
+        document.getElementById('history-modal-body').innerHTML = `
+          <div class="space-y-2">
+            ${list.map(r => {
+                const tType  = r.transaction_type || 'pinjam';
+                const tLabel = TYPE_LABEL[tType] || tType;
+                return `
+                <div class="rounded-xl border border-slate-200 dark:border-slate-700 p-3
+                            flex flex-col sm:flex-row sm:items-center gap-3">
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-slate-900 dark:text-slate-100">
+                      ${r.user_name || '-'}
+                    </p>
+                    <p class="text-xs text-slate-400">
+                      ${r.date_start} – ${r.date_end} · ${r.quantity} unit
+                    </p>
+                  </div>
+                  <div class="flex items-center gap-2 flex-shrink-0">
+                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5
+                                 text-xs font-medium ${TYPE_BADGE_ADMIN[tType] || ''}">
+                      ${tLabel}
+                    </span>
+                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5
+                                 text-xs font-medium ${ADMIN_STATUS_BADGE[r.status] || ''}">
+                      ${ADMIN_STATUS_LABEL[r.status] || r.status}
+                    </span>
+                  </div>
+                </div>`;
+            }).join('')}
+          </div>`;
+    } catch {
+        document.getElementById('history-modal-body').innerHTML =
+            `<p class="text-sm text-center text-rose-400 py-12">Gagal memuat riwayat.</p>`;
+    }
+}
+
+/* ── Auto-load saat tab rental aktif ─────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => {
+    const _orig = window.switchMasterContent;
+    window.switchMasterContent = function(name) {
+        if (typeof _orig === 'function') _orig(name);
+        if (name === 'rental') loadAdminRentals();
+    };
+});
+
+/* ── Global exports ─────────────────────────────────────────────── */
+window.openAlatModal              = openAlatModal;
+window.submitAlatForm             = submitAlatForm;
+window.toggleStatusAlat           = toggleStatusAlat;
+window.openAdjustStockModal       = openAdjustStockModal;
+window.adjustStockStep            = adjustStockStep;
+window.updateAdjustPreview        = updateAdjustPreview;
+window.submitAdjustStock          = submitAdjustStock;
+window.filterAlatTable            = filterAlatTable;
+window.filterAlatKategori         = filterAlatKategori;
+window.filterAlatStatus           = filterAlatStatus;
+window.resetAlatFilter            = resetAlatFilter;
+window.setAlatTransactionType     = setAlatTransactionType;
+window.openRentalHistoryModal     = openRentalHistoryModal;
+window.loadAdminRentals           = loadAdminRentals;
+window.filterAdminRentals         = filterAdminRentals;
+window.openAdminAksiModal         = openAdminAksiModal;
+window.submitAdminAksi            = submitAdminAksi;
+</script>
