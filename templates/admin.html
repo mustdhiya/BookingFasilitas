@@ -156,7 +156,7 @@
 
 
     {# Praktikum Module Card #}
-    <div class="group cursor-pointer" onclick="switchAdminModule('praktikum')">
+    <div class="group cursor-pointer" onclick="switchAdminModule('dosen')">
       <div id="admin-card-praktikum" class="module-selector-card rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 transition">
         <div class="flex items-start gap-4">
           <div class="w-12 h-12 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center group-hover:bg-emerald-200 dark:group-hover:bg-emerald-900/60 transition flex-shrink-0">
@@ -362,7 +362,7 @@
   function viewPeserta(id) { 
     alert(`Viewing participants for praktikum #${id}`);
     // Navigate to section
-    switchAdminModule('praktikum');
+    switchAdminModule('dosen');
     switchPraktikumTab('peserta');
   }
   
