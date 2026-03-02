@@ -16,7 +16,19 @@ class User(AbstractUser):
         ('umkt', 'UMKT'),
         ('non_umkt', 'Non-UMKT / Umum'),
     )
-
+    # ── Rejection tracking ─────────────────────────────
+    rejection_reason = models.TextField(
+        blank=True, null=True,
+        verbose_name='Alasan Penolakan'
+    )
+    rejected_at = models.DateTimeField(blank=True, null=True)
+    rejected_by = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='rejected_users',
+        verbose_name='Ditolak oleh'
+    )
     email = models.EmailField(_('email address'), unique=True)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='mahasiswa')
     user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES, default='umkt')

@@ -35,4 +35,6 @@ urlpatterns = [
     path('jadwal/create/',               views.JadwalCreateView.as_view(),          name='jadwal-create'),
     path('jadwal/<int:pk>/update/',      views.JadwalUpdateView.as_view(),          name='jadwal-update'),
     path('jadwal/<int:pk>/delete/',      views.JadwalDeleteView.as_view(),          name='jadwal-delete'),
+
+    path('titles/slots/', views.TitleSlotsView.as_view(), name='title-slots'),
 ]

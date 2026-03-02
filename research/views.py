@@ -170,30 +170,59 @@ class JadwalDeleteView(AdminRequiredMixin, View):
         jadwal.delete()
         return JsonResponse({'ok': True, 'msg': f'Jadwal {name} berhasil dihapus.'})
 
+from django.db import transaction
+
 class ResearchRequestCreateView(LoginRequiredMixin, CreateView):
     model = ResearchRequest
     fields = ['lecturer', 'research_title', 'request_type', 'thesis_title', 'proposal']
     login_url = '/login/'
 
+    def is_ajax(self):
+        return (
+            self.request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+            or 'multipart' in self.request.content_type
+            or self.request.content_type == 'application/json'
+        )
+
+    @transaction.atomic
+    def post(self, request, *args, **kwargs):
+        # Ambil research_title_id dari POST
+        title_id = request.POST.get('research_title')
+        if title_id:
+            try:
+                title = ResearchTitle.objects.select_for_update().get(pk=title_id)
+                if title.is_full:
+                    if self.is_ajax():
+                        return JsonResponse(
+                            {'errors': {'research_title': ['Kuota judul payung ini sudah penuh.']}},
+                            status=400
+                        )
+                    messages.error(request, 'Kuota judul payung sudah penuh.')
+                    return redirect('/penelitian/')
+            except ResearchTitle.DoesNotExist:
+                if self.is_ajax():
+                    return JsonResponse(
+                        {'errors': {'research_title': ['Judul payung tidak ditemukan.']}},
+                        status=400
+                    )
+
+        return super().post(request, *args, **kwargs)
+
     def form_valid(self, form):
-        # Auto-assign student dari user yang login
         form.instance.student = self.request.user
         response = super().form_valid(form)
-
-        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest' \
-           or self.request.content_type == 'application/json' \
-           or 'multipart' in self.request.content_type:
+        if self.is_ajax():
             return JsonResponse({'id': self.object.pk, 'status': 'ok'})
         return response
 
     def form_invalid(self, form):
-        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest' \
-           or 'multipart' in self.request.content_type:
+        if self.is_ajax():
             return JsonResponse({'errors': form.errors}, status=400)
         return super().form_invalid(form)
 
     def get_success_url(self):
         return '/penelitian/#request-saya'
+
 
 
 class ResearchRequestDetailView(DetailView):
@@ -575,3 +604,17 @@ class JudulMahasiswaView(LoginRequiredMixin, View):
             for r in requests
         ]
         return JsonResponse({'mahasiswa': data})
+
+class TitleSlotsView(View):
+    def get(self, request):
+        titles = ResearchTitle.objects.filter(is_active=True)
+        data = [
+            {
+                'id':         t.pk,
+                'slots_used': t.slots_used,
+                'quota':      t.quota,
+                'is_full':    t.is_full,
+            }
+            for t in titles
+        ]
+        return JsonResponse(data, safe=False)

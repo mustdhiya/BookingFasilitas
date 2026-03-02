@@ -219,16 +219,17 @@
                 <p class="text-xs text-slate-500 dark:text-slate-400">
                   {{ lecturer.active_titles_count }} judul payung aktif
                 </p>
-                <!-- Tombol request individu -->
-                {% if user.is_authenticated %}
-                  {% if not my_active_request %}
-                  <button onclick="openRequestModal(null, null, {{ lecturer.id }}, '{{ lecturer.name|escapejs }}')"
-                          class="btn btn-sm btn-outline mt-1">
-                    <span class="material-icons-outlined mat-xs">person_add</span>
-                    Individu
-                  </button>
+                <div id="cta-individu-{{ lecturer.id }}">   {# ← TAMBAH WRAP #}
+                  {% if user.is_authenticated %}
+                    {% if not my_active_request %}
+                    <button onclick="openRequestModal(null, null, {{ lecturer.id }}, '{{ lecturer.name|escapejs }}')"
+                            class="btn btn-sm btn-outline mt-1">
+                      <span class="material-icons-outlined mat-xs">person_add</span>
+                      Individu
+                    </button>
+                    {% endif %}
                   {% endif %}
-                {% endif %}
+                </div>
               </div>
             </div>
             {% if lecturer.bio %}
@@ -246,6 +247,7 @@
           {% with req_count=title.slots_used %}
           <div class="px-5 py-3 flex items-center justify-between gap-3 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors judul-item"
                data-title="{{ title.title|lower }}"
+               data-title-id="{{ title.id }}"
                data-focus="{{ title.focus }}"
                data-avail="{% if title.is_full %}full{% else %}available{% endif %}">
             <div class="flex-1 min-w-0">
@@ -262,10 +264,12 @@
                 <!-- Quota progress -->
                 <div class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
                   <div class="w-16 h-1.5 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
-                    <div class="h-full rounded-full {% if title.is_full %}bg-red-500{% elif title.is_almost_full %}bg-amber-500{% else %}bg-green-500{% endif %}"
+                    <div class="slot-bar h-full rounded-full h-full rounded-full {% if title.is_full %}bg-red-500{% elif title.is_almost_full %}bg-amber-500{% else %}bg-green-500{% endif %}"
                          style="width: {{ title.fill_percentage }}%"></div>
                   </div>
-                  <span>{{ req_count }}/{{ title.quota }} slot</span>
+                    <span data-slot data-used="{{ req_count }}" data-quota="{{ title.quota }}">
+                      {{ req_count }}/{{ title.quota }} slot
+                    </span>
                 </div>
                 {% if title.description %}
                 <p class="text-xs text-slate-400 dark:text-slate-500 truncate max-w-[200px]">
@@ -275,26 +279,28 @@
               </div>
             </div>
             <!-- CTA judul payung -->
-            {% if user.is_authenticated %}
-              {% if title.id in user_requested_ids %}
-              <span class="status-badge badge-approved flex-shrink-0">✅ Sudah Diajukan</span>
-              {% elif title.is_full %}
-              <span class="status-badge badge-full flex-shrink-0">🔴 Penuh</span>
-              {% elif my_active_request %}
-              <span class="status-badge badge-pending flex-shrink-0 text-[10px]">Ada request aktif</span>
+            <div id="cta-title-{{ title.id }}" class="flex-shrink-0">   {# ← WRAP DENGAN DIV #}
+              {% if user.is_authenticated %}
+                {% if title.id in user_requested_ids %}
+                <span class="status-badge badge-approved">✅ Sudah Diajukan</span>
+                {% elif title.is_full %}
+                <span class="status-badge badge-full">🔴 Penuh</span>
+                {% elif my_active_request %}
+                <span class="status-badge badge-pending text-[10px]">Ada request aktif</span>
+                {% else %}
+                <button onclick="openRequestModal({{ title.id }}, '{{ title.title|escapejs }}', {{ lecturer.id }}, '{{ lecturer.name|escapejs }}')"
+                        class="btn btn-sm btn-warning">
+                  <span class="material-icons-outlined mat-xs">send</span>
+                  Daftar
+                </button>
+                {% endif %}
               {% else %}
-              <button onclick="openRequestModal({{ title.id }}, '{{ title.title|escapejs }}', {{ lecturer.id }}, '{{ lecturer.name|escapejs }}')"
-                      class="btn btn-sm btn-warning flex-shrink-0">
-                <span class="material-icons-outlined mat-xs">send</span>
-                Daftar
-              </button>
+              <a href="/login/?next=/penelitian/" class="btn btn-sm btn-outline no-underline">
+                <span class="material-icons-outlined mat-xs">login</span>Login
+              </a>
               {% endif %}
-            {% else %}
-            <a href="/login/?next=/penelitian/"
-               class="btn btn-sm btn-outline flex-shrink-0 no-underline">
-              <span class="material-icons-outlined mat-xs">login</span>Login
-            </a>
-            {% endif %}
+            </div>
+
           </div>
           {% endwith %}
           {% endif %}
@@ -728,59 +734,184 @@
   function submitRequest() {
     const thesisTitle = document.getElementById('thesis-title').value.trim();
     if (!thesisTitle) {
-      document.getElementById('thesis-title').focus();
-      showToast('error', 'Judul skripsi wajib diisi!');
-      return;
-    }
-    if (!selectedLecturerId) {
-      showToast('error', 'Pilih dosen terlebih dahulu!');
-      return;
+        document.getElementById('thesis-title').focus();
+        showToast('error', 'Judul skripsi wajib diisi!');
+        return;
     }
 
-    const btn      = document.getElementById('submit-request-btn');
+    const btn = document.getElementById('submit-request-btn');
     const fileInput = document.getElementById('proposal-file');
-    btn.disabled   = true;
-    btn.innerHTML  = '<div class="spinner-ring w-4 h-4 border-2"></div> Mengirim...';
+    btn.disabled  = true;
+    btn.innerHTML = '<div class="spinner-ring w-4 h-4 border-2"></div> Mengirim...';
 
     const formData = new FormData();
-    formData.append('lecturer',       selectedLecturerId);
-    formData.append('thesis_title',   thesisTitle);
-    formData.append('request_type',   selectedTitleId ? 'payung' : 'individu');
-    if (selectedTitleId) {
-      formData.append('research_title', selectedTitleId);
-    }
-    if (fileInput.files[0]) {
-      formData.append('proposal', fileInput.files[0]);
-    }
+    formData.append('lecturer',     selectedLecturerId);
+    formData.append('thesis_title', thesisTitle);
+    formData.append('request_type', selectedTitleId ? 'payung' : 'individu');
+    if (selectedTitleId)        formData.append('research_title', selectedTitleId);
+    if (fileInput.files[0])     formData.append('proposal', fileInput.files[0]);
     const note = document.getElementById('request-note').value.trim();
     if (note) formData.append('note', note);
 
     fetch('/api/research/requests/', {
-      method: 'POST',
-      headers: { 'X-CSRFToken': getCookie('csrftoken') },
-      body: formData   // FormData, jangan set Content-Type manual
+        method:  'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') },
+        body:    formData,
     })
     .then(r => r.json())
     .then(data => {
-      if (data.id) {
-        closeRequestModal();
-        showToast('success', 'Request berhasil dikirim! Tunggu persetujuan admin.');
-        setTimeout(() => location.reload(), 1500);
+        if (data.status === 'ok' || data.id) {
+
+          // ← SIMPAN DULU sebelum closeRequestModal reset variabelnya
+          const savedTitleId    = selectedTitleId;
+          const savedTitleName  = document.getElementById('modal-title-name')?.textContent || '';
+
+          closeRequestModal();  // ← ini reset selectedTitleId = null
+          showToast('success', 'Request berhasil dikirim! Tunggu persetujuan admin.');
+
+          // ── 1. Update CTA ──
+          if (savedTitleId) {
+              const ctaBox = document.getElementById('cta-title-' + savedTitleId);
+              if (ctaBox) {
+                  ctaBox.innerHTML = '<span class="status-badge badge-approved">✅ Sudah Diajukan</span>';
+              }
+
+              // Update slot
+              const judulItem = document.querySelector(`.judul-item[data-title-id="${savedTitleId}"]`);
+              if (judulItem) {
+                  const slotSpan = judulItem.querySelector('[data-slot]');
+                  const bar      = judulItem.querySelector('.slot-bar');
+                  if (slotSpan) {
+                      const used  = parseInt(slotSpan.dataset.used)  + 1;
+                      const quota = parseInt(slotSpan.dataset.quota);
+                      slotSpan.textContent       = `${used}/${quota} slot`;
+                      slotSpan.dataset.used      = used;
+                      if (bar) {
+                          bar.style.width = Math.min((used/quota)*100, 100) + '%';
+                          bar.className   = 'slot-bar h-full rounded-full ' + (
+                              used >= quota       ? 'bg-red-500'   :
+                              used >= quota * 0.8 ? 'bg-amber-500' : 'bg-green-500'
+                          );
+                      }
+                      if (used >= quota) judulItem.dataset.avail = 'full';
+                  }
+              }
+          }
+
+          // ── 2. Ganti semua tombol Daftar & Individu ──
+          document.querySelectorAll('[id^="cta-title-"]').forEach(box => {
+              if (box.querySelector('button')) {
+                  box.innerHTML = '<span class="status-badge badge-pending text-[10px]">Ada request aktif</span>';
+              }
+          });
+          document.querySelectorAll('[id^="cta-individu-"]').forEach(box => {
+              box.innerHTML = '<span class="status-badge badge-pending text-[10px]">Ada request aktif</span>';
+          });
+
+          // ── 3. Counter tab ──
+          const tabBadge = document.querySelector('[data-tab="request-saya"] .badge');
+          if (tabBadge) {
+              tabBadge.textContent = parseInt(tabBadge.textContent || '0') + 1;
+          } else {
+              document.querySelector('[data-tab="request-saya"]')
+                  ?.insertAdjacentHTML('beforeend', '<span class="badge badge-primary ml-1">1</span>');
+          }
+
+          // ── 4. Inject card ──
+          injectRequestCard({
+              thesis_title: thesisTitle,
+              request_type: savedTitleId ? 'payung' : 'individu',
+              title_name:   savedTitleName,
+              created_at:   new Date().toLocaleDateString('id-ID', {
+                                day: '2-digit', month: 'short', year: 'numeric'
+                            }),
+          });
       } else {
-        const msg = data.detail
-                 || data.thesis_title?.[0]
-                 || data.non_field_errors?.[0]
-                 || 'Gagal mengirim request';
-        showToast('error', msg);
-        btn.disabled  = false;
-        btn.innerHTML = '<span class="material-icons-outlined mat-xs">send</span> Kirim Request';
-      }
+            const msg = data.errors?.research_title?.[0]
+                    || data.errors?.thesis_title?.[0]
+                    || data.detail
+                    || 'Gagal mengirim request';
+            showToast('error', msg);
+            btn.disabled  = false;
+            btn.innerHTML = '<span class="material-icons-outlined mat-xs">send</span> Kirim Request';
+        }
     })
-    .catch(() => {
-      showToast('error', 'Terjadi kesalahan. Coba lagi.');
-      btn.disabled  = false;
-      btn.innerHTML = '<span class="material-icons-outlined mat-xs">send</span> Kirim Request';
-    });
+  .catch(() => {
+          showToast('error', 'Terjadi kesalahan. Coba lagi.');
+          btn.disabled  = false;
+          btn.innerHTML = '<span class="material-icons-outlined mat-xs">send</span> Kirim Request';
+      });
+  }
+
+  function updateSlotDisplay(titleId) {
+      // Cari elemen slot text di judul payung yg bersangkutan
+      document.querySelectorAll('.judul-item').forEach(item => {
+          const btn = item.querySelector(`button[onclick*="openRequestModal(${titleId},"]`);
+          if (!btn) return;
+          const slotSpan = item.querySelector('.flex.items-center.gap-1\\.5 span:last-child');
+          if (!slotSpan) return;
+          const match = slotSpan.textContent.match(/(\d+)\/(\d+)/);
+          if (!match) return;
+          const used  = parseInt(match[1]) + 1;
+          const quota = parseInt(match[2]);
+          slotSpan.textContent = `${used}/${quota} slot`;
+          // Update progress bar width
+          const bar = item.querySelector('.h-full.rounded-full');
+          if (bar) bar.style.width = Math.min((used / quota) * 100, 100) + '%';
+          // Update data-avail jika penuh
+          if (used >= quota) item.dataset.avail = 'full';
+      });
+  }
+
+  function injectRequestCard(req) {
+      // Hapus empty state jika ada
+      const emptyState = document.querySelector('#tab-request-saya .card.p-16');
+      if (emptyState) emptyState.remove();
+
+      const container = document.querySelector('#tab-request-saya .space-y-4')
+          || (() => {
+              const div = document.createElement('div');
+              div.className = 'space-y-4';
+              document.getElementById('tab-request-saya').prepend(div);
+              return div;
+          })();
+
+      const typeBadge = req.request_type === 'payung'
+          ? `<span class="type-tag-payung"><span class="material-icons-outlined mat-xs">layers</span>Judul Payung</span>`
+          : `<span class="type-tag-individu"><span class="material-icons-outlined mat-xs">person</span>Individu</span>`;
+
+      const titleRow = req.title_name
+          ? `<p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              <span class="material-icons-outlined mat-xs">layers</span>
+              Payung: ${req.title_name}
+            </p>` : '';
+
+      const card = document.createElement('div');
+      card.className = 'card p-5';
+      card.innerHTML = `
+        <div class="flex items-start justify-between gap-3 flex-wrap">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
+              <span class="material-icons-outlined text-amber-600 mat-sm">auto_stories</span>
+            </div>
+            <div>
+              <div class="flex gap-2 mb-1.5">${typeBadge}</div>
+              <p class="font-semibold text-slate-900 dark:text-slate-100 text-sm">${req.thesis_title}</p>
+              ${titleRow}
+              <p class="text-xs text-slate-400 italic mt-0.5 flex items-center gap-1">
+                <span class="material-icons-outlined mat-xs">visibility_off</span>
+                Dosen: dirahasiakan hingga disetujui
+              </p>
+              <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                <span class="material-icons-outlined mat-xs">calendar_today</span>
+                Diajukan ${req.created_at}
+              </p>
+            </div>
+          </div>
+          <span class="status-badge badge-pending flex-shrink-0">⏳ Menunggu</span>
+        </div>`;
+
+      container.prepend(card);
   }
 
   // Close modal on backdrop
@@ -809,5 +940,56 @@
     container.appendChild(t);
     setTimeout(() => t.remove(), 4000);
   }
+  // ══════════════════════════════════════════
+  // POLLING — update slot dari user lain
+  // ══════════════════════════════════════════
+  function pollSlotUpdates() {
+      fetch('/api/research/titles/slots/', {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      })
+      .then(r => r.json())
+      .then(titles => {
+          titles.forEach(t => {
+              const judulItem = document.querySelector(`.judul-item[data-title-id="${t.id}"]`);
+              if (!judulItem) return;
+
+              // Update slot text
+              const slotSpan = judulItem.querySelector('[data-slot]');
+              if (slotSpan) {
+                  const currentUsed = parseInt(slotSpan.dataset.used);
+                  if (currentUsed !== t.slots_used) {          // hanya update jika berubah
+                      slotSpan.textContent  = `${t.slots_used}/${t.quota} slot`;
+                      slotSpan.dataset.used = t.slots_used;
+                  }
+              }
+
+              // Update progress bar
+              const bar = judulItem.querySelector('.slot-bar');
+              if (bar) {
+                  const pct = Math.min((t.slots_used / t.quota) * 100, 100);
+                  bar.style.width = pct + '%';
+                  bar.className   = 'slot-bar h-full rounded-full ' + (
+                      t.is_full                           ? 'bg-red-500'   :
+                      t.slots_used >= t.quota * 0.8       ? 'bg-amber-500' : 'bg-green-500'
+                  );
+              }
+
+              // Jika penuh — ganti tombol Daftar → badge Penuh
+              if (t.is_full) {
+                  judulItem.dataset.avail = 'full';
+                  const ctaBox = document.getElementById('cta-title-' + t.id);
+                  if (ctaBox && ctaBox.querySelector('button')) {
+                      ctaBox.innerHTML = '<span class="status-badge badge-full flex-shrink-0">🔴 Penuh</span>';
+                  }
+              }
+          });
+      })
+      .catch(() => {}); // silent fail — tidak ganggu UX
+  }
+
+  // Jalankan polling setiap 10 detik
+  setInterval(pollSlotUpdates, 3000);
+
+
 </script>
 {% endblock %}

@@ -23,7 +23,6 @@ class RegisterSerializer(serializers.ModelSerializer):
     instansi = serializers.CharField(required=False, allow_blank=True, allow_null=True, default=None)
     phone    = serializers.CharField(required=False, allow_blank=True, allow_null=True, default=None)
 
-    # ✅ Kunci fix — angkatan tidak required dan boleh null
     angkatan = serializers.IntegerField(required=False, allow_null=True, default=None)
 
     class Meta:

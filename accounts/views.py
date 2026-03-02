@@ -536,8 +536,10 @@ class AdminAkunView(AdminOnlyMixin, View):
         elif status_filter == 'active':
             qs = qs.filter(is_active=True, is_verified=True)
         elif status_filter == 'rejected':
-            qs = qs.filter(is_active=False, is_verified=True)
-        # 'all' → tidak filter tambahan → tampilkan semua
+            qs = qs.filter(is_active=False, is_verified=True, rejection_reason__isnull=False)
+
+        elif status_filter == 'inactive':
+            qs = qs.filter(is_active=False, is_verified=True, rejection_reason__isnull=True)
 
         if q:
             qs = qs.filter(
@@ -580,28 +582,38 @@ class AdminAkunAksiView(AdminOnlyMixin, View):
         aksi = request.POST.get('aksi')
 
         if aksi == 'approve':
-            target.is_active   = True
-            target.is_verified = True
-            target.verified_at = timezone.now()
-            target.verified_by = request.user
+            target.is_active        = True
+            target.is_verified      = True
+            target.verified_at      = timezone.now()
+            target.verified_by      = request.user
+            # Reset rejection jika sebelumnya pernah ditolak
+            target.rejection_reason = None
+            target.rejected_at      = None
+            target.rejected_by      = None
             target.save()
             msg = f'Akun {target.get_full_name()} berhasil diverifikasi.'
 
         elif aksi == 'reject':
-            target.is_active   = False
-            target.is_verified = False   # ← reset verified juga
+            reason = request.POST.get('reason', '').strip()
+            target.is_active        = False
+            target.is_verified      = True   # ← TRUE bukan False, supaya beda dari pending
+            target.rejection_reason = reason or None
+            target.rejected_at      = timezone.now()
+            target.rejected_by      = request.user
             target.save()
             msg = f'Akun {target.get_full_name()} ditolak.'
 
         elif aksi == 'deactivate':
             target.is_active = False
-            # is_verified TETAP True — ini yang membedakan "nonaktif" vs "pending"
+            target.is_verified = True
             target.save()
             msg = f'Akun {target.get_full_name()} dinonaktifkan.'
 
         elif aksi == 'reactivate':
-            target.is_active   = True
-            target.is_verified = True    # ← TAMBAHKAN INI — eksplisit
+            target.is_active        = True
+            target.is_verified      = True
+            target.rejection_reason = None
+            target.rejected_at      = None
             target.save()
             msg = f'Akun {target.get_full_name()} diaktifkan kembali.'
 
@@ -614,4 +626,22 @@ class AdminAkunAksiView(AdminOnlyMixin, View):
             'is_active':   target.is_active,
             'is_verified': target.is_verified,
         })
+from django.views import View
+from django.http import JsonResponse
+from research.models import ResearchTitle
+
+class TitleSlotsView(View):
+    def get(self, request):
+        titles = ResearchTitle.objects.filter(is_active=True)
+        data = [
+            {
+                'id':         t.pk,
+                'slots_used': t.slots_used,
+                'quota':      t.quota,
+                'is_full':    t.is_full,
+            }
+            for t in titles
+        ]
+        return JsonResponse(data, safe=False)
+
 
