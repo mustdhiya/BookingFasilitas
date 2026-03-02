@@ -2553,6 +2553,56 @@
       alert('Terjadi kesalahan jaringan.');
       btn.textContent = 'Simpan Judul';
     });
+  }// ══════════════════════════════════════════════════════════════════════
+  // JUDUL PAYUNG FORM
+  // ══════════════════════════════════════════════════════════════════════
+
+  function openJudulModal(mode, lecturerId, titleId) {
+    lecturerId = lecturerId || null;
+    titleId    = titleId    || null;
+    document.getElementById('judul-modal-title').textContent =
+      mode === 'create' ? 'Tambah Judul Payung' : 'Edit Judul Payung';
+    document.getElementById('judul-submit-label').textContent =
+      mode === 'create' ? 'Simpan Judul' : 'Update Judul';
+    document.getElementById('judul-pk').value = titleId || '';
+    if (mode === 'create') {
+      document.getElementById('form-judul').reset();
+      document.getElementById('judul-quota').value = 5;
+      if (lecturerId) document.getElementById('judul-lecturer').value = lecturerId;
+    }
+    openModal('modal-judul-form');
+  }
+
+  function submitJudulForm() {
+    var form = document.getElementById('form-judul');
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+    var btn  = document.getElementById('judul-submit-label');
+    btn.textContent = 'Menyimpan...';
+    var data = new FormData(form);
+    var pk   = document.getElementById('judul-pk').value;
+    var url  = pk
+      ? '/api/research/judul/' + pk + '/edit/'
+      : "{% url 'judul-create' %}";
+    fetch(url, {
+      method:  'POST',
+      body:    data,
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      if (res.status === 'ok') {
+        closeModal('modal-judul-form');
+        window.location.href = "{% url 'admin_panel' %}?tab=dosen";
+      } else {
+        var errs = Object.entries(res.errors).map(function(e) { return e[0] + ': ' + e[1][0]; }).join('\n');
+        alert('Validasi gagal:\n' + errs);
+        btn.textContent = 'Simpan Judul';
+      }
+    })
+    .catch(function() {
+      alert('Terjadi kesalahan jaringan.');
+      btn.textContent = 'Simpan Judul';
+    });
   }
 
   // ══════════════════════════════════════════════════════════════════════

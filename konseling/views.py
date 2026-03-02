@@ -13,7 +13,7 @@ from .models import KonselingSession
 from accounts.models import User
 from practicum.models import Practicum
 
-from research.models import Lecturer, ResearchTitle, ResearchRequest  
+from research.models import GuidanceSession, Lecturer, ResearchTitle, ResearchRequest  
 
 class ResearchListView(LoginRequiredMixin, TemplateView):
     template_name = 'penelitianMain.html'
@@ -31,7 +31,12 @@ class ResearchListView(LoginRequiredMixin, TemplateView):
         ctx['my_requests']           = ResearchRequest.objects.filter(student=user).select_related('research_title')
         ctx['my_active_request']     = ResearchRequest.objects.filter(student=user, status__in=['pending','approved']).first()
         ctx['guidance_sessions']     = GuidanceSession.objects.filter(request__student=user).select_related('request__research_title').order_by('-session_date')
-        ctx['user_requested_ids']    = list(ResearchRequest.objects.filter(student=user).values_list('research_title_id', flat=True))
+        ctx['user_requested_ids'] = list(
+                                        ResearchRequest.objects.filter(
+                                            student=user,
+                                            status__in=['pending', 'approved']  
+                                        ).values_list('research_title_id', flat=True)
+                                    )
         ctx['user_approved_title_ids'] = list(ResearchRequest.objects.filter(student=user, status='approved').values_list('research_title_id', flat=True))
         return ctx
 

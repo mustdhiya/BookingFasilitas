@@ -233,10 +233,12 @@ class ResearchListView(LoginRequiredMixin, TemplateView):
         ctx['guidance_sessions']     = GuidanceSession.objects.filter(
                                            request__student=user
                                        ).select_related('request').order_by('-date')
-        ctx['user_requested_ids']    = list(
-                                           ResearchRequest.objects.filter(student=user)
-                                           .values_list('research_title_id', flat=True)
-                                       )
+        ctx['user_requested_ids'] = list(
+                                        ResearchRequest.objects.filter(
+                                            student=user,
+                                            status__in=['pending', 'approved']  
+                                        ).values_list('research_title_id', flat=True)
+                                    )
         # Dosen yang nama-nya sudah boleh terlihat (sudah ada request approved)
         ctx['visible_lecturer_ids']  = list(
                                            ResearchRequest.objects.filter(student=user, status='approved')
