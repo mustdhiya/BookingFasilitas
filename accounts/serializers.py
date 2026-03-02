@@ -30,7 +30,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'email', 'full_name', 'password', 'password_confirm',
-            'user_type', 'nim_nip', 'prodi', 'angkatan',
+            'user_type', 'role',
+            'nim_nip', 'prodi', 'angkatan',
             'instansi', 'phone', 'ktm_photo',
         ]
 
@@ -56,7 +57,13 @@ class RegisterSerializer(serializers.ModelSerializer):
         first_name = parts[0] if parts else ''
         last_name  = parts[1] if len(parts) > 1 else ''
 
-        # Hapus field None supaya tidak masuk create_user
+        # ← TAMBAH INI: set role berdasarkan user_type
+        user_type = validated_data.get('user_type', 'umkt')
+        if user_type == 'umkt':
+            validated_data['role'] = 'mahasiswa'
+        else:
+            validated_data['role'] = 'eksternal'
+
         for field in ['nim_nip', 'prodi', 'angkatan', 'instansi', 'phone']:
             if validated_data.get(field) in [None, '', 0]:
                 validated_data.pop(field, None)
@@ -76,6 +83,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             is_active=False,
             **validated_data
         )
+
 
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
