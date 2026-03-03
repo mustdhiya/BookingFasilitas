@@ -340,14 +340,6 @@
     attributeFilter: ['class']
   });
 
-  // Approve/Decline Actions
-  function approveRequest(id, type) {
-    if (confirm('Approve request ini?')) {
-      alert(`Request ${type} #${id} berhasil diapprove! Notifikasi email telah dikirim.`);
-      // Refresh or update UI
-      location.reload();
-    }
-  }
 
   function declineRequest(id, type, name = '') {
     const reason = prompt(`Alasan decline${name ? ' untuk ' + name : ''} (akan dikirim ke peminjam):`);

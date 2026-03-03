@@ -2345,26 +2345,29 @@
 
   async function approveRequest(id) {
     if (!confirm('Setujui request penelitian ini?')) return;
+
     try {
-      var resp = await fetch('/api/research/requests/' + id + '/approve/', {
-        method: 'POST',
-        headers: {
-          'Content-Type':     'application/json',
-          'X-CSRFToken':      getCsrfToken(),
-          'X-Requested-With': 'XMLHttpRequest',
-        },
-      });
-      var data = await resp.json();
-      if (resp.ok && data.status === 'ok') {
-        showToast('Request penelitian berhasil disetujui.', 'success');
-        updateRequestCard(id, 'approved', data.approved_at, null);
-      } else {
-        showToast(data.message || 'Terjadi kesalahan.', 'error');
-      }
+        const res = await fetch(`/api/research/requests/${id}/approve/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCsrfToken(),
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        });
+        const data = await res.json();
+
+        if (data.status === 'ok') {
+            showToast('Request ' + data.thesis_title + ' #'+data.request_id+' berhasil diapprove!', 'success');
+            updateRequestCard(id, 'approved', data.approved_at);
+        } else {
+            showToast(data.message || 'Gagal approve.', 'error');
+        }
     } catch (err) {
-      showToast('Error: ' + err.message, 'error');
+        showToast('Error: ' + err.message, 'error');
     }
-  }
+}
+
 
   function updateRequestCard(id, newStatus, approvedAt, notes) {
     var allCards = document.querySelectorAll('#request-list [data-req-status]');

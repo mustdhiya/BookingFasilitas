@@ -37,4 +37,11 @@ urlpatterns = [
     path('jadwal/<int:pk>/delete/',      views.JadwalDeleteView.as_view(),          name='jadwal-delete'),
 
     path('titles/slots/', views.TitleSlotsView.as_view(), name='title-slots'),
+    
+    # ── CRUD Sesi Bimbingan ─────────────────────────────────────────
+    path('sessions/create/', views.GuidanceSessionCreateView.as_view(), name='session-create'),
+    path('sessions/<int:pk>/update/', views.GuidanceSessionUpdateView.as_view(), name='session-update'),
+    path('sessions/<int:pk>/delete/', views.GuidanceSessionDeleteView.as_view(), name='session-delete'),
+
+
 ]

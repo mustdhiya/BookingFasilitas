@@ -256,12 +256,17 @@ class ResearchListView(LoginRequiredMixin, TemplateView):
         ctx['my_requests']           = ResearchRequest.objects.filter(
                                            student=user
                                        ).select_related('research_title', 'lecturer').order_by('-created_at')
-        ctx['my_active_request']     = ResearchRequest.objects.filter(
-                                           student=user, status__in=['pending', 'approved']
-                                       ).first()
-        ctx['guidance_sessions']     = GuidanceSession.objects.filter(
-                                           request__student=user
-                                       ).select_related('request').order_by('-date')
+        ctx['my_active_request'] = ResearchRequest.objects.filter(
+                                            student=user, status__in=['pending', 'approved']
+                                        ).first()
+        ctx['my_approved_request'] = ResearchRequest.objects.filter(
+                                            student=user,
+                                            status='approved'
+                                        ).first()
+        ctx['guidance_sessions'] = GuidanceSession.objects.filter(
+                                            request__student=user,
+                                            request__status='approved'  
+                                        ).select_related('request').order_by('-date') 
         ctx['user_requested_ids'] = list(
                                         ResearchRequest.objects.filter(
                                             student=user,
@@ -561,13 +566,18 @@ class ResearchRequestApproveView(LoginRequiredMixin, View):
             req.status = 'approved'
             req.approved_at = timezone.now()
             req.approved_by = request.user
-            req.save()
+            req.save(update_fields=['status', 'approved_at', 'approved_by'])  # ← EXPLICIT SAVE
             return JsonResponse({
                 'status': 'ok',
-                'approved_at': req.approved_at.strftime('%d %b %Y'),
+                'approved_at': req.approved_at.strftime('%d %b %Y %H:%M'),
+                'request_id': req.pk,  # ← tambah ID untuk debug
+                'thesis_title': req.thesis_title[:50],  # ← tampilkan judul
             })
         except ResearchRequest.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'Request tidak ditemukan.'}, status=404)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
 
 
 class ResearchRequestRejectView(LoginRequiredMixin, View):
@@ -618,3 +628,67 @@ class TitleSlotsView(View):
             for t in titles
         ]
         return JsonResponse(data, safe=False)
+    
+    
+from datetime import datetime  
+class GuidanceSessionCreateView(LoginRequiredMixin, View):
+    def post(self, request):
+        research_req = ResearchRequest.objects.filter(
+            student=request.user,
+            status='approved'
+        ).first()
+
+        if not research_req:
+            return JsonResponse({'status': 'error', 'message': 'Tidak ada request yang disetujui.'}, status=403)
+
+        date_str = request.POST.get('date')
+        topic    = request.POST.get('topic', '').strip()
+
+        if not date_str or not topic:
+            return JsonResponse({'status': 'error', 'message': 'Tanggal dan topik wajib diisi.'}, status=400)
+
+        session = GuidanceSession.objects.create(
+            request    = research_req,
+            date       = date_str,           # Django simpan sebagai DateField otomatis
+            topic      = topic,
+            notes      = request.POST.get('notes', ''),
+            attachment = request.FILES.get('attachment'),
+        )
+
+        # ← FIX: parse dulu ke date object sebelum strftime
+        from datetime import date as date_type
+        session_date = session.date if hasattr(session.date, 'strftime') \
+                       else datetime.strptime(str(session.date), '%Y-%m-%d').date()
+
+        return JsonResponse({
+            'status': 'ok',
+            'id':     session.id,
+            'topic':  session.topic,
+            'date':   session_date.strftime('%d %b %Y'),
+            'notes':  session.notes,
+        })
+
+class GuidanceSessionUpdateView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        try:
+            session = GuidanceSession.objects.get(pk=pk, request__student=request.user)
+            session.date = request.POST.get('date')
+            session.topic = request.POST.get('topic')
+            session.notes = request.POST.get('notes', '')
+            if request.FILES.get('attachment'):
+                session.attachment = request.FILES['attachment']
+            session.save()
+            return JsonResponse({'status': 'ok'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+
+class GuidanceSessionDeleteView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        session = get_object_or_404(
+            GuidanceSession,
+            pk=pk,
+            request__student=request.user 
+        )
+        session.delete()
+        return JsonResponse({'status': 'ok'})
