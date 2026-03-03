@@ -321,247 +321,252 @@
   <!-- ================================================================== -->
   <nav class="bg-white dark:bg-slate-800 shadow-soft sticky top-0 z-50 border-b border-border-light dark:border-slate-700">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center h-16 gap-4">
+  <div class="flex justify-between items-center h-16 gap-4">
 
-        <!-- ── LOGO ── -->
-        <a href="/" class="flex items-center gap-3 flex-shrink-0 no-underline hover:opacity-80 transition-opacity">
-          <img src="{{ MEDIA_URL }}logo/logo_lab.png"
-               alt="Logo Lab Psikologi UMKT"
-               class="w-10 h-10 object-contain rounded-lg">
-          <div class="hidden md:block leading-tight">
-            <p class="text-base font-bold text-primary-600 dark:text-primary-400 leading-none">Lab Psikologi</p>
-            <p class="text-[10px] font-medium text-slate-400 dark:text-slate-500 tracking-wider uppercase">UMKT Samarinda</p>
-          </div>
-        </a>
+    <!-- ── LOGO ── -->
+    <a href="/" class="flex items-center gap-3 flex-shrink-0 no-underline hover:opacity-80 transition-opacity">
+      <img src="{{ MEDIA_URL }}logo/logo_lab.png"
+           alt="Logo Lab Psikologi UMKT"
+           class="w-10 h-10 object-contain rounded-lg">
+      <div class="hidden md:block leading-tight">
+        <p class="text-base font-bold text-primary-600 dark:text-primary-400 leading-none">Lab Psikologi</p>
+        <p class="text-[10px] font-medium text-slate-400 dark:text-slate-500 tracking-wider uppercase">UMKT Samarinda</p>
+      </div>
+    </a>
 
-        <!-- ── NAV LINKS (Desktop) ── -->
-        <div class="hidden lg:flex items-center gap-1">
+    <!-- ── NAV LINKS (Desktop) ── -->
+    <div class="hidden lg:flex items-center gap-1">
 
-          <!-- Beranda -->
-          <a href="/"
-             class="nav-link flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all no-underline">
-            <span class="material-icons-outlined mat-sm">home</span>
-            Beranda
+      <!-- Beranda -->
+      <a href="/"
+         class="nav-link flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all no-underline">
+        <span class="material-icons-outlined mat-sm">home</span>
+        Beranda
+      </a>
+
+      <!-- Peminjaman (Dropdown) -->
+      <div class="relative" id="nav-peminjaman">
+        <button onclick="toggleNavDropdown('nav-peminjaman')"
+                class="nav-link flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all">
+          <span class="material-icons-outlined mat-sm">inventory_2</span>
+          Peminjaman
+          <span class="material-icons mat-xs text-slate-400">expand_more</span>
+        </button>
+        <div id="nav-peminjaman-dropdown" class="dropdown-menu hidden w-52 py-1">
+          <a href="/peminjaman/?tab=room"
+             class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-colors no-underline">
+            <span class="material-icons-outlined mat-sm text-primary-500">meeting_room</span>
+            Ruangan
           </a>
-
-          <!-- Peminjaman (Dropdown) -->
-          <div class="relative" id="nav-peminjaman">
-            <button onclick="toggleNavDropdown('nav-peminjaman')"
-                    class="nav-link flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all">
-              <span class="material-icons-outlined mat-sm">inventory_2</span>
-              Peminjaman
-              <span class="material-icons mat-xs text-slate-400">expand_more</span>
-            </button>
-            <!-- Dropdown -->
-            <div id="nav-peminjaman-dropdown"
-                class="dropdown-menu hidden w-52 py-1">
-              <a href="/peminjaman/?tab=room"
-                class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline">
-                <span class="material-icons-outlined mat-sm text-primary-500">meeting_room</span>
-                Ruangan
-              </a>
-              <a href="/peminjaman/?tab=tool"
-                class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline">
-                <span class="material-icons-outlined mat-sm text-primary-500">biotech</span>
-                Alat Test
-              </a>
-              <hr class="my-1 border-slate-100 dark:border-slate-700">
-              <a href="/peminjaman/?tab=history"
-                class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline">
-                <span class="material-icons-outlined mat-sm text-slate-400">history</span>
-                Riwayat & Dokumen
-              </a>
-            </div>
-          </div>
-
-          <!-- Konseling -->
-          <a href="/konseling/"
-             class="nav-link flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all no-underline">
-            <span class="material-icons-outlined mat-sm">psychology</span>
-            Konseling
+          <a href="/peminjaman/?tab=tool"
+             class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-colors no-underline">
+            <span class="material-icons-outlined mat-sm text-primary-500">biotech</span>
+            Alat Test
           </a>
-
-          <!-- Praktikum (Dropdown) -->
-          <div class="relative" id="nav-praktikum">
-            <button onclick="toggleNavDropdown('nav-praktikum')"
-                    class="nav-link flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all">
-              <span class="material-icons-outlined mat-sm">school</span>
-              Praktikum
-              <span class="material-icons mat-xs text-slate-400">expand_more</span>
-            </button>
-            <div id="nav-praktikum-dropdown"
-                 class="dropdown-menu hidden w-52 py-1">
-              <a href="/praktikum/"
-                 class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline">
-                <span class="material-icons-outlined mat-sm text-primary-500">event_note</span>
-                Jadwal Praktikum
-              </a>
-              <a href="/penelitian/"
-                 class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline">
-                <span class="material-icons-outlined mat-sm text-primary-500">auto_stories</span>
-                Variabel Penelitian
-              </a>
-            </div>
-          </div>
-
-          <!-- Riwayat -->
-          <a href="/riwayat/"
-             class="nav-link flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all no-underline">
-            <span class="material-icons-outlined mat-sm">receipt_long</span>
-            Riwayat
+          <hr class="my-1 border-slate-100 dark:border-slate-700">
+          <a href="/peminjaman/?tab=history"
+             class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-colors no-underline">
+            <span class="material-icons-outlined mat-sm text-slate-400">history</span>
+            Riwayat & Dokumen
           </a>
         </div>
+      </div>
 
-        <!-- ── ACTION BUTTONS (kanan) ── -->
-        <div class="flex items-center gap-1.5">
+      <!-- Konseling -->
+      <a href="/konseling/"
+         class="nav-link flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all no-underline">
+        <span class="material-icons-outlined mat-sm">psychology</span>
+        Konseling
+      </a>
 
-          <!-- Dark Mode Toggle -->
-          <button onclick="toggleTheme()"
-                  id="theme-toggle"
-                  title="Toggle Dark Mode"
-                  class="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
-            <span class="material-icons mat-md" id="theme-toggle-icon">light_mode</span>
-          </button>
+      <!-- ── Akademik (Gabungan Praktikum + Internship) ── -->
+      <div class="relative" id="nav-akademik">
+        <button onclick="toggleNavDropdown('nav-akademik')"
+                class="nav-link flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all">
+          <span class="material-icons-outlined mat-sm">school</span>
+          Akademik
+          <span class="material-icons mat-xs text-slate-400">expand_more</span>
+        </button>
+        <div id="nav-akademik-dropdown" class="dropdown-menu hidden w-56 py-1">
 
-          <!-- ── NOTIFICATION BELL ── -->
-          {% if user.is_authenticated %}
-          <div class="relative" id="notif-wrapper">
-            <button onclick="toggleNotifDropdown()"
-                    id="notif-btn"
-                    title="Notifikasi"
-                    class="relative p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
-              <span class="material-icons-outlined mat-md">notifications</span>
-              <!-- Badge Counter -->
-              <span id="notif-badge"
-                    class="absolute top-1 right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 hidden">
-                0
-              </span>
-            </button>
-
-            <!-- Notification Dropdown -->
-            <div id="notif-dropdown-wrapper"
-                 class="dropdown-menu hidden w-80 sm:w-96"
-                 style="right:0; top:calc(100% + 8px);">
-
-              <!-- Header -->
-              <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-700">
-                <div class="flex items-center gap-2">
-                  <span class="material-icons-outlined mat-sm text-primary-500">notifications_active</span>
-                  <h3 class="font-semibold text-sm text-slate-900 dark:text-slate-100">Notifikasi</h3>
-                  <span id="notif-unread-count"
-                        class="badge badge-danger hidden">0</span>
-                </div>
-                <button onclick="markAllRead()"
-                        class="text-xs font-medium text-primary-600 dark:text-primary-400 hover:underline transition-colors">
-                  Tandai Semua Dibaca
-                </button>
-              </div>
-
-              <!-- Notif List -->
-              <div id="notif-dropdown" class="divide-y divide-slate-50 dark:divide-slate-800">
-                <!-- Populated by JS -->
-                <div id="notif-empty"
-                     class="flex flex-col items-center justify-center py-10 text-slate-400 dark:text-slate-600">
-                  <span class="material-icons-outlined mat-xl mb-2 opacity-40">notifications_none</span>
-                  <p class="text-sm">Tidak ada notifikasi</p>
-                </div>
-              </div>
-
-              <!-- Footer -->
-              <div class="px-4 py-2.5 border-t border-slate-100 dark:border-slate-700 text-center">
-                <a href="/riwayat/"
-                   class="text-xs font-medium text-primary-600 dark:text-primary-400 hover:underline no-underline">
-                  Lihat Semua Notifikasi →
-                </a>
-              </div>
-            </div>
-          </div>
-          {% endif %}
-
-          <!-- ── USER MENU ── -->
-          {% if user.is_authenticated %}
-          <div class="relative" id="user-menu">
-            <button onclick="toggleUserMenu()"
-                    id="user-menu-btn"
-                    class="flex items-center gap-2 pl-1 pr-2 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
-              <img src="{% if user.avatar %}{{ user.avatar.url }}{% else %}https://ui-avatars.com/api/?name={{ user.get_full_name|default:user.username }}&background=0D93B1&color=fff&bold=true{% endif %}"
-                   alt="{{ user.get_full_name|default:user.username }}"
-                   class="w-8 h-8 rounded-full object-cover ring-2 ring-primary-500 dark:ring-primary-400 flex-shrink-0">
-              <span class="hidden sm:inline text-sm font-medium text-slate-700 dark:text-slate-200 max-w-[100px] truncate">
-                {{ user.first_name|default:user.username }}
-              </span>
-              <span class="material-icons mat-xs text-slate-400 dark:text-slate-500">expand_more</span>
-            </button>
-
-            <!-- User Dropdown -->
-            <div id="user-dropdown"
-                 class="dropdown-menu hidden w-52 py-1">
-              <!-- User Info -->
-              <div class="px-4 py-3 border-b border-slate-100 dark:border-slate-700">
-                <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
-                  {{ user.get_full_name|default:user.username }}
-                </p>
-                <p class="text-xs text-slate-400 dark:text-slate-500 truncate">{{ user.email }}</p>
-                {% if user.is_umkt %}
-                <span class="badge badge-primary mt-1">Mahasiswa UMKT</span>
-                {% else %}
-                <span class="badge badge-gray mt-1">Non-UMKT</span>
-                {% endif %}
-              </div>
-              <!-- Links -->
-              <a href="/profile/"
-                 class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-colors no-underline">
-                <span class="material-icons-outlined mat-sm text-primary-500">manage_accounts</span>
-                Profil Saya
-              </a>
-              <a href="/profile/#keamanan"
-                 class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-colors no-underline">
-                <span class="material-icons-outlined mat-sm text-primary-500">security</span>
-                Keamanan
-              </a>
-              <a href="/riwayat/"
-                 class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-colors no-underline">
-                <span class="material-icons-outlined mat-sm text-primary-500">receipt_long</span>
-                Riwayat Saya
-              </a>
-              {% if user.is_staff %}
-              <a href="/admin-panel/?section=dashboard"
-                 class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-colors no-underline">
-                <span class="material-icons-outlined mat-sm text-orange-500">admin_panel_settings</span>
-                Panel Admin
-              </a>
-              {% endif %}
-              <hr class="my-1 border-slate-100 dark:border-slate-700">
-              <button onclick="logout()"
-                      class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors rounded-b-xl">
-                <span class="material-icons-outlined mat-sm">logout</span>
-                Logout
-              </button>
-            </div>
-          </div>
-
-          {% else %}
-          <!-- Guest: Login button -->
-          <a href="/login/" class="btn btn-outline btn-sm no-underline">
-            <span class="material-icons-outlined mat-sm">login</span>
-            <span class="hidden sm:inline">Masuk</span>
+          <!-- Praktikum section -->
+          <p class="px-4 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+            Praktikum
+          </p>
+          <a href="/praktikum/"
+             class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-colors no-underline">
+            <span class="material-icons-outlined mat-sm text-primary-500">event_note</span>
+            Jadwal Praktikum
           </a>
-          <a href="/register/" class="btn btn-primary btn-sm no-underline">
-            <span class="material-icons-outlined mat-sm">person_add</span>
-            <span class="hidden sm:inline">Daftar</span>
+          <a href="/penelitian/"
+             class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-colors no-underline">
+            <span class="material-icons-outlined mat-sm text-primary-500">auto_stories</span>
+            Variabel Penelitian
+          </a>
+
+          <!-- Internship — hanya untuk mahasiswa -->
+          {% if user.is_authenticated and user.role == 'mahasiswa' %}
+          <hr class="my-1 border-slate-100 dark:border-slate-700">
+          <p class="px-4 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+            Magang
+          </p>
+          <a href="/magang/"
+             class="group flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 transition-colors no-underline">
+            <span class="material-icons-outlined mat-sm text-blue-500">business_center</span>
+            <span class="flex-1">Internship</span>
+            <span class="badge badge-info text-[9px] px-1.5 py-0.5">Baru</span>
           </a>
           {% endif %}
 
-          <!-- Mobile Menu Toggle -->
-          <button id="mobile-menu-btn"
-                  onclick="toggleMobileMenu()"
-                  class="lg:hidden p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
-                  aria-label="Toggle menu">
-            <span class="material-icons mat-md" id="hamburger-icon">menu</span>
+        </div>
+      </div>
+
+      <!-- Riwayat -->
+      <a href="/riwayat/"
+         class="nav-link flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all no-underline">
+        <span class="material-icons-outlined mat-sm">receipt_long</span>
+        Riwayat
+      </a>
+
+    </div>
+
+    <!-- ── ACTION BUTTONS (kanan) ── -->
+    <div class="flex items-center gap-1.5">
+
+      <!-- Dark Mode Toggle -->
+      <button onclick="toggleTheme()"
+              id="theme-toggle"
+              title="Toggle Dark Mode"
+              class="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
+        <span class="material-icons mat-md" id="theme-toggle-icon">light_mode</span>
+      </button>
+
+      <!-- ── NOTIFICATION BELL ── -->
+      {% if user.is_authenticated %}
+      <div class="relative" id="notif-wrapper">
+        <button onclick="toggleNotifDropdown()"
+                id="notif-btn"
+                title="Notifikasi"
+                class="relative p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
+          <span class="material-icons-outlined mat-md">notifications</span>
+          <span id="notif-badge"
+                class="absolute top-1 right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 hidden">
+            0
+          </span>
+        </button>
+
+        <div id="notif-dropdown-wrapper"
+             class="dropdown-menu hidden w-80 sm:w-96"
+             style="right:0; top:calc(100% + 8px);">
+          <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-700">
+            <div class="flex items-center gap-2">
+              <span class="material-icons-outlined mat-sm text-primary-500">notifications_active</span>
+              <h3 class="font-semibold text-sm text-slate-900 dark:text-slate-100">Notifikasi</h3>
+              <span id="notif-unread-count" class="badge badge-danger hidden">0</span>
+            </div>
+            <button onclick="markAllRead()"
+                    class="text-xs font-medium text-primary-600 dark:text-primary-400 hover:underline transition-colors">
+              Tandai Semua Dibaca
+            </button>
+          </div>
+          <div id="notif-dropdown" class="divide-y divide-slate-50 dark:divide-slate-800">
+            <div id="notif-empty"
+                 class="flex flex-col items-center justify-center py-10 text-slate-400 dark:text-slate-600">
+              <span class="material-icons-outlined mat-xl mb-2 opacity-40">notifications_none</span>
+              <p class="text-sm">Tidak ada notifikasi</p>
+            </div>
+          </div>
+          <div class="px-4 py-2.5 border-t border-slate-100 dark:border-slate-700 text-center">
+            <a href="/riwayat/"
+               class="text-xs font-medium text-primary-600 dark:text-primary-400 hover:underline no-underline">
+              Lihat Semua Notifikasi →
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- ── USER MENU ── -->
+      {% if user.is_authenticated %}
+      <div class="relative" id="user-menu">
+        <button onclick="toggleUserMenu()"
+                id="user-menu-btn"
+                class="flex items-center gap-2 pl-1 pr-2 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
+          <img src="{% if user.avatar %}{{ user.avatar.url }}{% else %}https://ui-avatars.com/api/?name={{ user.get_full_name|default:user.username }}&background=0D93B1&color=fff&bold=true{% endif %}"
+               alt="{{ user.get_full_name|default:user.username }}"
+               class="w-8 h-8 rounded-full object-cover ring-2 ring-primary-500 dark:ring-primary-400 flex-shrink-0">
+          <span class="hidden sm:inline text-sm font-medium text-slate-700 dark:text-slate-200 max-w-[100px] truncate">
+            {{ user.first_name|default:user.username }}
+          </span>
+          <span class="material-icons mat-xs text-slate-400 dark:text-slate-500">expand_more</span>
+        </button>
+
+        <div id="user-dropdown" class="dropdown-menu hidden w-52 py-1">
+          <div class="px-4 py-3 border-b border-slate-100 dark:border-slate-700">
+            <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
+              {{ user.get_full_name|default:user.username }}
+            </p>
+            <p class="text-xs text-slate-400 dark:text-slate-500 truncate">{{ user.email }}</p>
+            {% if user.is_umkt %}
+            <span class="badge badge-primary mt-1">Mahasiswa UMKT</span>
+            {% else %}
+            <span class="badge badge-gray mt-1">Non-UMKT</span>
+            {% endif %}
+          </div>
+          <a href="/profile/"
+             class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-colors no-underline">
+            <span class="material-icons-outlined mat-sm text-primary-500">manage_accounts</span>
+            Profil Saya
+          </a>
+          <a href="/profile/#keamanan"
+             class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-colors no-underline">
+            <span class="material-icons-outlined mat-sm text-primary-500">security</span>
+            Keamanan
+          </a>
+          <a href="/riwayat/"
+             class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-colors no-underline">
+            <span class="material-icons-outlined mat-sm text-primary-500">receipt_long</span>
+            Riwayat Saya
+          </a>
+          {% if user.is_staff %}
+          <a href="/admin-panel/?section=dashboard"
+             class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 transition-colors no-underline">
+            <span class="material-icons-outlined mat-sm text-orange-500">admin_panel_settings</span>
+            Panel Admin
+          </a>
+          {% endif %}
+          <hr class="my-1 border-slate-100 dark:border-slate-700">
+          <button onclick="logout()"
+                  class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors rounded-b-xl">
+            <span class="material-icons-outlined mat-sm">logout</span>
+            Logout
           </button>
         </div>
       </div>
+
+      {% else %}
+      <a href="/login/" class="btn btn-outline btn-sm no-underline">
+        <span class="material-icons-outlined mat-sm">login</span>
+        <span class="hidden sm:inline">Masuk</span>
+      </a>
+      <a href="/register/" class="btn btn-primary btn-sm no-underline">
+        <span class="material-icons-outlined mat-sm">person_add</span>
+        <span class="hidden sm:inline">Daftar</span>
+      </a>
+      {% endif %}
+
+      <!-- Mobile Menu Toggle -->
+      <button id="mobile-menu-btn"
+              onclick="toggleMobileMenu()"
+              class="lg:hidden p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all"
+              aria-label="Toggle menu">
+        <span class="material-icons mat-md" id="hamburger-icon">menu</span>
+      </button>
+
     </div>
+  </div>
+</div>
+
 
     <!-- ── MOBILE MENU ── -->
     <div id="mobile-menu"
@@ -596,6 +601,7 @@
               class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline">
               <span class="material-icons-outlined mat-sm">auto_stories</span>Penelitian
             </a>
+            
 
             <a href="/riwayat/"
               class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline">
@@ -605,6 +611,20 @@
             </div>
             {% if user.is_authenticated %}
             <hr class="border-slate-100 dark:border-slate-700 my-2">
+            <a href="/magang/"
+              class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-colors no-underline">
+              <span class="material-icons-outlined mat-sm text-blue-500">business_center</span>
+              <span class="flex-1">Internship</span>
+              <!-- Tooltip mobile — muncul di bawah -->
+              <span class="absolute left-8 top-full mt-1
+                          bg-slate-800 dark:bg-slate-700 text-white text-[10px] font-semibold
+                          px-2.5 py-1 rounded-lg whitespace-nowrap shadow-lg
+                          opacity-0 group-hover:opacity-100 pointer-events-none
+                          transition-opacity duration-200 z-50">
+                🚀 Coming Soon
+              </span>
+              <span class="badge badge-info text-[9px] px-1.5 py-0.5">Baru</span>
+            </a>
             <a href="/profile/"
               class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors no-underline">
               <span class="material-icons-outlined mat-sm">manage_accounts</span>Profil Saya
@@ -697,6 +717,15 @@
             <li><a href="/peminjaman/" class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline flex items-center gap-1.5"><span class="material-icons-outlined mat-xs">chevron_right</span>Peminjaman</a></li>
             <li><a href="/konseling/"  class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline flex items-center gap-1.5"><span class="material-icons-outlined mat-xs">chevron_right</span>Konseling</a></li>
             <li><a href="/praktikum/"  class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline flex items-center gap-1.5"><span class="material-icons-outlined mat-xs">chevron_right</span>Praktikum</a></li>
+            <li>
+              <a href="/magang/"
+                class="group relative hover:text-blue-600 dark:hover:text-blue-400 transition-colors no-underline flex items-center gap-1.5">
+                <span class="material-icons-outlined mat-xs">chevron_right</span>
+                Internship
+                <span class="text-[9px] bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 
+                            px-1.5 py-0.5 rounded-full font-semibold ml-1">Coming Soon</span>
+              </a>
+            </li>
             <li><a href="/riwayat/"   class="hover:text-primary-600 dark:hover:text-primary-400 transition-colors no-underline flex items-center gap-1.5"><span class="material-icons-outlined mat-xs">chevron_right</span>Riwayat</a></li>
           </ul>
         </div>

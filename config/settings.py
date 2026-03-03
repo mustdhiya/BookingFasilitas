@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'research',
     'core',
     'konseling',    
+    "internship",
 ]
 
 
