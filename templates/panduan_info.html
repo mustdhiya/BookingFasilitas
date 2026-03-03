@@ -1,0 +1,563 @@
+{% extends 'base.html' %}
+{% block title %}Panduan & Info — Lab Psikologi UMKT{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+  <!-- ── HERO HEADER ── -->
+  <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-600 to-primary-800 dark:from-primary-700 dark:to-primary-900 p-8 mb-8 text-white shadow-lg">
+    <div class="relative z-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 text-white text-xs font-semibold mb-4 backdrop-blur-sm">
+        <span class="material-icons-outlined" style="font-size:14px">info</span>
+        Lab Psikologi UMKT
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-bold mb-2">Panduan & Informasi</h1>
+      <p class="text-primary-100 text-sm max-w-lg">Semua panduan, SOP, dan informasi penting Lab Psikologi UMKT tersedia di satu tempat.</p>
+
+      <!-- Quick Jump Pills -->
+      <div class="flex flex-wrap gap-2 mt-5">
+        <a href="#section-panduan-peminjaman"
+           class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white/15 hover:bg-white/25 text-white transition-all no-underline backdrop-blur-sm">
+          <span class="material-icons-outlined" style="font-size:14px">inventory_2</span>
+          Panduan Peminjaman
+        </a>
+        <a href="#section-sop-konseling"
+           class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white/15 hover:bg-white/25 text-white transition-all no-underline backdrop-blur-sm">
+          <span class="material-icons-outlined" style="font-size:14px">psychology</span>
+          SOP Konseling
+        </a>
+        <a href="#section-faq"
+           class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white/15 hover:bg-white/25 text-white transition-all no-underline backdrop-blur-sm">
+          <span class="material-icons-outlined" style="font-size:14px">quiz</span>
+          FAQ
+        </a>
+        <a href="#section-tentang"
+           class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white/15 hover:bg-white/25 text-white transition-all no-underline backdrop-blur-sm">
+          <span class="material-icons-outlined" style="font-size:14px">apartment</span>
+          Tentang Lab
+        </a>
+        <a href="#section-kebijakan-privasi"
+           class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-white/15 hover:bg-white/25 text-white transition-all no-underline backdrop-blur-sm">
+          <span class="material-icons-outlined" style="font-size:14px">shield</span>
+          Kebijakan Privasi
+        </a>
+      </div>
+    </div>
+    <!-- Decorative circles -->
+    <div class="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-white/5"></div>
+    <div class="absolute -right-4 -bottom-8 w-28 h-28 rounded-full bg-white/5"></div>
+  </div>
+
+  <div class="space-y-4">
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SECTION: Panduan Peminjaman                             -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div id="section-panduan-peminjaman" class="scroll-mt-20">
+
+      <!-- Section Header (collapsible) -->
+      <button onclick="toggleSection('peminjaman')"
+              class="w-full flex items-center gap-3 p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600 shadow-sm hover:shadow-md transition-all group">
+        <div class="w-11 h-11 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+          <span class="material-icons-outlined text-blue-600 dark:text-blue-400">inventory_2</span>
+        </div>
+        <div class="flex-1 text-left">
+          <p class="font-semibold text-sm text-slate-900 dark:text-slate-100">Panduan Peminjaman</p>
+          <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Alur, ketentuan, dan aturan peminjaman ruangan & alat test</p>
+        </div>
+        <span class="material-icons-outlined text-slate-400 dark:text-slate-500 transition-transform duration-200" id="chevron-peminjaman">expand_more</span>
+      </button>
+
+      <!-- Section Body -->
+      <div id="body-peminjaman" class="hidden mt-2 space-y-3 px-1">
+
+        <!-- Alur Peminjaman -->
+        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden">
+          <div class="flex items-center gap-2 px-5 py-3.5 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50">
+            <span class="material-icons-outlined text-blue-500" style="font-size:18px">format_list_numbered</span>
+            <h3 class="font-semibold text-sm text-slate-800 dark:text-slate-200">Alur Peminjaman</h3>
+          </div>
+          <div class="p-5">
+            <ol class="space-y-4">
+              {% for step in peminjaman_steps %}
+              <li class="flex items-start gap-3">
+                <div class="w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                  {{ forloop.counter }}
+                </div>
+                <div class="flex-1 pt-0.5">
+                  <p class="text-sm font-semibold text-slate-800 dark:text-slate-200">{{ step.title }}</p>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">{{ step.desc }}</p>
+                </div>
+              </li>
+              {% if not forloop.last %}
+              <div class="ml-3.5 w-0.5 h-3 bg-slate-200 dark:bg-slate-600"></div>
+              {% endif %}
+              {% endfor %}
+            </ol>
+          </div>
+        </div>
+
+        <!-- Ketentuan Umum -->
+        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden">
+          <div class="flex items-center gap-2 px-5 py-3.5 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50">
+            <span class="material-icons-outlined text-orange-500" style="font-size:18px">gavel</span>
+            <h3 class="font-semibold text-sm text-slate-800 dark:text-slate-200">Ketentuan Umum</h3>
+          </div>
+          <ul class="divide-y divide-slate-50 dark:divide-slate-700/50">
+            {% for rule in peminjaman_rules %}
+            <li class="flex items-start gap-3 px-5 py-3.5">
+              <span class="material-icons-outlined text-blue-400 flex-shrink-0 mt-0.5" style="font-size:16px">check_circle</span>
+              <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{{ rule }}</p>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="flex flex-wrap gap-2 px-1">
+          <a href="/peminjaman/?tab=room"
+             class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium shadow-sm transition-all no-underline">
+            <span class="material-icons-outlined" style="font-size:16px">meeting_room</span>
+            Pinjam Ruangan
+          </a>
+          <a href="/peminjaman/?tab=tool"
+             class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-sm font-medium hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-all no-underline">
+            <span class="material-icons-outlined" style="font-size:16px">biotech</span>
+            Pinjam Alat Test
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SECTION: SOP Konseling                                  -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div id="section-sop-konseling" class="scroll-mt-20">
+
+      <button onclick="toggleSection('konseling')"
+              class="w-full flex items-center gap-3 p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-purple-300 dark:hover:border-purple-600 shadow-sm hover:shadow-md transition-all group">
+        <div class="w-11 h-11 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+          <span class="material-icons-outlined text-purple-600 dark:text-purple-400">psychology</span>
+        </div>
+        <div class="flex-1 text-left">
+          <p class="font-semibold text-sm text-slate-900 dark:text-slate-100">SOP Konseling</p>
+          <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Prosedur, etika, dan ketentuan layanan konseling psikologi</p>
+        </div>
+        <span class="material-icons-outlined text-slate-400 dark:text-slate-500 transition-transform duration-200" id="chevron-konseling">expand_more</span>
+      </button>
+
+      <div id="body-konseling" class="hidden mt-2 space-y-3 px-1">
+
+        <!-- Alur Konseling -->
+        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden">
+          <div class="flex items-center gap-2 px-5 py-3.5 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50">
+            <span class="material-icons-outlined text-purple-500" style="font-size:18px">format_list_numbered</span>
+            <h3 class="font-semibold text-sm text-slate-800 dark:text-slate-200">Alur Konseling</h3>
+          </div>
+          <div class="p-5">
+            <ol class="space-y-4">
+              {% for step in konseling_steps %}
+              <li class="flex items-start gap-3">
+                <div class="w-7 h-7 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                  {{ forloop.counter }}
+                </div>
+                <div class="flex-1 pt-0.5">
+                  <p class="text-sm font-semibold text-slate-800 dark:text-slate-200">{{ step.title }}</p>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">{{ step.desc }}</p>
+                </div>
+              </li>
+              {% if not forloop.last %}
+              <div class="ml-3.5 w-0.5 h-3 bg-slate-200 dark:bg-slate-600"></div>
+              {% endif %}
+              {% endfor %}
+            </ol>
+          </div>
+        </div>
+
+        <!-- Kerahasiaan Banner -->
+        <div class="rounded-2xl border border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-900/20 p-5 flex items-start gap-4">
+          <div class="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center flex-shrink-0">
+            <span class="material-icons-outlined text-purple-600 dark:text-purple-400">lock</span>
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-purple-800 dark:text-purple-300 mb-1">Kerahasiaan & Etika Dijamin</p>
+            <p class="text-xs text-purple-700 dark:text-purple-400 leading-relaxed">
+              Semua informasi dalam sesi konseling bersifat <strong>rahasia penuh</strong> dan hanya digunakan untuk keperluan layanan psikologi sesuai kode etik psikolog Indonesia (HIMPSI).
+            </p>
+          </div>
+        </div>
+
+        <div class="flex px-1">
+          <a href="/konseling/"
+             class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium shadow-sm transition-all no-underline">
+            <span class="material-icons-outlined" style="font-size:16px">psychology</span>
+            Ajukan Konseling
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SECTION: FAQ                                            -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div id="section-faq" class="scroll-mt-20">
+
+      <button onclick="toggleSection('faq')"
+              class="w-full flex items-center gap-3 p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-green-300 dark:hover:border-green-600 shadow-sm hover:shadow-md transition-all group">
+        <div class="w-11 h-11 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+          <span class="material-icons-outlined text-green-600 dark:text-green-400">quiz</span>
+        </div>
+        <div class="flex-1 text-left">
+          <p class="font-semibold text-sm text-slate-900 dark:text-slate-100">FAQ</p>
+          <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Pertanyaan yang paling sering ditanyakan</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
+            {{ faqs|length }}
+          </span>
+          <span class="material-icons-outlined text-slate-400 dark:text-slate-500 transition-transform duration-200" id="chevron-faq">expand_more</span>
+        </div>
+      </button>
+
+      <div id="body-faq" class="hidden mt-2 px-1">
+        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden divide-y divide-slate-100 dark:divide-slate-700">
+          {% for faq in faqs %}
+          <div>
+            <button onclick="toggleFaq({{ forloop.counter0 }})"
+                    class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors gap-4">
+              <div class="flex items-start gap-3 flex-1">
+                <span class="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                  {{ forloop.counter }}
+                </span>
+                <p class="text-sm font-medium text-slate-800 dark:text-slate-200">{{ faq.q }}</p>
+              </div>
+              <span class="material-icons-outlined text-slate-400 flex-shrink-0 transition-transform duration-200" id="faq-chevron-{{ forloop.counter0 }}">expand_more</span>
+            </button>
+            <div id="faq-answer-{{ forloop.counter0 }}" class="hidden px-5 pb-4">
+              <div class="ml-9 text-sm text-slate-600 dark:text-slate-400 leading-relaxed bg-slate-50 dark:bg-slate-700/40 rounded-xl p-3.5">
+                {{ faq.a }}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SECTION: Tentang Lab                                    -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div id="section-tentang" class="scroll-mt-20">
+
+      <button onclick="toggleSection('tentang')"
+              class="w-full flex items-center gap-3 p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-amber-300 dark:hover:border-amber-600 shadow-sm hover:shadow-md transition-all group">
+        <div class="w-11 h-11 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+          <span class="material-icons-outlined text-amber-600 dark:text-amber-400">apartment</span>
+        </div>
+        <div class="flex-1 text-left">
+          <p class="font-semibold text-sm text-slate-900 dark:text-slate-100">Tentang Lab</p>
+          <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Profil, jam operasional, dan kontak Lab Psikologi UMKT</p>
+        </div>
+        <span class="material-icons-outlined text-slate-400 dark:text-slate-500 transition-transform duration-200" id="chevron-tentang">expand_more</span>
+      </button>
+
+      <div id="body-tentang" class="hidden mt-2 space-y-3 px-1">
+
+        <!-- Profil -->
+        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5">
+          <div class="flex items-start gap-3 mb-3">
+            <span class="material-icons-outlined text-amber-500" style="font-size:18px">info</span>
+            <h3 class="font-semibold text-sm text-slate-800 dark:text-slate-200">Profil Laboratorium</h3>
+          </div>
+          <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+            Laboratorium Psikologi UMKT adalah fasilitas penunjang akademik Program Studi Psikologi Universitas Muhammadiyah Kalimantan Timur. Menyediakan layanan peminjaman ruangan, alat tes psikologi, konseling, praktikum, dan bimbingan magang.
+          </p>
+        </div>
+
+        <!-- Jam Operasional + Kontak (grid) -->
+        <div class="grid sm:grid-cols-2 gap-3">
+
+          <!-- Jam Operasional -->
+          <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden">
+            <div class="flex items-center gap-2 px-5 py-3.5 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50">
+              <span class="material-icons-outlined text-amber-500" style="font-size:18px">schedule</span>
+              <h3 class="font-semibold text-sm text-slate-800 dark:text-slate-200">Jam Operasional</h3>
+            </div>
+            <ul class="divide-y divide-slate-50 dark:divide-slate-700/50">
+              <li class="flex justify-between items-center px-5 py-3">
+                <span class="text-sm text-slate-600 dark:text-slate-400">Senin – Jumat</span>
+                <span class="text-sm font-semibold text-slate-800 dark:text-slate-200">08.00 – 16.00</span>
+              </li>
+              <li class="flex justify-between items-center px-5 py-3">
+                <span class="text-sm text-slate-600 dark:text-slate-400">Sabtu</span>
+                <span class="text-sm font-semibold text-slate-800 dark:text-slate-200">08.00 – 12.00</span>
+              </li>
+              <li class="flex justify-between items-center px-5 py-3">
+                <span class="text-sm text-slate-600 dark:text-slate-400">Minggu & Libur</span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400">Tutup</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Kontak -->
+          <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden">
+            <div class="flex items-center gap-2 px-5 py-3.5 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50">
+              <span class="material-icons-outlined text-amber-500" style="font-size:18px">contact_phone</span>
+              <h3 class="font-semibold text-sm text-slate-800 dark:text-slate-200">Kontak</h3>
+            </div>
+            <div class="p-4 space-y-2">
+              <a href="mailto:lab.psikologi@umkt.ac.id"
+                 class="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-700/50 hover:bg-primary-50 dark:hover:bg-primary-900/20 hover:text-primary-600 dark:hover:text-primary-400 text-sm text-slate-700 dark:text-slate-300 transition-all no-underline">
+                <span class="material-icons-outlined text-primary-500" style="font-size:18px">email</span>
+                <span class="truncate">lab.psikologi@umkt.ac.id</span>
+              </a>
+              <!-- Tombol WhatsApp yang benar -->
+              <button onclick="openWhatsappModal()" 
+                      class="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-700/50 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-600 dark:hover:text-green-400 text-sm text-slate-700 dark:text-slate-300 transition-all no-underline w-full">
+                <span class="material-icons-outlined text-green-500" style="font-size:18px">chat</span>
+                <span class="flex-1 text-left">WhatsApp Lab</span>
+                <span class="badge badge-success badge-xs">24/7</span>
+              </button>
+
+              <!-- ── MODAL WHATSAPP (diperbaiki) ── -->
+              <div id="whatsapp-modal" class="modal modal-bottom sm:modal-middle hidden">
+                <div class="modal-box">
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold flex items-center gap-2">
+                      <span class="material-icons text-green-500">chat</span>
+                      Hubungi WhatsApp Lab
+                    </h3>
+                    <!-- Tombol close (X) dengan JavaScript -->
+                    <button onclick="closeWhatsappModal()" class="btn btn-sm btn-circle btn-ghost">
+                      <span class="material-icons">close</span>
+                    </button>
+                  </div>
+
+                  <form id="whatsapp-form" onsubmit="sendWhatsapp(event)">
+                    <!-- Topik -->
+                    <div class="form-control mb-4">
+                      <label class="label">
+                        <span class="label-text text-sm font-medium">Topik Pertanyaan</span>
+                      </label>
+                      <select id="whatsapp-topic" class="select select-bordered w-full" required>
+                        <option disabled selected>Pilih topik pertanyaan</option>
+                        <option value="peminjaman">Peminjaman Ruangan/Alat Test</option>
+                        <option value="konseling">Layanan Konseling</option>
+                        <option value="praktikum">Jadwal Praktikum</option>
+                        <option value="magang">Pendaftaran Magang</option>
+                        <option value="teknis">Masalah Teknis/Sistem</option>
+                        <option value="lainnya">Lainnya...</option>
+                      </select>
+                    </div>
+
+                    <!-- Detail Pertanyaan -->
+                    <div class="form-control mb-4">
+                      <label class="label">
+                        <span class="label-text text-sm font-medium">Detail Pertanyaan</span>
+                      </label>
+                      <textarea id="whatsapp-message" class="textarea textarea-bordered h-24 w-full" placeholder="Tuliskan pertanyaan Anda secara detail..." required></textarea>
+                    </div>
+
+                    <!-- Info Pengirim -->
+                    <div class="grid grid-cols-2 gap-3 mb-6">
+                      <div class="form-control">
+                        <label class="label">
+                          <span class="label-text text-xs text-slate-500">Nama</span>
+                        </label>
+                        <input type="text" id="whatsapp-name" class="input input-bordered input-sm w-full" value="{% if user.is_authenticated %}{{ user.get_full_name|default:user.username }}{% endif %}" placeholder="Nama Anda">
+                      </div>
+                      <div class="form-control">
+                        <label class="label">
+                          <span class="label-text text-xs text-slate-500">NIM/NIP (opsional)</span>
+                        </label>
+                        <input type="text" id="whatsapp-nim" class="input input-bordered input-sm w-full" value="{% if user.nim_nip %}{{ user.nim_nip }}{% endif %}" placeholder="NIM/NIP">
+                      </div>
+                    </div>
+
+                    <!-- Preview Pesan -->
+                    <div class="bg-slate-50 dark:bg-slate-700 p-4 rounded-xl mb-6">
+                      <div class="flex items-center gap-2 mb-3">
+                        <span class="material-icons text-green-500 text-sm">preview</span>
+                        <span class="text-sm font-semibold text-slate-700 dark:text-slate-200">Preview Pesan WhatsApp:</span>
+                      </div>
+                      <div id="whatsapp-preview" class="text-xs text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-600 max-h-32 overflow-y-auto whitespace-pre-wrap">
+                        Halo Lab Psikologi UMKT,\n\nSaya ingin bertanya tentang...\n[detail pertanyaan]...
+                      </div>
+                    </div>
+
+                    <div class="flex gap-3">
+                      <button type="button" onclick="closeWhatsappModal()" 
+                              class="flex-1 btn btn-outline btn-sm">
+                        <span class="material-icons text-sm">close</span>
+                        Batal
+                      </button>
+                      <button type="submit" id="whatsapp-submit"
+                              class="flex-1 btn btn-success btn-sm">
+                        <span class="material-icons text-sm">send</span>
+                        Kirim ke WhatsApp
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              <!-- akhir modal -->
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SECTION: Kebijakan Privasi                              -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div id="section-kebijakan-privasi" class="scroll-mt-20">
+
+      <button onclick="toggleSection('privasi')"
+              class="w-full flex items-center gap-3 p-5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-red-300 dark:hover:border-red-700 shadow-sm hover:shadow-md transition-all group">
+        <div class="w-11 h-11 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+          <span class="material-icons-outlined text-red-500 dark:text-red-400">shield</span>
+        </div>
+        <div class="flex-1 text-left">
+          <p class="font-semibold text-sm text-slate-900 dark:text-slate-100">Kebijakan Privasi</p>
+          <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Perlindungan dan pengelolaan data pengguna</p>
+        </div>
+        <span class="material-icons-outlined text-slate-400 dark:text-slate-500 transition-transform duration-200" id="chevron-privasi">expand_more</span>
+      </button>
+
+      <div id="body-privasi" class="hidden mt-2 px-1">
+        <div class="space-y-3">
+          {% for policy in privacy_policies %}
+          <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 flex items-start gap-4">
+            <div class="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+              <span class="material-icons-outlined text-red-500 dark:text-red-400" style="font-size:18px">{{ policy.icon }}</span>
+            </div>
+            <div>
+              <p class="font-semibold text-sm text-slate-800 dark:text-slate-200 mb-1">{{ policy.title }}</p>
+              <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{{ policy.desc }}</p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end space-y-4 -->
+
+  <!-- ── BACK TO TOP ── -->
+  <div class="text-center mt-10">
+    <a href="#"
+       class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 hover:border-primary-300 transition-all no-underline shadow-sm">
+      <span class="material-icons-outlined" style="font-size:14px">arrow_upward</span>
+      Kembali ke atas
+    </a>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Nomor WhatsApp Lab (ganti dengan nomor yang benar)
+const WA_NUMBER = '6282190429519';
+const WA_MESSAGE_BASE = `Halo Lab Psikologi UMKT,\n\nSaya ingin bertanya tentang:\n`;
+
+// ── Accordion Sections ──
+function toggleSection(name) {
+  const body = document.getElementById('body-' + name);
+  const chevron = document.getElementById('chevron-' + name);
+  const isOpen = !body.classList.contains('hidden');
+  body.classList.toggle('hidden', isOpen);
+  chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+}
+
+// ── FAQ Accordion ──
+function toggleFaq(index) {
+  const answer = document.getElementById('faq-answer-' + index);
+  const chevron = document.getElementById('faq-chevron-' + index);
+  const isOpen = !answer.classList.contains('hidden');
+  answer.classList.toggle('hidden', isOpen);
+  chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+}
+
+// ── WhatsApp Modal ──
+function openWhatsappModal() {
+  document.getElementById('whatsapp-modal').classList.remove('hidden');
+  // Fokus ke textarea
+  setTimeout(() => document.getElementById('whatsapp-message').focus(), 100);
+  updatePreview(); // update preview saat dibuka
+}
+
+function closeWhatsappModal() {
+  document.getElementById('whatsapp-modal').classList.add('hidden');
+  document.getElementById('whatsapp-form').reset();
+  // Reset preview ke default
+  document.getElementById('whatsapp-preview').textContent = 'Halo Lab Psikologi UMKT,\n\nSaya ingin bertanya tentang...\n[detail pertanyaan]...';
+}
+
+// Update preview secara real-time
+function updatePreview() {
+  const name = document.getElementById('whatsapp-name').value.trim();
+  const topicSelect = document.getElementById('whatsapp-topic');
+  const topic = topicSelect.options[topicSelect.selectedIndex]?.text || '...';
+  const message = document.getElementById('whatsapp-message').value.trim() || '[detail pertanyaan]...';
+
+  let previewText = WA_MESSAGE_BASE;
+  if (name) previewText += `*Nama:* ${name}\n`;
+  previewText += `*Topik:* ${topic}\n\n${message}`;
+  
+  document.getElementById('whatsapp-preview').textContent = previewText;
+}
+
+// Kirim WhatsApp
+function sendWhatsapp(event) {
+  event.preventDefault();
+  
+  const preview = document.getElementById('whatsapp-preview').textContent;
+  const encoded = encodeURIComponent(preview);
+  const waUrl = `https://wa.me/${WA_NUMBER}?text=${encoded}`;
+  window.open(waUrl, '_blank');
+  
+  // Tutup modal setelah mengirim
+  closeWhatsappModal();
+}
+
+// Tutup modal jika klik di luar modal (overlay)
+document.addEventListener('click', function(event) {
+  const modal = document.getElementById('whatsapp-modal');
+  if (event.target === modal) {
+    closeWhatsappModal();
+  }
+});
+
+// ── Auto-open + scroll dari URL hash ──
+window.addEventListener('DOMContentLoaded', () => {
+  const hash = window.location.hash; // e.g. #section-faq
+  if (!hash) return;
+
+  const el = document.querySelector(hash);
+  if (!el) return;
+
+  // Map section id ke nama accordion
+  const map = {
+    'section-panduan-peminjaman': 'peminjaman',
+    'section-sop-konseling':      'konseling',
+    'section-faq':                'faq',
+    'section-tentang':            'tentang',
+    'section-kebijakan-privasi':  'privasi',
+  };
+  const sectionId = hash.replace('#', '');
+  if (map[sectionId]) toggleSection(map[sectionId]);
+
+  setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
+
+  // Pasang event listener untuk update preview
+  ['whatsapp-name', 'whatsapp-topic', 'whatsapp-message'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', updatePreview);
+  });
+});
+</script>
+{% endblock %}
