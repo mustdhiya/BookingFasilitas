@@ -26,13 +26,16 @@ class LoginPageView(View):
 
     def get(self, request):
         if request.user.is_authenticated:
-            return redirect('home')
+            next_url = request.GET.get('next', '/')
+            return redirect(next_url)
         return render(request, self.template_name)
+
 
     def post(self, request):
         identifier = request.POST.get('username', '').strip()
         password   = request.POST.get('password', '')
         remember   = request.POST.get('remember')
+        next_url   = request.POST.get('next') or request.GET.get('next') or '/'
 
         # Info untuk LoginHistory
         ip_address = (
@@ -116,7 +119,18 @@ class LoginPageView(View):
         if not remember:
             request.session.set_expiry(0)
 
-        return redirect('home')
+        auth_login(request, user)
+
+        if not remember:
+            request.session.set_expiry(0)
+
+        # ── Validasi next_url supaya tidak bisa redirect ke domain lain ──
+        from django.utils.http import url_has_allowed_host_and_scheme
+        if not url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+            next_url = '/'
+
+        return redirect(next_url)
+
 class RegisterPageView(View):
     template_name = 'accounts/register.html'
 

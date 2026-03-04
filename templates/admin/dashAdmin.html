@@ -1,660 +1,638 @@
-{# ===== SECTION 1: DASHBOARD KPI (UPGRADED UX) ===== #}
+{# ===== SECTION: DASHBOARD ===== #}
 <div id="admin-section-dashboard" class="admin-module-section">
-  
-  {# Welcome Header #}
-  <div class="mb-6">
-    <div class="flex items-center justify-between flex-wrap gap-3">
-      <div>
-        <h2 class="text-2xl font-bold text-slate-900 mb-1">Dashboard Overview</h2>
-        <p class="text-sm text-slate-600 flex items-center gap-2">
-          <span class="material-icons text-xs">calendar_today</span>
-          Minggu, 18 Januari 2026 • Data real-time
-        </p>
-      </div>
-      <div class="flex gap-2">
-        <select class="rounded-lg border border-slate-200 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500">
-          <option>Bulan Ini</option>
-          <option>30 Hari Terakhir</option>
-          <option>90 Hari Terakhir</option>
-          <option>Custom Range</option>
-        </select>
-        <button onclick="refreshDashboard()" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-medium text-sm px-4 py-2 transition">
-          <span class="material-icons text-base">refresh</span>
-          Refresh
-        </button>
-      </div>
 
+  {# ── Welcome Header ── #}
+  <div class="flex items-center justify-between flex-wrap gap-3 mb-6">
+    <div>
+      <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Dashboard Overview</h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-0.5">
+        <span class="material-icons text-sm">calendar_today</span>
+        {{ today|date:"l, d F Y" }} &bull; Data real-time
+      </p>
     </div>
+    <button onclick="location.reload()"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition">
+      <span class="material-icons text-base">refresh</span>Refresh
+    </button>
   </div>
 
-  {# KPI Cards - Enhanced #}
-  <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-    
-    {# KPI 1 - Peminjaman Ruangan #}
-    <div class="group rounded-xl border border-orange-200 bg-gradient-to-br from-white to-orange-50/30 p-5 hover:shadow-xl hover:border-orange-300 transition-all cursor-pointer" onclick="navigateToSection('peminjaman', 'ruangan')">
-      <div class="flex items-start justify-between mb-4">
-        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-orange-100 to-orange-200 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform shadow-sm">
-          <span class="material-icons text-3xl text-orange-600">meeting_room</span>
+  {# ── KPI Cards ── #}
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
+    {# KPI 1 — Peminjaman Ruangan #}
+    <div class="group rounded-xl border border-orange-200 dark:border-orange-800 bg-white dark:bg-slate-800 p-4 lg:p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer"
+         onclick="navigateToSection('peminjaman','ruangan')">
+      <div class="flex items-start justify-between mb-3">
+        <div class="w-12 h-12 rounded-xl bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <span class="material-icons text-2xl text-orange-600 dark:text-orange-400">meeting_room</span>
         </div>
-        <div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700">
-          <span class="material-icons text-xs">trending_up</span>
-          <span class="text-xs font-semibold">+12%</span>
-        </div>
+        {% if peminjaman_stats.pending > 0 %}
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-xs font-semibold">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+          {{ peminjaman_stats.pending }} pending
+        </span>
+        {% else %}
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 text-xs font-semibold">
+          <span class="material-icons text-xs">check_circle</span>Clear
+        </span>
+        {% endif %}
       </div>
-      <div>
-        <p class="text-xs text-slate-500 mb-1.5 uppercase tracking-wide font-medium">Peminjaman Ruangan</p>
-        <p class="text-3xl font-bold text-slate-900 mb-1">47</p>
-        <p class="text-xs text-slate-600">Bulan Januari 2026</p>
-        <div class="mt-3 pt-3 border-t border-orange-200">
-          <div class="flex items-center justify-between text-xs">
-            <span class="text-slate-500">Target: 50</span>
-            <span class="font-semibold text-orange-600">94%</span>
-          </div>
-          <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mt-1.5">
-            <div class="h-full bg-gradient-to-r from-orange-500 to-orange-400 rounded-full transition-all" style="width: 94%"></div>
-          </div>
-        </div>
+      <p class="text-[11px] text-slate-400 dark:text-slate-500 uppercase tracking-wide font-semibold mb-1">Peminjaman Ruangan</p>
+      <p class="text-3xl font-bold text-slate-900 dark:text-slate-100">{{ peminjaman_stats.total_month }}</p>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Bulan {{ today|date:"F Y" }}</p>
+      <div class="mt-3 pt-3 border-t border-orange-100 dark:border-orange-800/50 flex items-center justify-between text-xs">
+        <span class="text-slate-500 dark:text-slate-400">
+          <span class="font-semibold text-emerald-600 dark:text-emerald-400">{{ peminjaman_stats.approved }}</span> disetujui
+        </span>
+        <span class="font-semibold text-orange-600 dark:text-orange-400">{{ peminjaman_stats.ongoing }} ongoing</span>
       </div>
     </div>
 
-    {# KPI 2 - Peminjaman Alat Tes #}
-    <div class="group rounded-xl border border-rose-200 bg-gradient-to-br from-white to-rose-50/30 p-5 hover:shadow-xl hover:border-rose-300 transition-all cursor-pointer" onclick="navigateToSection('peminjaman', 'alat')">
-      <div class="flex items-start justify-between mb-4">
-        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-rose-100 to-rose-200 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform shadow-sm">
-          <span class="material-icons text-3xl text-rose-600">science</span>
+    {# KPI 2 — Alat Tes #}
+    <div class="group rounded-xl border border-rose-200 dark:border-rose-800 bg-white dark:bg-slate-800 p-4 lg:p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer"
+         onclick="navigateToSection('peminjaman','alat')">
+      <div class="flex items-start justify-between mb-3">
+        <div class="w-12 h-12 rounded-xl bg-rose-100 dark:bg-rose-900/40 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <span class="material-icons text-2xl text-rose-600 dark:text-rose-400">biotech</span>
         </div>
-        <div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700">
-          <span class="material-icons text-xs">trending_up</span>
-          <span class="text-xs font-semibold">+8%</span>
-        </div>
-      </div>
-      <div>
-        <p class="text-xs text-slate-500 mb-1.5 uppercase tracking-wide font-medium">Peminjaman Alat Tes</p>
-        <p class="text-3xl font-bold text-slate-900 mb-1">23</p>
-        <p class="text-xs text-slate-600">Total Revenue: Rp 11.5jt</p>
-        <div class="mt-3 pt-3 border-t border-rose-200">
-          <div class="flex items-center justify-between text-xs">
-            <span class="text-slate-500">Target: 30</span>
-            <span class="font-semibold text-rose-600">77%</span>
-          </div>
-          <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mt-1.5">
-            <div class="h-full bg-gradient-to-r from-rose-500 to-rose-400 rounded-full transition-all" style="width: 77%"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {# KPI 3 - Peserta Praktikum #}
-    <div class="group rounded-xl border border-blue-200 bg-gradient-to-br from-white to-blue-50/30 p-5 hover:shadow-xl hover:border-blue-300 transition-all cursor-pointer" onclick="navigateToSection('praktikum', 'peserta')">
-      <div class="flex items-start justify-between mb-4">
-        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform shadow-sm">
-          <span class="material-icons text-3xl text-blue-600">groups</span>
-        </div>
-        <div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700">
-          <span class="material-icons text-xs">trending_up</span>
-          <span class="text-xs font-semibold">+18%</span>
-        </div>
-      </div>
-      <div>
-        <p class="text-xs text-slate-500 mb-1.5 uppercase tracking-wide font-medium">Peserta Praktikum</p>
-        <p class="text-3xl font-bold text-slate-900 mb-1">142</p>
-        <p class="text-xs text-slate-600">Dari 8 sesi aktif</p>
-        <div class="mt-3 pt-3 border-t border-blue-200">
-          <div class="flex items-center justify-between text-xs">
-            <span class="text-slate-500">Avg Attendance</span>
-            <span class="font-semibold text-blue-600">89%</span>
-          </div>
-          <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mt-1.5">
-            <div class="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full transition-all" style="width: 89%"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {# KPI 4 - Variabel Penelitian #}
-    <div class="group rounded-xl border border-emerald-200 bg-gradient-to-br from-white to-emerald-50/30 p-5 hover:shadow-xl hover:border-emerald-300 transition-all cursor-pointer" onclick="navigateToSection('praktikum', 'variabel')">
-      <div class="flex items-start justify-between mb-4">
-        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-200 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform shadow-sm">
-          <span class="material-icons text-3xl text-emerald-600">auto_stories</span>
-        </div>
-        <div class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-100 text-amber-700">
+        {% if tool_stats.overdue > 0 %}
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 text-xs font-semibold">
           <span class="material-icons text-xs">warning</span>
-          <span class="text-xs font-semibold">5 Pending</span>
-        </div>
+          {{ tool_stats.overdue }} overdue
+        </span>
+        {% else %}
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 text-xs font-semibold">
+          <span class="material-icons text-xs">check_circle</span>Clear
+        </span>
+        {% endif %}
       </div>
-      <div>
-        <p class="text-xs text-slate-500 mb-1.5 uppercase tracking-wide font-medium">Variabel Penelitian</p>
-        <div class="flex items-baseline gap-2 mb-1">
-          <p class="text-3xl font-bold text-slate-900">18</p>
-          <span class="text-lg font-semibold text-slate-400">/</span>
-          <p class="text-xl font-semibold text-amber-600">5</p>
+      <p class="text-[11px] text-slate-400 dark:text-slate-500 uppercase tracking-wide font-semibold mb-1">Peminjaman Alat Tes</p>
+      <p class="text-3xl font-bold text-slate-900 dark:text-slate-100">{{ tool_stats.approved }}</p>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Aktif dipinjam</p>
+      <div class="mt-3 pt-3 border-t border-rose-100 dark:border-rose-800/50 flex items-center justify-between text-xs">
+        <span class="text-slate-500 dark:text-slate-400">
+          <span class="font-semibold text-amber-600 dark:text-amber-400">{{ tool_stats.pending }}</span> pending
+        </span>
+        <span class="font-semibold text-rose-600 dark:text-rose-400">{{ tool_stats.borrowed }} dipinjam</span>
+      </div>
+    </div>
+
+    {# KPI 3 — Konseling #}
+    <div class="group rounded-xl border border-blue-200 dark:border-blue-800 bg-white dark:bg-slate-800 p-4 lg:p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer"
+         onclick="navigateToSection('konseling')">
+      <div class="flex items-start justify-between mb-3">
+        <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <span class="material-icons text-2xl text-blue-600 dark:text-blue-400">psychology</span>
         </div>
-        <p class="text-xs text-slate-600">Aktif / Menunggu Approval</p>
-        <div class="mt-3 pt-3 border-t border-emerald-200">
-          <div class="grid grid-cols-2 gap-2 text-xs">
-            <div>
-              <span class="text-slate-500">Slot Terisi</span>
-              <p class="font-semibold text-emerald-600">78%</p>
-            </div>
-            <div>
-              <span class="text-slate-500">Avg Rating</span>
-              <p class="font-semibold text-emerald-600">4.6/5</p>
-            </div>
-          </div>
+        {% if stats.pending > 0 %}
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-xs font-semibold">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+          {{ stats.pending }} pending
+        </span>
+        {% endif %}
+      </div>
+      <p class="text-[11px] text-slate-400 dark:text-slate-500 uppercase tracking-wide font-semibold mb-1">Sesi Konseling</p>
+      <p class="text-3xl font-bold text-slate-900 dark:text-slate-100">{{ stats.total }}</p>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Total semua sesi</p>
+      <div class="mt-3 pt-3 border-t border-blue-100 dark:border-blue-800/50 flex items-center justify-between text-xs">
+        <span class="text-slate-500 dark:text-slate-400">
+          <span class="font-semibold text-emerald-600 dark:text-emerald-400">{{ stats.done }}</span> selesai
+        </span>
+        <span class="font-semibold text-blue-600 dark:text-blue-400">{{ stats.approved }} aktif</span>
+      </div>
+    </div>
+
+    {# KPI 4 — Manajemen Akun #}
+    <div class="group rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-slate-800 p-4 lg:p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer"
+         onclick="navigateToSection('akun')">
+      <div class="flex items-start justify-between mb-3">
+        <div class="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <span class="material-icons text-2xl text-emerald-600 dark:text-emerald-400">manage_accounts</span>
         </div>
+        {% if akun_stats.pending > 0 %}
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-xs font-semibold">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+          {{ akun_stats.pending }} baru
+        </span>
+        {% endif %}
+      </div>
+      <p class="text-[11px] text-slate-400 dark:text-slate-500 uppercase tracking-wide font-semibold mb-1">Manajemen Akun</p>
+      <p class="text-3xl font-bold text-slate-900 dark:text-slate-100">{{ akun_stats.total }}</p>
+      <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Total pengguna</p>
+      <div class="mt-3 pt-3 border-t border-emerald-100 dark:border-emerald-800/50 flex items-center justify-between text-xs">
+        <span class="text-slate-500 dark:text-slate-400">
+          <span class="font-semibold text-emerald-600 dark:text-emerald-400">{{ akun_stats.active }}</span> aktif
+        </span>
+        <span class="font-semibold text-slate-500 dark:text-slate-400">{{ akun_stats.inactive }} nonaktif</span>
       </div>
     </div>
   </div>
 
-  {# Main Content Grid #}
-  <div class="grid lg:grid-cols-[1fr_380px] gap-6">
-    
-    {# Left Column - Action Items #}
+  {# ── Main Grid ── #}
+  <div class="grid lg:grid-cols-[1fr_360px] gap-6">
+
+    {# ── LEFT: Butuh Tindakan + Aktivitas ── #}
     <div class="space-y-6">
-      
-      {# Action Items Section #}
-      <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6">
-        <div class="flex items-center justify-between mb-5">
-          <h3 class="text-lg font-semibold text-slate-900 flex items-center gap-2">
-            <span class="material-icons text-rose-600">notification_important</span>
-            Butuh Tindakan Segera
-            <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-rose-100 text-rose-700 text-xs font-bold">4</span>
+
+      {# Pending Actions #}
+      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700">
+          <h3 class="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <span class="material-icons text-rose-500">notification_important</span>
+            Butuh Tindakan
+            {# ── Badge total: room + tool + konseling + akun + penelitian ── #}
+            {% with total=peminjaman_stats.pending|add:tool_stats.pending|add:stats.pending|add:akun_stats.pending|add:penelitian_stats.pending %}
+            {% if total > 0 %}
+            <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-400 text-xs font-bold">{{ total }}</span>
+            {% endif %}
+            {% endwith %}
           </h3>
-          <button onclick="viewAllActions()" class="text-sm text-primary-600 hover:text-primary-700 font-medium">
-            Lihat Semua →
-          </button>
+          <button onclick="navigateToSection('peminjaman')"
+                  class="text-sm text-primary-600 dark:text-primary-400 hover:underline font-medium">Lihat Semua →</button>
         </div>
 
-        <div class="space-y-3">
-          
-          {# Action Card 1 - Pending Ruangan #}
-          <div class="group rounded-xl border-2 border-amber-200 bg-gradient-to-r from-amber-50/50 to-white p-4 hover:shadow-md transition">
+        <div class="divide-y divide-slate-50 dark:divide-slate-700/50">
+
+          {# ── 1. Pending Room Bookings ── #}
+          {% for booking in room_bookings_page.object_list %}
+          {% if booking.status == 'pending' %}
+          <div class="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
             <div class="flex items-start gap-3">
-              <div class="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center flex-shrink-0">
-                <span class="material-icons text-orange-600 text-lg">meeting_room</span>
+              <div class="w-9 h-9 rounded-lg bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span class="material-icons text-base text-orange-600 dark:text-orange-400">meeting_room</span>
               </div>
-              
               <div class="flex-1 min-w-0">
-                <div class="flex items-start justify-between mb-2">
-                  <div class="flex-1">
-                    <h4 class="text-sm font-semibold text-slate-900 mb-1">Peminjaman Lab Psikometri</h4>
-                    <div class="flex flex-wrap items-center gap-2 text-xs text-slate-600">
-                      <span class="flex items-center gap-1">
-                        <span class="material-icons text-xs">person</span>
-                        Muhammad Rizki
-                      </span>
-                      <span class="text-slate-300">•</span>
-                      <span class="flex items-center gap-1">
-                        <span class="material-icons text-xs">event</span>
-                        22 Jan 2026, 09:00-11:00
-                      </span>
-                      <span class="text-slate-300">•</span>
-                      <span class="flex items-center gap-1">
-                        <span class="material-icons text-xs">groups</span>
-                        25 peserta
-                      </span>
-                    </div>
+                <div class="flex items-start justify-between gap-2 mb-1">
+                  <div>
+                    <p class="text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wide mb-0.5">Peminjaman Ruangan</p>
+                    <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">{{ booking.room.name }}</p>
                   </div>
-                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300 ml-3">
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5 animate-pulse"></span>
-                    Pending
+                  <span class="flex-shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-xs font-semibold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>Pending
                   </span>
                 </div>
-
-                <div class="mb-3">
-                  <input type="text" placeholder="Tambah catatan admin..." class="w-full text-xs rounded-lg border border-slate-200 px-3 py-2 focus:ring-2 focus:ring-primary-500 focus:border-primary-500" id="note-1" />
+                <div class="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-500 dark:text-slate-400 mb-3">
+                  <span class="flex items-center gap-1">
+                    <span class="material-icons text-xs">person</span>
+                    {{ booking.user.get_full_name|default:booking.user.email }}
+                  </span>
+                  <span class="flex items-center gap-1">
+                    <span class="material-icons text-xs">event</span>
+                    {{ booking.date_start|date:"d M Y" }}
+                  </span>
+                  <span class="flex items-center gap-1">
+                    <span class="material-icons text-xs">schedule</span>
+                    {{ booking.time_start|time:"H:i" }}–{{ booking.time_end|time:"H:i" }}
+                  </span>
                 </div>
-
-                <div class="flex items-center justify-between">
-                  <button onclick="viewDetailRequest(1, 'room')" class="text-xs text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1">
-                    <span class="material-icons text-xs">visibility</span>
-                    Detail
-                  </button>
-                  <div class="flex gap-2">
-                    <button onclick="approveRequest(1, 'room')" class="inline-flex items-center gap-1 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-xs px-3 py-2 transition shadow-sm">
-                      <span class="material-icons text-sm">check</span>
-                      Approve
-                    </button>
-                    <button onclick="declineRequest(1, 'room', 'Muhammad Rizki')" class="inline-flex items-center gap-1 rounded-lg bg-rose-500 hover:bg-rose-600 text-white font-semibold text-xs px-3 py-2 transition shadow-sm">
-                      <span class="material-icons text-sm">close</span>
-                      Decline
-                    </button>
+                <div class="flex items-center justify-between gap-2">
+                  <a href="/admin-panel/?section=peminjaman"
+                     class="text-xs text-primary-600 dark:text-primary-400 font-medium flex items-center gap-0.5 hover:underline">
+                    <span class="material-icons text-xs">visibility</span>Detail
+                  </a>
+                  <div class="flex gap-1.5">
+                    <form method="POST" action="/api/rooms/bookings/{{ booking.pk }}/approve/" class="inline">
+                      {% csrf_token %}
+                      <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold transition shadow-sm">
+                        <span class="material-icons text-sm">check</span>Approve
+                      </button>
+                    </form>
+                    <form method="POST" action="/api/rooms/bookings/{{ booking.pk }}/reject/" class="inline">
+                      {% csrf_token %}
+                      <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold transition shadow-sm">
+                        <span class="material-icons text-sm">close</span>Tolak
+                      </button>
+                    </form>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+          {% endif %}
+          {% endfor %}
 
-          {# Action Card 2 - Pending Alat #}
-          <div class="group rounded-xl border-2 border-amber-200 bg-gradient-to-r from-amber-50/50 to-white p-4 hover:shadow-md transition">
+          {# ── 2. Pending Tool Rentals ── #}
+          {% for rental in tool_rentals_page.object_list %}
+          {% if rental.status == 'pending' %}
+          <div class="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
             <div class="flex items-start gap-3">
-              <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-                <span class="material-icons text-blue-600 text-lg">science</span>
+              <div class="w-9 h-9 rounded-lg bg-rose-100 dark:bg-rose-900/40 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span class="material-icons text-base text-rose-600 dark:text-rose-400">biotech</span>
               </div>
-              
               <div class="flex-1 min-w-0">
-                <div class="flex items-start justify-between mb-2">
-                  <div class="flex-1">
-                    <h4 class="text-sm font-semibold text-slate-900 mb-1">Peminjaman WAIS-IV (10 lembar)</h4>
-                    <div class="flex flex-wrap items-center gap-2 text-xs text-slate-600">
-                      <span class="flex items-center gap-1">
-                        <span class="material-icons text-xs">person</span>
-                        Siti Aisyah
-                      </span>
-                      <span class="text-slate-300">•</span>
-                      <span class="flex items-center gap-1 font-semibold text-blue-700">
-                        <span class="material-icons text-xs">payments</span>
-                        Rp 500.000
-                      </span>
-                      <span class="text-slate-300">•</span>
-                      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
-                        Belum Bayar
-                      </span>
-                    </div>
+                <div class="flex items-start justify-between gap-2 mb-1">
+                  <div>
+                    <p class="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wide mb-0.5">Peminjaman Alat Tes</p>
+                    <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">{{ rental.tool.name }}</p>
                   </div>
-                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300 ml-3">
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5 animate-pulse"></span>
-                    Pending
+                  <span class="flex-shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-xs font-semibold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>Pending
                   </span>
                 </div>
-
-                <div class="flex items-center justify-between">
-                  <button onclick="viewDetailRequest(2, 'tool')" class="text-xs text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1">
-                    <span class="material-icons text-xs">visibility</span>
-                    Detail & Invoice
-                  </button>
-                  <div class="flex gap-2">
-                    <button onclick="approveRequest(2, 'tool')" class="inline-flex items-center gap-1 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-xs px-3 py-2 transition shadow-sm">
-                      <span class="material-icons text-sm">check</span>
-                      Approve
-                    </button>
-                    <button onclick="declineRequest(2, 'tool', 'Siti Aisyah')" class="inline-flex items-center gap-1 rounded-lg bg-rose-500 hover:bg-rose-600 text-white font-semibold text-xs px-3 py-2 transition shadow-sm">
-                      <span class="material-icons text-sm">close</span>
-                      Decline
-                    </button>
+                <div class="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-500 dark:text-slate-400 mb-3">
+                  <span class="flex items-center gap-1">
+                    <span class="material-icons text-xs">person</span>
+                    {{ rental.user.get_full_name|default:rental.user.email }}
+                  </span>
+                  <span class="flex items-center gap-1">
+                    <span class="material-icons text-xs">event</span>
+                    {{ rental.date_start|date:"d M Y" }} – {{ rental.date_end|date:"d M Y" }}
+                  </span>
+                </div>
+                <div class="flex items-center justify-between gap-2">
+                  <a href="/admin-panel/?section=peminjaman"
+                     class="text-xs text-primary-600 dark:text-primary-400 font-medium flex items-center gap-0.5 hover:underline">
+                    <span class="material-icons text-xs">visibility</span>Detail
+                  </a>
+                  <div class="flex gap-1.5">
+                    <form method="POST" action="/api/tools/rentals/{{ rental.pk }}/approve/" class="inline">
+                      {% csrf_token %}
+                      <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold transition shadow-sm">
+                        <span class="material-icons text-sm">check</span>Approve
+                      </button>
+                    </form>
+                    <form method="POST" action="/api/tools/rentals/{{ rental.pk }}/reject/" class="inline">
+                      {% csrf_token %}
+                      <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold transition shadow-sm">
+                        <span class="material-icons text-sm">close</span>Tolak
+                      </button>
+                    </form>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+          {% endif %}
+          {% endfor %}
 
-          {# Action Card 3 - Almost Full #}
-          <div class="rounded-xl border border-amber-200 bg-amber-50/30 p-4 hover:shadow-md transition">
+          {# ── 3. Pending Konseling ── #}
+          {% for sesi in sesi_list %}
+          {% if sesi.status == 'pending' %}
+          <div class="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
             <div class="flex items-start gap-3">
-              <div class="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-                <span class="material-icons text-amber-600 text-lg">groups</span>
+              <div class="w-9 h-9 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span class="material-icons text-base text-blue-600 dark:text-blue-400">psychology</span>
               </div>
-              
-              <div class="flex-1">
-                <div class="flex items-start justify-between mb-2">
-                  <div class="flex-1">
-                    <h4 class="text-sm font-semibold text-slate-900 mb-1">Praktikum Wawancara - Sesi 2</h4>
-                    <div class="flex items-center gap-2 text-xs text-slate-600">
-                      <span class="flex items-center gap-1">
-                        <span class="material-icons text-xs">event</span>
-                        25 Jan 2026, 10:00-12:00
-                      </span>
-                      <span class="text-slate-300">•</span>
-                      <span class="flex items-center gap-1">
-                        <span class="material-icons text-xs">meeting_room</span>
-                        Lab Klinis
-                      </span>
-                    </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-start justify-between gap-2 mb-1">
+                  <div>
+                    <p class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide mb-0.5">Konseling</p>
+                    <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
+                      {{ sesi.user.get_full_name|default:sesi.user.email }}
+                    </p>
                   </div>
-                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300">
-                    24/25 slot
+                  <span class="flex-shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-xs font-semibold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>Pending
                   </span>
                 </div>
-
-                <div class="flex items-center gap-2 mb-2">
-                  <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-                    <div class="h-full bg-amber-500 rounded-full transition-all" style="width: 96%"></div>
-                  </div>
-                  <span class="text-xs font-semibold text-amber-600">96%</span>
+                <div class="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-500 dark:text-slate-400 mb-3">
+                  <span class="flex items-center gap-1">
+                    <span class="material-icons text-xs">schedule</span>
+                    {{ sesi.created_at|date:"d M Y, H:i" }}
+                  </span>
+                  {% if sesi.keluhan %}
+                  <span class="flex items-center gap-1 truncate max-w-[180px]">
+                    <span class="material-icons text-xs">chat_bubble_outline</span>
+                    {{ sesi.keluhan|truncatechars:40 }}
+                  </span>
+                  {% endif %}
                 </div>
-
-                <div class="flex items-center justify-between">
-                  <p class="text-xs text-amber-700 flex items-center gap-1">
-                    <span class="material-icons text-xs">warning</span>
-                    Hampir penuh, tinggal 1 slot
-                  </p>
-                  <button onclick="viewPeserta(2)" class="text-xs text-primary-600 hover:text-primary-700 font-semibold">
-                    Lihat Peserta →
-                  </button>
+                <div class="flex justify-end">
+                  <a href="/admin-panel/?section=konseling"
+                     class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold transition">
+                    <span class="material-icons text-sm">open_in_new</span>Kelola
+                  </a>
                 </div>
               </div>
             </div>
           </div>
+          {% endif %}
+          {% endfor %}
 
-          {# Action Card 4 - Full / Need Action #}
-          <div class="rounded-xl border-2 border-rose-200 bg-rose-50/30 p-4 hover:shadow-md transition">
+          {# ── 4. Pending Variabel Penelitian ── #}
+          {% for req in research_request_list %}
+          {% if req.status == 'pending' %}
+          <div class="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
             <div class="flex items-start gap-3">
-              <div class="w-10 h-10 rounded-lg bg-rose-100 flex items-center justify-center flex-shrink-0">
-                <span class="material-icons text-rose-600 text-lg">auto_stories</span>
+              <div class="w-9 h-9 rounded-lg bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span class="material-icons text-base text-teal-600 dark:text-teal-400">auto_stories</span>
               </div>
-              
-              <div class="flex-1">
-                <div class="flex items-start justify-between mb-2">
-                  <div class="flex-1">
-                    <h4 class="text-sm font-semibold text-slate-900 mb-1">Variabel: Self-Efficacy & Prokrastinasi</h4>
-                    <div class="flex items-center gap-2 text-xs text-slate-600">
-                      <span class="flex items-center gap-1">
-                        <span class="material-icons text-xs">psychology</span>
-                        Psikologi Sosial
-                      </span>
-                      <span class="text-slate-300">•</span>
-                      <span class="flex items-center gap-1">
-                        <span class="material-icons text-xs">person</span>
-                        Dr. Ahmad Fauzi
-                      </span>
-                    </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-start justify-between gap-2 mb-1">
+                  <div>
+                    <p class="text-xs font-bold text-teal-600 dark:text-teal-400 uppercase tracking-wide mb-0.5">Variabel Penelitian</p>
+                    <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
+                      {{ req.research_title.title|default:"—" }}
+                    </p>
                   </div>
-                  <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-800 border border-rose-300">
-                    <span class="material-icons text-xs mr-1">error</span>
-                    Penuh 5/5
+                  <span class="flex-shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-xs font-semibold">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>Pending
                   </span>
                 </div>
-
-                <div class="rounded-lg bg-white border border-rose-200 p-2 mb-2">
-                  <p class="text-xs text-rose-700 flex items-center gap-1">
-                    <span class="material-icons text-xs">info</span>
-                    Ada 3 mahasiswa di waitlist menunggu slot
-                  </p>
+                <div class="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-500 dark:text-slate-400 mb-3">
+                  <span class="flex items-center gap-1">
+                    <span class="material-icons text-xs">person</span>
+                    {{ req.student.get_full_name|default:req.student.email }}
+                  </span>
+                  {% if req.lecturer %}
+                  <span class="flex items-center gap-1">
+                    <span class="material-icons text-xs">school</span>
+                    {{ req.lecturer.name }}
+                  </span>
+                  {% endif %}
+                  <span class="flex items-center gap-1">
+                    <span class="material-icons text-xs">schedule</span>
+                    {{ req.created_at|date:"d M Y" }}
+                  </span>
                 </div>
-
-                <div class="flex items-center justify-between">
-                  <button onclick="viewVariabelDetail(1)" class="text-xs text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1">
-                    <span class="material-icons text-xs">visibility</span>
-                    Detail
-                  </button>
-                  <button onclick="addSlot(1)" class="inline-flex items-center gap-1 rounded-lg bg-primary-500 hover:bg-primary-600 text-white font-semibold text-xs px-3 py-2 transition shadow-sm">
-                    <span class="material-icons text-sm">add</span>
-                    Tambah Slot
-                  </button>
+                <div class="flex items-center justify-between gap-2">
+                  <a href="/admin-panel/?section=penelitian"
+                     class="text-xs text-primary-600 dark:text-primary-400 font-medium flex items-center gap-0.5 hover:underline">
+                    <span class="material-icons text-xs">visibility</span>Detail
+                  </a>
+                  <div class="flex gap-1.5">
+                    <form method="POST" action="/api/penelitian/{{ req.pk }}/approve/" class="inline">
+                      {% csrf_token %}
+                      <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold transition shadow-sm">
+                        <span class="material-icons text-sm">check</span>Approve
+                      </button>
+                    </form>
+                    <form method="POST" action="/api/penelitian/{{ req.pk }}/reject/" class="inline">
+                      {% csrf_token %}
+                      <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold transition shadow-sm">
+                        <span class="material-icons text-sm">close</span>Tolak
+                      </button>
+                    </form>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+          {% endif %}
+          {% endfor %}
+
+          {# ── 5. Pending Praktikum (mahasiswa belum dikonfirmasi) ── #}
+          {% for praktikum in practicum_list %}
+          {% if not praktikum.is_confirmed %}
+          <div class="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
+            <div class="flex items-start gap-3">
+              <div class="w-9 h-9 rounded-lg bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span class="material-icons text-base text-violet-600 dark:text-violet-400">school</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-start justify-between gap-2 mb-1">
+                  <div>
+                    <p class="text-xs font-bold text-violet-600 dark:text-violet-400 uppercase tracking-wide mb-0.5">Praktikum</p>
+                    <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">{{ praktikum.name }}</p>
+                  </div>
+                  <span class="flex-shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-400 text-xs font-semibold">
+                    Belum Konfirmasi
+                  </span>
+                </div>
+                <div class="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-500 dark:text-slate-400 mb-3">
+                  {% if praktikum.lecturer %}
+                  <span class="flex items-center gap-1">
+                    <span class="material-icons text-xs">person</span>
+                    {{ praktikum.lecturer.name }}
+                  </span>
+                  {% endif %}
+                  <span class="flex items-center gap-1">
+                    <span class="material-icons text-xs">event</span>
+                    {{ praktikum.date|date:"d M Y" }}
+                  </span>
+                  {% if praktikum.room %}
+                  <span class="flex items-center gap-1">
+                    <span class="material-icons text-xs">meeting_room</span>
+                    {{ praktikum.room.name }}
+                  </span>
+                  {% endif %}
+                </div>
+                <div class="flex justify-end">
+                  <a href="/admin-panel/?section=dosen"
+                     class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-violet-500 hover:bg-violet-600 text-white text-xs font-semibold transition">
+                    <span class="material-icons text-sm">open_in_new</span>Kelola
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+          {% endfor %}
+
+          {# ── 6. Pending Verifikasi Akun ── #}
+          {% for u in user_list %}
+          {% if not u.is_active and not u.is_verified %}
+          <div class="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
+            <div class="flex items-start gap-3">
+              <img src="{% if u.avatar %}{{ u.avatar.url }}{% else %}https://ui-avatars.com/api/?name={{ u.get_full_name }}&background=0D93B1&color=fff&bold=true{% endif %}"
+                   class="w-9 h-9 rounded-full object-cover ring-2 ring-primary-200 dark:ring-primary-700 flex-shrink-0 mt-0.5"
+                   alt="{{ u.get_full_name }}">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-start justify-between gap-2 mb-1">
+                  <div>
+                    <p class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide mb-0.5">Verifikasi Akun</p>
+                    <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">{{ u.get_full_name|default:u.email }}</p>
+                  </div>
+                  <span class="flex-shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-400 text-xs font-semibold">
+                    Menunggu
+                  </span>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                  {{ u.email }} &bull; Daftar {{ u.date_joined|date:"d M Y" }}
+                </p>
+                <div class="flex justify-end">
+                  <a href="/admin-panel/?section=akun"
+                     class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary-500 hover:bg-primary-600 text-white text-xs font-semibold transition">
+                    <span class="material-icons text-sm">manage_accounts</span>Verifikasi
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+          {% endfor %}
+
+          {# ── Empty State ── #}
+          {% if not peminjaman_stats.pending and not tool_stats.pending and not stats.pending and not akun_stats.pending and not penelitian_stats.pending %}
+          <div class="flex flex-col items-center justify-center py-12 text-slate-400 dark:text-slate-600">
+            <span class="material-icons text-5xl mb-3 opacity-40">check_circle</span>
+            <p class="text-sm font-medium">Semua sudah ditangani!</p>
+            <p class="text-xs mt-1">Tidak ada item yang membutuhkan tindakan</p>
+          </div>
+          {% endif %}
+
         </div>
       </div>
 
       {# Recent Activity Timeline #}
-      <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6">
-        <h3 class="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-5">
-          <span class="material-icons text-blue-600">history</span>
-          Aktivitas Terbaru
+      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-6">
+        <h3 class="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2 mb-5">
+          <span class="material-icons text-blue-500">history</span>Aktivitas Terbaru
         </h3>
-
-        <div class="space-y-4">
-          <div class="flex gap-3">
+        <div class="space-y-0">
+          {% for booking in room_bookings_page.object_list|slice:":4" %}
+          <div class="flex gap-3 group">
             <div class="flex flex-col items-center">
-              <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                <span class="material-icons text-sm text-emerald-600">check_circle</span>
+              <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0
+                {% if booking.status == 'approved' %}bg-emerald-100 dark:bg-emerald-900/40
+                {% elif booking.status == 'rejected' %}bg-rose-100 dark:bg-rose-900/40
+                {% else %}bg-amber-100 dark:bg-amber-900/40{% endif %}">
+                <span class="material-icons text-sm
+                  {% if booking.status == 'approved' %}text-emerald-600 dark:text-emerald-400
+                  {% elif booking.status == 'rejected' %}text-rose-600 dark:text-rose-400
+                  {% else %}text-amber-600 dark:text-amber-400{% endif %}">
+                  {% if booking.status == 'approved' %}check_circle{% elif booking.status == 'rejected' %}cancel{% else %}pending{% endif %}
+                </span>
               </div>
-              <div class="w-0.5 flex-1 bg-slate-200 my-1"></div>
+              <div class="w-px flex-1 bg-slate-100 dark:bg-slate-700 my-1 group-last:hidden"></div>
             </div>
             <div class="flex-1 pb-4">
-              <p class="text-sm text-slate-900 font-medium mb-1">Peminjaman Lab Klinis disetujui</p>
-              <p class="text-xs text-slate-600 mb-1">Siti Nurhaliza • 20 Jan 2026, 14:00-16:00</p>
-              <p class="text-xs text-slate-400">5 menit yang lalu</p>
+              <p class="text-sm font-medium text-slate-900 dark:text-slate-100">
+                Ruangan {{ booking.room.name }}
+                <span class="font-normal text-slate-500 dark:text-slate-400">
+                  {% if booking.status == 'approved' %}disetujui{% elif booking.status == 'rejected' %}ditolak{% else %}diajukan{% endif %}
+                </span>
+              </p>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                {{ booking.user.get_full_name|default:booking.user.email }} &bull; {{ booking.date_start|date:"d M Y" }}
+              </p>
+              <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{{ booking.created_at|timesince }} lalu</p>
             </div>
           </div>
-
-          <div class="flex gap-3">
-            <div class="flex flex-col items-center">
-              <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                <span class="material-icons text-sm text-blue-600">person_add</span>
-              </div>
-              <div class="w-0.5 flex-1 bg-slate-200 my-1"></div>
-            </div>
-            <div class="flex-1 pb-4">
-              <p class="text-sm text-slate-900 font-medium mb-1">Mahasiswa baru join praktikum</p>
-              <p class="text-xs text-slate-600 mb-1">3 mahasiswa bergabung Praktikum Inteligensi Sesi 3</p>
-              <p class="text-xs text-slate-400">12 menit yang lalu</p>
-            </div>
-          </div>
-
-          <div class="flex gap-3">
-            <div class="flex flex-col items-center">
-              <div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
-                <span class="material-icons text-sm text-amber-600">inventory</span>
-              </div>
-              <div class="w-0.5 flex-1 bg-slate-200 my-1"></div>
-            </div>
-            <div class="flex-1 pb-4">
-              <p class="text-sm text-slate-900 font-medium mb-1">Stock alat tes diperbarui</p>
-              <p class="text-xs text-slate-600 mb-1">MBTI: +15 lembar • Stock sekarang: 20 lembar</p>
-              <p class="text-xs text-slate-400">28 menit yang lalu</p>
-            </div>
-          </div>
-
-          <div class="flex gap-3">
-            <div class="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center flex-shrink-0">
-              <span class="material-icons text-sm text-rose-600">cancel</span>
-            </div>
-            <div class="flex-1">
-              <p class="text-sm text-slate-900 font-medium mb-1">Peminjaman ditolak</p>
-              <p class="text-xs text-slate-600 mb-1">Ahmad Fauzi • Lab Perkembangan • Bentrok jadwal</p>
-              <p class="text-xs text-slate-400">1 jam yang lalu</p>
-            </div>
-          </div>
+          {% empty %}
+          <p class="text-sm text-slate-400 dark:text-slate-500 text-center py-6">Belum ada aktivitas</p>
+          {% endfor %}
         </div>
-
-        <button onclick="viewAllActivity()" class="w-full mt-4 pt-4 border-t border-slate-200 text-sm text-primary-600 hover:text-primary-700 font-medium">
+        <a href="/admin-panel/?section=peminjaman"
+           class="block w-full mt-2 pt-4 border-t border-slate-100 dark:border-slate-700 text-center text-sm text-primary-600 dark:text-primary-400 font-medium hover:underline">
           Lihat Semua Aktivitas →
-        </button>
+        </a>
       </div>
     </div>
 
-    {# Right Column - Quick Stats & Insights #}
-    <div class="space-y-6">
-      
-      {# Quick Stats #}
-      <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6">
-        <h3 class="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-5">
-          <span class="material-icons text-blue-600">trending_up</span>
-          Statistik & Insights
-        </h3>
-
-        <div class="space-y-3">
-          
-          {# Stat 1 #}
-          <div class="rounded-xl border border-orange-200 bg-gradient-to-br from-orange-50 to-white p-4 hover:shadow-md transition">
-            <div class="flex items-center gap-2 mb-2">
-              <div class="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center">
-                <span class="material-icons text-sm text-orange-600">meeting_room</span>
-              </div>
-              <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide">Ruangan Tersibuk</p>
-            </div>
-            <h4 class="text-base font-bold text-slate-900 mb-1">Lab Psikometri</h4>
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-slate-600">18 peminjaman</span>
-              <span class="font-semibold text-orange-600">72% occupancy</span>
-            </div>
-            <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mt-2">
-              <div class="h-full bg-orange-500 rounded-full" style="width: 72%"></div>
-            </div>
-          </div>
-
-          {# Stat 2 #}
-          <div class="rounded-xl border border-rose-200 bg-gradient-to-br from-rose-50 to-white p-4 hover:shadow-md transition">
-            <div class="flex items-center gap-2 mb-2">
-              <div class="w-8 h-8 rounded-lg bg-rose-100 flex items-center justify-center">
-                <span class="material-icons text-sm text-rose-600">science</span>
-              </div>
-              <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide">Alat Tes Terpopuler</p>
-            </div>
-            <h4 class="text-base font-bold text-slate-900 mb-1">WAIS-IV</h4>
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-slate-600">12 peminjaman</span>
-              <span class="font-semibold text-rose-600">Rp 6.0jt</span>
-            </div>
-            <div class="flex items-center gap-1 mt-2 text-xs text-emerald-600">
-              <span class="material-icons text-xs">trending_up</span>
-              <span>+25% dari bulan lalu</span>
-            </div>
-          </div>
-
-          {# Stat 3 #}
-          <div class="rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 to-white p-4 hover:shadow-md transition">
-            <div class="flex items-center gap-2 mb-2">
-              <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
-                <span class="material-icons text-sm text-blue-600">school</span>
-              </div>
-              <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide">Praktikum Best Performance</p>
-            </div>
-            <h4 class="text-base font-bold text-slate-900 mb-1">Praktikum Inteligensi</h4>
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-slate-600">3 sesi • 48 peserta</span>
-              <span class="font-semibold text-blue-600">92% hadir</span>
-            </div>
-            <div class="flex items-center gap-1 mt-2">
-              <div class="flex">
-                <span class="material-icons text-amber-400 text-xs">star</span>
-                <span class="material-icons text-amber-400 text-xs">star</span>
-                <span class="material-icons text-amber-400 text-xs">star</span>
-                <span class="material-icons text-amber-400 text-xs">star</span>
-                <span class="material-icons text-amber-400 text-xs">star_half</span>
-              </div>
-              <span class="text-xs text-slate-600 ml-1">4.8/5 rating</span>
-            </div>
-          </div>
-
-          {# Stat 4 #}
-          <div class="rounded-xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-4 hover:shadow-md transition">
-            <div class="flex items-center gap-2 mb-2">
-              <div class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
-                <span class="material-icons text-sm text-emerald-600">auto_stories</span>
-              </div>
-              <p class="text-[10px] text-slate-500 uppercase font-bold tracking-wide">Variabel Trending</p>
-            </div>
-            <h4 class="text-base font-bold text-slate-900 mb-1">Regulasi Emosi Remaja</h4>
-            <div class="flex items-center justify-between text-xs mb-2">
-              <span class="text-slate-600">8 mahasiswa approved</span>
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800">
-                Klinis
-              </span>
-            </div>
-            <p class="text-xs text-slate-600">Supervisor: Prof. Dr. Siti Rahmah, M.Psi</p>
-          </div>
-        </div>
-      </div>
-
-      {# Quick Actions #}
-      <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6">
-        <h3 class="text-base font-semibold text-slate-900 mb-4">Quick Actions</h3>
-        <div class="space-y-2">
-          <button onclick="navigateToSection('peminjaman', 'ruangan')" class="w-full flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition text-left">
-            <div class="w-8 h-8 rounded bg-orange-100 flex items-center justify-center">
-              <span class="material-icons text-sm text-orange-600">meeting_room</span>
-            </div>
-            <span class="text-sm font-medium text-slate-900">Kelola Peminjaman Ruangan</span>
-          </button>
-          
-          <button onclick="navigateToSection('peminjaman', 'alat')" class="w-full flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition text-left">
-            <div class="w-8 h-8 rounded bg-rose-100 flex items-center justify-center">
-              <span class="material-icons text-sm text-rose-600">science</span>
-            </div>
-            <span class="text-sm font-medium text-slate-900">Kelola Peminjaman Alat</span>
-          </button>
-          
-          <button onclick="navigateToSection('praktikum', 'jadwal')" class="w-full flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition text-left">
-            <div class="w-8 h-8 rounded bg-blue-100 flex items-center justify-center">
-              <span class="material-icons text-sm text-blue-600">event</span>
-            </div>
-            <span class="text-sm font-medium text-slate-900">Kelola Praktikum</span>
-          </button>
-          
-          <button onclick="navigateToSection('master', 'ruangan')" class="w-full flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition text-left">
-            <div class="w-8 h-8 rounded bg-emerald-100 flex items-center justify-center">
-              <span class="material-icons text-sm text-emerald-600">storage</span>
-            </div>
-            <span class="text-sm font-medium text-slate-900">Master Data</span>
-          </button>
-        </div>
-      </div>
+    {# ── RIGHT: Alerts + Quick Actions + Inventory ── #}
+    <div class="space-y-5">
 
       {# System Alerts #}
-      <div class="rounded-2xl border border-amber-200 bg-amber-50 p-6">
-        <h3 class="text-base font-semibold text-slate-900 mb-3 flex items-center gap-2">
-          <span class="material-icons text-amber-600">warning</span>
-          System Alerts
+      {% if tool_stats.overdue > 0 or low_stock_count > 0 or akun_stats.pending > 0 or penelitian_stats.pending > 0 %}
+      <div class="rounded-2xl border border-amber-200 dark:border-amber-700/50 bg-amber-50 dark:bg-amber-900/20 p-5">
+        <h3 class="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2 mb-3 text-sm">
+          <span class="material-icons text-amber-600 dark:text-amber-400">warning</span>Peringatan Sistem
         </h3>
         <div class="space-y-2">
-          <div class="rounded-lg bg-white border border-amber-200 p-3">
-            <p class="text-xs font-semibold text-slate-900 mb-1">Stock Rendah</p>
-            <p class="text-xs text-slate-600">MBTI tinggal 5 lembar. Segera restock!</p>
+          {% if tool_stats.overdue > 0 %}
+          <div class="flex items-start gap-2.5 p-3 rounded-lg bg-white dark:bg-slate-800 border border-red-200 dark:border-red-800/50">
+            <span class="material-icons text-sm text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5">error</span>
+            <div>
+              <p class="text-xs font-semibold text-slate-900 dark:text-slate-100">{{ tool_stats.overdue }} Alat Overdue</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Melewati batas waktu pengembalian</p>
+            </div>
           </div>
-          <div class="rounded-lg bg-white border border-blue-200 p-3">
-            <p class="text-xs font-semibold text-slate-900 mb-1">Peminjaman Jatuh Tempo</p>
-            <p class="text-xs text-slate-600">2 peminjaman alat melewati batas waktu pengembalian</p>
+          {% endif %}
+          {% if low_stock_count > 0 %}
+          <div class="flex items-start gap-2.5 p-3 rounded-lg bg-white dark:bg-slate-800 border border-amber-200 dark:border-amber-700/50">
+            <span class="material-icons text-sm text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5">inventory</span>
+            <div>
+              <p class="text-xs font-semibold text-slate-900 dark:text-slate-100">{{ low_stock_count }} Alat Stok Rendah</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Stok ≤ 10 lembar, segera restock</p>
+            </div>
           </div>
+          {% endif %}
+          {% if penelitian_stats.pending > 0 %}
+          <div class="flex items-start gap-2.5 p-3 rounded-lg bg-white dark:bg-slate-800 border border-teal-200 dark:border-teal-800/50">
+            <span class="material-icons text-sm text-teal-600 dark:text-teal-400 flex-shrink-0 mt-0.5">auto_stories</span>
+            <div>
+              <p class="text-xs font-semibold text-slate-900 dark:text-slate-100">{{ penelitian_stats.pending }} Penelitian Pending</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Menunggu persetujuan admin</p>
+            </div>
+          </div>
+          {% endif %}
+          {% if akun_stats.pending > 0 %}
+          <div class="flex items-start gap-2.5 p-3 rounded-lg bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-800/50">
+            <span class="material-icons text-sm text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5">person_add</span>
+            <div>
+              <p class="text-xs font-semibold text-slate-900 dark:text-slate-100">{{ akun_stats.pending }} Akun Menunggu</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Perlu verifikasi oleh admin</p>
+            </div>
+          </div>
+          {% endif %}
         </div>
       </div>
+      {% endif %}
+
+      {# Quick Actions #}
+      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-5">
+        <h3 class="font-semibold text-slate-900 dark:text-slate-100 text-sm mb-3">Quick Actions</h3>
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="navigateToSection('peminjaman')"
+                  class="flex flex-col items-center gap-2 p-3 rounded-xl border border-orange-100 dark:border-orange-800/50 bg-orange-50 dark:bg-orange-900/20 hover:border-orange-300 dark:hover:border-orange-600 hover:shadow-md transition text-center">
+            <span class="material-icons text-2xl text-orange-600 dark:text-orange-400">meeting_room</span>
+            <span class="text-xs font-medium text-slate-700 dark:text-slate-300 leading-tight">Peminjaman Ruangan</span>
+          </button>
+          <button onclick="navigateToSection('peminjaman')"
+                  class="flex flex-col items-center gap-2 p-3 rounded-xl border border-rose-100 dark:border-rose-800/50 bg-rose-50 dark:bg-rose-900/20 hover:border-rose-300 dark:hover:border-rose-600 hover:shadow-md transition text-center">
+            <span class="material-icons text-2xl text-rose-600 dark:text-rose-400">biotech</span>
+            <span class="text-xs font-medium text-slate-700 dark:text-slate-300 leading-tight">Peminjaman Alat</span>
+          </button>
+          <button onclick="navigateToSection('konseling')"
+                  class="flex flex-col items-center gap-2 p-3 rounded-xl border border-blue-100 dark:border-blue-800/50 bg-blue-50 dark:bg-blue-900/20 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-md transition text-center">
+            <span class="material-icons text-2xl text-blue-600 dark:text-blue-400">psychology</span>
+            <span class="text-xs font-medium text-slate-700 dark:text-slate-300 leading-tight">Konseling</span>
+          </button>
+          <button onclick="navigateToSection('akun')"
+                  class="flex flex-col items-center gap-2 p-3 rounded-xl border border-emerald-100 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/20 hover:border-emerald-300 dark:hover:border-emerald-600 hover:shadow-md transition text-center">
+            <span class="material-icons text-2xl text-emerald-600 dark:text-emerald-400">manage_accounts</span>
+            <span class="text-xs font-medium text-slate-700 dark:text-slate-300 leading-tight">Kelola Akun</span>
+          </button>
+          <button onclick="navigateToSection('dosen')"
+                  class="flex flex-col items-center gap-2 p-3 rounded-xl border border-violet-100 dark:border-violet-800/50 bg-violet-50 dark:bg-violet-900/20 hover:border-violet-300 dark:hover:border-violet-600 hover:shadow-md transition text-center">
+            <span class="material-icons text-2xl text-violet-600 dark:text-violet-400">school</span>
+            <span class="text-xs font-medium text-slate-700 dark:text-slate-300 leading-tight">Praktikum</span>
+          </button>
+          <button onclick="navigateToSection('penelitian')"
+                  class="flex flex-col items-center gap-2 p-3 rounded-xl border border-teal-100 dark:border-teal-800/50 bg-teal-50 dark:bg-teal-900/20 hover:border-teal-300 dark:hover:border-teal-600 hover:shadow-md transition text-center">
+            <span class="material-icons text-2xl text-teal-600 dark:text-teal-400">auto_stories</span>
+            <span class="text-xs font-medium text-slate-700 dark:text-slate-300 leading-tight">Penelitian</span>
+          </button>
+        </div>
+      </div>
+
+      {# Alat Tes Inventory Summary #}
+      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold text-slate-900 dark:text-slate-100 text-sm flex items-center gap-2">
+            <span class="material-icons text-primary-500 text-base">inventory_2</span>Inventori Alat Tes
+          </h3>
+          <button onclick="navigateToSection('master')"
+                  class="text-xs text-primary-600 dark:text-primary-400 hover:underline font-medium">Kelola →</button>
+        </div>
+        <div class="space-y-2.5">
+          {% for alat in alat_list|slice:":5" %}
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between mb-1">
+              <p class="text-xs font-medium text-slate-700 dark:text-slate-300 truncate">{{ alat.name }}</p>
+              <span class="text-xs font-semibold ml-2 flex-shrink-0
+                {% if alat.stock <= 5 %}text-red-600 dark:text-red-400
+                {% elif alat.stock <= 10 %}text-amber-600 dark:text-amber-400
+                {% else %}text-slate-600 dark:text-slate-400{% endif %}">
+                {{ alat.stock }} lembar
+              </span>
+            </div>
+            <div class="w-full h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+              {% widthratio alat.stock 50 100 as stock_pct %}
+              <div class="h-full rounded-full transition-all
+                {% if alat.stock <= 5 %}bg-red-500
+                {% elif alat.stock <= 10 %}bg-amber-500
+                {% else %}bg-emerald-500{% endif %}"
+                   style="width: {{ stock_pct|default:0 }}%"></div>
+            </div>
+          </div>
+          {% empty %}
+          <p class="text-xs text-slate-400 dark:text-slate-500 text-center py-4">Belum ada data alat</p>
+          {% endfor %}
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
-
-<script>
-  // Dashboard Navigation
-  function navigateToSection(section, tab = null) {
-    // Hide all sections
-    document.querySelectorAll('.admin-module-section').forEach(s => s.classList.add('hidden'));
-    
-    // Show target section
-    document.getElementById(`admin-section-${section}`).classList.remove('hidden');
-    
-    // If tab specified, switch to that tab
-    if (tab) {
-      setTimeout(() => {
-        if (section === 'peminjaman') switchPeminjamanTab(tab);
-        if (section === 'master') switchMasterTab(tab);
-        if (section === 'praktikum') switchPraktikumTab(tab);
-      }, 100);
-    }
-    
-    // Update sidebar
-    document.querySelectorAll('.sidebar-nav-item').forEach(item => {
-      item.classList.remove('active');
-      if (item.dataset.section === section) {
-        item.classList.add('active');
-      }
-    });
-  }
-
-  // Request Actions
-  function approveRequest(id, type) {
-    const note = document.getElementById(`note-${id}`)?.value || '';
-    if (confirm(`Approve ${type === 'room' ? 'peminjaman ruangan' : 'peminjaman alat tes'} ini?`)) {
-      console.log('Approving:', id, type, 'Note:', note);
-      alert('Berhasil diapprove! Email notifikasi telah dikirim.');
-      // Refresh dashboard
-      refreshDashboard();
-    }
-  }
-
-  function declineRequest(id, type, name) {
-    const reason = prompt(`Alasan penolakan peminjaman untuk ${name}:`);
-    if (reason) {
-      console.log('Declining:', id, type, 'Reason:', reason);
-      alert('Peminjaman telah ditolak. Email notifikasi dikirim dengan alasan penolakan.');
-      refreshDashboard();
-    }
-  }
-
-  // Other Actions
-  function viewDetailRequest(id, type) { alert(`View detail ${type} request #${id}`); }
-  function viewPeserta(id) { navigateToSection('praktikum', 'peserta'); }
-  function addSlot(id) { 
-    if (confirm('Tambah 2 slot untuk variabel ini?')) {
-      alert('Berhasil menambah 2 slot! Total slot sekarang: 7');
-    }
-  }
-  function viewVariabelDetail(id) { navigateToSection('praktikum', 'variabel'); }
-  function viewAllActions() { alert('View all pending actions'); }
-  function viewAllActivity() { alert('View all activity history'); }
-  function refreshDashboard() { 
-    alert('Refreshing dashboard data...'); 
-    location.reload();
-  }
-</script>

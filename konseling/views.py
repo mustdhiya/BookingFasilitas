@@ -206,6 +206,11 @@ class AdminPanelView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     def test_func(self):
         return self.request.user.is_staff
 
+    def get(self, request, *args, **kwargs):
+        if not request.GET.get('section'):
+            return redirect('/admin-panel/?section=dashboard')
+        return super().get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         today = timezone.localdate()
