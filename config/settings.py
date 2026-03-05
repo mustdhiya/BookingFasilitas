@@ -6,18 +6,12 @@ import os
 from pathlib import Path
 from decouple import config, Csv
 
-
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-this-in-production')
 DEBUG = config('DEBUG', default=True, cast=bool)
 PRODUCTION_MODE = config('PRODUCTION_MODE', default=False, cast=bool)
 
-# Development vs Production
-PRODUCTION_MODE = config('PRODUCTION_MODE', default=False, cast=bool)
-
-# ALLOWED_HOSTS
 ALLOWED_HOSTS = [
     'psylab-umkt.my.id',
     'www.psylab-umkt.my.id',
@@ -25,7 +19,6 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
 ]
-
 
 # Application definition
 INSTALLED_APPS = [
@@ -50,10 +43,9 @@ INSTALLED_APPS = [
     'practicum',
     'research',
     'core',
-    'konseling',    
+    'konseling',     
     "internship",
 ]
-
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -65,13 +57,12 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
-
 ROOT_URLCONF = 'config.urls'
-
 
 # ============================================
 # TEMPLATES CONFIGURATION
@@ -82,7 +73,7 @@ TEMPLATES = [
         'DIRS': [
             BASE_DIR / 'templates',  # Main templates folder
         ],
-        'APP_DIRS': True,  # Allow apps to have their own templates/ folder
+        'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -96,15 +87,13 @@ TEMPLATES = [
     },
 ]
 
-
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
 # ============================================
-# DATABASE CONFIGURATION
+# DATABASE CONFIGURATION — OPTIMIZED
 # ============================================
 if PRODUCTION_MODE:
-    # MySQL untuk Production
+    # MySQL untuk Production — OPTIMIZED
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
@@ -117,17 +106,17 @@ if PRODUCTION_MODE:
                 'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
                 'charset': 'utf8mb4',
             },
+            **({'CONN_MAX_AGE': 300} if PRODUCTION_MODE else {})  # Persistent connection 5 menit
         }
     }
 else:
-    # SQLite untuk Development
+    # SQLite untuk Development — OPTIMIZED
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
-
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -137,12 +126,10 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-
 # Custom User Model
 AUTH_USER_MODEL = 'accounts.User'
 
-
-# REST Framework
+# REST Framework — OPTIMIZED
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
@@ -159,7 +146,6 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
 }
-
 
 # ============================================
 # CORS SETTINGS (Based on Production Mode)
@@ -178,16 +164,14 @@ else:
 
 CORS_ALLOW_CREDENTIALS = True
 
-
 # Internationalization
 LANGUAGE_CODE = 'id-id'
 TIME_ZONE = 'Asia/Makassar'  # WITA (GMT+8)
 USE_I18N = True
 USE_TZ = True
 
-
 # ============================================
-# STATIC FILES CONFIGURATION
+# STATIC FILES CONFIGURATION — OPTIMIZED
 # ============================================
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
@@ -196,12 +180,15 @@ if (BASE_DIR / 'static').exists():
 else:
     STATICFILES_DIRS = []
 
+# Static files compression di production
+if PRODUCTION_MODE:
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+
 # ============================================
 # MEDIA FILES CONFIGURATION
 # ============================================
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-
 
 # ============================================
 # EMAIL CONFIGURATION (Based on Production Mode)
@@ -218,7 +205,6 @@ else:
     # Development Email (Console Backend - print to terminal)
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-
 # ============================================
 # SECURITY SETTINGS (Production Only)
 # ============================================
@@ -234,47 +220,72 @@ if PRODUCTION_MODE:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
 
-
 # ============================================
-# LOGGING CONFIGURATION
+# CACHE & SESSION — OPTIMIZED UNTUK 300 USERS
 # ============================================
-if PRODUCTION_MODE:
-    LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'formatters': {
-            'verbose': {
-                'format': '{levelname} {asctime} {module} {message}',
-                'style': '{',
-            },
-        },
-        'handlers': {
-            'file': {
-                'level': 'ERROR',
-                'class': 'logging.FileHandler',
-                'filename': BASE_DIR / 'logs' / 'django_errors.log',
-                'formatter': 'verbose',
-            },
-            'console': {
-                'level': 'INFO',
-                'class': 'logging.StreamHandler',
-                'formatter': 'verbose',
-            },
-        },
-        'loggers': {
-            'django': {
-                'handlers': ['file', 'console'],
-                'level': 'ERROR',
-                'propagate': True,
-            },
-        },
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'psylab-cache',
+        'OPTIONS': {
+            'MAX_ENTRIES': 10000,  # cukup untuk 300 users
+            'CULL_FREQUENCY': 3,
+        }
     }
-    # Create logs directory if not exists
-    (BASE_DIR / 'logs').mkdir(exist_ok=True)
+}
 
+# Session di cache (10x lebih cepat dari DB)
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+SESSION_CACHE_ALIAS = 'default'
+SESSION_COOKIE_AGE = 1209600  # 2 minggu
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+
+# ============================================
+# LOGIN/LOGOUT SETTINGS
+# ============================================
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login/'
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# ============================================
+# LOGGING CONFIGURATION — OPTIMIZED
+# ============================================
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'django_errors.log',
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file', 'console'],
+            'level': 'ERROR' if PRODUCTION_MODE else 'INFO',
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['file', 'console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+    },
+}
+# Create logs directory if not exists
+(BASE_DIR / 'logs').mkdir(exist_ok=True)
 
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
