@@ -4,22 +4,25 @@
               bg-white dark:bg-slate-800 shadow-sm p-6 space-y-6">
 
     {# Header #}
-    <div class="flex items-center justify-between">
-      <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100
-                 flex items-center gap-2">
-        <span class="material-icons text-emerald-600 dark:text-emerald-400">school</span>
-        Manajemen Praktikum & Penelitian
-      </h3>
-      <button onclick="exportData('praktikum')"
-              class="inline-flex items-center gap-1.5 rounded-lg border
-                     border-slate-200 dark:border-slate-600
-                     bg-white dark:bg-slate-700
-                     hover:bg-slate-50 dark:hover:bg-slate-600
-                     text-slate-700 dark:text-slate-300
-                     font-medium text-sm px-3 py-1.5 transition">
-        <span class="material-icons text-base">download</span>Export
-      </button>
-    </div>
+<div class="flex items-center justify-between">
+  <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100
+             flex items-center gap-2">
+    <span class="material-icons text-emerald-600 dark:text-emerald-400">school</span>
+    Manajemen Praktikum & Penelitian
+  </h3>
+
+  <button onclick="exportData('praktikum')"
+          class="inline-flex items-center gap-1.5 rounded-lg
+                 border border-emerald-200 dark:border-emerald-700
+                 bg-emerald-50 dark:bg-emerald-900/20
+                 hover:bg-emerald-100 dark:hover:bg-emerald-900/40
+                 text-emerald-700 dark:text-emerald-400
+                 font-medium text-sm px-3 py-1.5 transition shadow-sm">
+    <span class="material-icons text-base">download</span>
+    Export CSV
+  </button>
+</div>
+
 
     {# Tabs #}
     <div class="flex gap-2 border-b border-slate-200 dark:border-slate-700 overflow-x-auto">
@@ -1104,7 +1107,7 @@
 
     {# Form body (scrollable) #}
     <form method="post" id="form-dosen"
-            action="{% url 'dosen-create' %}"
+            action="{% url 'research:dosen-create' %}"
             enctype="multipart/form-data"
             class="flex-1 overflow-y-auto p-6 space-y-4">
         {% csrf_token %}
@@ -1263,6 +1266,157 @@
   </div>
 </div>
 
+{# Modal Export CSV #}
+<div id="modal-export" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+     onclick="closeModal('modal-export')">
+  <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-sm"></div>
+  <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md flex flex-col"
+       onclick="event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="px-6 pt-5 pb-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between flex-shrink-0">
+      <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+        <span class="material-icons text-primary-600">download</span>
+        Export Data CSV
+      </h3>
+      <button onclick="closeModal('modal-export')"
+              class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded-lg p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+        <span class="material-icons-outlined">close</span>
+      </button>
+    </div>
+
+    <!-- Body Form -->
+    <div class="p-6 space-y-5">
+
+      <!-- Pilih Tipe Data -->
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+          Tipe Data <span class="text-rose-500">*</span>
+        </label>
+        <div class="grid grid-cols-1 gap-2" id="export-type-options">
+          <!-- Jadwal Praktikum -->
+          <label class="flex items-center gap-3 rounded-xl border-2 border-slate-200 dark:border-slate-700
+                        hover:border-primary-300 dark:hover:border-primary-700 p-3.5 cursor-pointer transition
+                        has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50 dark:has-[:checked]:bg-primary-900/20">
+            <input type="radio" name="export_type" value="praktikum" class="text-primary-600 focus:ring-primary-500 w-4 h-4">
+            <div class="flex items-center gap-2.5 flex-1">
+              <div class="w-9 h-9 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0">
+                <span class="material-icons text-emerald-600 text-base">event</span>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Jadwal Praktikum</p>
+                <p class="text-xs text-slate-400">Semua jadwal sesi & kapasitas</p>
+              </div>
+            </div>
+          </label>
+
+          <!-- Peserta Praktikum -->
+          <label class="flex items-center gap-3 rounded-xl border-2 border-slate-200 dark:border-slate-700
+                        hover:border-primary-300 dark:hover:border-primary-700 p-3.5 cursor-pointer transition
+                        has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50 dark:has-[:checked]:bg-primary-900/20">
+            <input type="radio" name="export_type" value="peserta" class="text-primary-600 focus:ring-primary-500 w-4 h-4">
+            <div class="flex items-center gap-2.5 flex-1">
+              <div class="w-9 h-9 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+                <span class="material-icons text-blue-600 text-base">groups</span>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Peserta Praktikum</p>
+                <p class="text-xs text-slate-400">Mahasiswa terdaftar per jadwal</p>
+              </div>
+            </div>
+          </label>
+
+          <!-- Dosen & Judul Payung -->
+          <label class="flex items-center gap-3 rounded-xl border-2 border-slate-200 dark:border-slate-700
+                        hover:border-primary-300 dark:hover:border-primary-700 p-3.5 cursor-pointer transition
+                        has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50 dark:has-[:checked]:bg-primary-900/20">
+            <input type="radio" name="export_type" value="dosen" class="text-primary-600 focus:ring-primary-500 w-4 h-4">
+            <div class="flex items-center gap-2.5 flex-1">
+              <div class="w-9 h-9 rounded-lg bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center flex-shrink-0">
+                <span class="material-icons text-violet-600 text-base">person_pin</span>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Dosen & Judul Payung</p>
+                <p class="text-xs text-slate-400">Data dosen beserta judul penelitian</p>
+              </div>
+            </div>
+          </label>
+
+          <!-- Request Penelitian -->
+          <label class="flex items-center gap-3 rounded-xl border-2 border-slate-200 dark:border-slate-700
+                        hover:border-primary-300 dark:hover:border-primary-700 p-3.5 cursor-pointer transition
+                        has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50 dark:has-[:checked]:bg-primary-900/20">
+            <input type="radio" name="export_type" value="penelitian" class="text-primary-600 focus:ring-primary-500 w-4 h-4">
+            <div class="flex items-center gap-2.5 flex-1">
+              <div class="w-9 h-9 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
+                <span class="material-icons text-amber-600 text-base">assignment_ind</span>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Request Penelitian</p>
+                <p class="text-xs text-slate-400">Semua request & status persetujuan</p>
+              </div>
+            </div>
+          </label>
+        </div>
+        <p id="err-export-type" class="text-xs text-rose-500 mt-1.5 hidden">Pilih salah satu tipe data.</p>
+      </div>
+
+      <!-- Filter Opsional: Rentang Tanggal -->
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+            Dari Tanggal <span class="text-slate-400">(opsional)</span>
+          </label>
+          <input type="date" id="export-date-from"
+                 class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700
+                        dark:text-slate-100 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+            Sampai Tanggal <span class="text-slate-400">(opsional)</span>
+          </label>
+          <input type="date" id="export-date-to"
+                 class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700
+                        dark:text-slate-100 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500">
+        </div>
+      </div>
+
+      <!-- Filter Status (hanya muncul kalau tipe = penelitian) -->
+      <div id="export-status-wrapper" class="hidden">
+        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Filter Status</label>
+        <select id="export-status"
+                class="w-full rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700
+                       dark:text-slate-100 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500">
+          <option value="">Semua Status</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Disetujui</option>
+          <option value="rejected">Ditolak</option>
+        </select>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="bg-slate-50 dark:bg-slate-700/50 px-6 py-4 flex gap-3 justify-end
+                border-t border-slate-200 dark:border-slate-700 rounded-b-2xl flex-shrink-0">
+      <button onclick="closeModal('modal-export')"
+              class="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 dark:border-slate-600
+                     bg-white dark:bg-slate-700 hover:bg-slate-50 text-slate-700 dark:text-slate-300
+                     font-medium text-sm px-4 py-2 transition">
+        Batal
+      </button>
+      <button onclick="submitExport()"
+              id="btn-export-submit"
+              class="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 hover:bg-primary-700
+                     text-white font-semibold text-sm px-5 py-2 transition shadow-sm">
+        <span class="material-icons text-base" id="btn-export-icon">download</span>
+        <span id="btn-export-label">Download CSV</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+
 
 {# Modal: Export #}
 <div id="modal-judul-form"
@@ -1290,7 +1444,7 @@
     </div>
 
     <form method="post" id="form-judul"
-      action="{% url 'judul-create' %}"
+      action="{% url 'research:judul-create' %}"
       class="p-6 space-y-4">
   {% csrf_token %}
   <input type="hidden" name="form_type" value="judul_payung">
@@ -1521,7 +1675,7 @@
       </h3>
     </div>
     <form method="post" id="form-jadwal"
-      action="{% url 'jadwal-create' %}"
+      action="{% url 'research:jadwal-create' %}"
       class="flex-1 overflow-y-auto p-6 space-y-4">
       {% csrf_token %}
       <input type="hidden" name="form_type" value="jadwal">
@@ -1727,9 +1881,10 @@
   window.lihatMahasiswaPayung = lihatMahasiswaPayung;
   window.showDeactivateDialog = showDeactivateDialog;
   window.doDeactivate         = doDeactivate;
-  window.exportData           = exportData;
-  window.handleExport         = handleExport;
   window.switchSection        = switchSection;
+  
+  window.exportData   = exportData;
+  window.submitExport = submitExport;
 
   function switchSection(section) {
       document.querySelectorAll('[id^="admin-section-"]').forEach(function(el) {
@@ -2472,7 +2627,7 @@
     var pk   = document.getElementById('dosen-pk').value;
     var url  = pk
       ? '/api/research/dosen/' + pk + '/edit/'
-      : "{% url 'dosen-create' %}";
+      : "{% url 'research:dosen-create' %}";
     fetch(url, {
       method:  'POST',
       body:    data,
@@ -2535,7 +2690,7 @@
     var pk   = document.getElementById('judul-pk').value;
     var url  = pk
       ? '/api/research/judul/' + pk + '/edit/'
-      : "{% url 'judul-create' %}";
+      : "{% url 'research:judul-create' %}";
     fetch(url, {
       method:  'POST',
       body:    data,
@@ -2585,7 +2740,7 @@
     var pk   = document.getElementById('judul-pk').value;
     var url  = pk
       ? '/api/research/judul/' + pk + '/edit/'
-      : "{% url 'judul-create' %}";
+      : "{% url 'research:judul-create' %}";
     fetch(url, {
       method:  'POST',
       body:    data,
@@ -2673,17 +2828,85 @@
   // ══════════════════════════════════════════════════════════════════════
 
   function exportData(module) {
+    // Reset form dulu
+    document.querySelectorAll('input[name="export_type"]').forEach(r => r.checked = false);
+    document.getElementById('export-date-from').value = '';
+    document.getElementById('export-date-to').value = '';
+    document.getElementById('export-status').value = '';
+    document.getElementById('err-export-type').classList.add('hidden');
+    document.getElementById('export-status-wrapper').classList.add('hidden');
     openModal('modal-export');
   }
 
-  function handleExport(type) {
-    var urls = {
-      'praktikum':  '/research/export/praktikum/',
-      'dosen':      '/research/export/dosen/',
-      'penelitian': '/research/export/penelitian/',
+  // Tampilkan filter status hanya kalau tipe = penelitian
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('input[name="export_type"]').forEach(function(radio) {
+      radio.addEventListener('change', function() {
+        var wrapper = document.getElementById('export-status-wrapper');
+        if (this.value === 'penelitian') {
+          wrapper.classList.remove('hidden');
+        } else {
+          wrapper.classList.add('hidden');
+        }
+      });
+    });
+  });
+
+  function submitExport() {
+    var typeEl = document.querySelector('input[name="export_type"]:checked');
+    var errType = document.getElementById('err-export-type');
+
+    if (!typeEl) {
+      errType.classList.remove('hidden');
+      return;
+    }
+    errType.classList.add('hidden');
+
+    var type    = typeEl.value;
+    var from    = document.getElementById('export-date-from').value;
+    var to      = document.getElementById('export-date-to').value;
+    var status  = document.getElementById('export-status').value;
+
+    // Build URL
+    var urlMap = {
+      praktikum  : "{% url 'research:export-csv' %}?type=praktikum",
+      peserta    : "{% url 'research:export-csv' %}?type=peserta",
+      dosen      : "{% url 'research:export-csv' %}?type=dosen",
+      penelitian : "{% url 'research:export-csv' %}?type=penelitian",
     };
-    if (urls[type]) window.location.href = urls[type];
+
+    var url = urlMap[type];
+    if (from)   url += '&date_from=' + from;
+    if (to)     url += '&date_to='   + to;
+    if (status) url += '&status='    + status;
+
+    // Update button state
+    var btn   = document.getElementById('btn-export-submit');
+    var icon  = document.getElementById('btn-export-icon');
+    var label = document.getElementById('btn-export-label');
+    btn.disabled   = true;
+    icon.textContent  = 'hourglass_top';
+    label.textContent = 'Memproses...';
+
+    // Trigger download
+    var link = document.createElement('a');
+    link.href = url;
+    link.download = '';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    setTimeout(function() {
+      btn.disabled      = false;
+      icon.textContent  = 'download';
+      label.textContent = 'Download CSV';
+      closeModal('modal-export');
+    }, 1500);
   }
+
+  // Expose ke global
+  window.exportData   = exportData;
+  window.submitExport = submitExport;
 
   // ══════════════════════════════════════════════════════════════════════
   // UTILITIES

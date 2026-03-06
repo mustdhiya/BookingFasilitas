@@ -1,15 +1,17 @@
 Method,Name,Error,Occurrences
-GET,//dashboard/,"ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None)",13666
-GET,//praktikum/,RemoteDisconnected('Remote end closed connection without response'),1
-GET,//peminjaman/,"ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None)",9102
-POST,//login/,HTTPError('503 Server Error: Service Unavailable for url: //login/'),1
-GET,//login/,"ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None)",350
-GET,//praktikum/,"ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None)",4606
-GET,//penelitian/,"ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None)",4595
+GET,//peminjaman/,RemoteDisconnected('Remote end closed connection without response'),4
+GET,//praktikum/,RemoteDisconnected('Remote end closed connection without response'),2
+GET,//,RemoteDisconnected('Remote end closed connection without response'),7
+GET,//peminjaman/,"ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None)",6663
+GET,//login/,"ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None)",147
+GET,//praktikum/,"ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None)",3303
+GET,//penelitian/,"ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None)",3356
 POST,/,"ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None)",1
-GET,//login/,HTTPError('503 Server Error: Service Unavailable for url: //login/'),3
-GET,//login/,RemoteDisconnected('Remote end closed connection without response'),101
-POST,//login/,RemoteDisconnected('Remote end closed connection without response'),15
-POST,//login/,"ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None)",454
-GET,//dashboard/,RemoteDisconnected('Remote end closed connection without response'),6
-POST,/,RemoteDisconnected('Remote end closed connection without response'),15
+GET,//login/,HTTPError('503 Server Error: Service Unavailable for url: //login/'),4
+GET,//login/,RemoteDisconnected('Remote end closed connection without response'),98
+POST,//login/,RemoteDisconnected('Remote end closed connection without response'),21
+POST,//login/,HTTPError('403 Client Error: Forbidden for url: //login/'),1
+POST,//login/,"ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None)",245
+GET,//penelitian/,RemoteDisconnected('Remote end closed connection without response'),2
+GET,//,"ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None)",9911
+POST,/,RemoteDisconnected('Remote end closed connection without response'),13

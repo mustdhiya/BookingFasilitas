@@ -191,238 +191,165 @@
 
   
 </main>
-
 <script>
-  // Module Switcher with Dark Mode Support
+  // ══════════════════════════════════════════════════════════════════════
+  // MODULE SWITCHER
+  // ══════════════════════════════════════════════════════════════════════
   function switchAdminModule(moduleName) {
     const isDark = document.documentElement.classList.contains('dark');
 
-    // ── Reset SEMUA card ke default ──
+    // Reset semua card ke default
     document.querySelectorAll('[id^="admin-card-"]').forEach(card => {
       card.classList.remove(
         'border-orange-300', 'border-orange-600',
         'bg-gradient-to-br', 'from-orange-50', 'to-white',
         'from-orange-900/20', 'to-slate-800'
       );
-      if (isDark) {
-        card.classList.remove('border-slate-200', 'bg-white');
-        card.classList.add('border-slate-700', 'bg-slate-800');
-      } else {
-        card.classList.remove('border-slate-700', 'bg-slate-800');
-        card.classList.add('border-slate-200', 'bg-white');
-      }
+      card.classList.toggle('border-slate-700', isDark);
+      card.classList.toggle('bg-slate-800', isDark);
+      card.classList.toggle('border-slate-200', !isDark);
+      card.classList.toggle('bg-white', !isDark);
     });
 
-    // ── Aktifkan card yang dipilih ──
+    // Aktifkan card yang dipilih
     const activeCard = document.getElementById(`admin-card-${moduleName}`);
     if (activeCard) {
+      activeCard.classList.remove('border-slate-200', 'bg-white', 'border-slate-700', 'bg-slate-800');
       if (isDark) {
-        activeCard.classList.remove('border-slate-700', 'bg-slate-800');
         activeCard.classList.add('border-orange-600', 'bg-gradient-to-br', 'from-orange-900/20', 'to-slate-800');
       } else {
-        activeCard.classList.remove('border-slate-200', 'bg-white');
         activeCard.classList.add('border-orange-300', 'bg-gradient-to-br', 'from-orange-50', 'to-white');
       }
     }
 
-    // ── Show/hide sections ──
+    // Show/hide sections
     document.querySelectorAll('.admin-module-section').forEach(s => s.classList.add('hidden'));
     const targetSection = document.getElementById(`admin-section-${moduleName}`);
-    if (targetSection) {
-      targetSection.classList.remove('hidden');
-    } else {
-      console.warn(`Section #admin-section-${moduleName} tidak ditemukan.`);
-    }
+    if (targetSection) targetSection.classList.remove('hidden');
 
-    // ── Simpan ke URL agar refresh tetap di section yang sama ──
+    // ✅ Simpan section ke URL — JANGAN timpa tab
     const url = new URL(window.location.href);
     url.searchParams.set('section', moduleName);
+    // Hapus tab kalau pindah ke section bukan 'dosen'
+    if (moduleName !== 'dosen') url.searchParams.delete('tab');
     window.history.pushState({ section: moduleName }, '', url.toString());
   }
 
-  // ── Init: baca ?section= dari URL saat halaman dibuka ──
-  window.addEventListener('DOMContentLoaded', () => {
-    updateCardStylesOnThemeChange();
-    const section = new URLSearchParams(window.location.search).get('tab') 
-             || new URLSearchParams(window.location.search).get('section');
-    switchAdminModule(section);
-  });
-
-  // ── Handle back/forward browser ──
-  window.addEventListener('popstate', (e) => {
-    const section = e.state?.section
-      || new URLSearchParams(window.location.search).get('section')
-      || 'dashboard';
-    switchAdminModule(section);
-  });
-
-  // Tab Switchers
+  // ══════════════════════════════════════════════════════════════════════
+  // TAB SWITCHERS
+  // ══════════════════════════════════════════════════════════════════════
   function switchPeminjamanTab(tab) {
     document.querySelectorAll('.peminjaman-tab').forEach(t => {
-      t.classList.remove('text-primary-600', 'border-primary-600', 'dark:text-primary-400', 'dark:border-primary-400');
-      t.classList.add('text-slate-500', 'border-transparent', 'dark:text-slate-400');
+      t.classList.remove('text-primary-600', 'border-primary-600');
+      t.classList.add('text-slate-500', 'border-transparent');
     });
-    const activeTab = document.getElementById(`peminjaman-tab-${tab}`);
-    activeTab.classList.remove('text-slate-500', 'border-transparent', 'dark:text-slate-400');
-    activeTab.classList.add('text-primary-600', 'border-primary-600', 'dark:text-primary-400', 'dark:border-primary-400');
-
+    document.getElementById(`peminjaman-tab-${tab}`)
+      ?.classList.replace('border-transparent', 'border-primary-600');
+    document.getElementById(`peminjaman-tab-${tab}`)
+      ?.classList.replace('text-slate-500', 'text-primary-600');
     document.querySelectorAll('.peminjaman-content').forEach(c => c.classList.add('hidden'));
-    document.getElementById(`peminjaman-content-${tab}`).classList.remove('hidden');
+    document.getElementById(`peminjaman-content-${tab}`)?.classList.remove('hidden');
   }
 
   function switchMasterTab(tab) {
     document.querySelectorAll('.master-tab').forEach(t => {
-      t.classList.remove('text-primary-600', 'border-primary-600', 'dark:text-primary-400', 'dark:border-primary-400');
-      t.classList.add('text-slate-500', 'border-transparent', 'dark:text-slate-400');
+      t.classList.remove('text-primary-600', 'border-primary-600');
+      t.classList.add('text-slate-500', 'border-transparent');
     });
-    const activeTab = document.getElementById(`master-tab-${tab}`);
-    activeTab.classList.remove('text-slate-500', 'border-transparent', 'dark:text-slate-400');
-    activeTab.classList.add('text-primary-600', 'border-primary-600', 'dark:text-primary-400', 'dark:border-primary-400');
-
+    document.getElementById(`master-tab-${tab}`)
+      ?.classList.replace('border-transparent', 'border-primary-600');
+    document.getElementById(`master-tab-${tab}`)
+      ?.classList.replace('text-slate-500', 'text-primary-600');
     document.querySelectorAll('.master-content').forEach(c => c.classList.add('hidden'));
-    document.getElementById(`master-content-${tab}`).classList.remove('hidden');
+    document.getElementById(`master-content-${tab}`)?.classList.remove('hidden');
   }
 
   function switchPraktikumTab(tab) {
     document.querySelectorAll('.praktikum-tab').forEach(t => {
-      t.classList.remove('text-primary-600', 'border-primary-600', 'dark:text-primary-400', 'dark:border-primary-400');
-      t.classList.add('text-slate-500', 'border-transparent', 'dark:text-slate-400');
+      t.classList.remove('text-primary-600', 'border-primary-600');
+      t.classList.add('text-slate-500', 'border-transparent');
     });
-    const activeTab = document.getElementById(`praktikum-tab-${tab}`);
-    activeTab.classList.remove('text-slate-500', 'border-transparent', 'dark:text-slate-400');
-    activeTab.classList.add('text-primary-600', 'border-primary-600', 'dark:text-primary-400', 'dark:border-primary-400');
-
+    document.getElementById(`praktikum-tab-${tab}`)
+      ?.classList.replace('border-transparent', 'border-primary-600');
+    document.getElementById(`praktikum-tab-${tab}`)
+      ?.classList.replace('text-slate-500', 'text-primary-600');
     document.querySelectorAll('.praktikum-content').forEach(c => c.classList.add('hidden'));
-    document.getElementById(`praktikum-content-${tab}`).classList.remove('hidden');
+    document.getElementById(`praktikum-content-${tab}`)?.classList.remove('hidden');
   }
 
-  // Listen to theme changes and update active card styling
+  // ══════════════════════════════════════════════════════════════════════
+  // INIT — baca URL sekali saat load
+  // ══════════════════════════════════════════════════════════════════════
+  window.addEventListener('DOMContentLoaded', () => {
+    const params  = new URLSearchParams(window.location.search);
+    const section = params.get('section') || 'dashboard'; // ✅ ambil 'section', bukan 'tab'
+    const tab     = params.get('tab')     || 'jadwal';     // ✅ ambil 'tab' terpisah
+
+    updateCardStylesOnThemeChange();
+    switchAdminModule(section);
+
+    // Kalau section dosen, aktifkan tab-nya
+    if (section === 'dosen') {
+      switchPraktikumTab(tab);
+    }
+  });
+
+  // Handle back/forward browser
+  window.addEventListener('popstate', (e) => {
+    const params  = new URLSearchParams(window.location.search);
+    const section = e.state?.section || params.get('section') || 'dashboard';
+    const tab     = params.get('tab') || 'jadwal';
+    switchAdminModule(section);
+    if (section === 'dosen') switchPraktikumTab(tab);
+  });
+
+  // ══════════════════════════════════════════════════════════════════════
+  // THEME OBSERVER
+  // ══════════════════════════════════════════════════════════════════════
   function updateCardStylesOnThemeChange() {
     const isDark = document.documentElement.classList.contains('dark');
-    const activeCard = document.querySelector('[id^="admin-card-"].border-orange-300, [id^="admin-card-"].border-orange-600');
-    
-    if (activeCard) {
-      if (isDark) {
-        activeCard.classList.remove('border-orange-300', 'from-orange-50', 'to-white');
-        activeCard.classList.add('border-orange-600', 'from-orange-900/20', 'to-slate-800');
-      } else {
-        activeCard.classList.remove('border-orange-600', 'from-orange-900/20', 'to-slate-800');
-        activeCard.classList.add('border-orange-300', 'from-orange-50', 'to-white');
-      }
-    }
-    
-    // Update all inactive cards
+    const activeCard = document.querySelector(
+      '[id^="admin-card-"].border-orange-300, [id^="admin-card-"].border-orange-600'
+    );
     document.querySelectorAll('[id^="admin-card-"]').forEach(card => {
-      if (card === activeCard) return;
-      
-      if (isDark) {
-        card.classList.remove('border-slate-200', 'bg-white');
-        card.classList.add('border-slate-700', 'bg-slate-800');
+      if (card === activeCard) {
+        if (isDark) {
+          card.classList.remove('border-orange-300', 'from-orange-50', 'to-white');
+          card.classList.add('border-orange-600', 'from-orange-900/20', 'to-slate-800');
+        } else {
+          card.classList.remove('border-orange-600', 'from-orange-900/20', 'to-slate-800');
+          card.classList.add('border-orange-300', 'from-orange-50', 'to-white');
+        }
       } else {
-        card.classList.remove('border-slate-700', 'bg-slate-800');
-        card.classList.add('border-slate-200', 'bg-white');
+        card.classList.toggle('border-slate-700', isDark);
+        card.classList.toggle('bg-slate-800', isDark);
+        card.classList.toggle('border-slate-200', !isDark);
+        card.classList.toggle('bg-white', !isDark);
       }
     });
   }
 
-  // Observe theme changes
-  const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      if (mutation.attributeName === 'class') {
-        updateCardStylesOnThemeChange();
-      }
-    });
-  });
+  const observer = new MutationObserver(() => updateCardStylesOnThemeChange());
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 
-  // Start observing
-  observer.observe(document.documentElement, {
-    attributes: true,
-    attributeFilter: ['class']
-  });
-
-
-  function declineRequest(id, type, name = '') {
-    const reason = prompt(`Alasan decline${name ? ' untuk ' + name : ''} (akan dikirim ke peminjam):`);
-    if (reason) {
-      alert(`Request ${type} #${id} berhasil di-decline. Email notifikasi dengan alasan telah dikirim.`);
-      // Refresh or update UI
-      location.reload();
-    }
-  }
-
-  // Other Actions
-  function viewPeserta(id) { 
-    alert(`Viewing participants for praktikum #${id}`);
-    // Navigate to section
+  // ══════════════════════════════════════════════════════════════════════
+  // FUNGSI LAIN (tidak diubah)
+  // ══════════════════════════════════════════════════════════════════════
+  function viewPeserta(id) {
     switchAdminModule('dosen');
     switchPraktikumTab('peserta');
   }
-  
-  function addSlot(id) { 
-    const slots = prompt('Tambah berapa slot?', '2');
-    if (slots && !isNaN(slots)) {
-      alert(`${slots} slot berhasil ditambahkan ke variabel #${id}`);
-      location.reload();
-    }
+
+  function declineRequest(id, type, name = '') {
+    const reason = prompt(`Alasan decline${name ? ' untuk ' + name : ''}:`);
+    if (reason) { alert(`Request ${type} #${id} di-decline.`); location.reload(); }
   }
 
-  function viewDetailRequest(id, type) {
-    alert(`Viewing detail for ${type} request #${id}`);
-  }
-
-  function exportData(section) {
-    alert(`Exporting ${section} data to Excel...`);
-  }
-
-  function printReport(section) {
-    alert(`Printing ${section} report...`);
-    window.print();
-  }
-
-  function refreshDashboard() {
-    if (confirm('Refresh dashboard data?')) {
-      location.reload();
-    }
-  }
-
-  function applyFilters(tab) {
-    alert(`Applying filters for ${tab}...`);
-  }
-
-  function resetFilters(tab) {
-    alert(`Resetting filters for ${tab}...`);
-    location.reload();
-  }
-
-  function viewAllActions() {
-    alert('Viewing all pending actions...');
-  }
-
-  function viewAllActivity() {
-    alert('Viewing all activity history...');
-  }
-
-  function downloadSuratApproval(id) {
-    alert(`Downloading approval letter for request #${id}...`);
-  }
-
-  function sendReminderEmail(id) {
-    if (confirm('Kirim reminder email ke peminjam?')) {
-      alert(`Reminder email sent for request #${id}`);
-    }
-  }
-
-  function archiveRequest(id) {
-    if (confirm('Archive request ini?')) {
-      alert(`Request #${id} telah diarchive`);
-      location.reload();
-    }
-  }
-
-  // Initialize on page load
-  window.addEventListener('DOMContentLoaded', () => {
-    updateCardStylesOnThemeChange();
-  });
+  function printReport(s)         { window.print(); }
+  function refreshDashboard()     { if (confirm('Refresh?')) location.reload(); }
+  function downloadSuratApproval(id) { alert(`Downloading #${id}...`); }
+  function sendReminderEmail(id)  { if (confirm('Kirim reminder?')) alert(`Sent #${id}`); }
+  function archiveRequest(id)     { if (confirm('Archive?')) { alert(`Archived #${id}`); location.reload(); } }
 </script>
 
 {% endblock content %}

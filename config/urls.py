@@ -65,7 +65,7 @@ urlpatterns = [
     path('api/rooms/',    include('rooms.urls')),
     path('api/tools/',    include('tools.urls')),
     path('api/practicum/', include('practicum.urls')),
-    path('api/research/',  include('research.urls')),
+    path('api/research/', include('research.urls', namespace='research')),  
     path('api/internship/', include('internship.urls')),                 
 
     path('api/rooms/calendar/',     RoomCalendarView.as_view(),     name='api-room-calendar'),

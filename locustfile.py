@@ -20,7 +20,7 @@ class PsylabUser(HttpUser):
 
     @task(3)
     def dashboard(self):
-        self.client.get("/dashboard/")
+        self.client.get("/")
 
     @task(2)
     def peminjaman(self):

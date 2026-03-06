@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 
+app_name = 'research'
 urlpatterns = [
     # ── Public ────────────────────────────────────────────────────────
     path('lecturers/',                   views.LecturerListView.as_view(),          name='lecturer-list'),
@@ -43,5 +44,6 @@ urlpatterns = [
     path('sessions/<int:pk>/update/', views.GuidanceSessionUpdateView.as_view(), name='session-update'),
     path('sessions/<int:pk>/delete/', views.GuidanceSessionDeleteView.as_view(), name='session-delete'),
 
+    path('export/csv/', views.ExportCSVView.as_view(), name='export-csv'),
 
 ]

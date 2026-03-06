@@ -692,3 +692,201 @@ class GuidanceSessionDeleteView(LoginRequiredMixin, View):
         )
         session.delete()
         return JsonResponse({'status': 'ok'})
+
+
+
+
+import csv
+from django.http import HttpResponse
+from django.contrib.admin.views.decorators import staff_member_required
+from django.utils.decorators import method_decorator
+from django.views import View
+from django.utils import timezone
+from practicum.models import Practicum, PracticumRegistration
+from research.models import Lecturer, ResearchTitle, ResearchRequest
+
+
+@method_decorator(staff_member_required, name='dispatch')
+class ExportCSVView(View):
+
+    def get(self, request):
+        export_type = request.GET.get('type', 'praktikum')
+        date_from   = request.GET.get('date_from', '')
+        date_to     = request.GET.get('date_to', '')
+        status      = request.GET.get('status', '')
+
+        dispatch = {
+            'praktikum' : self._export_praktikum,
+            'peserta'   : self._export_peserta,
+            'dosen'     : self._export_dosen,
+            'penelitian': self._export_penelitian,
+        }
+
+        handler = dispatch.get(export_type, self._export_praktikum)
+        return handler(request, date_from, date_to, status)
+
+    # ------------------------------------------------------------------
+    def _make_response(self, filename):
+        ts  = timezone.now().strftime('%Y%m%d_%H%M')
+        res = HttpResponse(content_type='text/csv; charset=utf-8')
+        res['Content-Disposition'] = f'attachment; filename="{filename}_{ts}.csv"'
+        res.write('\ufeff')      # BOM agar Excel bisa baca UTF-8
+        return res
+
+    # ------------------------------------------------------------------
+    def _export_praktikum(self, request, date_from, date_to, status):
+        qs = Practicum.objects.select_related('lecturer', 'room').all()
+        if date_from:
+            qs = qs.filter(date__gte=date_from)
+        if date_to:
+            qs = qs.filter(date__lte=date_to)
+
+        res    = self._make_response('jadwal_praktikum')
+        writer = csv.writer(res)
+        writer.writerow(['No', 'Tipe', 'Nama Sesi', 'Dosen', 'Tanggal',
+                        'Jam Mulai', 'Jam Selesai', 'Ruangan',
+                        'Kapasitas', 'Terdaftar', 'Status'])
+        for i, p in enumerate(qs.order_by('date', 'start_time'), 1):
+            writer.writerow([
+                i,
+                p.get_type_display(),
+                p.session_name,
+                p.lecturer.name,
+                p.date.strftime('%d/%m/%Y'),
+                p.start_time.strftime('%H:%M'),
+                p.end_time.strftime('%H:%M'),
+                p.room.name,
+                p.capacity,
+                p.registered_count,   # property sudah ada di model
+                'Aktif' if p.is_active else 'Nonaktif',
+                ])
+        return res
+
+
+    def _export_peserta(self, request, date_from, date_to, status):
+        qs = PracticumRegistration.objects.select_related(
+            'practicum__lecturer', 'practicum__room', 'student'
+        ).all()
+        if date_from:
+            qs = qs.filter(practicum__date__gte=date_from)
+        if date_to:
+            qs = qs.filter(practicum__date__lte=date_to)
+        if status:
+            qs = qs.filter(status=status)
+
+        res    = self._make_response('peserta_praktikum')
+        writer = csv.writer(res)
+        writer.writerow(['No', 'Nama Sesi', 'Tipe', 'Tanggal Jadwal',
+                        'Nama Mahasiswa', 'NIM/NIP', 'Email',
+                        'Status Registrasi', 'Kehadiran (%)',
+                        'Sertifikat Terbit', 'Tgl Daftar'])
+        for i, r in enumerate(qs.order_by('practicum__date', 'created_at'), 1):
+            writer.writerow([
+                i,
+                r.practicum.session_name,
+                r.practicum.get_type_display(),
+                r.practicum.date.strftime('%d/%m/%Y'),
+                r.student.get_full_name(),
+                r.student.nimnip or '-',
+                r.student.email,
+                r.get_status_display(),
+                r.attendance_percentage,      # field decimal di model
+                'Ya' if r.certificate_issued else 'Tidak',
+                r.created_at.strftime('%d/%m/%Y %H:%M'),
+            ])
+        return res
+
+
+    # ------------------------------------------------------------------
+    def _export_dosen(self, request, date_from, date_to, status):
+        qs = Lecturer.objects.prefetch_related('research_titles').all()
+
+        res    = self._make_response('dosen_judul_payung')
+        writer = csv.writer(res)
+        writer.writerow(['No', 'Nama Dosen', 'NIP', 'Bidang', 'Email',
+                         'No. HP', 'Judul Payung', 'Kuota', 'Terisi', 'Status Judul'])
+        i = 1
+        for d in qs.order_by('name'):
+            titles = d.research_titles.all()
+            if not titles.exists():
+                writer.writerow([i, d.name, d.nip or '-', d.get_focus_display(),
+                                 d.email or '-', d.phone or '-',
+                                 '-', '-', '-', '-'])
+                i += 1
+            else:
+                for t in titles:
+                    writer.writerow([
+                        i, d.name, d.nip or '-', d.get_focus_display(),
+                        d.email or '-', d.phone or '-',
+                        t.title, t.quota, t.slots_used,
+                        'Aktif' if t.is_active else 'Nonaktif',
+                    ])
+                    i += 1
+        return res
+
+    # ------------------------------------------------------------------
+    def _export_penelitian(self, request, date_from, date_to, status):
+        from research.models import ResearchRequest
+        
+        qs = ResearchRequest.objects.select_related(
+            'student', 'lecturer', 'research_title'
+        ).all()
+        if date_from:
+            qs = qs.filter(created_at__date__gte=date_from)
+        if date_to:
+            qs = qs.filter(created_at__date__lte=date_to)
+        if status:
+            qs = qs.filter(status=status)
+
+        res    = self._make_response('request_penelitian')
+        writer = csv.writer(res)
+        writer.writerow([
+            'No', 'Nama Mahasiswa', 'NIM/Username', 'Judul Skripsi/Proposal',
+            'Dosen Pembimbing', 'Judul Payung', 'Status',
+            'Tgl Request', 'Catatan/Alasan',
+        ])
+
+        for i, r in enumerate(qs.order_by('-created_at'), 1):
+            # Ambil student info
+            student      = r.student
+            nama         = student.get_full_name() if hasattr(student, 'get_full_name') else str(student)
+            nim          = getattr(student, 'nimnip',   None) \
+                        or getattr(student, 'nim',       None) \
+                        or getattr(student, 'username',  '-')
+
+            # Ambil judul skripsi/proposal
+            judul        = getattr(r, 'thesis_title',    None) \
+                        or getattr(r, 'judul',           None) \
+                        or getattr(r, 'title',           None) \
+                        or '-'
+
+            # Dosen
+            dosen        = r.lecturer.name if r.lecturer else '-'
+
+            # Judul payung
+            payung       = '-'
+            if r.research_title:
+                payung   = getattr(r.research_title, 'title', str(r.research_title))
+
+            # Status display
+            try:
+                status_display = r.get_status_display()
+            except Exception:
+                status_display = r.status
+
+            # Tanggal
+            tgl_request  = r.created_at.strftime('%d/%m/%Y') if r.created_at else '-'
+
+            # Catatan admin
+            catatan      = getattr(r, 'admin_notes',        None) \
+                        or getattr(r, 'notes',              None) \
+                        or getattr(r, 'rejection_reason',   None) \
+                        or '-'
+
+            writer.writerow([
+                i, nama, nim, judul, dosen, payung,
+                status_display, tgl_request, catatan,
+            ])
+
+        return res
+
