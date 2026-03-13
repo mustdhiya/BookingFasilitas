@@ -50,7 +50,10 @@ class Practicum(TimeStampedModel):
 
     @property
     def registered_count(self):
-        return self.registrations.filter(status='approved').count()
+        # menghitung semua yg aktif: pending + approved + waitlist
+        return self.registrations.filter(
+            status__in=['pending', 'approved', 'waitlist']
+        ).count()
 
     @property
     def is_full(self):

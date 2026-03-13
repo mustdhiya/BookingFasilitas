@@ -80,22 +80,23 @@
     <!-- Stats Row -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
       <div class="card p-4 text-center">
-        <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">{{ practicums.count }}</p>
+        <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">{{ stats.total_jadwal }}</p>
         <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Total Jadwal</p>
       </div>
       <div class="card p-4 text-center">
-        <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ open_count }}</p>
-        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Masih Buka</p>
+        <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ stats.my_approved }}</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Disetujui</p>
       </div>
       <div class="card p-4 text-center">
-        <p class="text-2xl font-bold text-amber-600 dark:text-amber-400">{{ waitlist_count }}</p>
-        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Waitlist</p>
+        <p class="text-2xl font-bold text-amber-600 dark:text-amber-400">{{ stats.my_pending }}</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Menunggu</p>
       </div>
       <div class="card p-4 text-center">
-        <p class="text-2xl font-bold text-primary-600 dark:text-primary-400">{{ my_registration.count|default:"0" }}</p>
+        <p class="text-2xl font-bold text-primary-600 dark:text-primary-400">{{ my_registrations.count }}</p>
         <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Saya Ikuti</p>
       </div>
     </div>
+
   </div>
 
   <!-- ── TABS ── -->
@@ -142,15 +143,13 @@
     </div>
 
     <!-- Jadwal Grid -->
-    {% if practicums %}
+    {% if practicum_list %}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="praktikum-grid">
-      {% for p in practicums %}
-      {% with registered=p.registrations.count quota=p.max_participants %}
-      {% with pct=registered|divisibleby:quota %}
+      {% for p in practicum_list %}
       <div class="schedule-card card p-5 praktikum-item"
-           data-title="{{ p.title|lower }}"
-           data-semester="{{ p.semester }}"
-           data-status="{% if not p.is_open %}closed{% elif registered >= quota %}full{% elif registered >= quota|add:'-5' %}waitlist{% else %}open{% endif %}">
+          data-id="{{ p.id }}"
+          data-title="{{ p.session_name|lower }}"
+          data-status="{% if not p.is_active %}closed{% elif p.is_full %}full{% elif p.is_almost_full %}waitlist{% else %}open{% endif %}">
 
         <!-- Header -->
         <div class="flex items-start justify-between gap-2 mb-3">
@@ -158,21 +157,23 @@
             <span class="material-icons-outlined text-violet-600 dark:text-violet-400 mat-sm">school</span>
           </div>
           <span class="status-badge
-            {% if not p.is_open %}badge-closed
-            {% elif registered >= p.max_participants %}badge-full
+            {% if not p.is_active %}badge-closed
+            {% elif p.is_full %}badge-full
+            {% elif p.is_almost_full %}badge-waitlist
             {% else %}badge-open{% endif %}">
-            {% if not p.is_open %}🔒 Ditutup
-            {% elif registered >= p.max_participants %}🔴 Penuh
+            {% if not p.is_active %}🔒 Ditutup
+            {% elif p.is_full %}🔴 Penuh
+            {% elif p.is_almost_full %}🟡 Hampir Penuh
             {% else %}🟢 Buka{% endif %}
           </span>
         </div>
 
         <!-- Title -->
         <h3 class="font-semibold text-slate-900 dark:text-slate-100 text-sm mb-1">
-          {{ p.title }}
+          {{ p.get_type_display }} — {{ p.session_name }}
         </h3>
         <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">
-          {{ p.description|truncatechars:80 }}
+          {{ p.description|default:""|truncatechars:80 }}
         </p>
 
         <!-- Info Grid -->
@@ -183,15 +184,15 @@
           </div>
           <div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
             <span class="material-icons-outlined mat-xs text-violet-400">schedule</span>
-            {{ p.start_time|default:"08:00" }} – {{ p.end_time|default:"12:00" }}
-          </div>
-          <div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
-            <span class="material-icons-outlined mat-xs text-violet-400">book</span>
-            {{ p.semester }}
+            {{ p.start_time|time:"H:i" }} – {{ p.end_time|time:"H:i" }}
           </div>
           <div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
             <span class="material-icons-outlined mat-xs text-violet-400">location_on</span>
-            {{ p.location|default:"Lab Psikologi" }}
+            {{ p.room.name }}
+          </div>
+          <div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
+            <span class="material-icons-outlined mat-xs text-violet-400">person</span>
+            {{ p.lecturer.name }}
           </div>
         </div>
 
@@ -199,40 +200,39 @@
         <div class="mb-3">
           <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
             <span>Kuota Terisi</span>
-            <span class="font-semibold">{{ registered }}/{{ p.max_participants }}</span>
+            <span class="font-semibold quota-text">{{ p.registered_count }}/{{ p.capacity }}</span>
           </div>
           <div class="quota-bar">
-            <div class="quota-fill {% if registered >= p.max_participants %}bg-red-500{% elif registered >= p.max_participants|add:'-3' %}bg-amber-500{% else %}bg-violet-500{% endif %}"
-                 style="width: {% widthratio registered p.max_participants 100 %}%">
-            </div>
+            <div class="quota-fill {% if p.is_full %}bg-red-500{% elif p.is_almost_full %}bg-amber-500{% else %}bg-violet-500{% endif %}"
+                style="width: {{ p.fill_percentage }}%"></div>
           </div>
         </div>
-
-        <!-- Lecturer -->
-        {% if p.lecturer %}
-        <div class="flex items-center gap-2 mb-3 p-2 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
-          <span class="material-icons-outlined mat-xs text-primary-400">person</span>
-          <span class="text-xs text-slate-600 dark:text-slate-400">{{ p.lecturer }}</span>
-        </div>
-        {% endif %}
 
         <!-- CTA Button -->
         {% if user.is_authenticated %}
-          {% if p.id in user_registered_ids %}
+          {% if p.id in registered_ids %}
+          {# Sudah daftar di jadwal ini #}
           <button class="btn btn-secondary w-full btn-sm" disabled>
             <span class="material-icons-outlined mat-xs">check_circle</span>
             Sudah Terdaftar
           </button>
-          {% elif not p.is_open %}
+          {% elif has_any_registration %}
+          {# Sudah daftar di jadwal LAIN — lock semua tombol lain #}
+          <button class="btn btn-secondary w-full btn-sm" disabled
+                  title="Kamu sudah terdaftar di jadwal lain">
+            <span class="material-icons-outlined mat-xs">block</span>
+            Sudah Daftar di Jadwal Lain
+          </button>
+          {% elif not p.is_active %}
           <button class="btn btn-secondary w-full btn-sm" disabled>
             <span class="material-icons-outlined mat-xs">lock</span>
             Pendaftaran Ditutup
           </button>
           {% else %}
-          <button onclick="openDaftarModal({{ p.id }}, '{{ p.title|escapejs }}')"
-                  class="btn btn-primary w-full btn-sm">
+          <button onclick="openDaftarModal({{ p.id }}, '{{ p.session_name|escapejs }}')"
+                  class="btn btn-primary w-full btn-sm btn-daftar">
             <span class="material-icons-outlined mat-xs">how_to_reg</span>
-            {% if registered >= p.max_participants %}Masuk Waitlist{% else %}Daftar Sekarang{% endif %}
+            {% if p.is_full %}Masuk Waitlist{% else %}Daftar Sekarang{% endif %}
           </button>
           {% endif %}
         {% else %}
@@ -241,11 +241,10 @@
           Login untuk Daftar
         </a>
         {% endif %}
-
       </div>
-      {% endwith %}
-      {% endwith %}
       {% endfor %}
+
+
     </div>
 
     <!-- Empty -->
@@ -441,7 +440,9 @@
 {% block extra_js %}
 <script>
   let selectedPracticumId = null;
+  let slotPollingInterval = null;
 
+  // ── Tab switching ──────────────────────────────────────────────────
   function switchTab(name) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -452,22 +453,104 @@
 
   window.addEventListener('DOMContentLoaded', () => {
     const hash = window.location.hash.replace('#', '');
-    const validTabs = ['semua', 'saya', 'sertifikat'];
-    if (validTabs.includes(hash)) switchTab(hash);
+    if (['semua', 'saya', 'sertifikat'].includes(hash)) switchTab(hash);
+
+    // Mulai polling saat halaman load
+    pollSlots();
+    slotPollingInterval = setInterval(pollSlots, 5000); // setiap 5 detik
   });
 
+  // Hentikan polling saat tab tidak aktif (hemat resource)
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      clearInterval(slotPollingInterval);
+    } else {
+      pollSlots();
+      slotPollingInterval = setInterval(pollSlots, 5000);
+    }
+  });
+
+  // ── Real-time slot polling ─────────────────────────────────────────
+  function pollSlots() {
+    fetch('/api/practicum/slots/', {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(data => {
+      data.slots.forEach(slot => updateCardSlot(slot));
+    })
+    .catch(() => {}); // silent fail — jangan ganggu UX
+  }
+
+  function updateCardSlot(slot) {
+    const card = document.querySelector(`.praktikum-item[data-id="${slot.id}"]`);
+    if (!card) return;
+
+    // Update quota text
+    const quotaText = card.querySelector('.quota-text');
+    if (quotaText) quotaText.textContent = `${slot.registered_count}/${slot.capacity}`;
+
+    // Update progress bar
+    const bar = card.querySelector('.quota-fill');
+    if (bar) {
+      bar.style.width = slot.fill_percentage + '%';
+      bar.className = 'quota-fill transition-all duration-500 ' +
+        (slot.is_full ? 'bg-red-500' : slot.is_almost_full ? 'bg-amber-500' : 'bg-violet-500');
+    }
+
+    // Update status badge
+    const badge = card.querySelector('.status-badge');
+    if (badge) {
+      if (slot.is_full) {
+        badge.className = 'status-badge badge-full';
+        badge.textContent = '🔴 Penuh';
+      } else if (slot.is_almost_full) {
+        badge.className = 'status-badge badge-waitlist';
+        badge.textContent = '🟡 Hampir Penuh';
+      } else {
+        badge.className = 'status-badge badge-open';
+        badge.textContent = '🟢 Buka';
+      }
+    }
+
+    // Update tombol — cek apakah user sudah daftar di manapun
+    const btn = card.querySelector('.btn-daftar');
+    if (btn) {
+      if (slot.user_registered) {
+        // User daftar di jadwal INI
+        btn.disabled = true;
+        btn.className = 'btn btn-secondary w-full btn-sm';
+        btn.innerHTML = '<span class="material-icons-outlined mat-xs">check_circle</span> Sudah Terdaftar';
+      } else if (slot.user_has_any) {
+        // User daftar di jadwal LAIN
+        btn.disabled = true;
+        btn.className = 'btn btn-secondary w-full btn-sm';
+        btn.innerHTML = '<span class="material-icons-outlined mat-xs">block</span> Sudah Daftar di Jadwal Lain';
+      } else if (slot.is_full) {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-icons-outlined mat-xs">how_to_reg</span> Masuk Waitlist';
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-icons-outlined mat-xs">how_to_reg</span> Daftar Sekarang';
+      }
+    }
+
+    // Update data-status
+    card.dataset.status = slot.user_registered ? 'registered' :
+                          slot.is_full ? 'full' :
+                          slot.is_almost_full ? 'waitlist' : 'open';
+  }
+
+  // ── Filter ─────────────────────────────────────────────────────────
   function filterPraktikum() {
-    const q       = document.getElementById('search-praktikum').value.toLowerCase();
-    const sem     = document.getElementById('filter-semester').value;
-    const status  = document.getElementById('filter-status').value;
-    const items   = document.querySelectorAll('.praktikum-item');
-    let visible   = 0;
+    const q      = document.getElementById('search-praktikum').value.toLowerCase();
+    const status = document.getElementById('filter-status').value;
+    const items  = document.querySelectorAll('.praktikum-item');
+    let visible  = 0;
 
     items.forEach(el => {
-      const titleMatch  = el.dataset.title.includes(q);
-      const semMatch    = !sem    || el.dataset.semester === sem;
-      const statMatch   = !status || el.dataset.status   === status;
-      const show = titleMatch && semMatch && statMatch;
+      const show = el.dataset.title.includes(q) &&
+                   (!status || el.dataset.status === status);
       el.style.display = show ? '' : 'none';
       if (show) visible++;
     });
@@ -475,6 +558,7 @@
     document.getElementById('praktikum-empty').classList.toggle('hidden', visible > 0);
   }
 
+  // ── Modal ──────────────────────────────────────────────────────────
   function openDaftarModal(id, title) {
     selectedPracticumId = id;
     document.getElementById('modal-praktikum-title').textContent = title;
@@ -486,13 +570,14 @@
     selectedPracticumId = null;
   }
 
+  // ── Submit Daftar ──────────────────────────────────────────────────
   function submitDaftar() {
     if (!selectedPracticumId) return;
     const btn = document.getElementById('submit-daftar-btn');
     btn.disabled = true;
     btn.innerHTML = '<div class="spinner-ring w-4 h-4 border-2"></div> Mendaftarkan...';
 
-    fetch(`/api/practicum/registrations/`, {
+    fetch('/api/practicum/registrations/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -503,19 +588,24 @@
     .then(r => r.json())
     .then(data => {
       closeDaftarModal();
-      if (data.status === 'waitlist') {
-        showToast('warning', 'Kuota penuh — kamu masuk daftar waitlist');
-      } else if (data.id) {
-        showToast('success', 'Berhasil mendaftar praktikum!');
-        setTimeout(() => location.reload(), 1200);
-      } else {
-        showToast('error', data.detail || data.non_field_errors?.[0] || 'Gagal mendaftar');
+      if (data.status === 'error') {
+        showToast('error', data.msg || 'Gagal mendaftar');
         btn.disabled = false;
         btn.innerHTML = '<span class="material-icons-outlined mat-xs">how_to_reg</span> Ya, Daftar';
+        return;
       }
+      if (data.status === 'waitlist') {
+        showToast('warning', '⏳ Kuota penuh — kamu masuk daftar waitlist');
+      } else {
+        showToast('success', '✅ Berhasil mendaftar praktikum!');
+      }
+      // Update slot langsung tanpa tunggu interval
+      pollSlots();
+      // Reload tab saya setelah 1.5 detik
+      setTimeout(() => location.reload(), 1500);
     })
     .catch(() => {
-      showToast('error', 'Terjadi kesalahan. Coba lagi.');
+      showToast('error', 'Terjadi kesalahan jaringan. Coba lagi.');
       btn.disabled = false;
       btn.innerHTML = '<span class="material-icons-outlined mat-xs">how_to_reg</span> Ya, Daftar';
     });
@@ -525,6 +615,7 @@
     if (e.target === this) closeDaftarModal();
   });
 
+  // ── Helpers ────────────────────────────────────────────────────────
   function getCookie(name) {
     const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
     return v ? v[2] : '';
@@ -548,3 +639,4 @@
   }
 </script>
 {% endblock %}
+

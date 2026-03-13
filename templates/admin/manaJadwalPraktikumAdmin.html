@@ -2167,8 +2167,9 @@
   window.downloadImportTemplate = downloadImportTemplate;
   window.submitImport           = submitImport;
 
+  window.approvePeserta     = approvePeserta;
+  window.rejectPeserta      = rejectPeserta;
 
-  
   // ══════════════════════════════════════════════════════════════════════
   // IMPORT
   // ══════════════════════════════════════════════════════════════════════
@@ -3341,7 +3342,6 @@ function submitJadwalForm() {
   // ══════════════════════════════════════════════════════════════════════
   // VIEW PESERTA (placeholder — implement sesuai kebutuhan)
   // ══════════════════════════════════════════════════════════════════════
-
   function viewPeserta(pk) {
     switchPraktikumTab('peserta');
     var area = document.getElementById('peserta-content-area');
@@ -3349,54 +3349,133 @@ function submitJadwalForm() {
     if (placeholder) placeholder.classList.add('hidden');
     if (area) {
       area.classList.remove('hidden');
-      area.innerHTML =
-        '<div class="text-center py-8 text-slate-400">' +
-        '<span class="material-icons text-4xl block mb-2">hourglass_empty</span>' +
-        '<p class="text-sm">Memuat peserta jadwal #' + pk + '...</p></div>';
+      area.innerHTML = `<div class="text-center py-8 text-slate-400">
+        <span class="material-icons text-4xl block mb-2">hourglass_empty</span>
+        <p class="text-sm">Memuat peserta jadwal #${pk}...</p>
+      </div>`;
     }
-    fetch('/api/research/jadwal/' + pk + '/peserta/', {
+
+    // ✅ Ganti URL dari /api/research/... ke /api/practicum/
+    fetch(`/api/practicum/${pk}/peserta/`, {
       headers: { 'X-Requested-With': 'XMLHttpRequest' }
     })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
+    .then(r => r.json())
+    .then(data => {
       if (!area) return;
       if (!data.peserta || data.peserta.length === 0) {
-        area.innerHTML =
-          '<div class="text-center py-12 text-slate-400">' +
-          '<span class="material-icons-outlined text-5xl block mb-3 text-slate-300">group_off</span>' +
-          '<p class="text-sm font-medium">Belum ada peserta terdaftar</p></div>';
+        area.innerHTML = `<div class="text-center py-12 text-slate-400">
+          <span class="material-icons-outlined text-5xl block mb-3 text-slate-300">group_off</span>
+          <p class="text-sm font-medium">Belum ada peserta terdaftar</p>
+        </div>`;
         return;
       }
-      var rows = data.peserta.map(function(p, i) {
-        return '<tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">' +
-          '<td class="px-4 py-3 text-xs text-slate-400">' + (i + 1) + '</td>' +
-          '<td class="px-4 py-3">' +
-          '<p class="text-sm font-medium text-slate-900 dark:text-slate-100">' + p.name + '</p>' +
-          '<p class="text-xs text-slate-400">' + (p.nim || p.email || '—') + '</p></td>' +
-          '<td class="px-4 py-3 text-xs text-slate-500">' + (p.prodi || '—') + '</td>' +
-          '<td class="px-4 py-3 text-xs text-slate-500">' + (p.registered_at || '—') + '</td>' +
-          '</tr>';
-      }).join('');
-      area.innerHTML =
-        '<div class="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-xl">' +
-        '<table class="w-full text-sm">' +
-        '<thead class="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700">' +
-        '<tr>' +
-        '<th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">#</th>' +
-        '<th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Peserta</th>' +
-        '<th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Prodi</th>' +
-        '<th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Tgl Daftar</th>' +
-        '</tr></thead>' +
-        '<tbody class="divide-y divide-slate-100 dark:divide-slate-700">' + rows + '</tbody>' +
-        '</table></div>';
+
+      var rows = data.peserta.map((p, i) => `
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition" id="peserta-row-${p.id}">
+          <td class="px-4 py-3 text-xs text-slate-400">${i + 1}</td>
+          <td class="px-4 py-3">
+            <p class="text-sm font-medium text-slate-900 dark:text-slate-100">${p.name}</p>
+            <p class="text-xs text-slate-400">${p.nim ? p.nim + ' · ' : ''}${p.email}</p>
+          </td>
+          <td class="px-4 py-3 text-xs text-slate-500">${p.prodi}</td>
+          <td class="px-4 py-3 text-xs text-center" id="status-cell-${p.id}">
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold
+              ${p.status === 'approved' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                p.status === 'pending'  ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+                                          'bg-blue-50 text-blue-700 border border-blue-200'}">
+              ${p.status === 'approved' ? '✅ Disetujui' :
+                p.status === 'pending'  ? '⏳ Pending' : '🕐 Waitlist'}
+            </span>
+          </td>
+          <td class="px-4 py-3 text-xs text-slate-500">${p.registered_at}</td>
+          <td class="px-4 py-3 text-center" id="action-cell-${p.id}">
+            ${p.status === 'pending' || p.status === 'waitlist' ? `
+              <div class="flex items-center justify-center gap-1">
+                <button onclick="approvePeserta(${p.id})"
+                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold transition">
+                  <span class="material-icons text-xs">check</span> Setujui
+                </button>
+                <button onclick="rejectPeserta(${p.id})"
+                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold transition">
+                  <span class="material-icons text-xs">close</span> Tolak
+                </button>
+              </div>` : `<span class="text-xs text-slate-300">—</span>`}
+          </td>
+        </tr>`).join('');
+
+      area.innerHTML = `
+        <div class="mb-3 flex items-center justify-between">
+          <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">
+            ${data.total} peserta terdaftar
+          </p>
+          <span class="text-xs text-slate-400">${data.practicum}</span>
+        </div>
+        <div class="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-xl">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">#</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Peserta</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Prodi</th>
+                <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Status</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Tgl Daftar</th>
+                <th class="px-4 py-3 text-center text-xs font-semibold text-slate-500 uppercase">Aksi</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-700 bg-white dark:bg-slate-800">
+              ${rows}
+            </tbody>
+          </table>
+        </div>`;
     })
-    .catch(function(err) {
-      if (area) area.innerHTML =
-        '<div class="text-center py-8 text-rose-400">' +
-        '<span class="material-icons text-4xl block mb-2">error_outline</span>' +
-        '<p class="text-sm">Gagal memuat: ' + err.message + '</p></div>';
+    .catch(err => {
+      if (area) area.innerHTML = `<div class="text-center py-8 text-rose-400">
+        <span class="material-icons text-4xl block mb-2">error_outline</span>
+        <p class="text-sm">Gagal memuat: ${err.message}</p>
+      </div>`;
     });
   }
+  function approvePeserta(regId) {
+  fetch(`/api/practicum/registrations/${regId}/approve/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCookie('csrftoken')
+    },
+    body: JSON.stringify({ action: 'approve' })
+  })
+  .then(r => r.json())
+  .then(data => {
+    // Update badge status langsung tanpa reload
+    document.getElementById(`status-cell-${regId}`).innerHTML = `
+      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold
+             bg-emerald-50 text-emerald-700 border border-emerald-200">✅ Disetujui</span>`;
+    document.getElementById(`action-cell-${regId}`).innerHTML =
+      `<span class="text-xs text-slate-300">—</span>`;
+    showToast('success', data.msg);
+  })
+  .catch(() => showToast('error', 'Gagal menyetujui peserta'));
+}
+
+function rejectPeserta(regId) {
+  fetch(`/api/practicum/registrations/${regId}/approve/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCookie('csrftoken')
+    },
+    body: JSON.stringify({ action: 'reject' })
+  })
+  .then(r => r.json())
+  .then(data => {
+    // Hapus baris dari tabel
+    const row = document.getElementById(`peserta-row-${regId}`);
+    if (row) row.remove();
+    showToast('warning', data.msg);
+  })
+  .catch(() => showToast('error', 'Gagal menolak peserta'));
+}
+
 
   // ══════════════════════════════════════════════════════════════════════
   // EXPORT

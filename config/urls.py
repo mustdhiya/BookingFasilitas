@@ -28,7 +28,7 @@ from accounts.views import (
 )
 from rooms.views import PeminjamRuanganView, RiwayatView, RoomCalendarView, RoomDayScheduleView
 from konseling.views import AdminPanelView   
-from practicum.views import PracticumListView as PracticumPageView
+from practicum.views import PraktikumMainView as PracticumPageView
 from research.views import ResearchListView
 from internship.views import InternshipListView
 from .views import panduan_info_view

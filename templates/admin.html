@@ -335,10 +335,7 @@
   // ══════════════════════════════════════════════════════════════════════
   // FUNGSI LAIN (tidak diubah)
   // ══════════════════════════════════════════════════════════════════════
-  function viewPeserta(id) {
-    switchAdminModule('dosen');
-    switchPraktikumTab('peserta');
-  }
+ 
 
   function declineRequest(id, type, name = '') {
     const reason = prompt(`Alasan decline${name ? ' untuk ' + name : ''}:`);
