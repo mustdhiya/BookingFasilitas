@@ -36,7 +36,8 @@ urlpatterns = [
     path('jadwal/create/',               views.JadwalCreateView.as_view(),          name='jadwal-create'),
     path('jadwal/<int:pk>/update/',      views.JadwalUpdateView.as_view(),          name='jadwal-update'),
     path('jadwal/<int:pk>/delete/',      views.JadwalDeleteView.as_view(),          name='jadwal-delete'),
-
+    path('jadwal/<int:pk>/json/',        views.JadwalJsonView.as_view(),       name='jadwal-json'),
+    
     path('titles/slots/', views.TitleSlotsView.as_view(), name='title-slots'),
     
     # ── CRUD Sesi Bimbingan ─────────────────────────────────────────
@@ -45,5 +46,7 @@ urlpatterns = [
     path('sessions/<int:pk>/delete/', views.GuidanceSessionDeleteView.as_view(), name='session-delete'),
 
     path('export/csv/', views.ExportCSVView.as_view(), name='export-csv'),
+    path('import/csv/', views.ImportCSVView.as_view(), name='import-csv'),
+
 
 ]

@@ -1,29 +1,46 @@
 from rest_framework import serializers
 from .models import Practicum, PracticumRegistration, Attendance
-from accounts.serializers import UserSerializer
+
 
 class PracticumSerializer(serializers.ModelSerializer):
-    instructor_detail = UserSerializer(source='instructor', read_only=True)
-    registered_count = serializers.IntegerField(read_only=True)
-    waitlist_count = serializers.IntegerField(read_only=True)
-    is_full = serializers.BooleanField(read_only=True)
-    
+    lecturer_name = serializers.CharField(source='lecturer.name', read_only=True)
+    room_name     = serializers.CharField(source='room.name', read_only=True)
+    registered_count  = serializers.IntegerField(read_only=True)
+    is_full           = serializers.BooleanField(read_only=True)
+    is_almost_full    = serializers.BooleanField(read_only=True)
+    fill_percentage   = serializers.IntegerField(read_only=True)
+
     class Meta:
-        model = Practicum
-        fields = '__all__'
+        model  = Practicum
+        fields = [
+            'id', 'type', 'session_name',
+            'lecturer', 'lecturer_name',
+            'room', 'room_name',
+            'date', 'start_time', 'end_time',
+            'capacity', 'description', 'is_active',
+            'registered_count', 'is_full', 'is_almost_full', 'fill_percentage',
+        ]
+
+
+class PracticumCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model  = Practicum
+        fields = [
+            'type', 'session_name',
+            'lecturer', 'room',
+            'date', 'start_time', 'end_time',
+            'capacity', 'description', 'is_active',
+        ]
 
 
 class PracticumRegistrationSerializer(serializers.ModelSerializer):
-    student_detail = UserSerializer(source='student', read_only=True)
-    practicum_detail = PracticumSerializer(source='practicum', read_only=True)
-    
     class Meta:
-        model = PracticumRegistration
+        model  = PracticumRegistration
         fields = '__all__'
         read_only_fields = ['student', 'status', 'attendance_percentage']
 
 
 class AttendanceSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Attendance
+        model  = Attendance
         fields = '__all__'

@@ -1,40 +1,42 @@
 from rest_framework import serializers
-from .models import ResearchVariable, VariableRequest, GuidanceSession
-from accounts.serializers import UserSerializer
+from .models import Lecturer, ResearchTitle, ResearchRequest, GuidanceSession
+from practicum.models import Practicum, Room  # sesuaikan import ini dengan lokasi model Practicum kamu
 
-class ResearchVariableSerializer(serializers.ModelSerializer):
-    supervisor_detail = UserSerializer(source='supervisor', read_only=True)
-    slots_used = serializers.IntegerField(read_only=True)
+
+# ── Lecturer ──────────────────────────────────────────────────────────────
+class LecturerSerializer(serializers.ModelSerializer):
+    focus_display = serializers.CharField(source='get_focus_display', read_only=True)
+
+    class Meta:
+        model  = Lecturer
+        fields = ['id', 'name', 'nip', 'focus', 'focus_display',
+                  'email', 'phone', 'bio', 'photo', 'is_active']
+
+
+# ── ResearchTitle ─────────────────────────────────────────────────────────
+class ResearchTitleSerializer(serializers.ModelSerializer):
+    slots_used      = serializers.IntegerField(read_only=True)
     slots_remaining = serializers.IntegerField(read_only=True)
-    is_full = serializers.BooleanField(read_only=True)
-    
+    is_full         = serializers.BooleanField(read_only=True)
+    fill_percentage = serializers.IntegerField(read_only=True)
+
     class Meta:
-        model = ResearchVariable
-        fields = '__all__'
-    
-    def to_representation(self, instance):
-        """Hide supervisor detail for students"""
-        data = super().to_representation(instance)
-        request = self.context.get('request')
-        
-        if request and request.user.role == 'mahasiswa':
-            data.pop('supervisor_detail', None)
-            data.pop('supervisor', None)
-        
-        return data
+        model  = ResearchTitle
+        fields = ['id', 'lecturer', 'title', 'description', 'focus',
+                  'quota', 'is_active', 'slots_used', 'slots_remaining',
+                  'is_full', 'fill_percentage']
 
 
-class VariableRequestSerializer(serializers.ModelSerializer):
-    student_detail = UserSerializer(source='student', read_only=True)
-    variable_detail = ResearchVariableSerializer(source='variable', read_only=True)
-    
-    class Meta:
-        model = VariableRequest
-        fields = '__all__'
-        read_only_fields = ['student', 'status', 'approved_by', 'approved_at']
-
-
+# ── GuidanceSession ───────────────────────────────────────────────────────
 class GuidanceSessionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = GuidanceSession
+        model  = GuidanceSession
         fields = '__all__'
+
+
+# ── ResearchRequest ───────────────────────────────────────────────────────
+class ResearchRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model  = ResearchRequest
+        fields = '__all__'
+        read_only_fields = ['student', 'status', 'approved_by', 'approved_at']

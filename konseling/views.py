@@ -363,6 +363,8 @@ class AdminPanelView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
             borrow_count=Count('rentals', filter=~Q(rentals__status='cancelled'))
         ).order_by('code')
         ctx['low_stock_count'] = TestTool.objects.filter(stock__lte=10, is_active=True).count()
+        ctx['lecturerlist'] = ctx['lecturer_list']           # ← tanpa underscore
+        ctx['roomlist']     = Room.objects.filter(is_active=True).order_by('name')
 
         return ctx 
 

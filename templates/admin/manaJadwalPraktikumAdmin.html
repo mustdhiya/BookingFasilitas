@@ -4,24 +4,40 @@
               bg-white dark:bg-slate-800 shadow-sm p-6 space-y-6">
 
     {# Header #}
-<div class="flex items-center justify-between">
-  <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100
-             flex items-center gap-2">
-    <span class="material-icons text-emerald-600 dark:text-emerald-400">school</span>
-    Manajemen Praktikum & Penelitian
-  </h3>
+    <div class="flex items-center justify-between">
+      <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100
+                 flex items-center gap-2">
+        <span class="material-icons text-emerald-600 dark:text-emerald-400">school</span>
+        Manajemen Praktikum & Penelitian
+      </h3>
 
-  <button onclick="exportData('praktikum')"
-          class="inline-flex items-center gap-1.5 rounded-lg
-                 border border-emerald-200 dark:border-emerald-700
-                 bg-emerald-50 dark:bg-emerald-900/20
-                 hover:bg-emerald-100 dark:hover:bg-emerald-900/40
-                 text-emerald-700 dark:text-emerald-400
-                 font-medium text-sm px-3 py-1.5 transition shadow-sm">
-    <span class="material-icons text-base">download</span>
-    Export CSV
-  </button>
-</div>
+      <div class="flex items-center gap-2">
+        {# Tombol Import #}
+        <button onclick="openImportModal()"
+                class="inline-flex items-center gap-1.5 rounded-lg
+                       border border-blue-200 dark:border-blue-700
+                       bg-blue-50 dark:bg-blue-900/20
+                       hover:bg-blue-100 dark:hover:bg-blue-900/40
+                       text-blue-700 dark:text-blue-400
+                       font-medium text-sm px-3 py-1.5 transition shadow-sm">
+          <span class="material-icons text-base">upload_file</span>
+          Import CSV
+        </button>
+
+        {# Tombol Export #}
+        <button onclick="exportData('praktikum')"
+                class="inline-flex items-center gap-1.5 rounded-lg
+                       border border-emerald-200 dark:border-emerald-700
+                       bg-emerald-50 dark:bg-emerald-900/20
+                       hover:bg-emerald-100 dark:hover:bg-emerald-900/40
+                       text-emerald-700 dark:text-emerald-400
+                       font-medium text-sm px-3 py-1.5 transition shadow-sm">
+          <span class="material-icons text-base">download</span>
+          Export CSV
+        </button>
+      </div>
+    </div>
+
 
 
     {# Tabs #}
@@ -950,7 +966,7 @@
                        font-medium text-sm px-4 py-2 transition">
           Batal
         </button>
-        <button onclick="submitJadwalModal()"
+        <button onclick="submitJadwalForm()"
                 id="btn-jadwal-submit"
                 class="inline-flex items-center gap-1.5 rounded-lg
                        bg-primary-500 hover:bg-primary-600
@@ -1853,6 +1869,264 @@
     </div>
   </div>
 </div>
+{# ══════════════════════════════════════════════════════════════════════ #}
+{# MODAL IMPORT CSV                                                       #}
+{# ══════════════════════════════════════════════════════════════════════ #}
+
+{# Toast — di LUAR modal agar tidak ikut hidden #}
+<div id="copy-toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[999]
+     bg-slate-900 text-white text-xs font-medium px-4 py-2 rounded-full shadow-lg
+     flex items-center gap-1.5 pointer-events-none">
+  <span class="material-icons text-sm text-emerald-400">check_circle</span>
+  <span id="copy-toast-msg"></span>
+</div>
+
+<div id="modal-import" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
+     onclick="closeModal('modal-import')">
+  <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-sm"></div>
+  <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg
+              flex flex-col max-h-[90vh]"
+       onclick="event.stopPropagation()">
+
+    {# Header — fixed, tidak ikut scroll #}
+    <div class="px-6 pt-5 pb-4 border-b border-slate-200 dark:border-slate-700
+                flex items-center justify-between flex-shrink-0">
+      <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+        <span class="material-icons text-primary-600">upload_file</span>
+        Import Data CSV
+      </h3>
+      <button onclick="closeModal('modal-import')"
+              class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300
+                     rounded-lg p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+        <span class="material-icons-outlined">close</span>
+      </button>
+    </div>
+
+    {# Body — scrollable #}
+    <div class="flex-1 overflow-y-auto p-6 space-y-5">
+
+      {# Step 1 — Pilih Tipe #}
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+          Tipe Data <span class="text-rose-500">*</span>
+        </label>
+        <div class="grid grid-cols-1 gap-2" id="import-type-options">
+
+          <label class="flex items-center gap-3 rounded-xl border-2 border-slate-200 dark:border-slate-700
+                        hover:border-primary-300 dark:hover:border-primary-700 p-3 cursor-pointer transition
+                        has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50 dark:has-[:checked]:bg-primary-900/20">
+            <input type="radio" name="import_type" value="praktikum"
+                   class="text-primary-600 focus:ring-primary-500 w-4 h-4">
+            <div class="flex items-center gap-2.5 flex-1">
+              <div class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0">
+                <span class="material-icons text-emerald-600 text-sm">event</span>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Jadwal Praktikum</p>
+                <p class="text-xs text-slate-400">Buat jadwal sesi baru dari CSV</p>
+              </div>
+            </div>
+          </label>
+
+          <label class="flex items-center gap-3 rounded-xl border-2 border-slate-200 dark:border-slate-700
+                        hover:border-primary-300 dark:hover:border-primary-700 p-3 cursor-pointer transition
+                        has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50 dark:has-[:checked]:bg-primary-900/20">
+            <input type="radio" name="import_type" value="dosen"
+                   class="text-primary-600 focus:ring-primary-500 w-4 h-4">
+            <div class="flex items-center gap-2.5 flex-1">
+              <div class="w-8 h-8 rounded-lg bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center flex-shrink-0">
+                <span class="material-icons text-violet-600 text-sm">person_pin</span>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Dosen & Judul Payung</p>
+                <p class="text-xs text-slate-400">Import data dosen beserta judul penelitian</p>
+              </div>
+            </div>
+          </label>
+
+          <label class="flex items-center gap-3 rounded-xl border-2 border-slate-200 dark:border-slate-700
+                        hover:border-primary-300 dark:hover:border-primary-700 p-3 cursor-pointer transition
+                        has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50 dark:has-[:checked]:bg-primary-900/20">
+            <input type="radio" name="import_type" value="peserta"
+                   class="text-primary-600 focus:ring-primary-500 w-4 h-4">
+            <div class="flex items-center gap-2.5 flex-1">
+              <div class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+                <span class="material-icons text-blue-600 text-sm">groups</span>
+              </div>
+              <div>
+                <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Peserta Praktikum</p>
+                <p class="text-xs text-slate-400">Daftarkan mahasiswa ke jadwal tertentu</p>
+              </div>
+            </div>
+          </label>
+
+        </div>
+        <p id="err-import-type" class="hidden text-xs text-rose-500 mt-1.5">Pilih salah satu tipe data.</p>
+      </div>
+
+      {# Panel Referensi — muncul saat pilih praktikum #}
+      <div id="import-ref-panel" class="hidden space-y-3">
+        <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+          Referensi — Klik nama untuk menyalin
+        </p>
+        {# Daftar Dosen #}
+        <div class="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div class="flex items-center gap-2 px-3 py-2 bg-slate-50 dark:bg-slate-700/50
+                      border-b border-slate-200 dark:border-slate-700">
+            <span class="material-icons text-sm text-violet-600">person_pin</span>
+            <p class="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              Nama Dosen
+              <code class="bg-slate-200 dark:bg-slate-600 px-1 rounded ml-1">kolom: nama_dosen</code>
+            </p>
+          </div>
+          <div class="p-2 flex flex-wrap gap-1.5 max-h-28 overflow-y-auto">
+            {% for lecturer in lecturerlist %}
+              <button type="button" onclick="copyToClipboard('{{ lecturer.name|escapejs }}')"
+                      title="Klik untuk copy"
+                      class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium
+                             bg-violet-50 dark:bg-violet-900/20 text-violet-700 dark:text-violet-400
+                             border border-violet-200 dark:border-violet-800
+                             hover:bg-violet-100 dark:hover:bg-violet-900/40 transition">
+                <span class="material-icons text-xs">content_copy</span>
+                {{ lecturer.name }}
+              </button>
+            {% empty %}
+              <p class="text-xs text-slate-400 italic p-1">Belum ada dosen terdaftar.</p>
+            {% endfor %}
+          </div>
+        </div>
+        {# Daftar Ruangan #}
+        <div class="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div class="flex items-center gap-2 px-3 py-2 bg-slate-50 dark:bg-slate-700/50
+                      border-b border-slate-200 dark:border-slate-700">
+            <span class="material-icons text-sm text-emerald-600">meeting_room</span>
+            <p class="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              Nama Ruangan
+              <code class="bg-slate-200 dark:bg-slate-600 px-1 rounded ml-1">kolom: nama_ruangan</code>
+            </p>
+          </div>
+          <div class="p-2 flex flex-wrap gap-1.5 max-h-28 overflow-y-auto">
+            {% for room in roomlist %}
+              <button type="button" onclick="copyToClipboard('{{ room.name|escapejs }}')"
+                      title="Klik untuk copy"
+                      class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium
+                             bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400
+                             border border-emerald-200 dark:border-emerald-800
+                             hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition">
+                <span class="material-icons text-xs">content_copy</span>
+                {{ room.name }}
+              </button>
+            {% empty %}
+              <p class="text-xs text-slate-400 italic p-1">Belum ada ruangan terdaftar.</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      {# Step 2 — Upload File #}
+      <div>
+        <div class="flex items-center justify-between mb-1.5">
+          <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+            Upload File CSV <span class="text-rose-500">*</span>
+          </label>
+          <button type="button" onclick="downloadImportTemplate()"
+                  class="inline-flex items-center gap-1 text-xs font-medium text-primary-600
+                         dark:text-primary-400 hover:text-primary-700 transition">
+            <span class="material-icons text-sm">download</span>
+            Download Template
+          </button>
+        </div>
+
+        {# Dropzone #}
+        <label id="import-dropzone"
+               class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed
+                      border-slate-300 dark:border-slate-600 rounded-xl cursor-pointer
+                      bg-slate-50 dark:bg-slate-700/30
+                      hover:border-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/10
+                      transition group">
+          <div class="flex flex-col items-center gap-1 pointer-events-none">
+            <span class="material-icons text-3xl text-slate-400 group-hover:text-primary-500 transition">cloud_upload</span>
+            <p class="text-sm text-slate-500 dark:text-slate-400">
+              Drag & drop atau <span class="text-primary-600 font-medium">pilih file</span>
+            </p>
+            <p class="text-xs text-slate-400">Format: .csv — Maks. 5 MB</p>
+          </div>
+          <input type="file" id="import-file-input" accept=".csv" class="hidden"
+                 onchange="handleImportFileSelect(this)">
+        </label>
+
+        {# Preview file terpilih #}
+        <div id="import-file-preview"
+             class="hidden mt-2 flex items-center gap-2 rounded-lg
+                    bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200
+                    dark:border-emerald-800 px-3 py-2">
+          <span class="material-icons text-emerald-600 text-base flex-shrink-0">check_circle</span>
+          <span id="import-file-name"
+                class="text-sm font-medium text-emerald-800 dark:text-emerald-300 truncate flex-1"></span>
+          <button type="button" onclick="clearImportFile()"
+                  class="text-emerald-600 hover:text-rose-500 transition flex-shrink-0">
+            <span class="material-icons text-sm">close</span>
+          </button>
+        </div>
+        <p id="err-import-file" class="hidden text-xs text-rose-500 mt-1">
+          Pilih file CSV terlebih dahulu.
+        </p>
+      </div>
+
+      {# Info box #}
+      <div class="rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200
+                  dark:border-amber-800 px-4 py-3 flex gap-2">
+        <span class="material-icons text-amber-500 text-sm flex-shrink-0 mt-0.5">info</span>
+        <p class="text-xs text-amber-700 dark:text-amber-400">
+          Gunakan tombol <strong>Download Template</strong> untuk mendapatkan format CSV yang benar
+          sesuai tipe data yang dipilih.
+        </p>
+      </div>
+
+      {# Error global #}
+      <div id="import-global-error"
+           class="hidden rounded-lg bg-rose-50 dark:bg-rose-900/20 border border-rose-200
+                  dark:border-rose-800 px-4 py-3 flex items-start gap-2">
+        <span class="material-icons text-rose-500 text-sm flex-shrink-0 mt-0.5">error</span>
+        <div>
+          <p class="text-sm font-semibold text-rose-700 dark:text-rose-400 mb-1">Import gagal</p>
+          <ul id="import-error-list"
+              class="text-xs text-rose-600 dark:text-rose-400 space-y-0.5 list-disc list-inside"></ul>
+        </div>
+      </div>
+
+      {# Success #}
+      <div id="import-success"
+           class="hidden rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200
+                  dark:border-emerald-800 px-4 py-3 flex items-center gap-2">
+        <span class="material-icons text-emerald-600 text-sm flex-shrink-0">check_circle</span>
+        <p id="import-success-msg"
+           class="text-sm font-medium text-emerald-800 dark:text-emerald-300"></p>
+      </div>
+
+    </div>
+
+    {# Footer — fixed, tidak ikut scroll #}
+    <div class="bg-slate-50 dark:bg-slate-700/50 px-6 py-4 flex gap-3 justify-end
+                border-t border-slate-200 dark:border-slate-700 rounded-b-2xl flex-shrink-0">
+      <button onclick="closeModal('modal-import')"
+              class="inline-flex items-center gap-1.5 rounded-lg border border-slate-300
+                     dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50
+                     text-slate-700 dark:text-slate-300 font-medium text-sm px-4 py-2 transition">
+        Batal
+      </button>
+      <button onclick="submitImport()" id="btn-import-submit"
+              class="inline-flex items-center gap-1.5 rounded-lg bg-primary-600 hover:bg-primary-700
+                     text-white font-semibold text-sm px-5 py-2 transition shadow-sm
+                     disabled:opacity-60 disabled:cursor-not-allowed">
+        <span class="material-icons text-base" id="btn-import-icon">upload</span>
+        <span id="btn-import-label">Upload & Proses</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+
 
 <script>
 (function () {
@@ -1886,269 +2160,570 @@
   window.exportData   = exportData;
   window.submitExport = submitExport;
 
-  function switchSection(section) {
-      document.querySelectorAll('[id^="admin-section-"]').forEach(function(el) {
-          el.classList.add('hidden');
-      });
-      var target = document.getElementById('admin-section-' + section);
-      if (target) {
-          target.classList.remove('hidden');
-      } else {
-          console.warn('Section #admin-section-' + section + ' tidak ditemukan.');
-      }
-  }
+  
+  window.openImportModal        = openImportModal;
+  window.handleImportFileSelect = handleImportFileSelect;
+  window.clearImportFile        = clearImportFile;
+  window.downloadImportTemplate = downloadImportTemplate;
+  window.submitImport           = submitImport;
 
+
+  
   // ══════════════════════════════════════════════════════════════════════
-  // JADWAL MODAL — CREATE / EDIT
+  // IMPORT
   // ══════════════════════════════════════════════════════════════════════
 
-  // State
-  var _jadwalMode = 'create';
-  var _jadwalPk   = null;
-
-  // Field helpers
-  var JF = {
-    type:        function() { return document.getElementById('jdw-type'); },
-    sessionName: function() { return document.getElementById('jdw-session-name'); },
-    lecturer:    function() { return document.getElementById('jdw-lecturer'); },
-    date:        function() { return document.getElementById('jdw-date'); },
-    room:        function() { return document.getElementById('jdw-room'); },
-    startTime:   function() { return document.getElementById('jdw-start-time'); },
-    endTime:     function() { return document.getElementById('jdw-end-time'); },
-    capacity:    function() { return document.getElementById('jdw-capacity'); },
-    isActive:    function() { return document.getElementById('jdw-is-active'); },
-    notes:       function() { return document.getElementById('jdw-notes'); },
+  const IMPORT_TEMPLATES = {
+    praktikum: {
+      filename: 'template_jadwal_praktikum.csv',
+      headers:  ['tipe', 'nama_sesi', 'nama_dosen', 'tanggal',
+                  'nama_ruangan', 'jam_mulai', 'jam_selesai', 'kapasitas', 'catatan'],
+      example:  ['inteligensi', 'Sesi A - Kelas 3B', 'Dr. Ahmad Fauzi',
+                  '2026-04-01', 'Lab Psikologi A', '08:00', '10:00', '30', 'Opsional'],
+    },
+    dosen: {
+      filename: 'template_dosen_judul_payung.csv',
+      headers:  ['nama', 'nip', 'bidang', 'email', 'no_hp', 'bio',
+                  'judul_payung', 'bidang_judul', 'kuota'],
+      example:  ['Dr. Ahmad Fauzi, M.Psi', '198001012005011001', 'klinis',
+                  'ahmad@umkt.ac.id', '08123456789', 'Minat riset CBT',
+                  'Pengaruh Self-Efficacy terhadap Prokrastinasi', 'klinis', '5'],
+    },
+    peserta: {
+      filename: 'template_peserta_praktikum.csv',
+      headers:  ['jadwal_id', 'nim_atau_username'],
+      example:  ['1', '2021001'],
+    },
   };
 
-  function resetJadwalForm() {
-    Object.values(JF).forEach(function(fn) {
-      var el = fn();
-      if (!el) return;
-      if (el.type === 'checkbox') el.checked = true;
-      else el.value = '';
-    });
-    document.querySelectorAll('[id^="err-jdw-"]').forEach(function(e) {
-      e.classList.add('hidden');
-    });
-    var globalErr = document.getElementById('jadwal-modal-error');
-    if (globalErr) globalErr.classList.add('hidden');
-    var statusLabel = document.getElementById('jdw-status-label');
-    if (statusLabel) statusLabel.textContent = 'Aktif';
+  function openImportModal() {
+    // Reset state
+    document.querySelectorAll('input[name="import_type"]').forEach(r => r.checked = false);
+    clearImportFile();
+    document.getElementById('err-import-type').classList.add('hidden');
+    document.getElementById('err-import-file').classList.add('hidden');
+    document.getElementById('import-global-error').classList.add('hidden');
+    document.getElementById('import-success').classList.add('hidden');
+    const btn = document.getElementById('btn-import-submit');
+    btn.disabled = false;
+    document.getElementById('btn-import-icon').textContent  = 'upload';
+    document.getElementById('btn-import-label').textContent = 'Upload & Proses';
+    openModal('modal-import');
   }
 
-  function setJadwalLoading(on) {
-    var btn   = document.getElementById('btn-jadwal-submit');
-    var icon  = document.getElementById('btn-jadwal-submit-icon');
-    var label = document.getElementById('btn-jadwal-submit-label');
-    if (!btn) return;
-    btn.disabled      = on;
-    icon.textContent  = on ? 'hourglass_top' : 'save';
-    label.textContent = on
-      ? 'Menyimpan...'
-      : (_jadwalMode === 'edit' ? 'Perbarui Jadwal' : 'Simpan Jadwal');
+  function handleImportFileSelect(input) {
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    document.getElementById('import-file-name').textContent = `${file.name} (${(file.size/1024).toFixed(1)} KB)`;
+    document.getElementById('import-file-preview').classList.remove('hidden');
+    document.getElementById('import-dropzone').classList.add('hidden');
+    document.getElementById('err-import-file').classList.add('hidden');
   }
 
-  // Toggle label status aktif/nonaktif
-  var jdwActiveEl = document.getElementById('jdw-is-active');
-  if (jdwActiveEl) {
-    jdwActiveEl.addEventListener('change', function() {
-      var lbl = document.getElementById('jdw-status-label');
-      if (lbl) lbl.textContent = this.checked ? 'Aktif' : 'Nonaktif';
-    });
+  function clearImportFile() {
+    document.getElementById('import-file-input').value = '';
+    document.getElementById('import-file-preview').classList.add('hidden');
+    document.getElementById('import-dropzone').classList.remove('hidden');
   }
-  // ── Delete Judul payung ──
-  function deleteJudul(pk, titleText) {
-    if (!confirm(`Hapus judul payung "${titleText}"?\nSemua request terkait juga akan dihapus.`)) return;
-    var csrfToken = getCookie('csrftoken'); 
-    fetch('/api/research/judul/' + pk + '/delete/', { 
-      method: 'POST',
-      headers: { 'X-CSRFToken': csrfToken }
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(res) {
-      if (res.status === 'ok') {
-        showToast(res.msg, 'success');
-        setTimeout(function() { location.reload(); }, 800);
+
+  function downloadImportTemplate() {
+    const typeEl = document.querySelector('input[name="import_type"]:checked');
+    if (!typeEl) {
+      document.getElementById('err-import-type').classList.remove('hidden');
+      return;
+    }
+    const tpl = IMPORT_TEMPLATES[typeEl.value];
+    if (!tpl) return;
+
+    // Generate CSV template dengan 1 baris contoh
+    const rows = [tpl.headers.join(','), tpl.example.join(',')];
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href   = URL.createObjectURL(blob);
+    link.download = tpl.filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  async function submitImport() {
+    // Validasi tipe
+    const typeEl = document.querySelector('input[name="import_type"]:checked');
+    document.getElementById('err-import-type').classList.toggle('hidden', !!typeEl);
+    if (!typeEl) return;
+
+    // Validasi file
+    const fileInput = document.getElementById('import-file-input');
+    document.getElementById('err-import-file').classList.toggle('hidden', !!fileInput.files[0]);
+    if (!fileInput.files[0]) return;
+
+    // Reset feedback
+    document.getElementById('import-global-error').classList.add('hidden');
+    document.getElementById('import-success').classList.add('hidden');
+
+    // Loading state
+    const btn   = document.getElementById('btn-import-submit');
+    const icon  = document.getElementById('btn-import-icon');
+    const label = document.getElementById('btn-import-label');
+    btn.disabled      = true;
+    icon.textContent  = 'hourglass_top';
+    label.textContent = 'Memproses...';
+
+    const formData = new FormData();
+    formData.append('type', typeEl.value);
+    formData.append('file', fileInput.files[0]);
+
+    try {
+      const res  = await fetch("{% url 'research:import-csv' %}", {
+        method:  'POST',
+        headers: { 'X-CSRFToken': getCookieCsrf(), 'X-Requested-With': 'XMLHttpRequest' },
+        body:    formData,
+      });
+      const data = await res.json();
+
+      if (data.ok) {
+        document.getElementById('import-success-msg').textContent =
+          `Berhasil mengimport ${data.count} data ${typeEl.value}.`;
+        document.getElementById('import-success').classList.remove('hidden');
+        clearImportFile();
+        setTimeout(() => { closeModal('modal-import'); location.reload(); }, 1800);
       } else {
-        showToast(res.msg || 'Gagal hapus.', 'error');
+        // Tampilkan error per baris
+        const errList = document.getElementById('import-error-list');
+        errList.innerHTML = '';
+        const errors = data.errors || [data.message || 'Terjadi kesalahan.'];
+        errors.slice(0, 10).forEach(e => {
+          const li = document.createElement('li');
+          li.textContent = e;
+          errList.appendChild(li);
+        });
+        if (errors.length > 10) {
+          const li = document.createElement('li');
+          li.textContent = `...dan ${errors.length - 10} error lainnya.`;
+          errList.appendChild(li);
+        }
+        document.getElementById('import-global-error').classList.remove('hidden');
       }
-    })
-    .catch(function() { showToast('Terjadi kesalahan koneksi.', 'error'); });
+    } catch (err) {
+      document.getElementById('import-error-list').innerHTML = `<li>${err.message}</li>`;
+      document.getElementById('import-global-error').classList.remove('hidden');
+    } finally {
+      btn.disabled      = false;
+      icon.textContent  = 'upload';
+      label.textContent = 'Upload & Proses';
+    }
   }
 
+  function getCookieCsrf() {
+    return document.querySelector('[name=csrfmiddlewaretoken]')?.value
+        || getCookie('csrftoken');
+  }
+  document.addEventListener('change', function (e) {
+    if (e.target.name === 'import_type') {
+      const panel = document.getElementById('import-ref-panel');
+      if (e.target.value === 'praktikum') {
+        panel.classList.remove('hidden');
+      } else {
+        panel.classList.add('hidden');
+      }
+    }
+  });
 
 
+// ══════════════════════════════════════════════════════════════════════
+// HELPER
+// ══════════════════════════════════════════════════════════════════════
 
-  // Validasi form
-  function validateJadwal() {
-    var ok = true;
-    var required = [
-      ['jdw-type',         'err-jdw-type'],
-      ['jdw-session-name', 'err-jdw-session-name'],
-      ['jdw-lecturer',     'err-jdw-lecturer'],
-      ['jdw-date',         'err-jdw-date'],
-      ['jdw-room',         'err-jdw-room'],
-      ['jdw-start-time',   'err-jdw-start-time'],
-      ['jdw-end-time',     'err-jdw-end-time'],
-      ['jdw-capacity',     'err-jdw-capacity'],
-    ];
-    required.forEach(function(pair) {
-      var val = document.getElementById(pair[0]).value.trim();
-      var err = document.getElementById(pair[1]);
-      if (!val) { err.classList.remove('hidden'); ok = false; }
-      else       err.classList.add('hidden');
+function getCookieCsrf() {
+  return document.querySelector('[name=csrfmiddlewaretoken]')?.value
+      || getCookie('csrftoken');
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// IMPORT
+// ══════════════════════════════════════════════════════════════════════
+
+function openImportModal() {
+  document.querySelectorAll('input[name="import_type"]').forEach(r => r.checked = false);
+  clearImportFile();
+  ['err-import-type','err-import-file','import-global-error','import-success'].forEach(id => {
+    document.getElementById(id)?.classList.add('hidden');
+  });
+  document.getElementById('import-ref-panel')?.classList.add('hidden');
+  const btn = document.getElementById('btn-import-submit');
+  if (btn) btn.disabled = false;
+  const icon  = document.getElementById('btn-import-icon');
+  const label = document.getElementById('btn-import-label');
+  if (icon)  icon.textContent  = 'upload';
+  if (label) label.textContent = 'Upload & Proses';
+  openModal('modal-import');
+}
+
+function handleImportFileSelect(input) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  document.getElementById('import-file-name').textContent =
+    `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+  document.getElementById('import-file-preview').classList.remove('hidden');
+  document.getElementById('import-dropzone').classList.add('hidden');
+  document.getElementById('err-import-file').classList.add('hidden');
+}
+
+function clearImportFile() {
+  const inp = document.getElementById('import-file-input');
+  if (inp) inp.value = '';
+  document.getElementById('import-file-preview')?.classList.add('hidden');
+  document.getElementById('import-dropzone')?.classList.remove('hidden');
+}
+
+function downloadImportTemplate() {
+  const typeEl = document.querySelector('input[name="import_type"]:checked');
+  if (!typeEl) {
+    document.getElementById('err-import-type').classList.remove('hidden');
+    return;
+  }
+  const tpl = IMPORT_TEMPLATES[typeEl.value];
+  if (!tpl) return;
+  const rows = [tpl.headers.join(','), tpl.example.join(',')];
+  const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href     = URL.createObjectURL(blob);
+  link.download = tpl.filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+async function submitImport() {
+  const typeEl = document.querySelector('input[name="import_type"]:checked');
+  document.getElementById('err-import-type').classList.toggle('hidden', !!typeEl);
+  if (!typeEl) return;
+
+  const fileInput = document.getElementById('import-file-input');
+  document.getElementById('err-import-file').classList.toggle('hidden', !!fileInput.files[0]);
+  if (!fileInput.files[0]) return;
+
+  ['import-global-error', 'import-success'].forEach(id =>
+    document.getElementById(id)?.classList.add('hidden'));
+
+  const btn   = document.getElementById('btn-import-submit');
+  const icon  = document.getElementById('btn-import-icon');
+  const label = document.getElementById('btn-import-label');
+  btn.disabled      = true;
+  icon.textContent  = 'hourglass_top';
+  label.textContent = 'Memproses...';
+
+  const formData = new FormData();
+  formData.append('type', typeEl.value);
+  formData.append('file', fileInput.files[0]);
+
+  try {
+    const res  = await fetch("{% url 'research:import-csv' %}", {
+      method:  'POST',
+      headers: { 'X-CSRFToken': getCookieCsrf(), 'X-Requested-With': 'XMLHttpRequest' },
+      body:    formData,
     });
+    const data = await res.json();
 
-    // Validasi jam selesai > jam mulai
-    var s = JF.startTime().value, e = JF.endTime().value;
-    if (s && e && e <= s) {
-      var endErr = document.getElementById('err-jdw-end-time');
+    if (data.ok) {
+      document.getElementById('import-success-msg').textContent =
+        `Berhasil mengimport ${data.count} data ${typeEl.value}.`;
+      document.getElementById('import-success').classList.remove('hidden');
+      clearImportFile();
+      setTimeout(() => { closeModal('modal-import'); location.reload(); }, 1800);
+    } else {
+      const errList = document.getElementById('import-error-list');
+      errList.innerHTML = '';
+      const errors = data.errors || [data.message || 'Terjadi kesalahan.'];
+      errors.slice(0, 10).forEach(e => {
+        const li = document.createElement('li');
+        li.textContent = e;
+        errList.appendChild(li);
+      });
+      if (errors.length > 10) {
+        const li = document.createElement('li');
+        li.textContent = `...dan ${errors.length - 10} error lainnya.`;
+        errList.appendChild(li);
+      }
+      document.getElementById('import-global-error').classList.remove('hidden');
+    }
+  } catch (err) {
+    document.getElementById('import-error-list').innerHTML = `<li>${err.message}</li>`;
+    document.getElementById('import-global-error').classList.remove('hidden');
+  } finally {
+    btn.disabled      = false;
+    icon.textContent  = 'upload';
+    label.textContent = 'Upload & Proses';
+  }
+}
+
+document.addEventListener('change', function (e) {
+  if (e.target.name === 'import_type') {
+    const panel = document.getElementById('import-ref-panel');
+    if (panel) panel.classList.toggle('hidden', e.target.value !== 'praktikum');
+  }
+});
+
+// ══════════════════════════════════════════════════════════════════════
+// SECTION SWITCH
+// ══════════════════════════════════════════════════════════════════════
+
+function switchSection(section) {
+  document.querySelectorAll('[id^="admin-section-"]').forEach(el => el.classList.add('hidden'));
+  const target = document.getElementById('admin-section-' + section);
+  if (target) target.classList.remove('hidden');
+  else console.warn('Section #admin-section-' + section + ' tidak ditemukan.');
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// JADWAL MODAL — CREATE / EDIT
+// ══════════════════════════════════════════════════════════════════════
+
+var _jadwalMode = 'create';
+var _jadwalPk   = null;
+
+// Mapping field ID → element getter
+var JF = {
+  type:        () => document.getElementById('jdw-type'),
+  sessionName: () => document.getElementById('jdw-session-name'),
+  lecturer:    () => document.getElementById('jdw-lecturer'),
+  date:        () => document.getElementById('jdw-date'),
+  room:        () => document.getElementById('jdw-room'),
+  startTime:   () => document.getElementById('jdw-start-time'),
+  endTime:     () => document.getElementById('jdw-end-time'),
+  capacity:    () => document.getElementById('jdw-capacity'),
+  isActive:    () => document.getElementById('jdw-is-active'),
+  notes:       () => document.getElementById('jdw-notes'),
+};
+
+function resetJadwalForm() {
+  Object.values(JF).forEach(fn => {
+    const el = fn();
+    if (!el) return;
+    if (el.type === 'checkbox') el.checked = true;
+    else el.value = '';
+  });
+  document.querySelectorAll('[id^="err-jdw-"]').forEach(e => e.classList.add('hidden'));
+  document.getElementById('jadwal-modal-error')?.classList.add('hidden');
+  const lbl = document.getElementById('jdw-status-label');
+  if (lbl) lbl.textContent = 'Aktif';
+}
+
+function setJadwalLoading(on) {
+  const btn   = document.getElementById('btn-jadwal-submit');
+  const icon  = document.getElementById('btn-jadwal-submit-icon');
+  const label = document.getElementById('btn-jadwal-submit-label');
+  if (!btn) return;
+  btn.disabled      = on;
+  icon.textContent  = on ? 'hourglass_top' : 'save';
+  label.textContent = on ? 'Menyimpan...' : (_jadwalMode === 'edit' ? 'Perbarui Jadwal' : 'Simpan Jadwal');
+}
+
+// Toggle label status
+const jdwActiveEl = document.getElementById('jdw-is-active');
+if (jdwActiveEl) {
+  jdwActiveEl.addEventListener('change', function () {
+    const lbl = document.getElementById('jdw-status-label');
+    if (lbl) lbl.textContent = this.checked ? 'Aktif' : 'Nonaktif';
+  });
+}
+
+// ── Delete Judul Payung ──
+function deleteJudul(pk, titleText) {
+  if (!confirm(`Hapus judul payung "${titleText}"?\nSemua request terkait juga akan dihapus.`)) return;
+  fetch('/api/research/judul/' + pk + '/delete/', {
+    method:  'POST',
+    headers: { 'X-CSRFToken': getCookieCsrf() },
+  })
+  .then(r => r.json())
+  .then(res => {
+    if (res.status === 'ok') {
+      showToast(res.msg, 'success');
+      setTimeout(() => location.reload(), 800);
+    } else {
+      showToast(res.msg || 'Gagal hapus.', 'error');
+    }
+  })
+  .catch(() => showToast('Terjadi kesalahan koneksi.', 'error'));
+}
+
+// ── Validasi form ──
+function validateJadwal() {
+  let ok = true;
+  const required = [
+    ['jdw-type',         'err-jdw-type'],
+    ['jdw-session-name', 'err-jdw-session-name'],
+    ['jdw-lecturer',     'err-jdw-lecturer'],
+    ['jdw-date',         'err-jdw-date'],
+    ['jdw-room',         'err-jdw-room'],
+    ['jdw-start-time',   'err-jdw-start-time'],
+    ['jdw-end-time',     'err-jdw-end-time'],
+    ['jdw-capacity',     'err-jdw-capacity'],
+  ];
+  required.forEach(([fieldId, errId]) => {
+    const el  = document.getElementById(fieldId);
+    const err = document.getElementById(errId);
+    if (!el || !err) return;
+    const empty = !el.value.trim();
+    err.classList.toggle('hidden', !empty);
+    if (empty) ok = false;
+  });
+
+  // Validasi jam selesai > jam mulai
+  const s = JF.startTime()?.value;
+  const e = JF.endTime()?.value;
+  if (s && e && e <= s) {
+    const endErr = document.getElementById('err-jdw-end-time');
+    if (endErr) {
       endErr.textContent = 'Jam selesai harus setelah jam mulai.';
       endErr.classList.remove('hidden');
-      ok = false;
     }
-    return ok;
+    ok = false;
   }
+  return ok;
+}
 
-  function showJadwalGlobalError(msg) {
-    var box = document.getElementById('jadwal-modal-error');
-    var txt = document.getElementById('jadwal-modal-error-msg');
-    if (!box || !txt) return;
-    txt.textContent = msg;
-    box.classList.remove('hidden');
-    box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
+function showJadwalGlobalError(msg) {
+  const box = document.getElementById('jadwal-modal-error');
+  const txt = document.getElementById('jadwal-modal-error-msg');
+  if (!box || !txt) return;
+  txt.textContent = msg;
+  box.classList.remove('hidden');
+  box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
 
-  // ── openJadwalModal ────────────────────────────────────────────────────
-  function openJadwalModal(mode, id) {
-    id = id || null;
-    _jadwalMode = mode;
-    _jadwalPk   = id;
+// ── openJadwalModal ──
+function openJadwalModal(mode, id) {
+  id = id || null;
+  _jadwalMode = mode;
+  _jadwalPk   = id;
 
-    resetJadwalForm();
+  resetJadwalForm();
 
-    var icon     = document.getElementById('modal-jadwal-icon');
-    var title    = document.getElementById('modal-jadwal-title');
-    var subtitle = document.getElementById('modal-jadwal-subtitle');
-    var btnLabel = document.getElementById('btn-jadwal-submit-label');
-    var btnIcon  = document.getElementById('btn-jadwal-submit-icon');
+  const icon     = document.getElementById('modal-jadwal-icon');
+  const title    = document.getElementById('modal-jadwal-title');
+  const subtitle = document.getElementById('modal-jadwal-subtitle');
+  const btnLabel = document.getElementById('btn-jadwal-submit-label');
+  const btnIcon  = document.getElementById('btn-jadwal-submit-icon');
 
-    if (mode === 'create') {
-      if (icon)     icon.textContent     = 'add_circle';
-      if (title)    title.textContent    = 'Buat Jadwal Baru';
-      if (subtitle) subtitle.textContent = 'Isi semua field yang diperlukan';
-      if (btnLabel) btnLabel.textContent = 'Simpan Jadwal';
-      if (btnIcon)  btnIcon.textContent  = 'save';
+  if (mode === 'create') {
+    if (icon)     icon.textContent     = 'add_circle';
+    if (title)    title.textContent    = 'Buat Jadwal Baru';
+    if (subtitle) subtitle.textContent = 'Isi semua field yang diperlukan';
+    if (btnLabel) btnLabel.textContent = 'Simpan Jadwal';
+    if (btnIcon)  btnIcon.textContent  = 'save';
 
-      openModal('modal-jadwal');
-      setTimeout(function() {
-        var firstField = JF.type();
-        if (firstField) firstField.focus();
-      }, 100);
+    openModal('modal-jadwal');
 
-    } else {
-      // Edit — prefill dulu sebelum buka
-      if (icon)     icon.textContent     = 'edit';
-      if (title)    title.textContent    = 'Edit Jadwal';
-      if (subtitle) subtitle.textContent = 'Memuat data...';
-      if (btnLabel) btnLabel.textContent = 'Perbarui Jadwal';
-      if (btnIcon)  btnIcon.textContent  = 'save';
+    // Scroll body modal ke atas & fokus field pertama
+    setTimeout(() => {
+      const body = document.querySelector('#modal-jadwal .overflow-y-auto');
+      if (body) body.scrollTop = 0;
+      JF.type()?.focus();
+    }, 100);
 
-      openModal('modal-jadwal');
-      setJadwalLoading(true);
+  } else {
+    if (icon)     icon.textContent     = 'edit';
+    if (title)    title.textContent    = 'Edit Jadwal';
+    if (subtitle) subtitle.textContent = 'Memuat data...';
+    if (btnLabel) btnLabel.textContent = 'Perbarui Jadwal';
+    if (btnIcon)  btnIcon.textContent  = 'save';
 
-      fetch('/api/research/jadwal/' + id + '/json/', {
-        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-      })
-      .then(function(r) {
-        if (!r.ok) throw new Error('Server error: ' + r.status);
-        return r.json();
-      })
-      .then(function(data) {
-        JF.type().value        = data.type         || '';
-        JF.sessionName().value = data.session_name  || '';
-        JF.lecturer().value    = data.lecturer_id   || '';
-        JF.date().value        = data.date          || '';
-        JF.room().value        = data.room_id       || '';
-        JF.startTime().value   = data.start_time    || '';
-        JF.endTime().value     = data.end_time      || '';
-        JF.capacity().value    = data.capacity      || '';
-        JF.isActive().checked  = data.is_active !== false;
-        JF.notes().value       = data.notes         || '';
-
-        var lbl = document.getElementById('jdw-status-label');
-        if (lbl) lbl.textContent = JF.isActive().checked ? 'Aktif' : 'Nonaktif';
-        if (subtitle) subtitle.textContent = data.session_name || ('ID #' + id);
-      })
-      .catch(function(err) {
-        showJadwalGlobalError('Gagal memuat data jadwal: ' + err.message);
-      })
-      .finally(function() {
-        setJadwalLoading(false);
-      });
-    }
-  }
-
-  // ── submitJadwalForm ───────────────────────────────────────────────────
-  function submitJadwalForm() {
-    if (!validateJadwal()) return;
-
+    openModal('modal-jadwal');
     setJadwalLoading(true);
-    var globalErr = document.getElementById('jadwal-modal-error');
-    if (globalErr) globalErr.classList.add('hidden');
 
-    var url = _jadwalMode === 'edit'
-      ? '/api/research/jadwal/' + _jadwalPk + '/update/'
-      : '/api/research/jadwal/create/';
-
-    var payload = {
-      type:         JF.type().value,
-      session_name: JF.sessionName().value.trim(),
-      lecturer_id:  JF.lecturer().value,
-      date:         JF.date().value,
-      room_id:      JF.room().value,
-      start_time:   JF.startTime().value,
-      end_time:     JF.endTime().value,
-      capacity:     parseInt(JF.capacity().value),
-      is_active:    JF.isActive().checked,
-      notes:        JF.notes().value.trim(),
-    };
-
-    fetch(url, {
-      method:  'POST',
-      headers: {
-        'Content-Type':     'application/json',
-        'X-CSRFToken':      getCookie('csrftoken'),
-        'X-Requested-With': 'XMLHttpRequest',
-      },
-      body: JSON.stringify(payload),
+    fetch('/api/research/jadwal/' + id + '/json/', {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
     })
-    .then(function(r) {
-      var ct = r.headers.get('content-type') || '';
-      if (!ct.includes('application/json')) {
-        throw new Error('Server error (' + r.status + '). Cek terminal Django.');
-      }
+    .then(r => {
+      if (!r.ok) throw new Error('Server error: ' + r.status);
       return r.json();
     })
-    .then(function(data) {
-      if (data.ok || data.status === 'ok') {
-        closeModal('modal-jadwal');
-        showToast(data.msg || 'Jadwal berhasil disimpan!', 'success');
-        setTimeout(function() { location.reload(); }, 800);
-      } else {
-        var errMsg = data.errors
-          ? Object.values(data.errors).map(function(e) { return e[0] || e; }).join(', ')
-          : (data.msg || 'Gagal menyimpan jadwal.');
-        showJadwalGlobalError(errMsg);
-      }
+    .then(data => {
+      JF.type().value        = data.type          || '';
+      JF.sessionName().value = data.session_name  || '';
+      JF.lecturer().value    = data.lecturer_id   || '';
+      JF.date().value        = data.date          || '';
+      JF.room().value        = data.room_id       || '';
+      JF.startTime().value   = data.start_time    || '';
+      JF.endTime().value     = data.end_time      || '';
+      JF.capacity().value    = data.capacity      || '';
+      JF.isActive().checked  = data.is_active !== false;
+      JF.notes().value       = data.notes         || '';
+
+      const lbl = document.getElementById('jdw-status-label');
+      if (lbl) lbl.textContent = JF.isActive().checked ? 'Aktif' : 'Nonaktif';
+      if (subtitle) subtitle.textContent = data.session_name || ('ID #' + id);
+
+      // Scroll ke atas setelah data terisi
+      const body = document.querySelector('#modal-jadwal .overflow-y-auto');
+      if (body) body.scrollTop = 0;
     })
-    .catch(function(err) {
-      showJadwalGlobalError(err.message);
-    })
-    .finally(function() {
-      setJadwalLoading(false);
-    });
+    .catch(err => showJadwalGlobalError('Gagal memuat data jadwal: ' + err.message))
+    .finally(() => setJadwalLoading(false));
   }
+}
+
+// ── submitJadwalForm ──
+function submitJadwalForm() {
+  if (!validateJadwal()) {
+    // Scroll ke error pertama yang terlihat
+    const firstErr = document.querySelector('#modal-jadwal [id^="err-jdw-"]:not(.hidden)');
+    if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  setJadwalLoading(true);
+  document.getElementById('jadwal-modal-error')?.classList.add('hidden');
+
+  const url = _jadwalMode === 'edit'
+    ? '/api/research/jadwal/' + _jadwalPk + '/update/'
+    : '/api/research/jadwal/create/';
+
+  const payload = {
+    type:         JF.type().value,
+    session_name: JF.sessionName().value.trim(),
+    lecturer:     parseInt(JF.lecturer().value),
+    date:         JF.date().value,
+    room:         parseInt(JF.room().value),
+    start_time:   JF.startTime().value,
+    end_time:     JF.endTime().value,
+    capacity:     parseInt(JF.capacity().value, 10),
+    is_active:    JF.isActive().checked,
+    description:  JF.notes().value.trim(),
+  };
+
+
+  fetch(url, {
+    method:  'POST',
+    headers: {
+      'Content-Type':     'application/json',
+      'X-CSRFToken':      getCookieCsrf(),
+      'X-Requested-With': 'XMLHttpRequest',
+    },
+    body: JSON.stringify(payload),
+  })
+  .then(r => {
+    const ct = r.headers.get('content-type') || '';
+    if (!ct.includes('application/json'))
+      throw new Error('Server error (' + r.status + '). Cek terminal Django.');
+    return r.json();
+  })
+  .then(data => {
+    if (data.ok || data.status === 'ok') {
+      closeModal('modal-jadwal');
+      showToast(data.msg || 'Jadwal berhasil disimpan!', 'success');
+      setTimeout(() => location.reload(), 800);
+    } else {
+      const errMsg = data.errors
+        ? Object.values(data.errors).flat().join(', ')
+        : (data.msg || 'Gagal menyimpan jadwal.');
+      showJadwalGlobalError(errMsg);
+    }
+  })
+  .catch(err => showJadwalGlobalError(err.message))
+  .finally(() => setJadwalLoading(false));
+}
 
   // ══════════════════════════════════════════════════════════════════════
   // LIHAT MAHASISWA PAYUNG

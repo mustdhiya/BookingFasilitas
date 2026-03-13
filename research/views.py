@@ -12,6 +12,8 @@ import openpyxl
 
 from .models import Lecturer, ResearchTitle, ResearchRequest, GuidanceSession
 from practicum.models import Practicum
+from practicum.serializers import PracticumCreateSerializer
+
 
 
 # ══════════════════════════════════════════════════════════
@@ -111,46 +113,57 @@ class LecturerDeactivateView(AdminRequiredMixin, View):
             'msg': f'Dosen {lecturer.name} berhasil dinonaktifkan.',
         })
 
-class JadwalCreateView(AdminRequiredMixin, CreateView):
-    model = Practicum
-    fields = ['type', 'session_name', 'lecturer', 'date',
-              'start_time', 'end_time', 'room', 'capacity',
-              'description', 'is_active']
+import json
+from practicum.models import Practicum
 
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({'status': 'ok', 'id': self.object.pk})
-        return response
+class JadwalJsonView(AdminRequiredMixin, View):
+    def get(self, request, pk):
+        from practicum.models import Practicum
+        jadwal = get_object_or_404(Practicum, pk=pk)
+        return JsonResponse({
+            'pk':           jadwal.pk,
+            'type':         jadwal.type,
+            'session_name': jadwal.session_name,
+            'lecturer_id':  jadwal.lecturer_id,
+            'date':         str(jadwal.date),          
+            'room_id':      jadwal.room_id,
+            'start_time':   jadwal.start_time.strftime('%H:%M'),
+            'end_time':     jadwal.end_time.strftime('%H:%M'),
+            'capacity':     jadwal.capacity,
+            'is_active':    jadwal.is_active,
+            'notes':        jadwal.description or '',   
+        })
 
-    def form_invalid(self, form):
-        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
-        return redirect(reverse_lazy('admin_panel') + '?tab=praktikum')
+class JadwalCreateView(AdminRequiredMixin, View):
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+        except (json.JSONDecodeError, ValueError):
+            return JsonResponse({'ok': False, 'msg': 'Request body tidak valid.'}, status=400)
 
-    def get_success_url(self):
-        return reverse_lazy('admin_panel') + '?tab=praktikum'
+        from practicum.serializers import PracticumCreateSerializer
+        serializer = PracticumCreateSerializer(data=data)
+        if serializer.is_valid():
+            obj = serializer.save()
+            return JsonResponse({'ok': True, 'msg': 'Jadwal berhasil disimpan!', 'id': obj.pk})
+        return JsonResponse({'ok': False, 'errors': serializer.errors}, status=400)
 
 
-class JadwalUpdateView(AdminRequiredMixin, UpdateView):
-    model = Practicum
-    fields = ['type', 'session_name', 'lecturer', 'date',
-              'start_time', 'end_time', 'room', 'capacity',
-              'description', 'is_active']
+class JadwalUpdateView(AdminRequiredMixin, View):
+    def post(self, request, pk):
+        from practicum.models import Practicum
+        jadwal = get_object_or_404(Practicum, pk=pk)
+        try:
+            data = json.loads(request.body)
+        except (json.JSONDecodeError, ValueError):
+            return JsonResponse({'ok': False, 'msg': 'Request body tidak valid.'}, status=400)
 
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({'status': 'ok', 'id': self.object.pk})
-        return response
-
-    def form_invalid(self, form):
-        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({'status': 'error', 'errors': form.errors}, status=400)
-        return redirect(reverse_lazy('admin_panel') + '?tab=praktikum')
-
-    def get_success_url(self):
-        return reverse_lazy('admin_panel') + '?tab=praktikum'
+        from practicum.serializers import PracticumCreateSerializer
+        serializer = PracticumCreateSerializer(jadwal, data=data, partial=False)
+        if serializer.is_valid():
+            obj = serializer.save()
+            return JsonResponse({'ok': True, 'msg': 'Jadwal berhasil diperbarui!', 'id': obj.pk})
+        return JsonResponse({'ok': False, 'errors': serializer.errors}, status=400)
 
 class JadwalDeleteView(AdminRequiredMixin, View):
     def post(self, request, pk):
@@ -630,7 +643,7 @@ class TitleSlotsView(View):
         return JsonResponse(data, safe=False)
     
     
-from datetime import datetime  
+from datetime import date, datetime  
 class GuidanceSessionCreateView(LoginRequiredMixin, View):
     def post(self, request):
         research_req = ResearchRequest.objects.filter(
@@ -890,3 +903,178 @@ class ExportCSVView(View):
 
         return res
 
+import csv, io
+from datetime import datetime
+from django.http import JsonResponse
+from django.views import View
+from django.utils.decorators import method_decorator
+from django.contrib.admin.views.decorators import staff_member_required
+
+
+@method_decorator(staff_member_required, name='dispatch')
+class ImportCSVView(View):
+
+    def post(self, request):
+        import_type = request.POST.get('type')
+        file        = request.FILES.get('file')
+
+        if not file or not file.name.endswith('.csv'):
+            return JsonResponse({'ok': False, 'errors': ['File harus berformat .csv']})
+
+        decoded = file.read().decode('utf-8-sig')
+        reader  = csv.DictReader(io.StringIO(decoded))
+        errors  = []
+        count   = 0
+
+        try:
+            if import_type == 'praktikum':
+                count, errors = self._import_praktikum(reader)
+            elif import_type == 'dosen':
+                count, errors = self._import_dosen(reader)
+            elif import_type == 'peserta':
+                count, errors = self._import_peserta(reader)
+            else:
+                return JsonResponse({'ok': False, 'errors': ['Tipe tidak dikenal.']})
+        except Exception as e:
+            return JsonResponse({'ok': False, 'errors': [str(e)]})
+
+        if errors and count == 0:
+            return JsonResponse({'ok': False, 'errors': errors})
+        return JsonResponse({'ok': True, 'count': count, 'errors': errors})
+
+    # ── Helpers ───────────────────────────────────────────────────────
+
+    def _parse_date(self, date_str):
+        for fmt in ['%Y-%m-%d', '%d/%m/%Y', '%m/%d/%Y', '%d-%m-%Y']:
+            try:
+                return datetime.strptime(date_str.strip(), fmt).date()
+            except ValueError:
+                continue
+        raise ValueError(f'Format tanggal "{date_str}" tidak dikenal. Gunakan YYYY-MM-DD.')
+
+    def _parse_time(self, time_str):
+        """
+        Terima: HH:MM, H:MM, HH:MM:SS, H:MM:SS AM/PM (format Excel)
+        """
+        s = time_str.strip()
+        # Hapus suffix AM/PM dari format Excel seperti "13:00:00 AM"
+        # Excel kadang export 24-jam tapi tetap tambah AM/PM — strip saja
+        s = s.replace(' AM', '').replace(' PM', '').replace(' am', '').replace(' pm', '')
+        
+        for fmt in ['%H:%M:%S', '%H:%M']:
+            try:
+                return datetime.strptime(s, fmt).time()
+            except ValueError:
+                continue
+        raise ValueError(f'Format jam "{time_str}" tidak dikenal. Gunakan HH:MM.')
+
+    # ── Import Praktikum ──────────────────────────────────────────────
+    def _import_praktikum(self, reader):
+        from practicum.models import Practicum
+        from rooms.models import Room
+        from .models import Lecturer
+        errors, count, skipped = [], 0, 0
+
+        for i, row in enumerate(reader, 2):
+            try:
+                nama_dosen   = row.get('nama_dosen', '').strip()
+                nama_ruangan = row.get('nama_ruangan', '').strip()
+
+                lecturer = Lecturer.objects.filter(name__iexact=nama_dosen).first()
+                if not lecturer:
+                    raise ValueError(f'Dosen "{nama_dosen}" tidak ditemukan.')
+
+                room = Room.objects.filter(name__iexact=nama_ruangan).first()
+                if not room:
+                    raise ValueError(f'Ruangan "{nama_ruangan}" tidak ditemukan.')
+
+                parsed_date  = self._parse_date(row['tanggal'])
+                parsed_start = self._parse_time(row['jam_mulai'])
+                parsed_end   = self._parse_time(row['jam_selesai'])
+
+                obj, created = Practicum.objects.get_or_create(
+                    lecturer   = lecturer,
+                    room       = room,
+                    date       = parsed_date,
+                    start_time = parsed_start,
+                    defaults   = {
+                        'type'        : row['tipe'].strip(),
+                        'session_name': row['nama_sesi'].strip(),
+                        'end_time'    : parsed_end,
+                        'capacity'    : int(row['kapasitas']),
+                        'description' : row.get('catatan', '').strip(),
+                        'is_active'   : True,
+                    }
+                )
+                if created:
+                    count += 1
+                else:
+                    skipped += 1  # duplikat — skip tanpa error
+
+            except Exception as e:
+                errors.append(f'Baris {i}: {e}')
+
+        # Tambahkan info skip ke errors sebagai info (bukan error)
+        if skipped:
+            errors.append(f'ℹ️ {skipped} baris dilewati karena sudah ada (duplikat).')
+
+        return count, errors
+
+
+    # ── Import Dosen ──────────────────────────────────────────────────
+
+    def _import_dosen(self, reader):
+        from .models import Lecturer, ResearchTitle
+        errors, count = [], 0
+
+        for i, row in enumerate(reader, 2):
+            try:
+                dosen, _ = Lecturer.objects.get_or_create(
+                    name=row['nama'].strip(),
+                    defaults={
+                        'nip'  : row.get('nip', '').strip(),
+                        'focus': row.get('bidang', '').strip(),
+                        'email': row.get('email', '').strip(),
+                        'phone': row.get('no_hp', '').strip(),
+                        'bio'  : row.get('bio', '').strip(),
+                    }
+                )
+                judul = row.get('judul_payung', '').strip()
+                if judul:
+                    ResearchTitle.objects.get_or_create(
+                        lecturer=dosen,
+                        title=judul,
+                        defaults={
+                            'focus'    : row.get('bidang_judul', dosen.focus).strip(),
+                            'quota'    : int(row.get('kuota', 5) or 5),
+                            'is_active': True,
+                        }
+                    )
+                count += 1
+            except Exception as e:
+                errors.append(f'Baris {i}: {e}')
+        return count, errors
+
+    # ── Import Peserta ────────────────────────────────────────────────
+
+    def _import_peserta(self, reader):
+        from practicum.models import Practicum, PracticumRegistration
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        errors, count = [], 0
+
+        for i, row in enumerate(reader, 2):
+            try:
+                jadwal  = Practicum.objects.get(pk=row['jadwal_id'].strip())
+                nim     = row['nim_atau_username'].strip()
+                student = (User.objects.filter(nimnip=nim).first()
+                        or User.objects.filter(username=nim).first())
+                if not student:
+                    raise ValueError(f'User "{nim}" tidak ditemukan.')
+                PracticumRegistration.objects.get_or_create(
+                    practicum=jadwal, student=student
+                )
+                count += 1
+            except Exception as e:
+                errors.append(f'Baris {i}: {e}')
+        return count, errors
