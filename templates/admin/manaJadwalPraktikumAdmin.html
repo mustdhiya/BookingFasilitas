@@ -2169,6 +2169,53 @@
 
   window.approvePeserta     = approvePeserta;
   window.rejectPeserta      = rejectPeserta;
+  window.copyToClipboard     = copyToClipboard;
+  window.switchAdminModule   = switchAdminModule;
+function switchAdminModule(module) {
+  document.querySelectorAll('[id^="admin-section-"]').forEach(el => {
+    el.classList.add('hidden');
+  });
+  const target = document.getElementById(`admin-section-${module}`);
+  if (target) target.classList.remove('hidden');
+}
+
+// Expose
+window.switchAdminModule = switchAdminModule;
+
+
+  function copyToClipboard(text) {
+  navigator.clipboard.writeText(text)
+    .then(() => {
+      // Tampilkan toast
+      const toast = document.getElementById('copy-toast');
+      const msg   = document.getElementById('copy-toast-msg');
+      if (msg)   msg.textContent = `"${text}" disalin!`;
+      if (toast) {
+        toast.classList.remove('hidden');
+        setTimeout(() => toast.classList.add('hidden'), 2000);
+      }
+    })
+    .catch(() => {
+      // Fallback untuk browser lama / non-HTTPS
+      const el = document.createElement('textarea');
+      el.value = text;
+      el.style.position = 'absolute';
+      el.style.left = '-9999px';
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+
+      const toast = document.getElementById('copy-toast');
+      const msg   = document.getElementById('copy-toast-msg');
+      if (msg)   msg.textContent = `"${text}" disalin!`;
+      if (toast) {
+        toast.classList.remove('hidden');
+        setTimeout(() => toast.classList.add('hidden'), 2000);
+      }
+    });
+}
+
 
   // ══════════════════════════════════════════════════════════════════════
   // IMPORT
