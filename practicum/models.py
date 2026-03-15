@@ -43,7 +43,9 @@ class Practicum(TimeStampedModel):
         ordering = ['date', 'start_time']
         verbose_name = 'Jadwal Praktikum'
         verbose_name_plural = 'Jadwal Praktikum'
-        unique_together = [['lecturer', 'room', 'date', 'start_time']]  
+        unique_together = [
+            ['room', 'date', 'start_time'],
+        ]
 
     def __str__(self):
         return f"{self.get_type_display()} — {self.session_name} ({self.date})"

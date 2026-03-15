@@ -48,5 +48,6 @@ urlpatterns = [
     path('export/csv/', views.ExportCSVView.as_view(), name='export-csv'),
     path('import/csv/', views.ImportCSVView.as_view(), name='import-csv'),
 
+    path('bulk-delete/', views.bulk_delete_view, name='research-bulk-delete'),
 
 ]

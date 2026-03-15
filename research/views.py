@@ -965,27 +965,37 @@ class ImportCSVView(View):
         raise ValueError(f'Format tanggal "{date_str}" tidak dikenal. Gunakan YYYY-MM-DD atau DD/MM/YYYY.')
 
     def _parse_time(self, raw: str) -> str:
-        # ✅ Fix 2: method class + bersihkan 0xa0
+        import re
         raw = raw.strip().replace('\xa0', ' ').strip()
-        for fmt in ('%H:%M', '%H:%M:%S', '%I:%M %p', '%I:%M:%S %p', '%I:%M:%S%p'):
+        # Strip detik dulu: "13:00:00 AM" → "13:00 AM", "13:00:00" → "13:00"
+        raw = re.sub(r'^(\d{1,2}:\d{2}):\d{2}', r'\1', raw)
+        # Strip AM/PM setelah itu: "13:00 AM" → "13:00"
+        raw = re.sub(r'\s*(AM|PM)$', '', raw, flags=re.IGNORECASE).strip()
+
+        for fmt in ('%H:%M', '%I:%M'):
             try:
                 return datetime.strptime(raw, fmt).strftime('%H:%M')
             except ValueError:
                 continue
-        raise ValueError(f"Format waktu tidak dikenal: '{raw}'. Gunakan HH:MM (contoh: 08:00 atau 13:00)")
+        raise ValueError(f"Format waktu tidak dikenal: '{raw}'")
+
 
     # ── Import Praktikum ──────────────────────────────────────────────
     def _import_praktikum(self, reader):
         from practicum.models import Practicum
         from rooms.models import Room
         from .models import Lecturer
-        import re
+        import re, logging
+        logger = logging.getLogger(__name__)
+        
         errors, count, skipped = [], 0, 0
 
         for i, row in enumerate(reader, 2):
             try:
                 nama_dosen   = row.get('nama_dosen', '').strip()
                 nama_ruangan = row.get('nama_ruangan', '').strip()
+                
+                logger.warning(f"Baris {i}: dosen='{nama_dosen}' ruangan='{nama_ruangan}' jam_selesai='{row.get('jam_selesai','')}'")
 
                 lecturer = Lecturer.objects.filter(name__iexact=nama_dosen).first()
                 if not lecturer:
@@ -998,28 +1008,38 @@ class ImportCSVView(View):
                 parsed_date  = self._parse_date(row['tanggal'])
                 parsed_start = self._parse_time(row['jam_mulai'])
                 parsed_end   = self._parse_time(row['jam_selesai'])
+                
+                logger.warning(f"Baris {i}: parsed OK start={parsed_start} end={parsed_end}")
 
-                obj, created = Practicum.objects.get_or_create(
-                    lecturer     = lecturer,
-                    room         = room,
-                    date         = parsed_date,
-                    start_time   = parsed_start,
-                    session_name = row['nama_sesi'].strip(),  # ✅ unique key diperluas
-                    defaults={
-                        'type'       : row['tipe'].strip(),
-                        'end_time'   : parsed_end,
-                        'capacity'   : int(row['kapasitas']),
-                        'description': row.get('catatan', '').strip(),
-                        'is_active'  : True,
-                    }
-                )
-                if created:
-                    count += 1
-                else:
-                    skipped += 1
+                from django.db import IntegrityError
+
+                try:
+                    obj, created = Practicum.objects.get_or_create(
+                        room         = room,
+                        date         = parsed_date,
+                        start_time   = parsed_start,
+                        defaults={
+                            'type'       : row['tipe'].strip(),
+                            'session_name': row['nama_sesi'].strip(),
+                            'lecturer'   : lecturer,
+                            'end_time'   : parsed_end,
+                            'capacity'   : int(row['kapasitas']),
+                            'description': row.get('catatan', '').strip(),
+                            'is_active'  : True,
+                        }
+                    )
+                    if created:
+                        count += 1
+                    else:
+                        skipped += 1
+                except IntegrityError:
+                    raise ValueError(
+                        f'Ruangan "{nama_ruangan}" sudah dipakai pada {parsed_date} jam {parsed_start}. Konflik jadwal!'
+                    )
 
             except Exception as e:
                 errors.append(f'Baris {i}: {e}')
+                logger.warning(f"Baris {i}: ERROR {e}")
 
         if skipped:
             errors.append(f'ℹ️ {skipped} baris dilewati karena sudah ada (duplikat).')
@@ -1084,3 +1104,26 @@ class ImportCSVView(View):
             except Exception as e:
                 errors.append(f'Baris {i}: {e}')
         return count, errors
+
+
+import json
+from django.views.decorators.http import require_POST
+from django.contrib.admin.views.decorators import staff_member_required
+
+@staff_member_required
+@require_POST
+def bulk_delete_view(request):
+    data      = json.loads(request.body)
+    ids       = data.get('ids', [])
+    item_type = data.get('type', '')
+
+    if item_type == 'praktikum':
+        from practicum.models import Practicum
+        deleted, _ = Practicum.objects.filter(pk__in=ids).delete()
+    elif item_type == 'dosen':
+        from .models import Lecturer
+        deleted, _ = Lecturer.objects.filter(pk__in=ids).delete()
+    else:
+        return JsonResponse({'ok': False, 'error': 'Tipe tidak dikenal'})
+
+    return JsonResponse({'ok': True, 'deleted': deleted})
