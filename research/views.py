@@ -979,6 +979,7 @@ class ImportCSVView(View):
         from practicum.models import Practicum
         from rooms.models import Room
         from .models import Lecturer
+        import re
         errors, count, skipped = [], 0, 0
 
         for i, row in enumerate(reader, 2):
@@ -999,28 +1000,27 @@ class ImportCSVView(View):
                 parsed_end   = self._parse_time(row['jam_selesai'])
 
                 obj, created = Practicum.objects.get_or_create(
-                    lecturer   = lecturer,
-                    room       = room,
-                    date       = parsed_date,
-                    start_time = parsed_start,
-                    defaults   = {
-                        'type'        : row['tipe'].strip(),
-                        'session_name': row['nama_sesi'].strip(),
-                        'end_time'    : parsed_end,
-                        'capacity'    : int(row['kapasitas']),
-                        'description' : row.get('catatan', '').strip(),
-                        'is_active'   : True,
+                    lecturer     = lecturer,
+                    room         = room,
+                    date         = parsed_date,
+                    start_time   = parsed_start,
+                    session_name = row['nama_sesi'].strip(),  # ✅ unique key diperluas
+                    defaults={
+                        'type'       : row['tipe'].strip(),
+                        'end_time'   : parsed_end,
+                        'capacity'   : int(row['kapasitas']),
+                        'description': row.get('catatan', '').strip(),
+                        'is_active'  : True,
                     }
                 )
                 if created:
                     count += 1
                 else:
-                    skipped += 1  # duplikat — skip tanpa error
+                    skipped += 1
 
             except Exception as e:
                 errors.append(f'Baris {i}: {e}')
 
-        # Tambahkan info skip ke errors sebagai info (bukan error)
         if skipped:
             errors.append(f'ℹ️ {skipped} baris dilewati karena sudah ada (duplikat).')
 
