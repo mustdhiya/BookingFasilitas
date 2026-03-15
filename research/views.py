@@ -921,10 +921,21 @@ class ImportCSVView(View):
         if not file or not file.name.endswith('.csv'):
             return JsonResponse({'ok': False, 'errors': ['File harus berformat .csv']})
 
-        decoded = file.read().decode('utf-8-sig')
-        reader  = csv.DictReader(io.StringIO(decoded))
-        errors  = []
-        count   = 0
+        # ✅ Fix 1: fallback encoding
+        raw = file.read()
+        decoded = None
+        for enc in ('utf-8-sig', 'utf-8', 'latin-1', 'cp1252'):
+            try:
+                decoded = raw.decode(enc)
+                break
+            except (UnicodeDecodeError, LookupError):
+                continue
+        if decoded is None:
+            return JsonResponse({'ok': False, 'errors': ['File tidak bisa dibaca. Simpan ulang sebagai CSV UTF-8.']})
+
+        reader = csv.DictReader(io.StringIO(decoded))
+        errors = []
+        count  = 0
 
         try:
             if import_type == 'praktikum':
@@ -945,28 +956,23 @@ class ImportCSVView(View):
     # ── Helpers ───────────────────────────────────────────────────────
 
     def _parse_date(self, date_str):
+        date_str = date_str.strip().replace('\xa0', '')
         for fmt in ['%Y-%m-%d', '%d/%m/%Y', '%m/%d/%Y', '%d-%m-%Y']:
             try:
-                return datetime.strptime(date_str.strip(), fmt).date()
+                return datetime.strptime(date_str, fmt).date()
             except ValueError:
                 continue
-        raise ValueError(f'Format tanggal "{date_str}" tidak dikenal. Gunakan YYYY-MM-DD.')
+        raise ValueError(f'Format tanggal "{date_str}" tidak dikenal. Gunakan YYYY-MM-DD atau DD/MM/YYYY.')
 
-    def _parse_time(self, time_str):
-        """
-        Terima: HH:MM, H:MM, HH:MM:SS, H:MM:SS AM/PM (format Excel)
-        """
-        s = time_str.strip()
-        # Hapus suffix AM/PM dari format Excel seperti "13:00:00 AM"
-        # Excel kadang export 24-jam tapi tetap tambah AM/PM — strip saja
-        s = s.replace(' AM', '').replace(' PM', '').replace(' am', '').replace(' pm', '')
-        
-        for fmt in ['%H:%M:%S', '%H:%M']:
+    def _parse_time(self, raw: str) -> str:
+        # ✅ Fix 2: method class + bersihkan 0xa0
+        raw = raw.strip().replace('\xa0', ' ').strip()
+        for fmt in ('%H:%M', '%H:%M:%S', '%I:%M %p', '%I:%M:%S %p', '%I:%M:%S%p'):
             try:
-                return datetime.strptime(s, fmt).time()
+                return datetime.strptime(raw, fmt).strftime('%H:%M')
             except ValueError:
                 continue
-        raise ValueError(f'Format jam "{time_str}" tidak dikenal. Gunakan HH:MM.')
+        raise ValueError(f"Format waktu tidak dikenal: '{raw}'. Gunakan HH:MM (contoh: 08:00 atau 13:00)")
 
     # ── Import Praktikum ──────────────────────────────────────────────
     def _import_praktikum(self, reader):
