@@ -496,7 +496,15 @@
       e.preventDefault();
       return showAlert('Password minimal 8 karakter.');
     }
+
+    // Blokir pola email bot sebelum submit
+    const spamPattern = /\.\d{9,}[a-z]*@/i;
+    if (spamPattern.test(user)) {
+      e.preventDefault();
+      return showAlert('Format email tidak valid. Gunakan email resmi Anda.');
+    }
   });
+
 
   // ================================================================
   // FORGOT PASSWORD FORM

@@ -124,7 +124,16 @@
     <!-- ── FORM CARD ── -->
     <form method="post" action="{% url 'register' %}" enctype="multipart/form-data" id="register-form" novalidate>
       {% csrf_token %}
-
+      <div aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;opacity:0;height:0;overflow:hidden;" tabindex="-1">
+        <label for="website">Website (leave blank)</label>
+        <input type="text"
+              id="website"
+              name="website"
+              value=""
+              autocomplete="off"
+              tabindex="-1"
+              aria-hidden="true">
+      </div>
       <!-- ============================================================ -->
       <!-- STEP 1: Tipe Akun                                            -->
       <!-- ============================================================ -->
@@ -757,19 +766,39 @@
 
     if (step === 2) {
       const name       = document.getElementById('full-name').value.trim();
-      const email      = document.getElementById('email').value.trim();
+      const email      = document.getElementById('email').value.trim().toLowerCase();
       const phone      = document.getElementById('phone').value.trim();
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
       if (!name)                   return showErr('Nama lengkap wajib diisi.');
       if (!email)                  return showErr('Email wajib diisi.');
       if (!emailRegex.test(email)) return showErr('Format email tidak valid.');
-      if (!phone)                  return showErr('Nomor WhatsApp wajib diisi.');
-      if (phone.length < 9)        return showErr('Nomor WhatsApp tidak valid.');
+
+      // ── Validasi domain berdasarkan tipe akun ──────────────────────
+      if (selectedUserType === 'umkt' && !email.endsWith('@umkt.ac.id')) {
+        return showErr('Mahasiswa/Dosen UMKT wajib menggunakan email @umkt.ac.id');
+      }
+      if (selectedUserType === 'non_umkt' && email.endsWith('@umkt.ac.id')) {
+        return showErr('Pengguna eksternal tidak boleh menggunakan email UMKT.');
+      }
+
+      // ── Blokir pola bot ───────────────────────────────────────────
+      const spamPattern = /\.\d{9,}[a-z]*@/i;
+      if (spamPattern.test(email)) {
+        return showErr('Format email tidak valid. Gunakan email aktif Anda.');
+      }
+
+      if (!phone)           return showErr('Nomor WhatsApp wajib diisi.');
+      if (phone.length < 9) return showErr('Nomor WhatsApp tidak valid.');
 
       if (selectedUserType === 'umkt') {
         const nim = document.getElementById('nim').value.trim();
         if (!nim) return showErr('NIM wajib diisi untuk mahasiswa UMKT.');
+
+        // Validasi format NIM: hanya angka, 8-20 digit
+        if (!/^\d{8,20}$/.test(nim)) {
+          return showErr('NIM harus berupa angka 8–20 digit.');
+        }
       }
     }
 
@@ -825,19 +854,43 @@
   function adaptFieldsForUserType(type) {
     const umktFields    = ['nim-field', 'prodi-field', 'angkatan-field'];
     const nonUmktFields = ['instansi-field'];
+    const emailInput    = document.getElementById('email');
 
     if (type === 'umkt') {
       umktFields.forEach(id => document.getElementById(id)?.classList.remove('hidden'));
       nonUmktFields.forEach(id => document.getElementById(id)?.classList.add('hidden'));
       document.getElementById('upload-label').firstChild.textContent = 'Foto KTM ';
       document.getElementById('upload-type-note').textContent = '(Mahasiswa UMKT)';
+
+      // ── Baru: arahkan placeholder & hint email ──
+      if (emailInput) {
+        emailInput.placeholder = 'nim@umkt.ac.id';
+      }
+      const emailHelp = emailInput?.closest('.form-group')?.querySelector('.form-help');
+      if (emailHelp) {
+        emailHelp.innerHTML = `
+          <span class="text-primary-600 dark:text-primary-400 font-semibold">
+            Wajib menggunakan email @umkt.ac.id
+          </span>`;
+      }
+
     } else {
       umktFields.forEach(id => document.getElementById(id)?.classList.add('hidden'));
       nonUmktFields.forEach(id => document.getElementById(id)?.classList.remove('hidden'));
       document.getElementById('upload-label').firstChild.textContent = 'Foto KTP / Identitas ';
       document.getElementById('upload-type-note').textContent = '(Masyarakat Umum)';
+
+      // ── Baru: placeholder email umum ──
+      if (emailInput) {
+        emailInput.placeholder = 'email@gmail.com / email aktif Anda';
+      }
+      const emailHelp = emailInput?.closest('.form-group')?.querySelector('.form-help');
+      if (emailHelp) {
+        emailHelp.innerHTML = 'Notifikasi approval akan dikirim ke email ini';
+      }
     }
   }
+
   function toggleUmktFields(type) {
       const isUmkt = type === 'umkt';
 

@@ -199,7 +199,14 @@ class RegisterPageView(View):
 
     def post(self, request):
         from django.http import JsonResponse
+        is_ajax = request.POST.get('_ajax') == '1'
 
+        # ── Honeypot: kalau field ini diisi, pasti bot ─────────────────
+        if request.POST.get('website', ''):   # field tersembunyi
+            # Pura-pura sukses agar bot tidak tahu ketahuan
+            if is_ajax:
+                return JsonResponse({'success': True, 'message': 'Registrasi berhasil!'})
+            return redirect('login')
         # ── Rate limit: max 3 registrasi per IP per 10 menit ──────────────
         ip = (
             request.META.get('HTTP_X_FORWARDED_FOR', '').split(',')[0].strip()
@@ -219,9 +226,8 @@ class RegisterPageView(View):
             })
 
         cache.set(cache_key, attempts + 1, timeout=600)  # 10 menit
-
-        # ... sisa kode sama seperti sebelumnya
-        data = request.POST.dict()
+        data    = request.POST.dict()
+    
         fields_to_clean = ['angkatan', 'nim_nip', 'prodi', 'instansi', 'phone']
         for field in fields_to_clean:
             if field in data and data[field].strip() == '':
@@ -258,6 +264,7 @@ class RegisterPageView(View):
         return render(request, self.template_name, {
             'angkatan_choices': range(2026, 2019, -1),
         })
+
 
 
 # ─────────────────────────────────────────────────────────────────────────────
