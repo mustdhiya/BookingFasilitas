@@ -185,6 +185,8 @@ class LoginPageView(View):
 # ─────────────────────────────────────────────────────────────────────────────
 # AUTH — REGISTER
 # ─────────────────────────────────────────────────────────────────────────────
+from django.core.cache import cache
+
 class RegisterPageView(View):
     template_name = 'accounts/register.html'
 
@@ -198,21 +200,39 @@ class RegisterPageView(View):
     def post(self, request):
         from django.http import JsonResponse
 
-        is_ajax = request.POST.get('_ajax') == '1'
-        data    = request.POST.dict()
+        # ── Rate limit: max 3 registrasi per IP per 10 menit ──────────────
+        ip = (
+            request.META.get('HTTP_X_FORWARDED_FOR', '').split(',')[0].strip()
+            or request.META.get('REMOTE_ADDR', '')
+        )
+        cache_key    = f'register_attempts_{ip}'
+        attempts     = cache.get(cache_key, 0)
+        is_ajax      = request.POST.get('_ajax') == '1'
 
+        if attempts >= 3:
+            msg = 'Terlalu banyak percobaan registrasi. Coba lagi dalam 10 menit.'
+            if is_ajax:
+                return JsonResponse({'success': False, 'message': msg}, status=429)
+            messages.error(request, msg)
+            return render(request, self.template_name, {
+                'angkatan_choices': range(2026, 2019, -1),
+            })
+
+        cache.set(cache_key, attempts + 1, timeout=600)  # 10 menit
+
+        # ... sisa kode sama seperti sebelumnya
+        data = request.POST.dict()
         fields_to_clean = ['angkatan', 'nim_nip', 'prodi', 'instansi', 'phone']
         for field in fields_to_clean:
             if field in data and data[field].strip() == '':
                 del data[field]
-
         for key, file in request.FILES.items():
             data[key] = file
 
         serializer = RegisterSerializer(data=data)
-
         if serializer.is_valid():
             serializer.save()
+            cache.delete(cache_key)  # reset counter setelah berhasil
             if is_ajax:
                 return JsonResponse({
                     'success': True,
