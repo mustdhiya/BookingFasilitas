@@ -1,8 +1,19 @@
-{# ===== SECTION 5: MANAJEMEN AKUN ===== #}
-<div id="admin-section-akun" class="admin-module-section hidden">
+{% extends "admin_shell.html" %}
+{% load static %}
+{% block page_title %}Manajemen Akun{% endblock %}
+{% block page_heading %}Manajemen Akun{% endblock %}
+{% block page_subtitle %}Verifikasi pendaftaran dan kelola status akun pengguna.{% endblock %}
+
+{% block admin_content %}
+
+{# CSRF untuk JS fetch #}
+<div class="hidden">{% csrf_token %}</div>
+
+<div class="rounded-2xl border border-slate-200 dark:border-slate-700
+            bg-white dark:bg-slate-800 shadow-sm p-6 space-y-6">
 
   {# ── Header ── #}
-  <div class="mb-6">
+  <div>
     <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
       <span class="material-icons text-blue-600 dark:text-blue-400">manage_accounts</span>
       Manajemen Akun
@@ -13,16 +24,14 @@
   </div>
 
   {# ── Stats ── #}
-  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
     <div class="rounded-xl border border-amber-200 dark:border-amber-800
                 bg-gradient-to-br from-amber-50 to-white
                 dark:from-amber-900/20 dark:to-slate-800 p-4 hover:shadow-md transition">
       <div class="flex items-center justify-between mb-1">
         <span class="material-icons text-amber-400 text-xl">hourglass_top</span>
         {% if akun_stats.pending %}
-        <span class="text-[10px] font-bold bg-amber-500 text-white px-2 py-0.5 rounded-full">
-          Perlu Aksi
-        </span>
+        <span class="text-[10px] font-bold bg-amber-500 text-white px-2 py-0.5 rounded-full">Perlu Aksi</span>
         {% endif %}
       </div>
       <p class="text-2xl font-bold text-amber-500" id="akun-stat-pending">{{ akun_stats.pending }}</p>
@@ -56,11 +65,10 @@
 
   {# ── Filter bar ── #}
   <div class="rounded-2xl border border-slate-200 dark:border-slate-700
-              bg-white dark:bg-slate-800 p-4 mb-4
+              bg-white dark:bg-slate-800 p-4
               flex flex-wrap items-center gap-3 shadow-sm">
     <div class="relative flex-1 min-w-48">
-      <span class="absolute left-3 top-1/2 -translate-y-1/2 material-icons-outlined
-                   text-slate-400 text-sm">search</span>
+      <span class="absolute left-3 top-1/2 -translate-y-1/2 material-icons-outlined text-slate-400 text-sm">search</span>
       <input type="text" id="akun-search"
              placeholder="Cari nama, email, NIM..."
              oninput="filterAkunTable(this.value)"
@@ -107,40 +115,8 @@
             <th class="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Aksi</th>
           </tr>
         </thead>
-        <div id="modal-reject-akun" class="hidden fixed inset-0 z-50 flex items-center justify-center
-            bg-black/50 backdrop-blur-sm p-4">
-          <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-md shadow-xl">
-            <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-1">Tolak Pendaftaran</h3>
-            <p id="reject-user-name" class="text-sm text-slate-500 mb-4"></p>
-
-            <label class="text-sm font-medium text-slate-700 dark:text-slate-300">
-              Alasan Penolakan <span class="text-rose-500">*</span>
-            </label>
-            <textarea id="reject-reason" rows="3" placeholder="Contoh: Foto KTM tidak jelas, NIM tidak valid..."
-                      class="mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-600
-                            bg-white dark:bg-slate-900 px-3 py-2 text-sm
-                            focus:border-red-400 focus:ring-2 focus:ring-red-100
-                            dark:text-slate-200 transition resize-none"></textarea>
-
-            <div class="flex gap-2 mt-4 justify-end">
-              <button onclick="document.getElementById('modal-reject-akun').classList.add('hidden')"
-                      class="px-4 py-2 rounded-lg border border-slate-200 text-sm text-slate-600
-                            hover:bg-slate-50 transition">Batal</button>
-              <button onclick="submitReject()"
-                      class="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600
-                            text-white font-semibold text-sm transition">Konfirmasi Tolak</button>
-            </div>
-          </div>
-        </div>
-        {% if not u.is_active and u.is_verified and u.rejection_reason %}
-        <p class="text-[10px] text-red-500 dark:text-red-400 mt-1 flex items-start gap-0.5">
-          <span class="material-icons text-[10px] mt-0.5 flex-shrink-0">info</span>
-          {{ u.rejection_reason|truncatechars:60 }}
-        </p>
-        {% endif %}
 
         <tbody class="divide-y divide-slate-100 dark:divide-slate-700" id="akun-tbody">
-
           {% for u in user_list %}
           <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors"
               id="arow-{{ u.pk }}"
@@ -279,6 +255,13 @@
               </p>
               {% endif %}
               {% endif %}
+              {# ── Rejection reason — hanya jika ditolak ── #}
+              {% if not u.is_active and u.is_verified and u.rejection_reason %}
+              <p class="text-[10px] text-red-500 dark:text-red-400 mt-1 flex items-start gap-0.5">
+                <span class="material-icons text-[10px] mt-0.5 flex-shrink-0">info</span>
+                {{ u.rejection_reason|truncatechars:60 }}
+              </p>
+              {% endif %}
             </td>
 
             {# ── Tgl Daftar ── #}
@@ -304,8 +287,8 @@
                   </button>
                   <button onclick="openRejectModal({{ u.pk }}, '{{ u.get_full_name|escapejs }}')"
                           class="inline-flex items-center justify-center gap-1 rounded-lg
-                                bg-red-500 hover:bg-red-600
-                                text-white font-semibold text-xs px-3 py-1.5 transition shadow-sm">
+                                 bg-red-500 hover:bg-red-600
+                                 text-white font-semibold text-xs px-3 py-1.5 transition shadow-sm">
                     <span class="material-icons-outlined text-sm">cancel</span>Tolak
                   </button>
                 </div>
@@ -343,357 +326,157 @@
             </td>
           </tr>
           {% endfor %}
-
         </tbody>
       </table>
     </div>
   </div>
-
-  {# ── Modal Preview KTM/KTP ── #}
-  <div id="modal-dokumen"
-       class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50
-              hidden items-center justify-center p-4"
-       onclick="tutupDokumen()">
-    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl
-                max-h-[90vh] flex flex-col overflow-hidden"
-         onclick="event.stopPropagation()">
-      <div class="flex items-center justify-between px-5 py-4
-                  border-b border-slate-100 dark:border-slate-700 flex-shrink-0">
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-primary-100 dark:bg-primary-900/40 flex items-center justify-center">
-            <span class="material-icons text-primary-500 text-lg" id="dok-icon">badge</span>
-          </div>
-          <div>
-            <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100">KTM / KTP</h3>
-            <p class="text-xs text-slate-400 dark:text-slate-500" id="dok-nama"></p>
-          </div>
-        </div>
-        <div class="flex items-center gap-2">
-          <a id="dok-open-link" href="#" target="_blank"
-             class="inline-flex items-center gap-1.5 text-xs font-medium
-                    text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400
-                    border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700
-                    hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg px-3 py-1.5 transition">
-            <span class="material-icons-outlined text-sm">open_in_new</span>Buka Tab Baru
-          </a>
-          <button onclick="tutupDokumen()"
-                  class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300
-                         rounded-lg p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
-            <span class="material-icons-outlined">close</span>
-          </button>
-        </div>
-      </div>
-      <div class="flex-1 overflow-auto bg-slate-100 dark:bg-slate-900 min-h-0" id="dok-body"></div>
-    </div>
-  </div>
-
 </div>
 
-{# ===== END SECTION 5 ===== #}
+{# ── MODAL REJECT — di luar card, di luar table ── #}
+<div id="modal-reject-akun"
+     class="hidden fixed inset-0 z-50 flex items-center justify-center
+            bg-black/50 backdrop-blur-sm p-4">
+  <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-md shadow-xl">
+    <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-1">Tolak Pendaftaran</h3>
+    <p id="reject-user-name" class="text-sm text-slate-500 mb-4"></p>
+    <label class="text-sm font-medium text-slate-700 dark:text-slate-300">
+      Alasan Penolakan <span class="text-rose-500">*</span>
+    </label>
+    <textarea id="reject-reason" rows="3"
+              placeholder="Contoh: Foto KTM tidak jelas, NIM tidak valid..."
+              class="mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-600
+                     bg-white dark:bg-slate-900 px-3 py-2 text-sm
+                     focus:border-red-400 focus:ring-2 focus:ring-red-100
+                     dark:text-slate-200 transition resize-none"></textarea>
+    <div class="flex gap-2 mt-4 justify-end">
+      <button onclick="document.getElementById('modal-reject-akun').classList.add('hidden')"
+              class="px-4 py-2 rounded-lg border border-slate-200 text-sm
+                     text-slate-600 hover:bg-slate-50 transition">Batal</button>
+      <button onclick="submitReject()"
+              class="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600
+                     text-white font-semibold text-sm transition">Konfirmasi Tolak</button>
+    </div>
+  </div>
+</div>
 
+{# ── MODAL PREVIEW DOKUMEN — di luar card ── #}
+<div id="modal-dokumen"
+     class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50
+            hidden items-center justify-center p-4"
+     onclick="tutupDokumen()">
+  <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl
+              max-h-[90vh] flex flex-col overflow-hidden"
+       onclick="event.stopPropagation()">
+    <div class="flex items-center justify-between px-5 py-4
+                border-b border-slate-100 dark:border-slate-700 flex-shrink-0">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-primary-100 dark:bg-primary-900/40 flex items-center justify-center">
+          <span class="material-icons text-primary-500 text-lg" id="dok-icon">badge</span>
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100">KTM / KTP</h3>
+          <p class="text-xs text-slate-400 dark:text-slate-500" id="dok-nama"></p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <a id="dok-open-link" href="#" target="_blank"
+           class="inline-flex items-center gap-1.5 text-xs font-medium
+                  text-slate-500 dark:text-slate-400 hover:text-primary-600
+                  border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700
+                  hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg px-3 py-1.5 transition">
+          <span class="material-icons-outlined text-sm">open_in_new</span>Buka Tab Baru
+        </a>
+        <button onclick="tutupDokumen()"
+                class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300
+                       rounded-lg p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+          <span class="material-icons-outlined">close</span>
+        </button>
+      </div>
+    </div>
+    <div class="flex-1 overflow-auto bg-slate-100 dark:bg-slate-900 min-h-0" id="dok-body"></div>
+  </div>
+</div>
 
-{# ── CSRF hidden input — pastikan ada di luar IIFE ── #}
-{% csrf_token %}
+{% endblock %}
 
-
+{% block admin_scripts %}
 <script>
-(function () {
+// ── CSRF helper ─────────────────────────────────────────────────────────
+function getCsrf() {
+  const el = document.querySelector('input[name="csrfmiddlewaretoken"]');
+  if (el) return el.value;
+  const m = document.cookie.match(/csrftoken=([^;]+)/);
+  return m ? m[1] : '';
+}
 
-  // ── URL aksi per user — di-build dari Django template ─────────────────
-  const AKUN_URLS = {
-    {% for u in user_list %}
-    {{ u.pk }}: "{% url 'admin-akun-aksi' u.pk %}",
-    {% endfor %}
+// ── URL map per user ────────────────────────────────────────────────────
+const AKUN_URLS = {
+  {% for u in user_list %}
+  {{ u.pk }}: "{% url 'admin-akun-aksi' u.pk %}",
+  {% endfor %}
+};
+
+// ══════════════════════════════════════════════════════════════════════
+// AKSI AKUN — satu fungsi, tidak duplikat
+// ══════════════════════════════════════════════════════════════════════
+async function aksiAkun(pk, aksi, reason = '') {
+  const labels = {
+    approve:    'verifikasi & aktifkan',
+    reject:     'tolak',
+    deactivate: 'nonaktifkan',
+    reactivate: 'aktifkan kembali',
   };
+  if (aksi !== 'reject' && !confirm(`Yakin ingin ${labels[aksi] || aksi} akun ini?`)) return;
 
-  // ── Ambil CSRF token ───────────────────────────────────────────────────
-  function getCsrf() {
-    // Coba dari input hidden dulu, fallback ke cookie
-    const el = document.querySelector('input[name="csrfmiddlewaretoken"]');
-    if (el) return el.value;
-    const match = document.cookie.match(/csrftoken=([^;]+)/);
-    return match ? match[1] : '';
+  const url = AKUN_URLS[pk];
+  if (!url) { akunToast('error', `URL tidak ditemukan untuk user #${pk}`); return; }
+
+  const fd = new FormData();
+  fd.append('aksi', aksi);
+  fd.append('csrfmiddlewaretoken', getCsrf());
+  if (reason) fd.append('reason', reason);
+
+  const activeBtn = document.activeElement;
+  if (activeBtn?.tagName === 'BUTTON') {
+    activeBtn.disabled = true;
+    activeBtn.style.opacity = '0.6';
   }
 
-  // ══════════════════════════════════════════════════════════════════════
-  // AKSI AKUN (approve / reject / deactivate / reactivate)
-  // ══════════════════════════════════════════════════════════════════════
+  try {
+    const res  = await fetch(url, {
+      method:  'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      body:    fd,
+    });
 
-  async function aksiAkun(pk, aksi) {
-    const labels = {
-      approve:    'verifikasi & aktifkan',
-      reject:     'tolak',
-      deactivate: 'nonaktifkan',
-      reactivate: 'aktifkan kembali',
-    };
-    if (!confirm(`Yakin ingin ${labels[aksi] || aksi} akun ini?`)) return;
-
-    const url = AKUN_URLS[pk];
-    if (!url) {
-      akunToast('error', `URL tidak ditemukan untuk user #${pk}`);
+    if (!res.ok) {
+      akunToast('error', `Server error: ${res.status}`);
+      if (activeBtn) { activeBtn.disabled = false; activeBtn.style.opacity = ''; }
       return;
     }
 
-    // Disable tombol pemicu agar tidak double-submit
-    const activeBtn = document.activeElement;
-    if (activeBtn && activeBtn.tagName === 'BUTTON') {
-      activeBtn.disabled = true;
-      activeBtn.style.opacity = '0.6';
-    }
-
-    const fd = new FormData();
-    fd.append('aksi', aksi);
-    fd.append('csrfmiddlewaretoken', getCsrf());
-
-    try {
-      const res  = await fetch(url, {
-        method:  'POST',
-        headers: { 'X-Requested-With': 'XMLHttpRequest' },
-        body:    fd,
-      });
-
-      if (!res.ok) {
-        akunToast('error', `Server error: ${res.status} ${res.statusText}`);
-        if (activeBtn) { activeBtn.disabled = false; activeBtn.style.opacity = ''; }
-        return;
-      }
-
-      const json = await res.json();
-
-      if (json.ok) {
-        updateAkunRow(pk, json.is_active, json.is_verified, aksi);
-        akunToast('success', json.msg || 'Berhasil.');
-      } else {
-        akunToast('error', json.msg || 'Terjadi kesalahan.');
-        if (activeBtn) { activeBtn.disabled = false; activeBtn.style.opacity = ''; }
-      }
-    } catch (err) {
-      akunToast('error', `Gagal menghubungi server: ${err.message}`);
+    const json = await res.json();
+    if (json.ok) {
+      updateAkunRow(pk, json.is_active, json.is_verified, aksi);
+      akunToast('success', json.msg || 'Berhasil.');
+    } else {
+      akunToast('error', json.msg || 'Terjadi kesalahan.');
       if (activeBtn) { activeBtn.disabled = false; activeBtn.style.opacity = ''; }
     }
+  } catch (err) {
+    akunToast('error', `Gagal menghubungi server: ${err.message}`);
+    if (activeBtn) { activeBtn.disabled = false; activeBtn.style.opacity = ''; }
   }
+}
 
-  // ── Update badge + tombol aksi + counter stats ─────────────────────────
-  function updateAkunRow(pk, isActive, isVerified, aksi) {
-    const badge  = document.getElementById(`abadge-${pk}`);
-    const action = document.getElementById(`aaction-${pk}`);
-    const row    = document.getElementById(`arow-${pk}`);
-
-    // Tentukan status baru
-    let newStatus;
-    if (isActive && isVerified)         newStatus = 'active';
-    else if (!isActive && isVerified)   newStatus = 'inactive';
-    else                                newStatus = 'pending';
-
-    if (row) row.dataset.astatus = newStatus;
-
-    // Update badge
-    if (badge) {
-      const cfgBadge = {
-        active: {
-          cls:  'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800',
-          html: '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0"></span>Aktif',
-        },
-        inactive: {
-          cls:  'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800',
-          html: '<span class="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0"></span>Nonaktif',
-        },
-        pending: {
-          cls:  'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800',
-          html: '<span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse flex-shrink-0"></span>Menunggu',
-        },
-      };
-      const b = cfgBadge[newStatus];
-      badge.className = b.cls;
-      badge.innerHTML = b.html;
-    }
-
-    // Update tombol aksi
-    if (action) {
-      if (newStatus === 'active') {
-        action.innerHTML = `
-          <button onclick="aksiAkun(${pk}, 'deactivate')"
-                  class="inline-flex items-center justify-center gap-1 rounded-lg
-                         border border-slate-200 dark:border-slate-600
-                         bg-white dark:bg-slate-700
-                         hover:bg-red-50 dark:hover:bg-red-900/20
-                         text-slate-600 dark:text-slate-300
-                         hover:text-red-600 dark:hover:text-red-400
-                         font-semibold text-xs px-3 py-1.5 transition w-full">
-            <span class="material-icons-outlined text-sm">block</span>Nonaktifkan
-          </button>`;
-      } else if (newStatus === 'inactive') {
-        action.innerHTML = `
-          <button onclick="aksiAkun(${pk}, 'reactivate')"
-                  class="inline-flex items-center justify-center gap-1 rounded-lg
-                         border border-emerald-200 dark:border-emerald-700
-                         bg-white dark:bg-slate-700
-                         hover:bg-emerald-50 dark:hover:bg-emerald-900/20
-                         text-emerald-600 dark:text-emerald-400
-                         font-semibold text-xs px-3 py-1.5 transition w-full">
-            <span class="material-icons-outlined text-sm">restart_alt</span>Aktifkan
-          </button>`;
-      } else {
-        // pending — tidak mungkin kembali ke pending via aksi, tapi aman
-        action.innerHTML = `
-          <div class="flex flex-col gap-1.5">
-            <button onclick="aksiAkun(${pk}, 'approve')"
-                    class="inline-flex items-center justify-center gap-1 rounded-lg
-                           bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-xs
-                           px-3 py-1.5 transition shadow-sm">
-              <span class="material-icons-outlined text-sm">check_circle</span>Approve
-            </button>
-            <button onclick="aksiAkun(${pk}, 'reject')"
-                    class="inline-flex items-center justify-center gap-1 rounded-lg
-                           bg-red-500 hover:bg-red-600 text-white font-semibold text-xs
-                           px-3 py-1.5 transition shadow-sm">
-              <span class="material-icons-outlined text-sm">cancel</span>Tolak
-            </button>
-          </div>`;
-      }
-    }
-
-    // Update counter stats
-    updateStatCounters();
-  }
-
-  function updateStatCounters() {
-    const rows = document.querySelectorAll('#akun-tbody tr[id^="arow-"]');
-    let pending = 0, active = 0, inactive = 0;
-    rows.forEach(r => {
-      const s = r.dataset.astatus;
-      if (s === 'pending')  pending++;
-      if (s === 'active')   active++;
-      if (s === 'inactive') inactive++;
-    });
-    const elP = document.getElementById('akun-stat-pending');
-    const elA = document.getElementById('akun-stat-active');
-    const elI = document.getElementById('akun-stat-inactive');
-    if (elP) elP.textContent = pending;
-    if (elA) elA.textContent = active;
-    if (elI) elI.textContent = inactive;
-  }
-
-  // ══════════════════════════════════════════════════════════════════════
-  // FILTER
-  // ══════════════════════════════════════════════════════════════════════
-
-  function filterAkunTable(q) {
-    q = q.toLowerCase().trim();
-    document.querySelectorAll('#akun-tbody tr[id^="arow-"]').forEach(row => {
-      const text = [
-        row.dataset.name  || '',
-        row.dataset.email || '',
-        row.dataset.nim   || '',
-      ].join(' ').toLowerCase();
-      row.style.display = text.includes(q) ? '' : 'none';
-    });
-  }
-
-  function filterAkunStatus(val) {
-    // Update tab visual
-    document.querySelectorAll('.akun-tab').forEach(t => {
-      const on = t.dataset.akunStatus === val;
-      t.classList.toggle('bg-primary-500',  on);
-      t.classList.toggle('text-white',      on);
-      t.classList.toggle('shadow-sm',       on);
-      t.classList.toggle('bg-slate-100',   !on);
-      t.classList.toggle('dark:bg-slate-700', !on);
-      t.classList.toggle('text-slate-600', !on);
-      t.classList.toggle('dark:text-slate-300', !on);
-    });
-
-    // Filter baris
-    document.querySelectorAll('#akun-tbody tr[id^="arow-"]').forEach(row => {
-      const s = row.dataset.astatus;
-      const show =
-        val === 'all'      ||
-        val === s          ||
-        (val === 'rejected' && s === 'inactive');
-      row.style.display = show ? '' : 'none';
-    });
-  }
-
-  // ══════════════════════════════════════════════════════════════════════
-  // MODAL PREVIEW DOKUMEN
-  // ══════════════════════════════════════════════════════════════════════
-
-  function lihatDokumen(url, nama) {
-    const modal  = document.getElementById('modal-dokumen');
-    const body   = document.getElementById('dok-body');
-    const namaEl = document.getElementById('dok-nama');
-    const icon   = document.getElementById('dok-icon');
-    const link   = document.getElementById('dok-open-link');
-
-    namaEl.textContent = nama;
-    link.href = url;
-
-    const ext = url.split('?')[0].split('.').pop().toLowerCase();
-    if (ext === 'pdf') {
-      icon.textContent = 'picture_as_pdf';
-      body.innerHTML   = `<iframe src="${url}" class="w-full min-h-[70vh] border-0" title="Dokumen"></iframe>`;
-    } else {
-      icon.textContent = 'badge';
-      body.innerHTML   = `
-        <div class="flex items-center justify-center p-4 min-h-[50vh]">
-          <img src="${url}" alt="KTM/KTP ${nama}"
-               class="max-w-full max-h-[75vh] rounded-xl shadow-md object-contain
-                      border border-slate-200 dark:border-slate-700"
-               onerror="this.parentElement.innerHTML='<div class=\\'flex flex-col items-center py-16 text-slate-400\\'><span class=\\'material-icons-outlined text-5xl mb-3 text-slate-300\\'>broken_image</span><p>Gagal memuat file</p></div>'">
-        </div>`;
-    }
-
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function tutupDokumen() {
-    const modal = document.getElementById('modal-dokumen');
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
-    document.body.style.overflow = '';
-    document.getElementById('dok-body').innerHTML = '';
-  }
-
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') tutupDokumen(); });
-
-  // ══════════════════════════════════════════════════════════════════════
-  // TOAST
-  // ══════════════════════════════════════════════════════════════════════
-
-  function akunToast(type, msg) {
-    const el = document.createElement('div');
-    el.className = [
-      'fixed bottom-5 right-5 z-[70] text-white text-sm px-4 py-3 rounded-xl shadow-lg',
-      'flex items-center gap-2 opacity-0 translate-y-2 transition-all duration-300',
-      type === 'success' ? 'bg-emerald-500' : 'bg-red-500',
-    ].join(' ');
-    el.innerHTML = `
-      <span class="material-icons-outlined text-base">${type === 'success' ? 'check_circle' : 'error'}</span>
-      <span>${msg}</span>`;
-    document.body.appendChild(el);
-    requestAnimationFrame(() => el.classList.remove('opacity-0', 'translate-y-2'));
-    setTimeout(() => {
-      el.classList.add('opacity-0', 'translate-y-2');
-      setTimeout(() => el.remove(), 300);
-    }, 4000);
-  }
-
-  // ── Expose semua ke window ─────────────────────────────────────────────
-  window.aksiAkun         = aksiAkun;
-  window.filterAkunTable  = filterAkunTable;
-  window.filterAkunStatus = filterAkunStatus;
-  window.lihatDokumen     = lihatDokumen;
-  window.tutupDokumen     = tutupDokumen;
-
-})();
+// ── Reject modal ────────────────────────────────────────────────────────
 let _rejectPk = null;
 
 function openRejectModal(pk, name) {
   _rejectPk = pk;
   document.getElementById('reject-user-name').textContent = name;
   document.getElementById('reject-reason').value = '';
+  document.getElementById('reject-reason').classList.remove('border-red-500');
   document.getElementById('modal-reject-akun').classList.remove('hidden');
 }
 
@@ -703,30 +486,158 @@ function submitReject() {
     document.getElementById('reject-reason').classList.add('border-red-500');
     return;
   }
-  aksiAkun(_rejectPk, 'reject', reason);
   document.getElementById('modal-reject-akun').classList.add('hidden');
+  aksiAkun(_rejectPk, 'reject', reason);
 }
 
-// Ubah fungsi aksiAkun — tambah param reason
-function aksiAkun(pk, aksi, reason = '') {
-  const fd = new FormData();
-  fd.append('aksi', aksi);
-  if (reason) fd.append('reason', reason);
+// ── Update badge + tombol tanpa reload ─────────────────────────────────
+function updateAkunRow(pk, isActive, isVerified, aksi) {
+  const badge  = document.getElementById(`abadge-${pk}`);
+  const action = document.getElementById(`aaction-${pk}`);
+  const row    = document.getElementById(`arow-${pk}`);
 
-  fetch(`/admin/akun/${pk}/aksi/`, {
-    method: 'POST',
-    headers: { 'X-CSRFToken': getCookie('csrftoken') },
-    body: fd,
-  })
-  .then(r => r.json())
-  .then(data => {
-    if (data.ok) {
-      showToast(data.msg, 'success');
-      setTimeout(() => location.reload(), 800);
-    } else {
-      showToast(data.msg, 'error');
+  let newStatus;
+  if (isActive && isVerified)       newStatus = 'active';
+  else if (!isActive && isVerified) newStatus = 'inactive';
+  else                              newStatus = 'pending';
+
+  if (row) row.dataset.astatus = newStatus;
+
+  if (badge) {
+    const cfgBadge = {
+      active:   { cls: 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800', html: '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0"></span>Aktif' },
+      inactive: { cls: 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800',     html: '<span class="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0"></span>Nonaktif' },
+      pending:  { cls: 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800', html: '<span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse flex-shrink-0"></span>Menunggu' },
+    };
+    const b = cfgBadge[newStatus];
+    badge.className = b.cls;
+    badge.innerHTML = b.html;
+  }
+
+  if (action) {
+    if (newStatus === 'active') {
+      action.innerHTML = `
+        <button onclick="aksiAkun(${pk}, 'deactivate')"
+                class="inline-flex items-center justify-center gap-1 rounded-lg border border-slate-200
+                       dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-red-50
+                       dark:hover:bg-red-900/20 text-slate-600 dark:text-slate-300
+                       hover:text-red-600 font-semibold text-xs px-3 py-1.5 transition w-full">
+          <span class="material-icons-outlined text-sm">block</span>Nonaktifkan
+        </button>`;
+    } else if (newStatus === 'inactive') {
+      action.innerHTML = `
+        <button onclick="aksiAkun(${pk}, 'reactivate')"
+                class="inline-flex items-center justify-center gap-1 rounded-lg border border-emerald-200
+                       dark:border-emerald-700 bg-white dark:bg-slate-700 hover:bg-emerald-50
+                       text-emerald-600 dark:text-emerald-400
+                       font-semibold text-xs px-3 py-1.5 transition w-full">
+          <span class="material-icons-outlined text-sm">restart_alt</span>Aktifkan
+        </button>`;
     }
+  }
+  updateStatCounters();
+}
+
+function updateStatCounters() {
+  let pending = 0, active = 0, inactive = 0;
+  document.querySelectorAll('#akun-tbody tr[id^="arow-"]').forEach(r => {
+    if (r.dataset.astatus === 'pending')  pending++;
+    if (r.dataset.astatus === 'active')   active++;
+    if (r.dataset.astatus === 'inactive') inactive++;
+  });
+  const elP = document.getElementById('akun-stat-pending');
+  const elA = document.getElementById('akun-stat-active');
+  const elI = document.getElementById('akun-stat-inactive');
+  if (elP) elP.textContent = pending;
+  if (elA) elA.textContent = active;
+  if (elI) elI.textContent = inactive;
+}
+
+// ── Filter ──────────────────────────────────────────────────────────────
+function filterAkunTable(q) {
+  q = q.toLowerCase().trim();
+  document.querySelectorAll('#akun-tbody tr[id^="arow-"]').forEach(row => {
+    const text = [row.dataset.name, row.dataset.email, row.dataset.nim].join(' ').toLowerCase();
+    row.style.display = text.includes(q) ? '' : 'none';
   });
 }
 
+function filterAkunStatus(val) {
+  document.querySelectorAll('.akun-tab').forEach(t => {
+    const on = t.dataset.akunStatus === val;
+    t.classList.toggle('bg-primary-500', on);
+    t.classList.toggle('text-white', on);
+    t.classList.toggle('shadow-sm', on);
+    t.classList.toggle('bg-slate-100', !on);
+    t.classList.toggle('dark:bg-slate-700', !on);
+    t.classList.toggle('text-slate-600', !on);
+    t.classList.toggle('dark:text-slate-300', !on);
+  });
+  document.querySelectorAll('#akun-tbody tr[id^="arow-"]').forEach(row => {
+    const s = row.dataset.astatus;
+    row.style.display = (val === 'all' || val === s || (val === 'rejected' && s === 'inactive')) ? '' : 'none';
+  });
+}
+
+// ── Preview dokumen ─────────────────────────────────────────────────────
+function lihatDokumen(url, nama) {
+  document.getElementById('dok-nama').textContent = nama;
+  document.getElementById('dok-open-link').href   = url;
+  const ext  = url.split('?')[0].split('.').pop().toLowerCase();
+  const body = document.getElementById('dok-body');
+  const icon = document.getElementById('dok-icon');
+  if (ext === 'pdf') {
+    icon.textContent = 'picture_as_pdf';
+    body.innerHTML   = `<iframe src="${url}" class="w-full min-h-[70vh] border-0"></iframe>`;
+  } else {
+    icon.textContent = 'badge';
+    body.innerHTML   = `
+      <div class="flex items-center justify-center p-4 min-h-[50vh]">
+        <img src="${url}" alt="KTM/KTP ${nama}"
+             class="max-w-full max-h-[75vh] rounded-xl shadow-md object-contain border border-slate-200 dark:border-slate-700"
+             onerror="this.parentElement.innerHTML='<div class=\\'flex flex-col items-center py-16 text-slate-400\\'><span class=\\'material-icons-outlined text-5xl mb-3\\'>broken_image</span><p>Gagal memuat</p></div>'">
+      </div>`;
+  }
+  const modal = document.getElementById('modal-dokumen');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+  document.body.style.overflow = 'hidden';
+}
+
+function tutupDokumen() {
+  const modal = document.getElementById('modal-dokumen');
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+  document.body.style.overflow = '';
+  document.getElementById('dok-body').innerHTML = '';
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') tutupDokumen(); });
+
+// ── Toast ───────────────────────────────────────────────────────────────
+function akunToast(type, msg) {
+  const el = document.createElement('div');
+  el.className = `fixed bottom-5 right-5 z-[70] text-white text-sm px-4 py-3 rounded-xl shadow-lg
+    flex items-center gap-2 opacity-0 translate-y-2 transition-all duration-300
+    ${type === 'success' ? 'bg-emerald-500' : 'bg-red-500'}`;
+  el.innerHTML = `
+    <span class="material-icons-outlined text-base">${type === 'success' ? 'check_circle' : 'error'}</span>
+    <span>${msg}</span>`;
+  document.body.appendChild(el);
+  requestAnimationFrame(() => el.classList.remove('opacity-0', 'translate-y-2'));
+  setTimeout(() => {
+    el.classList.add('opacity-0', 'translate-y-2');
+    setTimeout(() => el.remove(), 300);
+  }, 4000);
+}
+
+// ── Expose ──────────────────────────────────────────────────────────────
+window.aksiAkun         = aksiAkun;
+window.openRejectModal  = openRejectModal;
+window.submitReject     = submitReject;
+window.filterAkunTable  = filterAkunTable;
+window.filterAkunStatus = filterAkunStatus;
+window.lihatDokumen     = lihatDokumen;
+window.tutupDokumen     = tutupDokumen;
 </script>
+{% endblock %}

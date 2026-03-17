@@ -1,5 +1,13 @@
-{# ===== SECTION 4: PRAKTIKUM & PENELITIAN ===== #}
-<div id="admin-section-dosen" class="admin-module-section hidden">
+{% extends "admin_shell.html" %}
+{% load static %}
+{% block page_title %}Manajemen Peminjaman{% endblock %}
+{% block page_heading %}Manajemen Peminjaman{% endblock %}
+{% block page_subtitle %}Kelola peminjaman ruangan dan alat tes.{% endblock %}
+
+{% block admin_content %}
+{% csrf_token %}
+
+
   <div class="rounded-2xl border border-slate-200 dark:border-slate-700
               bg-white dark:bg-slate-800 shadow-sm p-6 space-y-6">
 
@@ -770,7 +778,6 @@
     </div>
 
   </div>
-</div>
 {# ===== END SECTION 4 ===== #}
 
 {# MODAL: BUAT / EDIT JADWAL PRAKTIKUM #}
@@ -883,7 +890,7 @@
                          dark:bg-slate-700 dark:text-slate-100
                          px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500">
             <option value="">— Pilih Ruangan —</option>
-            {% for room in room_list %}
+            {% for room in roomlist %}
             <option value="{{ room.pk }}">{{ room.name }}</option>
             {% endfor %}
           </select>
@@ -3726,3 +3733,4 @@ window.bulkDelete     = bulkDelete;
 })();
 
 </script>
+{% endblock %}

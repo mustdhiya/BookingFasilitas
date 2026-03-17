@@ -195,10 +195,172 @@ class KonselingSubmitView(LoginRequiredMixin, View):
 # ══════════════════════════════════════════════════════════════════════════════
 
 from rooms.models import Room
+from accounts.views import AdminOnlyMixin
 from django.utils import timezone
 from rooms.models import Room, RoomBooking
 from tools.models import TestTool, ToolRental
 
+class AdminBadgeMixin:
+    """Inject badge count ke semua halaman admin."""
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['admin_badge_peminjaman'] = (
+            RoomBooking.objects.filter(status='pending').count() +
+            ToolRental.objects.filter(status='pending').count()
+        ) or None
+        ctx['admin_badge_konseling'] = KonselingSession.objects.filter(status='pending').count() or None
+        ctx['admin_badge_akun'] = User.objects.filter(
+            is_active=False, is_verified=False
+        ).exclude(is_superuser=True).count() or None
+        return ctx
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ADMIN — DASHBOARD KPI (ringan, gantikan AdminPanelView sebagai homepage admin)
+# ─────────────────────────────────────────────────────────────────────────────
+class AdminDashboardView(AdminOnlyMixin, TemplateView):
+    template_name = 'admin/dashAdmin.html'
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_staff:
+            return redirect('/login/')
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx   = super().get_context_data(**kwargs)
+        today = timezone.localdate()
+
+        ctx['stats'] = {
+            'peminjaman_pending': RoomBooking.objects.filter(status='pending').count(),
+            'tool_pending':       ToolRental.objects.filter(status='pending').count(),
+            'konseling_pending':  KonselingSession.objects.filter(status='pending').count(),
+            'akun_pending':       User.objects.exclude(is_superuser=True)
+                                      .filter(is_active=False, is_verified=False).count(),
+            'penelitian_pending': ResearchRequest.objects.filter(status='pending').count(),
+        }
+        # Preview 5 terbaru — query ringan
+        ctx['recent_bookings']  = RoomBooking.objects.select_related('room', 'user')\
+                                      .order_by('-created_at')[:5]
+        ctx['recent_tools']     = ToolRental.objects.select_related('tool', 'user')\
+                                      .order_by('-created_at')[:5]
+        ctx['recent_konseling'] = KonselingSession.objects.select_related('user')\
+                                      .filter(status='pending').order_by('-created_at')[:5]
+        ctx['pending_akun']     = User.objects.exclude(is_superuser=True)\
+                                      .filter(is_active=False, is_verified=False)\
+                                      .order_by('-created_at')[:5]
+        ctx['recent_penelitian'] = ResearchRequest.objects.select_related('student', 'lecturer')\
+                                       .filter(status='pending').order_by('-created_at')[:5]
+        return ctx
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ADMIN — PEMINJAMAN (full data, halaman terpisah)
+# ─────────────────────────────────────────────────────────────────────────────
+class AdminPeminjamanView(AdminOnlyMixin, TemplateView):
+    template_name = 'admin/manapemAdmin.html'
+
+    def get_context_data(self, **kwargs):
+        ctx   = super().get_context_data(**kwargs)
+        today = timezone.localdate()
+
+        room_status    = self.request.GET.get('room_status', 'all')
+        room_filter    = self.request.GET.get('room_filter', '')
+        room_date      = self.request.GET.get('room_date', '')
+        room_search    = self.request.GET.get('room_search', '')
+        room_page      = int(self.request.GET.get('room_page', 1))
+        tool_status    = self.request.GET.get('tool_status', 'all')
+        tool_search    = self.request.GET.get('tool_search', '')
+        tool_page      = int(self.request.GET.get('tool_page', 1))
+        tool_filter_id = self.request.GET.get('tool_filter_id', '')
+        PER_PAGE = 20
+
+        room_qs = RoomBooking.objects.select_related('room', 'user', 'approved_by')\
+                             .order_by('-date_start', '-created_at')
+        if room_status == 'ongoing':
+            room_qs = room_qs.filter(status='approved', date_start__lte=today, date_end__gte=today)
+        elif room_status != 'all':
+            room_qs = room_qs.filter(status=room_status)
+        if room_filter:  room_qs = room_qs.filter(room_id=room_filter)
+        if room_date:    room_qs = room_qs.filter(date_start__lte=room_date, date_end__gte=room_date)
+        if room_search:
+            room_qs = room_qs.filter(
+                Q(user__first_name__icontains=room_search) | Q(user__last_name__icontains=room_search) |
+                Q(user__email__icontains=room_search)      | Q(room__name__icontains=room_search)
+            )
+
+        tool_qs = ToolRental.objects.select_related('tool', 'user', 'approved_by')\
+                            .order_by('-date_start', '-created_at')
+        if tool_status != 'all':    tool_qs = tool_qs.filter(status=tool_status)
+        if tool_filter_id:          tool_qs = tool_qs.filter(tool_id=tool_filter_id)
+        if tool_search:
+            tool_qs = tool_qs.filter(
+                Q(user__first_name__icontains=tool_search) | Q(user__last_name__icontains=tool_search) |
+                Q(user__email__icontains=tool_search)      | Q(tool__name__icontains=tool_search)
+            )
+
+        from django.core.paginator import Paginator
+        room_pag = Paginator(room_qs, PER_PAGE)
+        tool_pag = Paginator(tool_qs, PER_PAGE)
+
+        ctx['room_bookings_page'] = room_pag.get_page(room_page)
+        ctx['tool_rentals_page']  = tool_pag.get_page(tool_page)
+        ctx['room_list']          = Room.objects.filter(is_active=True).order_by('code')
+        ctx['tool_list']          = TestTool.objects.filter(is_active=True).order_by('code')
+        ctx['peminjaman_stats']   = {
+            'pending':     RoomBooking.objects.filter(status='pending').count(),
+            'approved':    RoomBooking.objects.filter(status='approved').count(),
+            'ongoing':     RoomBooking.objects.filter(status='approved', date_start__lte=today, date_end__gte=today).count(),
+            'total_month': RoomBooking.objects.filter(date_start__year=today.year, date_start__month=today.month).count(),
+        }
+        ctx['tool_stats'] = {
+            'pending':  ToolRental.objects.filter(status='pending').count(),
+            'approved': ToolRental.objects.filter(status='approved').count(),
+            'borrowed': ToolRental.objects.filter(status='borrowed').count(),
+            'overdue':  ToolRental.objects.filter(status='borrowed', date_end__lt=today).count(),
+        }
+        ctx['room_filter_active'] = {'status': room_status, 'room': room_filter, 'date': room_date, 'search': room_search}
+        ctx['tool_filter_active'] = {'status': tool_status, 'search': tool_search, 'tool_id': tool_filter_id}
+        return ctx
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ADMIN — PRAKTIKUM & PENELITIAN
+# ─────────────────────────────────────────────────────────────────────────────
+class AdminPraktikumView(AdminOnlyMixin, TemplateView):
+    template_name = 'admin/manaJadwalPraktikumAdmin.html'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['practicum_list']        = Practicum.objects.select_related('lecturer', 'room').order_by('-date')
+        ctx['lecturer_list']         = Lecturer.objects.prefetch_related('research_titles').order_by('name')
+        ctx['lecturerlist']          = ctx['lecturer_list']
+        ctx['roomlist']              = Room.objects.filter(is_active=True).order_by('name')
+        ctx['dosen_list']            = Lecturer.objects.filter(is_active=True).order_by('name')
+        ctx['research_request_list'] = ResearchRequest.objects.select_related(
+            'student', 'lecturer', 'research_title'
+        ).order_by('-created_at')
+        ctx['penelitian_stats']      = {'pending': ResearchRequest.objects.filter(status='pending').count()}
+        ctx['request_status_tabs']   = [
+            ('all', 'Semua'), ('pending', 'Pending'),
+            ('approved', 'Disetujui'), ('rejected', 'Ditolak'),
+        ]
+        return ctx
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ADMIN — MASTER DATA
+# ─────────────────────────────────────────────────────────────────────────────
+class AdminMasterView(AdminOnlyMixin, TemplateView):
+    template_name = 'admin/MasterDataAdmin.html'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['room_list']         = Room.objects.order_by('code')
+        ctx['active_room_count'] = Room.objects.filter(is_active=True).count()
+        ctx['alat_list']         = TestTool.objects.annotate(
+            borrow_count=Count('rentals', filter=~Q(rentals__status='cancelled'))
+        ).order_by('code')
+        ctx['low_stock_count']   = TestTool.objects.filter(stock__lte=10, is_active=True).count()
+        return ctx
 
 class AdminPanelView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     template_name = 'admin.html'

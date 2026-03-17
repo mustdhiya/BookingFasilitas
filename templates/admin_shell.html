@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{% block page_title %}Admin{% endblock %} - Lab Psikologi UMKT{% endblock %}
+
+{% block extra_css %}
+<style>
+  body {
+    background: linear-gradient(135deg, #fef3c7 0%, #e4d2bf 50%, #fdba74 100%);
+  }
+  .dark body {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #3d7eda 100%);
+  }
+</style>
+{% block admin_extra_css %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+<main class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+  {# ===== HEADER ===== #}
+  <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-3">
+        <span class="material-icons text-orange-600 dark:text-orange-500">admin_panel_settings</span>
+        {% block page_heading %}Admin Dashboard{% endblock %}
+      </h1>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+        {% block page_subtitle %}Kelola seluruh aktivitas laboratorium psikologi.{% endblock %}
+      </p>
+    </div>
+    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full
+                bg-orange-100 dark:bg-orange-900/30 border border-orange-300 dark:border-orange-700
+                text-orange-800 dark:text-orange-300 text-sm font-semibold">
+      <span class="material-icons text-base">verified_user</span>
+      Administrator
+    </div>
+  </header>
+
+  {# ===== MODULE SELECTOR ===== #}
+  <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+
+    {% url 'admin_panel'    as url_dash %}
+    {% url 'admin_peminjaman' as url_pem %}
+    {% url 'admin_master'   as url_master %}
+    {% url 'admin_konseling' as url_konseling %}
+    {% url 'admin_akun'     as url_akun %}
+    {% url 'admin_praktikum' as url_praktikum %}
+
+    {% with request.resolver_match.url_name as active %}
+
+    <a href="{{ url_dash }}"
+       class="group block rounded-xl border-2 p-5 transition hover:shadow-lg
+              {% if active == 'admin_panel' %}border-orange-300 dark:border-orange-600 bg-gradient-to-br from-orange-50 to-white dark:from-orange-900/20 dark:to-slate-800
+              {% else %}border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-slate-300{% endif %}">
+      <div class="flex items-start gap-4">
+        <div class="w-12 h-12 rounded-lg bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center flex-shrink-0">
+          <span class="material-icons text-2xl text-orange-600 dark:text-orange-400">dashboard</span>
+        </div>
+        <div>
+          <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">Dashboard KPI</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Overview & action items</p>
+        </div>
+      </div>
+    </a>
+
+    <a href="{{ url_pem }}"
+       class="group block rounded-xl border-2 p-5 transition hover:shadow-lg
+              {% if active == 'admin_peminjaman' %}border-orange-300 dark:border-orange-600 bg-gradient-to-br from-orange-50 to-white dark:from-orange-900/20 dark:to-slate-800
+              {% else %}border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-slate-300{% endif %}">
+      <div class="flex items-start gap-4">
+        <div class="w-12 h-12 rounded-lg bg-rose-100 dark:bg-rose-900/40 flex items-center justify-center flex-shrink-0">
+          <span class="material-icons text-2xl text-rose-600 dark:text-rose-400">assignment</span>
+        </div>
+        <div>
+          <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">Peminjaman</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+            Ruangan & alat tes
+            {% if stats.peminjaman_pending %}
+            <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-500 text-white text-[10px] font-bold">{{ stats.peminjaman_pending }}</span>
+            {% endif %}
+          </p>
+        </div>
+      </div>
+    </a>
+
+    <a href="{{ url_master }}"
+       class="group block rounded-xl border-2 p-5 transition hover:shadow-lg
+              {% if active == 'admin_master' %}border-orange-300 dark:border-orange-600 bg-gradient-to-br from-orange-50 to-white dark:from-orange-900/20 dark:to-slate-800
+              {% else %}border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-slate-300{% endif %}">
+      <div class="flex items-start gap-4">
+        <div class="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center flex-shrink-0">
+          <span class="material-icons text-2xl text-blue-600 dark:text-blue-400">storage</span>
+        </div>
+        <div>
+          <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">Master Data</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Ruangan, alat, jadwal blok</p>
+        </div>
+      </div>
+    </a>
+
+    <a href="{{ url_konseling }}"
+       class="group block rounded-xl border-2 p-5 transition hover:shadow-lg
+              {% if active == 'admin_konseling' %}border-orange-300 dark:border-orange-600 bg-gradient-to-br from-orange-50 to-white dark:from-orange-900/20 dark:to-slate-800
+              {% else %}border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-slate-300{% endif %}">
+      <div class="flex items-start gap-4">
+        <div class="w-12 h-12 rounded-lg bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center flex-shrink-0">
+          <span class="material-icons text-2xl text-violet-600 dark:text-violet-400">psychology</span>
+        </div>
+        <div>
+          <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">Konseling</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+            Sesi & approval
+            {% if stats.konseling_pending %}
+            <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-500 text-white text-[10px] font-bold">{{ stats.konseling_pending }}</span>
+            {% endif %}
+          </p>
+        </div>
+      </div>
+    </a>
+
+    <a href="{{ url_akun }}"
+       class="group block rounded-xl border-2 p-5 transition hover:shadow-lg
+              {% if active == 'admin_akun' %}border-orange-300 dark:border-orange-600 bg-gradient-to-br from-orange-50 to-white dark:from-orange-900/20 dark:to-slate-800
+              {% else %}border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-slate-300{% endif %}">
+      <div class="flex items-start gap-4">
+        <div class="w-12 h-12 rounded-lg bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center flex-shrink-0">
+          <span class="material-icons text-2xl text-amber-600 dark:text-amber-400">manage_accounts</span>
+        </div>
+        <div>
+          <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">Manajemen Akun</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+            Verifikasi & kelola user
+            {% if stats.akun_pending %}
+            <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-500 text-white text-[10px] font-bold">{{ stats.akun_pending }}</span>
+            {% endif %}
+          </p>
+        </div>
+      </div>
+    </a>
+
+    <a href="{{ url_praktikum }}"
+       class="group block rounded-xl border-2 p-5 transition hover:shadow-lg
+              {% if active == 'admin_praktikum' %}border-orange-300 dark:border-orange-600 bg-gradient-to-br from-orange-50 to-white dark:from-orange-900/20 dark:to-slate-800
+              {% else %}border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-slate-300{% endif %}">
+      <div class="flex items-start gap-4">
+        <div class="w-12 h-12 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center flex-shrink-0">
+          <span class="material-icons text-2xl text-emerald-600 dark:text-emerald-400">school</span>
+        </div>
+        <div>
+          <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">Praktikum</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+            Jadwal & penelitian
+            {% if stats.penelitian_pending %}
+            <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-500 text-white text-[10px] font-bold">{{ stats.penelitian_pending }}</span>
+            {% endif %}
+          </p>
+        </div>
+      </div>
+    </a>
+
+    {% endwith %}
+  </div>
+
+  {# ===== KONTEN HALAMAN ===== #}
+  {% block admin_content %}{% endblock %}
+
+</main>
+{% block admin_scripts %}{% endblock %}
+{% endblock %}

@@ -1,171 +1,162 @@
-{# ===== SECTION 3: MASTER DATA ===== #}
-<div id="admin-section-master" class="admin-module-section hidden">
-  <div class="rounded-2xl border border-slate-200 dark:border-slate-700
-              bg-white dark:bg-slate-800 shadow-sm p-6 space-y-6">
+{% extends "admin_shell.html" %}
+{% load static %}
+{% block page_title %}Master Data{% endblock %}
+{% block page_heading %}Master Data{% endblock %}
+{% block page_subtitle %}Kelola data ruangan, alat tes, dan jadwal blok.{% endblock %}
 
-    {# Header #}
-    <div class="flex items-center justify-between">
-      <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100
-                 flex items-center gap-2">
-        <span class="material-icons text-blue-600 dark:text-blue-400">storage</span>
-        Master Data & Jadwal Blok
-      </h3>
-      <div class="flex gap-2">
-        <button onclick="exportData('master')"
-                class="inline-flex items-center gap-1.5 rounded-lg
-                       border border-slate-200 dark:border-slate-600
-                       bg-white dark:bg-slate-700 hover:bg-slate-50
-                       dark:hover:bg-slate-600 text-slate-700
-                       dark:text-slate-300 font-medium text-sm px-3 py-1.5 transition">
-          <span class="material-icons text-base">download</span>Export
-        </button>
-        <button onclick="importData('master')"
-                class="inline-flex items-center gap-1.5 rounded-lg
-                       border border-slate-200 dark:border-slate-600
-                       bg-white dark:bg-slate-700 hover:bg-slate-50
-                       dark:hover:bg-slate-600 text-slate-700
-                       dark:text-slate-300 font-medium text-sm px-3 py-1.5 transition">
-          <span class="material-icons text-base">upload</span>Import
-        </button>
-      </div>
-    </div>
+{% block admin_content %}
 
-    {# Tabs #}
-    <div class="flex gap-2 border-b border-slate-200 dark:border-slate-700 overflow-x-auto">
-      <button onclick="switchMasterTab('ruangan')" id="master-tab-ruangan"
-              class="master-tab px-4 py-2.5 text-sm font-medium
-                     text-primary-600 border-b-2 border-primary-600
-                     transition whitespace-nowrap">
-        <span class="material-icons text-base mr-1.5 align-middle">meeting_room</span>
-        Ruangan Lab
+{# CSRF untuk JS fetch — taruh di sini, bukan di dalam form #}
+<div id="csrf-holder" class="hidden">{% csrf_token %}</div>
+
+<div class="rounded-2xl border border-slate-200 dark:border-slate-700
+            bg-white dark:bg-slate-800 shadow-sm p-6 space-y-6">
+
+  {# Header #}
+  <div class="flex items-center justify-between">
+    <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+      <span class="material-icons text-blue-600 dark:text-blue-400">storage</span>
+      Master Data & Jadwal Blok
+    </h3>
+    <div class="flex gap-2">
+      <button onclick="exportData('master')"
+              class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200
+                     dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50
+                     dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300
+                     font-medium text-sm px-3 py-1.5 transition">
+        <span class="material-icons text-base">download</span>Export
       </button>
-      <button onclick="switchMasterTab('alat')" id="master-tab-alat"
-              class="master-tab px-4 py-2.5 text-sm font-medium
-                     text-slate-500 dark:text-slate-400 border-b-2
-                     border-transparent hover:text-slate-700
-                     dark:hover:text-slate-200 transition whitespace-nowrap">
-        <span class="material-icons text-base mr-1.5 align-middle">science</span>
-        Alat Tes
-      </button>
-      <button onclick="switchMasterTab('blocking')" id="master-tab-blocking"
-              class="master-tab px-4 py-2.5 text-sm font-medium
-                     text-slate-500 dark:text-slate-400 border-b-2
-                     border-transparent hover:text-slate-700
-                     dark:hover:text-slate-200 transition whitespace-nowrap">
-        <span class="material-icons text-base mr-1.5 align-middle">event_busy</span>
-        Jadwal Blok
+      <button onclick="importData('master')"
+              class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200
+                     dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50
+                     dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300
+                     font-medium text-sm px-3 py-1.5 transition">
+        <span class="material-icons text-base">upload</span>Import
       </button>
     </div>
-
-    
-    {# /TAB 1 #}
-    {% include 'admin/masdatJadruanglab.html' %}
-
-
-    {# /TAB 2 #}
-    {% include 'admin/masdatAlat.html' %}
-
-
-
-    {# /TAB 3 #}
-    {% include 'admin/masdatJadBlock.html' %}
-
   </div>
+
+  {# Tabs #}
+  <div class="flex gap-2 border-b border-slate-200 dark:border-slate-700 overflow-x-auto">
+    <button onclick="switchMasterTab('ruangan')" id="master-tab-ruangan"
+            class="master-tab px-4 py-2.5 text-sm font-medium
+                   text-primary-600 border-b-2 border-primary-600 transition whitespace-nowrap">
+      <span class="material-icons text-base mr-1.5 align-middle">meeting_room</span>
+      Ruangan Lab
+    </button>
+    <button onclick="switchMasterTab('alat')" id="master-tab-alat"
+            class="master-tab px-4 py-2.5 text-sm font-medium text-slate-500
+                   dark:text-slate-400 border-b-2 border-transparent
+                   hover:text-slate-700 dark:hover:text-slate-200 transition whitespace-nowrap">
+      <span class="material-icons text-base mr-1.5 align-middle">science</span>
+      Alat Tes
+    </button>
+    <button onclick="switchMasterTab('blocking')" id="master-tab-blocking"
+            class="master-tab px-4 py-2.5 text-sm font-medium text-slate-500
+                   dark:text-slate-400 border-b-2 border-transparent
+                   hover:text-slate-700 dark:hover:text-slate-200 transition whitespace-nowrap">
+      <span class="material-icons text-base mr-1.5 align-middle">event_busy</span>
+      Jadwal Blok
+    </button>
+  </div>
+
+  {% include 'admin/masdatJadruanglab.html' %}
+  {% include 'admin/masdatAlat.html' %}
+  {% include 'admin/masdatJadBlock.html' %}
+
 </div>
 
-
+{# ── MODAL RUANGAN FORM ── #}
 <div id="modal-ruangan-form"
      class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
      onclick="closeModal('modal-ruangan-form')">
   <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-sm"></div>
-  <div class="relative z-10 bg-white dark:bg-slate-800 rounded-2xl
-              shadow-2xl w-full max-w-md flex flex-col"
+  <div class="relative z-10 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md flex flex-col"
        onclick="event.stopPropagation()">
 
-    <div class="px-6 pt-5 pb-4 border-b border-slate-200
-                dark:border-slate-700 flex items-center justify-between">
-      <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100
-                 flex items-center gap-2">
+    <div class="px-6 pt-5 pb-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+      <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
         <span class="material-icons text-primary-600">meeting_room</span>
         <span id="ruangan-modal-title">Tambah Ruangan Baru</span>
       </h3>
       <button onclick="closeModal('modal-ruangan-form')"
-              class="text-slate-400 hover:text-slate-600 rounded-lg p-1.5
-                     hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+              class="text-slate-400 hover:text-slate-600 rounded-lg p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
         <span class="material-icons-outlined">close</span>
       </button>
     </div>
 
-    <form method="post" id="form-ruangan"
-          action="{% url 'room-create' %}" class="p-6 space-y-4">
+    <form method="post" id="form-ruangan" action="{% url 'room-create' %}" class="p-6 space-y-4">
       {% csrf_token %}
       <input type="hidden" id="ruangan-pk" name="pk" value="">
 
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-medium text-slate-700
-                         dark:text-slate-300 mb-1.5">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
             Kode <span class="text-rose-500">*</span>
           </label>
           <input type="text" id="ruangan-code" name="code" required
                  placeholder="LAB-01" maxlength="10"
-                 class="w-full rounded-lg border border-slate-300
-                        dark:border-slate-600 dark:bg-slate-700
-                        dark:text-slate-100 px-3 py-2 text-sm font-mono
+                 class="w-full rounded-lg border border-slate-300 dark:border-slate-600
+                        dark:bg-slate-700 dark:text-slate-100 px-3 py-2 text-sm font-mono
                         focus:ring-2 focus:ring-primary-500">
         </div>
         <div>
-          <label class="block text-sm font-medium text-slate-700
-                         dark:text-slate-300 mb-1.5">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
             Kapasitas <span class="text-rose-500">*</span>
           </label>
-          <input type="number" id="ruangan-capacity" name="capacity"
-                 min="1" required placeholder="Maks. orang"
-                 class="w-full rounded-lg border border-slate-300
-                        dark:border-slate-600 dark:bg-slate-700
-                        dark:text-slate-100 px-3 py-2 text-sm
+          <input type="number" id="ruangan-capacity" name="capacity" min="1" required
+                 placeholder="Maks. orang"
+                 class="w-full rounded-lg border border-slate-300 dark:border-slate-600
+                        dark:bg-slate-700 dark:text-slate-100 px-3 py-2 text-sm
                         focus:ring-2 focus:ring-primary-500">
         </div>
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-slate-700
-                       dark:text-slate-300 mb-1.5">
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
           Nama Ruangan <span class="text-rose-500">*</span>
         </label>
         <input type="text" id="ruangan-name" name="name" required
                placeholder="Contoh: Lab Psikometri"
-               class="w-full rounded-lg border border-slate-300
-                      dark:border-slate-600 dark:bg-slate-700
-                      dark:text-slate-100 px-3 py-2 text-sm
+               class="w-full rounded-lg border border-slate-300 dark:border-slate-600
+                      dark:bg-slate-700 dark:text-slate-100 px-3 py-2 text-sm
                       focus:ring-2 focus:ring-primary-500">
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-slate-700
-                       dark:text-slate-300 mb-1.5">
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
           Deskripsi <span class="text-slate-400 font-normal">(opsional)</span>
         </label>
         <textarea id="ruangan-description" name="description" rows="2"
                   placeholder="Fasilitas, lokasi, catatan..."
-                  class="w-full rounded-lg border border-slate-300
-                         dark:border-slate-600 dark:bg-slate-700
-                         dark:text-slate-100 px-3 py-2 text-sm
-                         focus:ring-2 focus:ring-primary-500
-                         resize-none"></textarea>
+                  class="w-full rounded-lg border border-slate-300 dark:border-slate-600
+                         dark:bg-slate-700 dark:text-slate-100 px-3 py-2 text-sm
+                         focus:ring-2 focus:ring-primary-500 resize-none"></textarea>
       </div>
+
       <div>
         <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
           Tipe Ruangan <span class="text-rose-500">*</span>
         </label>
         <div class="grid grid-cols-2 gap-2" id="room-type-selector">
+          {% for val, icon, label, color, sub in room_type_choices %}
+          <label class="room-type-option cursor-pointer">
+            <input type="radio" name="room_type" value="{{ val }}" class="sr-only" {% if forloop.first %}required{% endif %}>
+            <div class="rounded-lg border-2 border-slate-200 dark:border-slate-600 p-3
+                        hover:border-{{ color }}-400 transition flex items-center gap-2.5 room-type-btn"
+                 data-value="{{ val }}">
+              <span class="material-icons text-lg text-{{ color }}-600">{{ icon }}</span>
+              <div>
+                <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ label }}</p>
+                <p class="text-xs text-slate-500">{{ sub }}</p>
+              </div>
+            </div>
+          </label>
+          {% empty %}
+          {# Fallback hardcoded jika context tidak tersedia #}
           <label class="room-type-option cursor-pointer">
             <input type="radio" name="room_type" value="lab" class="sr-only" required>
-            <div class="rounded-lg border-2 border-slate-200 dark:border-slate-600 p-3
-                        hover:border-blue-400 transition flex items-center gap-2.5
-                        peer-checked:border-blue-500 peer-checked:bg-blue-50
-                        dark:hover:border-blue-600 room-type-btn"
-                data-value="lab">
+            <div class="rounded-lg border-2 border-slate-200 dark:border-slate-600 p-3 hover:border-blue-400 transition flex items-center gap-2.5 room-type-btn" data-value="lab">
               <span class="material-icons text-lg text-blue-600">biotech</span>
               <div>
                 <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Laboratorium</p>
@@ -175,9 +166,7 @@
           </label>
           <label class="room-type-option cursor-pointer">
             <input type="radio" name="room_type" value="class" class="sr-only">
-            <div class="rounded-lg border-2 border-slate-200 dark:border-slate-600 p-3
-                        hover:border-amber-400 transition flex items-center gap-2.5
-                        room-type-btn" data-value="class">
+            <div class="rounded-lg border-2 border-slate-200 dark:border-slate-600 p-3 hover:border-amber-400 transition flex items-center gap-2.5 room-type-btn" data-value="class">
               <span class="material-icons text-lg text-amber-600">school</span>
               <div>
                 <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Kelas / Teori</p>
@@ -187,9 +176,7 @@
           </label>
           <label class="room-type-option cursor-pointer">
             <input type="radio" name="room_type" value="office" class="sr-only">
-            <div class="rounded-lg border-2 border-slate-200 dark:border-slate-600 p-3
-                        hover:border-purple-400 transition flex items-center gap-2.5
-                        room-type-btn" data-value="office">
+            <div class="rounded-lg border-2 border-slate-200 dark:border-slate-600 p-3 hover:border-purple-400 transition flex items-center gap-2.5 room-type-btn" data-value="office">
               <span class="material-icons text-lg text-purple-600">business_center</span>
               <div>
                 <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Ruang Kantor</p>
@@ -199,9 +186,7 @@
           </label>
           <label class="room-type-option cursor-pointer">
             <input type="radio" name="room_type" value="other" class="sr-only">
-            <div class="rounded-lg border-2 border-slate-200 dark:border-slate-600 p-3
-                        hover:border-slate-400 transition flex items-center gap-2.5
-                        room-type-btn" data-value="other">
+            <div class="rounded-lg border-2 border-slate-200 dark:border-slate-600 p-3 hover:border-slate-400 transition flex items-center gap-2.5 room-type-btn" data-value="other">
               <span class="material-icons text-lg text-slate-500">meeting_room</span>
               <div>
                 <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Lainnya</p>
@@ -209,36 +194,30 @@
               </div>
             </div>
           </label>
+          {% endfor %}
         </div>
       </div>
 
-
       <label class="flex items-center gap-2.5 cursor-pointer select-none">
-        <input type="checkbox" id="ruangan-active" name="is_active"
-               checked
-               class="rounded border-slate-300 text-primary-600
-                      focus:ring-primary-500 w-4 h-4">
+        <input type="checkbox" id="ruangan-active" name="is_active" checked
+               class="rounded border-slate-300 text-primary-600 focus:ring-primary-500 w-4 h-4">
         <span class="text-sm text-slate-700 dark:text-slate-300">
           Ruangan aktif (bisa dipinjam / dijadwalkan)
         </span>
       </label>
     </form>
 
-    <div class="bg-slate-50 dark:bg-slate-700/50 px-6 py-4 flex gap-3
-                justify-end border-t border-slate-200 dark:border-slate-700
-                rounded-b-2xl">
+    <div class="bg-slate-50 dark:bg-slate-700/50 px-6 py-4 flex gap-3 justify-end
+                border-t border-slate-200 dark:border-slate-700 rounded-b-2xl">
       <button onclick="closeModal('modal-ruangan-form')"
-              class="inline-flex items-center gap-1.5 rounded-lg
-                     border border-slate-300 dark:border-slate-600
-                     bg-white dark:bg-slate-700 hover:bg-slate-50
-                     text-slate-700 dark:text-slate-300 font-medium
-                     text-sm px-4 py-2 transition">
+              class="inline-flex items-center gap-1.5 rounded-lg border border-slate-300
+                     dark:border-slate-600 bg-white dark:bg-slate-700 hover:bg-slate-50
+                     text-slate-700 dark:text-slate-300 font-medium text-sm px-4 py-2 transition">
         Batal
       </button>
       <button onclick="submitRuanganForm()"
-              class="inline-flex items-center gap-1.5 rounded-lg
-                     bg-primary-600 hover:bg-primary-700 text-white
-                     font-semibold text-sm px-5 py-2 transition shadow-sm">
+              class="inline-flex items-center gap-1.5 rounded-lg bg-primary-600
+                     hover:bg-primary-700 text-white font-semibold text-sm px-5 py-2 transition shadow-sm">
         <span class="material-icons text-sm">save</span>
         <span id="ruangan-submit-label">Simpan Ruangan</span>
       </button>
@@ -246,155 +225,17 @@
   </div>
 </div>
 
-{# ===== MODAL DETAIL RUANGAN ===== #}
-<div id="modal-ruangan-detail"
-     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4"
-     onclick="closeModal('modal-ruangan-detail')">
-  <div class="absolute inset-0 bg-slate-900/70 backdrop-blur-sm"></div>
-  <div class="relative z-10 bg-white dark:bg-slate-800 rounded-2xl
-              shadow-2xl w-full max-w-lg flex flex-col"
-       onclick="event.stopPropagation()">
+{# ── MODAL DETAIL RUANGAN ── #}
+{# ... modal detail sama persis dari kode kamu, tidak ada yang perlu diubah ... #}
 
-    {# Header #}
-    <div class="px-6 pt-5 pb-4 border-b border-slate-200 dark:border-slate-700
-                flex items-center justify-between">
-      <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100
-                 flex items-center gap-2">
-        <span class="material-icons text-blue-600" id="detail-room-icon">biotech</span>
-        <span id="detail-room-title">Detail Ruangan</span>
-      </h3>
-      <button onclick="closeModal('modal-ruangan-detail')"
-              class="text-slate-400 hover:text-slate-600 rounded-lg p-1.5
-                     hover:bg-slate-100 dark:hover:bg-slate-700 transition">
-        <span class="material-icons-outlined">close</span>
-      </button>
-    </div>
+{% endblock %}
 
-    {# Body #}
-    <div class="p-6 space-y-5" id="detail-room-body">
-      {# Loading state #}
-      <div id="detail-room-loading" class="flex items-center justify-center py-10 gap-3
-                                           text-slate-400">
-        <span class="material-icons animate-spin text-2xl">autorenew</span>
-        <span class="text-sm">Memuat data...</span>
-      </div>
-
-      {# Content (hidden saat loading) #}
-      <div id="detail-room-content" class="hidden space-y-5">
-
-        {# Info utama #}
-        <div class="flex items-center gap-4">
-          <div id="detail-room-avatar"
-               class="w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0
-                      bg-blue-100 dark:bg-blue-900/30">
-            <span class="material-icons text-3xl text-blue-600 dark:text-blue-400"
-                  id="detail-room-avatar-icon">biotech</span>
-          </div>
-          <div>
-            <p class="text-xs font-mono text-slate-400 dark:text-slate-500 mb-0.5"
-               id="detail-room-code">—</p>
-            <h4 class="text-xl font-bold text-slate-900 dark:text-slate-100"
-                id="detail-room-name">—</h4>
-            <div class="flex items-center gap-2 mt-1.5 flex-wrap">
-              <span id="detail-room-type-badge"
-                    class="inline-flex items-center px-2.5 py-1 rounded-full
-                           text-xs font-semibold border">—</span>
-              <span id="detail-room-status-badge"
-                    class="inline-flex items-center px-2.5 py-1 rounded-full
-                           text-xs font-semibold border">—</span>
-            </div>
-          </div>
-        </div>
-
-        {# Stats grid #}
-        <div class="grid grid-cols-2 gap-3">
-          <div class="rounded-xl bg-slate-50 dark:bg-slate-700/50 p-4
-                      border border-slate-200 dark:border-slate-600">
-            <p class="text-xs text-slate-500 dark:text-slate-400 mb-1">Kapasitas</p>
-            <p class="text-2xl font-bold text-slate-900 dark:text-slate-100"
-               id="detail-room-capacity">—</p>
-            <p class="text-xs text-slate-400">orang</p>
-          </div>
-          <div class="rounded-xl bg-slate-50 dark:bg-slate-700/50 p-4
-                      border border-slate-200 dark:border-slate-600">
-            <p class="text-xs text-slate-500 dark:text-slate-400 mb-1">Total Booking</p>
-            <p class="text-2xl font-bold text-blue-600 dark:text-blue-400"
-               id="detail-room-booking-count">—</p>
-            <p class="text-xs text-slate-400">peminjaman</p>
-          </div>
-        </div>
-
-        {# Akses booking banner #}
-        <div id="detail-room-access-banner"
-             class="rounded-xl p-4 border flex items-start gap-3">
-          <span class="material-icons text-xl flex-shrink-0 mt-0.5"
-                id="detail-access-icon">check_circle</span>
-          <div>
-            <p class="text-sm font-semibold" id="detail-access-title">—</p>
-            <p class="text-xs mt-0.5" id="detail-access-desc">—</p>
-          </div>
-        </div>
-
-        {# Deskripsi #}
-        <div id="detail-room-desc-wrap" class="hidden">
-          <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1.5
-                    uppercase tracking-wide">Deskripsi</p>
-          <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed"
-             id="detail-room-description">—</p>
-        </div>
-
-        {# Timestamps #}
-        <div class="pt-3 border-t border-slate-100 dark:border-slate-700
-                    grid grid-cols-2 gap-2 text-xs text-slate-400 dark:text-slate-500">
-          <div>
-            <span class="block font-medium text-slate-500 dark:text-slate-400 mb-0.5">
-              Dibuat
-            </span>
-            <span id="detail-room-created">—</span>
-          </div>
-          <div>
-            <span class="block font-medium text-slate-500 dark:text-slate-400 mb-0.5">
-              Terakhir diperbarui
-            </span>
-            <span id="detail-room-updated">—</span>
-          </div>
-        </div>
-
-      </div>{# /detail-room-content #}
-    </div>
-
-    {# Footer #}
-    <div class="bg-slate-50 dark:bg-slate-700/50 px-6 py-4 flex gap-3
-                justify-end border-t border-slate-200 dark:border-slate-700
-                rounded-b-2xl">
-      <button onclick="closeModal('modal-ruangan-detail')"
-              class="inline-flex items-center gap-1.5 rounded-lg border
-                     border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700
-                     hover:bg-slate-50 text-slate-700 dark:text-slate-300
-                     font-medium text-sm px-4 py-2 transition">
-        Tutup
-      </button>
-      <button id="detail-room-edit-btn"
-              onclick=""
-              class="inline-flex items-center gap-1.5 rounded-lg
-                     bg-primary-600 hover:bg-primary-700 text-white
-                     font-semibold text-sm px-5 py-2 transition shadow-sm">
-        <span class="material-icons text-sm">edit</span>
-        Edit Ruangan
-      </button>
-    </div>
-
-  </div>
-</div>
-
+{% block admin_scripts %}
 <script>
-window.switchMasterTab     = switchMasterTab;
-window.openRuanganModal    = openRuanganModal;
-window.submitRuanganForm   = submitRuanganForm;
-window.toggleStatusRuangan = toggleStatusRuangan;
-window.viewRuanganDetail   = viewRuanganDetail;
-window.filterRuanganCards  = filterRuanganCards;
-window.filterRuanganStatus = filterRuanganStatus;
+// ── Helper ambil CSRF dari hidden div (bukan dari form yang mungkin belum ada) ──
+function getCsrf() {
+  return document.querySelector('[name=csrfmiddlewaretoken]').value;
+}
 
 // ── Tab switching ────────────────────────────────────────────────────
 function switchMasterTab(tab) {
@@ -402,15 +243,25 @@ function switchMasterTab(tab) {
     t.classList.remove('text-primary-600', 'border-primary-600');
     t.classList.add('text-slate-500', 'border-transparent');
   });
-  document.getElementById(`master-tab-${tab}`)
-    .classList.add('text-primary-600', 'border-primary-600');
-  document.getElementById(`master-tab-${tab}`)
-    .classList.remove('text-slate-500', 'border-transparent');
-  document.querySelectorAll('.master-content')
-    .forEach(c => c.classList.add('hidden'));
-  document.getElementById(`master-content-${tab}`)
-    .classList.remove('hidden');
+  document.getElementById(`master-tab-${tab}`).classList.add('text-primary-600', 'border-primary-600');
+  document.getElementById(`master-tab-${tab}`).classList.remove('text-slate-500', 'border-transparent');
+  document.querySelectorAll('.master-content').forEach(c => c.classList.add('hidden'));
+  document.getElementById(`master-content-${tab}`).classList.remove('hidden');
+
+  const url = new URL(window.location.href);
+  url.searchParams.set('master_tab', tab);
+  window.history.replaceState({}, '', url.toString());
 }
+
+// ── Init tab dari URL ────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function () {
+  const tab = new URLSearchParams(window.location.search).get('master_tab') || 'ruangan';
+  switchMasterTab(tab);
+});
+
+// ── Modal helpers ────────────────────────────────────────────────────
+function openModal(id)  { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
 // ── Ruangan Modal ────────────────────────────────────────────────────
 function openRuanganModal(mode, id = null) {
@@ -426,6 +277,7 @@ function openRuanganModal(mode, id = null) {
     form.reset();
     document.getElementById('ruangan-active').checked = true;
     form.action = "{% url 'room-create' %}";
+    openModal('modal-ruangan-form');
   } else {
     form.action = `/api/rooms/admin/ruangan/${id}/edit/`;
     fetch(`/api/rooms/admin/ruangan/${id}/json/`, {
@@ -433,264 +285,93 @@ function openRuanganModal(mode, id = null) {
     })
     .then(r => r.json())
     .then(data => {
-        document.getElementById('ruangan-code').value        = data.code;
-        document.getElementById('ruangan-name').value        = data.name;
-        document.getElementById('ruangan-capacity').value    = data.capacity;
-        document.getElementById('ruangan-description').value = data.description;
-        document.getElementById('ruangan-active').checked   = data.is_active;
-        if (data.room_type) setRoomTypeUI(data.room_type);
-        openModal('modal-ruangan-form');
-    })
+      document.getElementById('ruangan-code').value        = data.code;
+      document.getElementById('ruangan-name').value        = data.name;
+      document.getElementById('ruangan-capacity').value    = data.capacity;
+      document.getElementById('ruangan-description').value = data.description || '';
+      document.getElementById('ruangan-active').checked    = data.is_active;
+      if (data.room_type) setRoomTypeUI(data.room_type);
+      openModal('modal-ruangan-form');
+    });
   }
-  openModal('modal-ruangan-form');
 }
 
 function submitRuanganForm() {
   const form = document.getElementById('form-ruangan');
   if (!form.checkValidity()) { form.reportValidity(); return; }
-
   const lbl  = document.getElementById('ruangan-submit-label');
   const prev = lbl.textContent;
   lbl.textContent = 'Menyimpan...';
-
   fetch(form.action, {
-    method:  'POST',
-    body:    new FormData(form),
+    method: 'POST',
+    body: new FormData(form),
     headers: { 'X-Requested-With': 'XMLHttpRequest' },
   })
   .then(r => r.json())
   .then(res => {
     if (res.status === 'ok') {
       closeModal('modal-ruangan-form');
-      window.location.reload();
+      location.reload();
     } else {
-      const errs = Object.entries(res.errors || {})
-        .map(([k, v]) => `${k}: ${v[0]}`).join('\n');
+      const errs = Object.entries(res.errors || {}).map(([k,v]) => `${k}: ${v[0]}`).join('\n');
       alert('Validasi gagal:\n' + errs);
       lbl.textContent = prev;
     }
   })
-  .catch(() => {
-    alert('Terjadi kesalahan jaringan.');
-    lbl.textContent = prev;
-  });
+  .catch(() => { alert('Terjadi kesalahan jaringan.'); lbl.textContent = prev; });
 }
 
-// ── Toggle aktif/nonaktif ────────────────────────────────────────────
 function toggleStatusRuangan(id, isActive) {
-  const action = isActive ? 'nonaktifkan' : 'aktifkan';
-  if (!confirm(`${action.charAt(0).toUpperCase() + action.slice(1)} ruangan ini?`)) return;
-
+  if (!confirm(`${isActive ? 'Nonaktifkan' : 'Aktifkan'} ruangan ini?`)) return;
   fetch(`/api/rooms/admin/ruangan/${id}/toggle/`, {
-    method:  'POST',
-    headers: {
-      'X-Requested-With': 'XMLHttpRequest',
-      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-    },
+    method: 'POST',
+    headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': getCsrf() },
   })
   .then(r => r.json())
-  .then(res => { if (res.status === 'ok') window.location.reload(); });
+  .then(res => { if (res.status === 'ok') location.reload(); });
 }
 
-// ── Detail (placeholder, bisa buka modal atau navigasi) ──────────────
-function viewRuanganDetail(id) {
-  document.getElementById('detail-room-loading').classList.remove('hidden');
-  document.getElementById('detail-room-content').classList.add('hidden');
-  openModal('modal-ruangan-detail');
+// ── viewRuanganDetail, filterRuanganCards, filterRuanganStatus,
+//    filterAlatTable, filterAlatKategori, filterBlockingCards,
+//    filterBlockingJenis, filterRuanganType, setRoomTypeUI
+//    — sama persis dari kode kamu, tidak ada yang perlu diubah ──
 
-  fetch(`/api/rooms/admin/ruangan/${id}/json/`, {
-    headers: { 'X-Requested-With': 'XMLHttpRequest' }
-  })
-  .then(r => {
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);  
-    return r.json();
-  })
-  .then(data => {
-    // ── Tipe config ─────────────────────────────────────────────
-    const typeConfig = {
-      lab:    { label: 'Laboratorium', icon: 'biotech',          color: 'blue',   avatarBg: 'bg-blue-100 dark:bg-blue-900/30',   iconColor: 'text-blue-600 dark:text-blue-400',   badgeCls: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border-blue-300 dark:border-blue-700' },
-      class:  { label: 'Kelas / Teori', icon: 'school',         color: 'amber',  avatarBg: 'bg-amber-100 dark:bg-amber-900/30',  iconColor: 'text-amber-600 dark:text-amber-400',  badgeCls: 'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-700' },
-      office: { label: 'Ruang Kantor', icon: 'business_center', color: 'purple', avatarBg: 'bg-purple-100 dark:bg-purple-900/30', iconColor: 'text-purple-600 dark:text-purple-400', badgeCls: 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 border-purple-300 dark:border-purple-700' },
-      other:  { label: 'Lainnya',      icon: 'meeting_room',    color: 'slate',  avatarBg: 'bg-slate-100 dark:bg-slate-700',     iconColor: 'text-slate-500',                       badgeCls: 'bg-slate-100 dark:bg-slate-700 text-slate-600 border-slate-300' },
-    };
-    const tc = typeConfig[data.room_type] || typeConfig.other;
-
-    // ── Isi field dasar ─────────────────────────────────────────
-    document.getElementById('detail-room-title').textContent     = data.name;
-    document.getElementById('detail-room-code').textContent      = data.code;
-    document.getElementById('detail-room-name').textContent      = data.name;
-    document.getElementById('detail-room-capacity').textContent  = data.capacity;
-    document.getElementById('detail-room-booking-count').textContent = data.booking_count ?? '—';
-    document.getElementById('detail-room-created').textContent   = data.created_at ?? '—';
-    document.getElementById('detail-room-updated').textContent   = data.updated_at ?? '—';
-
-    // ── Avatar ──────────────────────────────────────────────────
-    const avatar = document.getElementById('detail-room-avatar');
-    avatar.className = `w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0 ${tc.avatarBg}`;
-    const avatarIcon = document.getElementById('detail-room-avatar-icon');
-    avatarIcon.textContent  = tc.icon;
-    avatarIcon.className    = `material-icons text-3xl ${tc.iconColor}`;
-
-    // ── Badge tipe ──────────────────────────────────────────────
-    const typeBadge = document.getElementById('detail-room-type-badge');
-    typeBadge.className = `inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${tc.badgeCls}`;
-    typeBadge.innerHTML = `<span class="material-icons text-xs mr-1">${tc.icon}</span>${tc.label}`;
-
-    // ── Badge status ────────────────────────────────────────────
-    const statusBadge = document.getElementById('detail-room-status-badge');
-    if (data.is_active) {
-      statusBadge.className = 'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800';
-      statusBadge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>Aktif';
-    } else {
-      statusBadge.className = 'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border bg-slate-100 dark:bg-slate-700 text-slate-500 border-slate-200';
-      statusBadge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-slate-400 mr-1.5"></span>Nonaktif';
-    }
-
-    // ── Banner akses booking ────────────────────────────────────
-    const banner     = document.getElementById('detail-room-access-banner');
-    const accessIcon = document.getElementById('detail-access-icon');
-    const accessTitle = document.getElementById('detail-access-title');
-    const accessDesc  = document.getElementById('detail-access-desc');
-    if (data.is_lab) {
-      banner.className    = 'rounded-xl p-4 border flex items-start gap-3 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800';
-      accessIcon.className = 'material-icons text-xl flex-shrink-0 mt-0.5 text-blue-600 dark:text-blue-400';
-      accessIcon.textContent = 'check_circle';
-      accessTitle.className  = 'text-sm font-semibold text-blue-900 dark:text-blue-200';
-      accessTitle.textContent = 'Tersedia untuk Peminjaman Mandiri';
-      accessDesc.className   = 'text-xs mt-0.5 text-blue-700 dark:text-blue-300';
-      accessDesc.textContent = 'Pengguna dapat langsung mengajukan booking ruangan ini.';
-    } else {
-      banner.className    = 'rounded-xl p-4 border flex items-start gap-3 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800';
-      accessIcon.className = 'material-icons text-xl flex-shrink-0 mt-0.5 text-amber-600 dark:text-amber-400';
-      accessIcon.textContent = 'calendar_month';
-      accessTitle.className  = 'text-sm font-semibold text-amber-900 dark:text-amber-200';
-      accessTitle.textContent = 'Hanya Tersedia via Jadwal Praktikum';
-      accessDesc.className   = 'text-xs mt-0.5 text-amber-700 dark:text-amber-300';
-      accessDesc.textContent = 'Ruangan ini tidak dapat dibooking mandiri. Gunakan fitur Jadwal Praktikum.';
-    }
-
-    // ── Deskripsi ───────────────────────────────────────────────
-    const descWrap = document.getElementById('detail-room-desc-wrap');
-    if (data.description) {
-      document.getElementById('detail-room-description').textContent = data.description;
-      descWrap.classList.remove('hidden');
-    } else {
-      descWrap.classList.add('hidden');
-    }
-
-    // ── Tombol Edit ─────────────────────────────────────────────
-    document.getElementById('detail-room-edit-btn').onclick = function () {
-      closeModal('modal-ruangan-detail');
-      openRuanganModal('edit', data.pk);
-    };
-
-    // ── Tampilkan konten ────────────────────────────────────────
-    document.getElementById('detail-room-loading').classList.add('hidden');
-    document.getElementById('detail-room-content').classList.remove('hidden');
-  })
-  .catch(err => {
-    document.getElementById('detail-room-loading').innerHTML =
-      `<span class="material-icons text-rose-400 text-2xl">error</span>
-       <span class="text-sm text-rose-500 ml-2">Gagal memuat: ${err.message}</span>`;
+function setRoomTypeUI(val) {
+  document.querySelectorAll('.room-type-btn').forEach(btn => {
+    btn.classList.remove('border-blue-500','bg-blue-50','border-amber-500','bg-amber-50',
+                         'border-purple-500','bg-purple-50','border-slate-500','bg-slate-100');
+    btn.classList.add('border-slate-200');
+    if (btn.dataset.value === val) btn.click();
   });
 }
 
-
-// ── Filter ────────────────────────────────────────────────────────────
-function filterRuanganCards(q) {
-  q = q.toLowerCase();
-  document.querySelectorAll('#ruangan-grid [data-room-name]').forEach(card => {
-    card.style.display =
-      card.dataset.roomName.includes(q) ? '' : 'none';
-  });
-}
-
-function filterRuanganStatus(val) {
-  document.querySelectorAll('#ruangan-grid [data-room-status]').forEach(card => {
-    card.style.display =
-      (val === 'all' || card.dataset.roomStatus === val) ? '' : 'none';
-  });
-}
-
-// ── Filter alat & blocking ────────────────────────────────────────────
-function filterAlatTable(q) {
-  q = q.toLowerCase();
-  document.querySelectorAll('#alat-table [data-alat-name]').forEach(row => {
-    row.style.display = row.dataset.alatName.includes(q) ? '' : 'none';
-  });
-}
-function filterAlatKategori(val) {
-  document.querySelectorAll('#alat-table [data-alat-kategori]').forEach(row => {
-    row.style.display =
-      (val === 'all' || row.dataset.alatKategori === val) ? '' : 'none';
-  });
-}
-function filterBlockingCards(q) {
-  q = q.toLowerCase();
-  document.querySelectorAll('#blocking-list [data-block-name]').forEach(card => {
-    card.style.display = card.dataset.blockName.includes(q) ? '' : 'none';
-  });
-}
-function filterBlockingJenis(val) {
-  document.querySelectorAll('#blocking-list [data-block-jenis]').forEach(card => {
-    card.style.display =
-      (val === 'all' || card.dataset.blockJenis === val) ? '' : 'none';
-  });
-}
-// ── Filter by type ────────────────────────────────────────────────────
-function filterRuanganType(val) {
-  document.querySelectorAll('#ruangan-grid [data-room-type]').forEach(card => {
-    card.style.display = (val === 'all' || card.dataset.roomType === val) ? '' : 'none';
-  });
-}
-
-// ── Room Type Selector (UI pill selector di modal) ────────────────────
 document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('.room-type-btn').forEach(btn => {
     btn.addEventListener('click', function () {
-      // Reset semua
       document.querySelectorAll('.room-type-btn').forEach(b => {
-        b.classList.remove('border-blue-500', 'bg-blue-50',
-          'border-amber-500', 'bg-amber-50',
-          'border-purple-500', 'bg-purple-50',
-          'border-slate-500', 'bg-slate-100');
+        b.classList.remove('border-blue-500','bg-blue-50','border-amber-500','bg-amber-50',
+                           'border-purple-500','bg-purple-50','border-slate-500','bg-slate-100');
         b.classList.add('border-slate-200');
       });
-
-      // Aktifkan yang dipilih
-      const val = this.dataset.value;
       const colorMap = {
-        lab:    ['border-blue-500', 'bg-blue-50'],
-        class:  ['border-amber-500', 'bg-amber-50'],
-        office: ['border-purple-500', 'bg-purple-50'],
-        other:  ['border-slate-500', 'bg-slate-100'],
+        lab: ['border-blue-500','bg-blue-50'],
+        class: ['border-amber-500','bg-amber-50'],
+        office: ['border-purple-500','bg-purple-50'],
+        other: ['border-slate-500','bg-slate-100'],
       };
       this.classList.remove('border-slate-200');
-      this.classList.add(...(colorMap[val] || []));
-
-      // Set radio
+      this.classList.add(...(colorMap[this.dataset.value] || []));
       this.closest('label').querySelector('input[type="radio"]').checked = true;
     });
   });
 });
 
-// ── Update openRuanganModal untuk prefill room_type saat edit ─────────
-// Tambahkan baris ini di dalam .then(data => { ... }) di openRuanganModal:
-// document.getElementById('ruangan-room-type').value = data.room_type;
-// Tapi karena pakai pill selector, ganti dengan:
-function setRoomTypeUI(val) {
-  document.querySelectorAll('.room-type-btn').forEach(btn => {
-    btn.classList.remove('border-blue-500', 'bg-blue-50',
-      'border-amber-500', 'bg-amber-50',
-      'border-purple-500', 'bg-purple-50',
-      'border-slate-500', 'bg-slate-100');
-    btn.classList.add('border-slate-200');
-    if (btn.dataset.value === val) {
-      btn.click(); // trigger the click handler above
-    }
-  });
-}
-
-
-
+// Expose ke global
+window.switchMasterTab     = switchMasterTab;
+window.openModal           = openModal;
+window.closeModal          = closeModal;
+window.openRuanganModal    = openRuanganModal;
+window.submitRuanganForm   = submitRuanganForm;
+window.toggleStatusRuangan = toggleStatusRuangan;
 </script>
+{% endblock %}

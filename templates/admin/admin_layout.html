@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{% block admin_title %}Admin Panel{% endblock %} - Lab Psikologi UMKT{% endblock %}
+
+{% block extra_css %}
+<style>
+  body { background: linear-gradient(135deg, #fef3c7 0%, #e4d2bf 50%, #fdba74 100%); }
+  .dark body { background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #3d7eda 100%); }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+  {# ── Header ── #}
+  <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-3">
+        <span class="material-icons text-orange-600 dark:text-orange-500">admin_panel_settings</span>
+        {% block admin_heading %}Admin Dashboard{% endblock %}
+      </h1>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+        {% block admin_subheading %}Kelola seluruh aktivitas laboratorium psikologi.{% endblock %}
+      </p>
+    </div>
+    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-100 dark:bg-orange-900/30
+                border border-orange-300 dark:border-orange-700 text-orange-800 dark:text-orange-300
+                text-sm font-semibold">
+      <span class="material-icons text-base">verified_user</span>
+      Administrator
+    </div>
+  </header>
+
+  {# ── Nav Tabs (breadcrumb style) ── #}
+  <nav class="flex items-center gap-1 overflow-x-auto pb-1">
+    <a href="{% url 'admin_panel' %}"
+       class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition
+              {% block nav_dashboard %}text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700{% endblock %}">
+      <span class="material-icons text-base">dashboard</span>Dashboard
+    </a>
+    <span class="text-slate-300 dark:text-slate-600">|</span>
+    <a href="{% url 'admin_peminjaman' %}"
+       class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition
+              {% block nav_peminjaman %}text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700{% endblock %}">
+      <span class="material-icons text-base">assignment</span>Peminjaman
+    </a>
+    <span class="text-slate-300 dark:text-slate-600">|</span>
+    <a href="{% url 'admin_konseling' %}"
+       class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition
+              {% block nav_konseling %}text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700{% endblock %}">
+      <span class="material-icons text-base">psychology</span>Konseling
+    </a>
+    <span class="text-slate-300 dark:text-slate-600">|</span>
+    <a href="{% url 'admin_praktikum' %}"
+       class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition
+              {% block nav_praktikum %}text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700{% endblock %}">
+      <span class="material-icons text-base">school</span>Praktikum
+    </a>
+    <span class="text-slate-300 dark:text-slate-600">|</span>
+    <a href="{% url 'admin_master' %}"
+       class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition
+              {% block nav_master %}text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700{% endblock %}">
+      <span class="material-icons text-base">storage</span>Master Data
+    </a>
+    <span class="text-slate-300 dark:text-slate-600">|</span>
+    <a href="{% url 'admin_akun' %}"
+       class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition
+              {% block nav_akun %}text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700{% endblock %}">
+      <span class="material-icons text-base">manage_accounts</span>Akun
+    </a>
+  </nav>
+
+  {# ── Konten halaman ── #}
+  {% block admin_content %}{% endblock %}
+
+</main>
+
+{% block admin_scripts %}{% endblock %}
+{% endblock %}

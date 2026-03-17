@@ -1,8 +1,13 @@
+{% extends "admin_shell.html" %}
 {% load static %}
+{% block page_title %}Manajemen Konseling{% endblock %}
+{% block page_heading %}Manajemen Konseling{% endblock %}
+{% block page_subtitle %}Kelola Konseling.{% endblock %}
 
+{% block admin_content %}
+{% csrf_token %}
 
-<div id="admin-section-konseling" class="admin-module-section hidden">
-
+<div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6 space-y-6">
   {# Header #}
   <div class="mb-6">
     <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
@@ -1283,3 +1288,4 @@
 
 })();
 </script>
+{% endblock %}

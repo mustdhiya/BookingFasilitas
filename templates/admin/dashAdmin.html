@@ -1,638 +1,239 @@
-{# ===== SECTION: DASHBOARD ===== #}
-<div id="admin-section-dashboard" class="admin-module-section">
+{% extends "admin_shell.html" %}
+{% load static %}
 
-  {# ── Welcome Header ── #}
-  <div class="flex items-center justify-between flex-wrap gap-3 mb-6">
-    <div>
-      <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Dashboard Overview</h2>
-      <p class="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-0.5">
-        <span class="material-icons text-sm">calendar_today</span>
-        {{ today|date:"l, d F Y" }} &bull; Data real-time
-      </p>
+{% block page_title %}Admin Dashboard KPI{% endblock %}
+{% block page_heading %}Admin Dashboard KPI{% endblock %}
+{% block page_subtitle %}Ringkasan aktivitas dan item yang memerlukan perhatian.{% endblock %}
+
+{% block admin_content %}
+
+{# ── KPI Cards ── #}
+<div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+
+  {# Peminjaman Pending #}
+  <a href="{% url 'admin_peminjaman' %}"
+     class="group rounded-2xl border border-rose-200 dark:border-rose-800
+            bg-gradient-to-br from-rose-50 to-white
+            dark:from-rose-900/20 dark:to-slate-800
+            p-5 hover:shadow-md hover:border-rose-300 transition-all">
+    <div class="flex items-center justify-between mb-3">
+      <div class="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-900/40
+                  flex items-center justify-center">
+        <span class="material-icons text-rose-600 dark:text-rose-400 text-xl">assignment</span>
+      </div>
+      {% if stats.peminjaman_pending %}
+      <span class="text-[10px] font-bold bg-rose-500 text-white px-2 py-0.5 rounded-full">
+        Perlu Aksi
+      </span>
+      {% endif %}
     </div>
-    <button onclick="location.reload()"
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition">
-      <span class="material-icons text-base">refresh</span>Refresh
-    </button>
+    <p class="text-3xl font-bold text-rose-600 dark:text-rose-400">
+      {{ stats.peminjaman_pending|default:0 }}
+    </p>
+    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium uppercase tracking-wide">
+      Peminjaman Pending
+    </p>
+  </a>
+
+  {# Konseling Pending #}
+  <a href="{% url 'admin_konseling' %}"
+     class="group rounded-2xl border border-primary-200 dark:border-primary-800
+            bg-gradient-to-br from-primary-50 to-white
+            dark:from-primary-900/20 dark:to-slate-800
+            p-5 hover:shadow-md hover:border-primary-300 transition-all">
+    <div class="flex items-center justify-between mb-3">
+      <div class="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-900/40
+                  flex items-center justify-center">
+        <span class="material-icons text-primary-600 dark:text-primary-400 text-xl">psychology</span>
+      </div>
+      {% if stats.konseling_pending %}
+      <span class="text-[10px] font-bold bg-primary-500 text-white px-2 py-0.5 rounded-full">
+        Perlu Aksi
+      </span>
+      {% endif %}
+    </div>
+    <p class="text-3xl font-bold text-primary-600 dark:text-primary-400">
+      {{ stats.konseling_pending|default:0 }}
+    </p>
+    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium uppercase tracking-wide">
+      Konseling Pending
+    </p>
+  </a>
+
+  {# Penelitian Pending #}
+  <a href="{% url 'admin_praktikum' %}"
+     class="group rounded-2xl border border-emerald-200 dark:border-emerald-800
+            bg-gradient-to-br from-emerald-50 to-white
+            dark:from-emerald-900/20 dark:to-slate-800
+            p-5 hover:shadow-md hover:border-emerald-300 transition-all">
+    <div class="flex items-center justify-between mb-3">
+      <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/40
+                  flex items-center justify-center">
+        <span class="material-icons text-emerald-600 dark:text-emerald-400 text-xl">school</span>
+      </div>
+      {% if stats.penelitian_pending %}
+      <span class="text-[10px] font-bold bg-emerald-500 text-white px-2 py-0.5 rounded-full">
+        Perlu Aksi
+      </span>
+      {% endif %}
+    </div>
+    <p class="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
+      {{ stats.penelitian_pending|default:0 }}
+    </p>
+    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium uppercase tracking-wide">
+      Penelitian Pending
+    </p>
+  </a>
+
+  {# Akun Pending #}
+  <a href="{% url 'admin_akun' %}"
+     class="group rounded-2xl border border-blue-200 dark:border-blue-800
+            bg-gradient-to-br from-blue-50 to-white
+            dark:from-blue-900/20 dark:to-slate-800
+            p-5 hover:shadow-md hover:border-blue-300 transition-all">
+    <div class="flex items-center justify-between mb-3">
+      <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/40
+                  flex items-center justify-center">
+        <span class="material-icons text-blue-600 dark:text-blue-400 text-xl">manage_accounts</span>
+      </div>
+      {% if stats.akun_pending %}
+      <span class="text-[10px] font-bold bg-blue-500 text-white px-2 py-0.5 rounded-full">
+        Perlu Aksi
+      </span>
+      {% endif %}
+    </div>
+    <p class="text-3xl font-bold text-blue-600 dark:text-blue-400">
+      {{ stats.akun_pending|default:0 }}
+    </p>
+    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium uppercase tracking-wide">
+      Akun Pending
+    </p>
+  </a>
+
+  {# Alat Pending #}
+  <a href="{% url 'admin_peminjaman' %}"
+     class="group rounded-2xl border border-amber-200 dark:border-amber-800
+            bg-gradient-to-br from-amber-50 to-white
+            dark:from-amber-900/20 dark:to-slate-800
+            p-5 hover:shadow-md hover:border-amber-300 transition-all">
+    <div class="flex items-center justify-between mb-3">
+      <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/40
+                  flex items-center justify-center">
+        <span class="material-icons text-amber-600 dark:text-amber-400 text-xl">build</span>
+      </div>
+      {% if stats.tool_pending %}
+      <span class="text-[10px] font-bold bg-amber-500 text-white px-2 py-0.5 rounded-full">
+        Perlu Aksi
+      </span>
+      {% endif %}
+    </div>
+    <p class="text-3xl font-bold text-amber-600 dark:text-amber-400">
+      {{ stats.tool_pending|default:0 }}
+    </p>
+    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium uppercase tracking-wide">
+      Alat Pending
+    </p>
+  </a>
+
+</div>
+
+{# ── Preview Tables ── #}
+<div class="grid lg:grid-cols-2 gap-6">
+
+  {# Recent Peminjaman #}
+  <div class="rounded-2xl border border-slate-200 dark:border-slate-700
+              bg-white dark:bg-slate-800 shadow-sm overflow-hidden">
+    <div class="flex items-center justify-between px-5 py-4
+                border-b border-slate-100 dark:border-slate-700">
+      <h3 class="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+        <span class="material-icons text-rose-500 text-base">assignment</span>
+        Peminjaman Terbaru
+      </h3>
+      <a href="{% url 'admin_peminjaman' %}"
+         class="text-xs text-primary-600 dark:text-primary-400
+                hover:underline font-medium">
+        Lihat Semua →
+      </a>
+    </div>
+    <div class="divide-y divide-slate-100 dark:divide-slate-700">
+      {% for b in recent_bookings %}
+      <div class="flex items-center justify-between px-5 py-3">
+        <div class="min-w-0 flex-1 mr-3">
+          <p class="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
+            {{ b.user.get_full_name }}
+          </p>
+          <p class="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1 mt-0.5">
+            <span class="material-icons text-[10px]">meeting_room</span>
+            {{ b.room.name }} · {{ b.date_start|date:"d M Y" }}
+          </p>
+        </div>
+        <span class="flex-shrink-0 text-xs px-2.5 py-1 rounded-full font-semibold
+          {% if b.status == 'pending' %}bg-amber-100 text-amber-700 border border-amber-200
+          {% elif b.status == 'approved' %}bg-emerald-100 text-emerald-700 border border-emerald-200
+          {% elif b.status == 'rejected' %}bg-red-100 text-red-700 border border-red-200
+          {% else %}bg-slate-100 text-slate-500 border border-slate-200{% endif %}">
+          {{ b.get_status_display }}
+        </span>
+      </div>
+      {% empty %}
+      <div class="flex flex-col items-center py-12 text-slate-400 dark:text-slate-500">
+        <span class="material-icons-outlined text-4xl mb-2 text-slate-300 dark:text-slate-600">
+          event_busy
+        </span>
+        <p class="text-sm">Tidak ada peminjaman</p>
+      </div>
+      {% endfor %}
+    </div>
   </div>
 
-  {# ── KPI Cards ── #}
-  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-
-    {# KPI 1 — Peminjaman Ruangan #}
-    <div class="group rounded-xl border border-orange-200 dark:border-orange-800 bg-white dark:bg-slate-800 p-4 lg:p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer"
-         onclick="navigateToSection('peminjaman','ruangan')">
-      <div class="flex items-start justify-between mb-3">
-        <div class="w-12 h-12 rounded-xl bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center group-hover:scale-110 transition-transform">
-          <span class="material-icons text-2xl text-orange-600 dark:text-orange-400">meeting_room</span>
-        </div>
-        {% if peminjaman_stats.pending > 0 %}
-        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-xs font-semibold">
-          <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-          {{ peminjaman_stats.pending }} pending
-        </span>
-        {% else %}
-        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 text-xs font-semibold">
-          <span class="material-icons text-xs">check_circle</span>Clear
-        </span>
-        {% endif %}
-      </div>
-      <p class="text-[11px] text-slate-400 dark:text-slate-500 uppercase tracking-wide font-semibold mb-1">Peminjaman Ruangan</p>
-      <p class="text-3xl font-bold text-slate-900 dark:text-slate-100">{{ peminjaman_stats.total_month }}</p>
-      <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Bulan {{ today|date:"F Y" }}</p>
-      <div class="mt-3 pt-3 border-t border-orange-100 dark:border-orange-800/50 flex items-center justify-between text-xs">
-        <span class="text-slate-500 dark:text-slate-400">
-          <span class="font-semibold text-emerald-600 dark:text-emerald-400">{{ peminjaman_stats.approved }}</span> disetujui
-        </span>
-        <span class="font-semibold text-orange-600 dark:text-orange-400">{{ peminjaman_stats.ongoing }} ongoing</span>
-      </div>
+  {# Recent Konseling #}
+  <div class="rounded-2xl border border-slate-200 dark:border-slate-700
+              bg-white dark:bg-slate-800 shadow-sm overflow-hidden">
+    <div class="flex items-center justify-between px-5 py-4
+                border-b border-slate-100 dark:border-slate-700">
+      <h3 class="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+        <span class="material-icons text-primary-500 text-base">psychology</span>
+        Konseling Pending
+      </h3>
+      <a href="{% url 'admin_konseling' %}"
+         class="text-xs text-primary-600 dark:text-primary-400
+                hover:underline font-medium">
+        Lihat Semua →
+      </a>
     </div>
-
-    {# KPI 2 — Alat Tes #}
-    <div class="group rounded-xl border border-rose-200 dark:border-rose-800 bg-white dark:bg-slate-800 p-4 lg:p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer"
-         onclick="navigateToSection('peminjaman','alat')">
-      <div class="flex items-start justify-between mb-3">
-        <div class="w-12 h-12 rounded-xl bg-rose-100 dark:bg-rose-900/40 flex items-center justify-center group-hover:scale-110 transition-transform">
-          <span class="material-icons text-2xl text-rose-600 dark:text-rose-400">biotech</span>
+    <div class="divide-y divide-slate-100 dark:divide-slate-700">
+      {% for s in recent_konseling %}
+      <div class="flex items-center justify-between px-5 py-3">
+        <div class="min-w-0 flex-1 mr-3">
+          <p class="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
+            {{ s.user.get_full_name }}
+          </p>
+          <p class="text-xs text-slate-400 dark:text-slate-500 line-clamp-1 mt-0.5">
+            {{ s.keluhan|truncatechars:50 }}
+          </p>
         </div>
-        {% if tool_stats.overdue > 0 %}
-        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 text-xs font-semibold">
-          <span class="material-icons text-xs">warning</span>
-          {{ tool_stats.overdue }} overdue
-        </span>
-        {% else %}
-        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 text-xs font-semibold">
-          <span class="material-icons text-xs">check_circle</span>Clear
-        </span>
-        {% endif %}
-      </div>
-      <p class="text-[11px] text-slate-400 dark:text-slate-500 uppercase tracking-wide font-semibold mb-1">Peminjaman Alat Tes</p>
-      <p class="text-3xl font-bold text-slate-900 dark:text-slate-100">{{ tool_stats.approved }}</p>
-      <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Aktif dipinjam</p>
-      <div class="mt-3 pt-3 border-t border-rose-100 dark:border-rose-800/50 flex items-center justify-between text-xs">
-        <span class="text-slate-500 dark:text-slate-400">
-          <span class="font-semibold text-amber-600 dark:text-amber-400">{{ tool_stats.pending }}</span> pending
-        </span>
-        <span class="font-semibold text-rose-600 dark:text-rose-400">{{ tool_stats.borrowed }} dipinjam</span>
-      </div>
-    </div>
-
-    {# KPI 3 — Konseling #}
-    <div class="group rounded-xl border border-blue-200 dark:border-blue-800 bg-white dark:bg-slate-800 p-4 lg:p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer"
-         onclick="navigateToSection('konseling')">
-      <div class="flex items-start justify-between mb-3">
-        <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center group-hover:scale-110 transition-transform">
-          <span class="material-icons text-2xl text-blue-600 dark:text-blue-400">psychology</span>
-        </div>
-        {% if stats.pending > 0 %}
-        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-xs font-semibold">
-          <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-          {{ stats.pending }} pending
-        </span>
-        {% endif %}
-      </div>
-      <p class="text-[11px] text-slate-400 dark:text-slate-500 uppercase tracking-wide font-semibold mb-1">Sesi Konseling</p>
-      <p class="text-3xl font-bold text-slate-900 dark:text-slate-100">{{ stats.total }}</p>
-      <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Total semua sesi</p>
-      <div class="mt-3 pt-3 border-t border-blue-100 dark:border-blue-800/50 flex items-center justify-between text-xs">
-        <span class="text-slate-500 dark:text-slate-400">
-          <span class="font-semibold text-emerald-600 dark:text-emerald-400">{{ stats.done }}</span> selesai
-        </span>
-        <span class="font-semibold text-blue-600 dark:text-blue-400">{{ stats.approved }} aktif</span>
-      </div>
-    </div>
-
-    {# KPI 4 — Manajemen Akun #}
-    <div class="group rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-slate-800 p-4 lg:p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer"
-         onclick="navigateToSection('akun')">
-      <div class="flex items-start justify-between mb-3">
-        <div class="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center group-hover:scale-110 transition-transform">
-          <span class="material-icons text-2xl text-emerald-600 dark:text-emerald-400">manage_accounts</span>
-        </div>
-        {% if akun_stats.pending > 0 %}
-        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-xs font-semibold">
-          <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-          {{ akun_stats.pending }} baru
-        </span>
-        {% endif %}
-      </div>
-      <p class="text-[11px] text-slate-400 dark:text-slate-500 uppercase tracking-wide font-semibold mb-1">Manajemen Akun</p>
-      <p class="text-3xl font-bold text-slate-900 dark:text-slate-100">{{ akun_stats.total }}</p>
-      <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Total pengguna</p>
-      <div class="mt-3 pt-3 border-t border-emerald-100 dark:border-emerald-800/50 flex items-center justify-between text-xs">
-        <span class="text-slate-500 dark:text-slate-400">
-          <span class="font-semibold text-emerald-600 dark:text-emerald-400">{{ akun_stats.active }}</span> aktif
-        </span>
-        <span class="font-semibold text-slate-500 dark:text-slate-400">{{ akun_stats.inactive }} nonaktif</span>
-      </div>
-    </div>
-  </div>
-
-  {# ── Main Grid ── #}
-  <div class="grid lg:grid-cols-[1fr_360px] gap-6">
-
-    {# ── LEFT: Butuh Tindakan + Aktivitas ── #}
-    <div class="space-y-6">
-
-      {# Pending Actions #}
-      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm">
-        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700">
-          <h3 class="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <span class="material-icons text-rose-500">notification_important</span>
-            Butuh Tindakan
-            {# ── Badge total: room + tool + konseling + akun + penelitian ── #}
-            {% with total=peminjaman_stats.pending|add:tool_stats.pending|add:stats.pending|add:akun_stats.pending|add:penelitian_stats.pending %}
-            {% if total > 0 %}
-            <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-400 text-xs font-bold">{{ total }}</span>
-            {% endif %}
-            {% endwith %}
-          </h3>
-          <button onclick="navigateToSection('peminjaman')"
-                  class="text-sm text-primary-600 dark:text-primary-400 hover:underline font-medium">Lihat Semua →</button>
-        </div>
-
-        <div class="divide-y divide-slate-50 dark:divide-slate-700/50">
-
-          {# ── 1. Pending Room Bookings ── #}
-          {% for booking in room_bookings_page.object_list %}
-          {% if booking.status == 'pending' %}
-          <div class="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
-            <div class="flex items-start gap-3">
-              <div class="w-9 h-9 rounded-lg bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span class="material-icons text-base text-orange-600 dark:text-orange-400">meeting_room</span>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-start justify-between gap-2 mb-1">
-                  <div>
-                    <p class="text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wide mb-0.5">Peminjaman Ruangan</p>
-                    <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">{{ booking.room.name }}</p>
-                  </div>
-                  <span class="flex-shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-xs font-semibold">
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>Pending
-                  </span>
-                </div>
-                <div class="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-500 dark:text-slate-400 mb-3">
-                  <span class="flex items-center gap-1">
-                    <span class="material-icons text-xs">person</span>
-                    {{ booking.user.get_full_name|default:booking.user.email }}
-                  </span>
-                  <span class="flex items-center gap-1">
-                    <span class="material-icons text-xs">event</span>
-                    {{ booking.date_start|date:"d M Y" }}
-                  </span>
-                  <span class="flex items-center gap-1">
-                    <span class="material-icons text-xs">schedule</span>
-                    {{ booking.time_start|time:"H:i" }}–{{ booking.time_end|time:"H:i" }}
-                  </span>
-                </div>
-                <div class="flex items-center justify-between gap-2">
-                  <a href="/admin-panel/?section=peminjaman"
-                     class="text-xs text-primary-600 dark:text-primary-400 font-medium flex items-center gap-0.5 hover:underline">
-                    <span class="material-icons text-xs">visibility</span>Detail
-                  </a>
-                  <div class="flex gap-1.5">
-                    <form method="POST" action="/api/rooms/bookings/{{ booking.pk }}/approve/" class="inline">
-                      {% csrf_token %}
-                      <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold transition shadow-sm">
-                        <span class="material-icons text-sm">check</span>Approve
-                      </button>
-                    </form>
-                    <form method="POST" action="/api/rooms/bookings/{{ booking.pk }}/reject/" class="inline">
-                      {% csrf_token %}
-                      <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold transition shadow-sm">
-                        <span class="material-icons text-sm">close</span>Tolak
-                      </button>
-                    </form>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          {% endif %}
-          {% endfor %}
-
-          {# ── 2. Pending Tool Rentals ── #}
-          {% for rental in tool_rentals_page.object_list %}
-          {% if rental.status == 'pending' %}
-          <div class="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
-            <div class="flex items-start gap-3">
-              <div class="w-9 h-9 rounded-lg bg-rose-100 dark:bg-rose-900/40 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span class="material-icons text-base text-rose-600 dark:text-rose-400">biotech</span>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-start justify-between gap-2 mb-1">
-                  <div>
-                    <p class="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wide mb-0.5">Peminjaman Alat Tes</p>
-                    <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">{{ rental.tool.name }}</p>
-                  </div>
-                  <span class="flex-shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-xs font-semibold">
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>Pending
-                  </span>
-                </div>
-                <div class="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-500 dark:text-slate-400 mb-3">
-                  <span class="flex items-center gap-1">
-                    <span class="material-icons text-xs">person</span>
-                    {{ rental.user.get_full_name|default:rental.user.email }}
-                  </span>
-                  <span class="flex items-center gap-1">
-                    <span class="material-icons text-xs">event</span>
-                    {{ rental.date_start|date:"d M Y" }} – {{ rental.date_end|date:"d M Y" }}
-                  </span>
-                </div>
-                <div class="flex items-center justify-between gap-2">
-                  <a href="/admin-panel/?section=peminjaman"
-                     class="text-xs text-primary-600 dark:text-primary-400 font-medium flex items-center gap-0.5 hover:underline">
-                    <span class="material-icons text-xs">visibility</span>Detail
-                  </a>
-                  <div class="flex gap-1.5">
-                    <form method="POST" action="/api/tools/rentals/{{ rental.pk }}/approve/" class="inline">
-                      {% csrf_token %}
-                      <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold transition shadow-sm">
-                        <span class="material-icons text-sm">check</span>Approve
-                      </button>
-                    </form>
-                    <form method="POST" action="/api/tools/rentals/{{ rental.pk }}/reject/" class="inline">
-                      {% csrf_token %}
-                      <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold transition shadow-sm">
-                        <span class="material-icons text-sm">close</span>Tolak
-                      </button>
-                    </form>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          {% endif %}
-          {% endfor %}
-
-          {# ── 3. Pending Konseling ── #}
-          {% for sesi in sesi_list %}
-          {% if sesi.status == 'pending' %}
-          <div class="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
-            <div class="flex items-start gap-3">
-              <div class="w-9 h-9 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span class="material-icons text-base text-blue-600 dark:text-blue-400">psychology</span>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-start justify-between gap-2 mb-1">
-                  <div>
-                    <p class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide mb-0.5">Konseling</p>
-                    <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
-                      {{ sesi.user.get_full_name|default:sesi.user.email }}
-                    </p>
-                  </div>
-                  <span class="flex-shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-xs font-semibold">
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>Pending
-                  </span>
-                </div>
-                <div class="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-500 dark:text-slate-400 mb-3">
-                  <span class="flex items-center gap-1">
-                    <span class="material-icons text-xs">schedule</span>
-                    {{ sesi.created_at|date:"d M Y, H:i" }}
-                  </span>
-                  {% if sesi.keluhan %}
-                  <span class="flex items-center gap-1 truncate max-w-[180px]">
-                    <span class="material-icons text-xs">chat_bubble_outline</span>
-                    {{ sesi.keluhan|truncatechars:40 }}
-                  </span>
-                  {% endif %}
-                </div>
-                <div class="flex justify-end">
-                  <a href="/admin-panel/?section=konseling"
-                     class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold transition">
-                    <span class="material-icons text-sm">open_in_new</span>Kelola
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-          {% endif %}
-          {% endfor %}
-
-          {# ── 4. Pending Variabel Penelitian ── #}
-          {% for req in research_request_list %}
-          {% if req.status == 'pending' %}
-          <div class="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
-            <div class="flex items-start gap-3">
-              <div class="w-9 h-9 rounded-lg bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span class="material-icons text-base text-teal-600 dark:text-teal-400">auto_stories</span>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-start justify-between gap-2 mb-1">
-                  <div>
-                    <p class="text-xs font-bold text-teal-600 dark:text-teal-400 uppercase tracking-wide mb-0.5">Variabel Penelitian</p>
-                    <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
-                      {{ req.research_title.title|default:"—" }}
-                    </p>
-                  </div>
-                  <span class="flex-shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-xs font-semibold">
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>Pending
-                  </span>
-                </div>
-                <div class="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-500 dark:text-slate-400 mb-3">
-                  <span class="flex items-center gap-1">
-                    <span class="material-icons text-xs">person</span>
-                    {{ req.student.get_full_name|default:req.student.email }}
-                  </span>
-                  {% if req.lecturer %}
-                  <span class="flex items-center gap-1">
-                    <span class="material-icons text-xs">school</span>
-                    {{ req.lecturer.name }}
-                  </span>
-                  {% endif %}
-                  <span class="flex items-center gap-1">
-                    <span class="material-icons text-xs">schedule</span>
-                    {{ req.created_at|date:"d M Y" }}
-                  </span>
-                </div>
-                <div class="flex items-center justify-between gap-2">
-                  <a href="/admin-panel/?section=penelitian"
-                     class="text-xs text-primary-600 dark:text-primary-400 font-medium flex items-center gap-0.5 hover:underline">
-                    <span class="material-icons text-xs">visibility</span>Detail
-                  </a>
-                  <div class="flex gap-1.5">
-                    <form method="POST" action="/api/penelitian/{{ req.pk }}/approve/" class="inline">
-                      {% csrf_token %}
-                      <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold transition shadow-sm">
-                        <span class="material-icons text-sm">check</span>Approve
-                      </button>
-                    </form>
-                    <form method="POST" action="/api/penelitian/{{ req.pk }}/reject/" class="inline">
-                      {% csrf_token %}
-                      <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold transition shadow-sm">
-                        <span class="material-icons text-sm">close</span>Tolak
-                      </button>
-                    </form>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          {% endif %}
-          {% endfor %}
-
-          {# ── 5. Pending Praktikum (mahasiswa belum dikonfirmasi) ── #}
-          {% for praktikum in practicum_list %}
-          {% if not praktikum.is_confirmed %}
-          <div class="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
-            <div class="flex items-start gap-3">
-              <div class="w-9 h-9 rounded-lg bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span class="material-icons text-base text-violet-600 dark:text-violet-400">school</span>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-start justify-between gap-2 mb-1">
-                  <div>
-                    <p class="text-xs font-bold text-violet-600 dark:text-violet-400 uppercase tracking-wide mb-0.5">Praktikum</p>
-                    <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">{{ praktikum.name }}</p>
-                  </div>
-                  <span class="flex-shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-400 text-xs font-semibold">
-                    Belum Konfirmasi
-                  </span>
-                </div>
-                <div class="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-500 dark:text-slate-400 mb-3">
-                  {% if praktikum.lecturer %}
-                  <span class="flex items-center gap-1">
-                    <span class="material-icons text-xs">person</span>
-                    {{ praktikum.lecturer.name }}
-                  </span>
-                  {% endif %}
-                  <span class="flex items-center gap-1">
-                    <span class="material-icons text-xs">event</span>
-                    {{ praktikum.date|date:"d M Y" }}
-                  </span>
-                  {% if praktikum.room %}
-                  <span class="flex items-center gap-1">
-                    <span class="material-icons text-xs">meeting_room</span>
-                    {{ praktikum.room.name }}
-                  </span>
-                  {% endif %}
-                </div>
-                <div class="flex justify-end">
-                  <a href="/admin-panel/?section=dosen"
-                     class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-violet-500 hover:bg-violet-600 text-white text-xs font-semibold transition">
-                    <span class="material-icons text-sm">open_in_new</span>Kelola
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-          {% endif %}
-          {% endfor %}
-
-          {# ── 6. Pending Verifikasi Akun ── #}
-          {% for u in user_list %}
-          {% if not u.is_active and not u.is_verified %}
-          <div class="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
-            <div class="flex items-start gap-3">
-              <img src="{% if u.avatar %}{{ u.avatar.url }}{% else %}https://ui-avatars.com/api/?name={{ u.get_full_name }}&background=0D93B1&color=fff&bold=true{% endif %}"
-                   class="w-9 h-9 rounded-full object-cover ring-2 ring-primary-200 dark:ring-primary-700 flex-shrink-0 mt-0.5"
-                   alt="{{ u.get_full_name }}">
-              <div class="flex-1 min-w-0">
-                <div class="flex items-start justify-between gap-2 mb-1">
-                  <div>
-                    <p class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide mb-0.5">Verifikasi Akun</p>
-                    <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">{{ u.get_full_name|default:u.email }}</p>
-                  </div>
-                  <span class="flex-shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-400 text-xs font-semibold">
-                    Menunggu
-                  </span>
-                </div>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">
-                  {{ u.email }} &bull; Daftar {{ u.date_joined|date:"d M Y" }}
-                </p>
-                <div class="flex justify-end">
-                  <a href="/admin-panel/?section=akun"
-                     class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary-500 hover:bg-primary-600 text-white text-xs font-semibold transition">
-                    <span class="material-icons text-sm">manage_accounts</span>Verifikasi
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-          {% endif %}
-          {% endfor %}
-
-          {# ── Empty State ── #}
-          {% if not peminjaman_stats.pending and not tool_stats.pending and not stats.pending and not akun_stats.pending and not penelitian_stats.pending %}
-          <div class="flex flex-col items-center justify-center py-12 text-slate-400 dark:text-slate-600">
-            <span class="material-icons text-5xl mb-3 opacity-40">check_circle</span>
-            <p class="text-sm font-medium">Semua sudah ditangani!</p>
-            <p class="text-xs mt-1">Tidak ada item yang membutuhkan tindakan</p>
-          </div>
-          {% endif %}
-
-        </div>
-      </div>
-
-      {# Recent Activity Timeline #}
-      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-6">
-        <h3 class="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2 mb-5">
-          <span class="material-icons text-blue-500">history</span>Aktivitas Terbaru
-        </h3>
-        <div class="space-y-0">
-          {% for booking in room_bookings_page.object_list|slice:":4" %}
-          <div class="flex gap-3 group">
-            <div class="flex flex-col items-center">
-              <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0
-                {% if booking.status == 'approved' %}bg-emerald-100 dark:bg-emerald-900/40
-                {% elif booking.status == 'rejected' %}bg-rose-100 dark:bg-rose-900/40
-                {% else %}bg-amber-100 dark:bg-amber-900/40{% endif %}">
-                <span class="material-icons text-sm
-                  {% if booking.status == 'approved' %}text-emerald-600 dark:text-emerald-400
-                  {% elif booking.status == 'rejected' %}text-rose-600 dark:text-rose-400
-                  {% else %}text-amber-600 dark:text-amber-400{% endif %}">
-                  {% if booking.status == 'approved' %}check_circle{% elif booking.status == 'rejected' %}cancel{% else %}pending{% endif %}
-                </span>
-              </div>
-              <div class="w-px flex-1 bg-slate-100 dark:bg-slate-700 my-1 group-last:hidden"></div>
-            </div>
-            <div class="flex-1 pb-4">
-              <p class="text-sm font-medium text-slate-900 dark:text-slate-100">
-                Ruangan {{ booking.room.name }}
-                <span class="font-normal text-slate-500 dark:text-slate-400">
-                  {% if booking.status == 'approved' %}disetujui{% elif booking.status == 'rejected' %}ditolak{% else %}diajukan{% endif %}
-                </span>
-              </p>
-              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                {{ booking.user.get_full_name|default:booking.user.email }} &bull; {{ booking.date_start|date:"d M Y" }}
-              </p>
-              <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{{ booking.created_at|timesince }} lalu</p>
-            </div>
-          </div>
-          {% empty %}
-          <p class="text-sm text-slate-400 dark:text-slate-500 text-center py-6">Belum ada aktivitas</p>
-          {% endfor %}
-        </div>
-        <a href="/admin-panel/?section=peminjaman"
-           class="block w-full mt-2 pt-4 border-t border-slate-100 dark:border-slate-700 text-center text-sm text-primary-600 dark:text-primary-400 font-medium hover:underline">
-          Lihat Semua Aktivitas →
+        <a href="{% url 'admin_konseling' %}?pk={{ s.pk }}"
+           class="flex-shrink-0 inline-flex items-center gap-1 text-xs font-medium
+                  text-primary-600 dark:text-primary-400
+                  bg-primary-50 dark:bg-primary-900/20
+                  hover:bg-primary-100 dark:hover:bg-primary-900/40
+                  border border-primary-200 dark:border-primary-700
+                  rounded-lg px-2.5 py-1 transition">
+          <span class="material-icons text-xs">visibility</span>
+          Review
         </a>
       </div>
-    </div>
-
-    {# ── RIGHT: Alerts + Quick Actions + Inventory ── #}
-    <div class="space-y-5">
-
-      {# System Alerts #}
-      {% if tool_stats.overdue > 0 or low_stock_count > 0 or akun_stats.pending > 0 or penelitian_stats.pending > 0 %}
-      <div class="rounded-2xl border border-amber-200 dark:border-amber-700/50 bg-amber-50 dark:bg-amber-900/20 p-5">
-        <h3 class="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2 mb-3 text-sm">
-          <span class="material-icons text-amber-600 dark:text-amber-400">warning</span>Peringatan Sistem
-        </h3>
-        <div class="space-y-2">
-          {% if tool_stats.overdue > 0 %}
-          <div class="flex items-start gap-2.5 p-3 rounded-lg bg-white dark:bg-slate-800 border border-red-200 dark:border-red-800/50">
-            <span class="material-icons text-sm text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5">error</span>
-            <div>
-              <p class="text-xs font-semibold text-slate-900 dark:text-slate-100">{{ tool_stats.overdue }} Alat Overdue</p>
-              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Melewati batas waktu pengembalian</p>
-            </div>
-          </div>
-          {% endif %}
-          {% if low_stock_count > 0 %}
-          <div class="flex items-start gap-2.5 p-3 rounded-lg bg-white dark:bg-slate-800 border border-amber-200 dark:border-amber-700/50">
-            <span class="material-icons text-sm text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5">inventory</span>
-            <div>
-              <p class="text-xs font-semibold text-slate-900 dark:text-slate-100">{{ low_stock_count }} Alat Stok Rendah</p>
-              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Stok ≤ 10 lembar, segera restock</p>
-            </div>
-          </div>
-          {% endif %}
-          {% if penelitian_stats.pending > 0 %}
-          <div class="flex items-start gap-2.5 p-3 rounded-lg bg-white dark:bg-slate-800 border border-teal-200 dark:border-teal-800/50">
-            <span class="material-icons text-sm text-teal-600 dark:text-teal-400 flex-shrink-0 mt-0.5">auto_stories</span>
-            <div>
-              <p class="text-xs font-semibold text-slate-900 dark:text-slate-100">{{ penelitian_stats.pending }} Penelitian Pending</p>
-              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Menunggu persetujuan admin</p>
-            </div>
-          </div>
-          {% endif %}
-          {% if akun_stats.pending > 0 %}
-          <div class="flex items-start gap-2.5 p-3 rounded-lg bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-800/50">
-            <span class="material-icons text-sm text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5">person_add</span>
-            <div>
-              <p class="text-xs font-semibold text-slate-900 dark:text-slate-100">{{ akun_stats.pending }} Akun Menunggu</p>
-              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Perlu verifikasi oleh admin</p>
-            </div>
-          </div>
-          {% endif %}
-        </div>
+      {% empty %}
+      <div class="flex flex-col items-center py-12 text-slate-400 dark:text-slate-500">
+        <span class="material-icons-outlined text-4xl mb-2 text-slate-300 dark:text-slate-600">
+          check_circle
+        </span>
+        <p class="text-sm">Tidak ada konseling pending</p>
       </div>
-      {% endif %}
-
-      {# Quick Actions #}
-      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-5">
-        <h3 class="font-semibold text-slate-900 dark:text-slate-100 text-sm mb-3">Quick Actions</h3>
-        <div class="grid grid-cols-2 gap-2">
-          <button onclick="navigateToSection('peminjaman')"
-                  class="flex flex-col items-center gap-2 p-3 rounded-xl border border-orange-100 dark:border-orange-800/50 bg-orange-50 dark:bg-orange-900/20 hover:border-orange-300 dark:hover:border-orange-600 hover:shadow-md transition text-center">
-            <span class="material-icons text-2xl text-orange-600 dark:text-orange-400">meeting_room</span>
-            <span class="text-xs font-medium text-slate-700 dark:text-slate-300 leading-tight">Peminjaman Ruangan</span>
-          </button>
-          <button onclick="navigateToSection('peminjaman')"
-                  class="flex flex-col items-center gap-2 p-3 rounded-xl border border-rose-100 dark:border-rose-800/50 bg-rose-50 dark:bg-rose-900/20 hover:border-rose-300 dark:hover:border-rose-600 hover:shadow-md transition text-center">
-            <span class="material-icons text-2xl text-rose-600 dark:text-rose-400">biotech</span>
-            <span class="text-xs font-medium text-slate-700 dark:text-slate-300 leading-tight">Peminjaman Alat</span>
-          </button>
-          <button onclick="navigateToSection('konseling')"
-                  class="flex flex-col items-center gap-2 p-3 rounded-xl border border-blue-100 dark:border-blue-800/50 bg-blue-50 dark:bg-blue-900/20 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-md transition text-center">
-            <span class="material-icons text-2xl text-blue-600 dark:text-blue-400">psychology</span>
-            <span class="text-xs font-medium text-slate-700 dark:text-slate-300 leading-tight">Konseling</span>
-          </button>
-          <button onclick="navigateToSection('akun')"
-                  class="flex flex-col items-center gap-2 p-3 rounded-xl border border-emerald-100 dark:border-emerald-800/50 bg-emerald-50 dark:bg-emerald-900/20 hover:border-emerald-300 dark:hover:border-emerald-600 hover:shadow-md transition text-center">
-            <span class="material-icons text-2xl text-emerald-600 dark:text-emerald-400">manage_accounts</span>
-            <span class="text-xs font-medium text-slate-700 dark:text-slate-300 leading-tight">Kelola Akun</span>
-          </button>
-          <button onclick="navigateToSection('dosen')"
-                  class="flex flex-col items-center gap-2 p-3 rounded-xl border border-violet-100 dark:border-violet-800/50 bg-violet-50 dark:bg-violet-900/20 hover:border-violet-300 dark:hover:border-violet-600 hover:shadow-md transition text-center">
-            <span class="material-icons text-2xl text-violet-600 dark:text-violet-400">school</span>
-            <span class="text-xs font-medium text-slate-700 dark:text-slate-300 leading-tight">Praktikum</span>
-          </button>
-          <button onclick="navigateToSection('penelitian')"
-                  class="flex flex-col items-center gap-2 p-3 rounded-xl border border-teal-100 dark:border-teal-800/50 bg-teal-50 dark:bg-teal-900/20 hover:border-teal-300 dark:hover:border-teal-600 hover:shadow-md transition text-center">
-            <span class="material-icons text-2xl text-teal-600 dark:text-teal-400">auto_stories</span>
-            <span class="text-xs font-medium text-slate-700 dark:text-slate-300 leading-tight">Penelitian</span>
-          </button>
-        </div>
-      </div>
-
-      {# Alat Tes Inventory Summary #}
-      <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-5">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="font-semibold text-slate-900 dark:text-slate-100 text-sm flex items-center gap-2">
-            <span class="material-icons text-primary-500 text-base">inventory_2</span>Inventori Alat Tes
-          </h3>
-          <button onclick="navigateToSection('master')"
-                  class="text-xs text-primary-600 dark:text-primary-400 hover:underline font-medium">Kelola →</button>
-        </div>
-        <div class="space-y-2.5">
-          {% for alat in alat_list|slice:":5" %}
-          <div class="flex-1 min-w-0">
-            <div class="flex items-center justify-between mb-1">
-              <p class="text-xs font-medium text-slate-700 dark:text-slate-300 truncate">{{ alat.name }}</p>
-              <span class="text-xs font-semibold ml-2 flex-shrink-0
-                {% if alat.stock <= 5 %}text-red-600 dark:text-red-400
-                {% elif alat.stock <= 10 %}text-amber-600 dark:text-amber-400
-                {% else %}text-slate-600 dark:text-slate-400{% endif %}">
-                {{ alat.stock }} lembar
-              </span>
-            </div>
-            <div class="w-full h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-              {% widthratio alat.stock 50 100 as stock_pct %}
-              <div class="h-full rounded-full transition-all
-                {% if alat.stock <= 5 %}bg-red-500
-                {% elif alat.stock <= 10 %}bg-amber-500
-                {% else %}bg-emerald-500{% endif %}"
-                   style="width: {{ stock_pct|default:0 }}%"></div>
-            </div>
-          </div>
-          {% empty %}
-          <p class="text-xs text-slate-400 dark:text-slate-500 text-center py-4">Belum ada data alat</p>
-          {% endfor %}
-        </div>
-      </div>
-
+      {% endfor %}
     </div>
   </div>
+
 </div>
+
+{% endblock %}

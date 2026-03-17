@@ -1,5 +1,12 @@
+{% extends "admin_shell.html" %}
+{% load static %}
+{% block page_title %}Manajemen Peminjaman{% endblock %}
+{% block page_heading %}Manajemen Peminjaman{% endblock %}
+{% block page_subtitle %}Kelola peminjaman ruangan dan alat tes.{% endblock %}
+
+{% block admin_content %}
+{% csrf_token %}
 {# ===== SECTION: MANAJEMEN PEMINJAMAN ===== #}
-<div id="admin-section-peminjaman" class="admin-module-section hidden">
 <div class="rounded-2xl border border-slate-200 bg-white shadow-sm p-6 space-y-6">
 
   {# ── Header ── #}
@@ -636,8 +643,6 @@
   </div>
 
 </div>
-</div>
-
 {# ── Tab switching JS ─────────────────────────────────────────────────── #}
 <script>
 function switchPeminjamanTab(tab) {
@@ -647,28 +652,19 @@ function switchPeminjamanTab(tab) {
   });
   document.getElementById(`peminjaman-tab-${tab}`).classList.remove('text-slate-500', 'border-transparent');
   document.getElementById(`peminjaman-tab-${tab}`).classList.add('text-primary-600', 'border-primary-600');
-
   document.querySelectorAll('.peminjaman-content').forEach(c => c.classList.add('hidden'));
   document.getElementById(`peminjaman-content-${tab}`).classList.remove('hidden');
   const url = new URL(window.location.href);
-    url.searchParams.set('tab', 'peminjaman');
-    url.searchParams.set('peminjaman_tab', tab);
-    window.history.replaceState({}, '', url.toString());
-
+  url.searchParams.set('peminjaman_tab', tab);
+  window.history.replaceState({}, '', url.toString());
 }
 
-// Auto-aktifkan tab dari URL param
+// ✅ Hanya init tab, tidak ada switchSection
 document.addEventListener('DOMContentLoaded', function () {
-    const params = new URLSearchParams(window.location.search);
-    
-    // Baca 'tab' atau 'section' — support keduanya
-    const section = params.get('tab') || params.get('section');
-    if (section) switchSection(section);
-
-    // Baca sub-tab peminjaman
-    const peminjamanTab = params.get('peminjaman_tab');
-    if (peminjamanTab) switchPeminjamanTab(peminjamanTab);
+  const tab = new URLSearchParams(window.location.search).get('peminjaman_tab') || 'ruangan';
+  switchPeminjamanTab(tab);
 });
+
 
 // ── Approve Room Booking ─────────────────────────────────
 async function approveRoomBooking(bookingId) {
@@ -768,3 +764,4 @@ window.approveRoomBooking = approveRoomBooking;
 window.declineRoomBooking = declineRoomBooking;
 
 </script>
+{% endblock %}

@@ -1,0 +1,31 @@
+<a href="{{ url }}" class="group block">
+  <div class="rounded-xl border border-slate-200 dark:border-slate-700 
+              bg-white dark:bg-slate-800 p-5
+              hover:shadow-md hover:border-{{ color }}-300 dark:hover:border-{{ color }}-600 
+              transition cursor-pointer">
+    <div class="flex items-center justify-between mb-3">
+      <div class="w-10 h-10 rounded-lg bg-{{ color }}-100 dark:bg-{{ color }}-900/40 
+                  flex items-center justify-center">
+        <span class="material-icons text-xl text-{{ color }}-600 dark:text-{{ color }}-400">{{ icon }}</span>
+      </div>
+      <span class="material-icons text-slate-300 dark:text-slate-600 
+                   group-hover:text-{{ color }}-400 transition text-base">
+        open_in_new
+      </span>
+    </div>
+    <p class="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-1">
+      {{ count|default:"0" }}
+    </p>
+    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">{{ label }}</p>
+    {% if count %}
+    <div class="mt-2 flex items-center gap-1">
+      <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+      <span class="text-[10px] text-amber-600 dark:text-amber-400 font-semibold">Butuh tindakan</span>
+    </div>
+    {% else %}
+    <div class="mt-2">
+      <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">Semua clear ✓</span>
+    </div>
+    {% endif %}
+  </div>
+</a>

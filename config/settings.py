@@ -82,6 +82,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'core.context_processors.media_url',
                 'django.template.context_processors.static', 
+                'konseling.context_processors.admin_stats',  
             ],
         },
     },

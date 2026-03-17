@@ -27,7 +27,14 @@ from accounts.views import (
     AdminAkunView, AdminAkunAksiView
 )
 from rooms.views import PeminjamRuanganView, RiwayatView, RoomCalendarView, RoomDayScheduleView
-from konseling.views import AdminPanelView   
+from konseling.views import (
+    AdminPanelView,     
+    AdminDashboardView, 
+    AdminPeminjamanView,
+    AdminPraktikumView, 
+    AdminMasterView,    
+    AdminKonselingListView,
+)
 from practicum.views import PraktikumMainView as PracticumPageView
 from research.views import ResearchListView
 from internship.views import InternshipListView
@@ -55,9 +62,15 @@ urlpatterns = [
 
 
     # ── Admin Panel (satu halaman, semua modul) ──────────────────────────
-    path('admin-panel/', AdminPanelView.as_view(), name='admin_panel'),  
-    path('admin-panel/akun/',            AdminAkunView.as_view(),            name='admin-akun'),
-    path('admin-panel/akun/<int:pk>/aksi/', AdminAkunAksiView.as_view(),     name='admin-akun-aksi'),
+    path('admin-panel/',                       AdminDashboardView.as_view(),     name='admin_panel'),
+    path('admin-panel/peminjaman/',            AdminPeminjamanView.as_view(),    name='admin_peminjaman'),
+    path('admin-panel/praktikum/',             AdminPraktikumView.as_view(),     name='admin_praktikum'),
+    path('admin-panel/konseling/',             AdminKonselingListView.as_view(), name='admin_konseling'),
+    path('admin-panel/master/',                AdminMasterView.as_view(),        name='admin_master'),
+    path('admin-panel/akun/',                  AdminAkunView.as_view(),          name='admin_akun'),
+    path('admin-panel/akun/<int:pk>/aksi/',    AdminAkunAksiView.as_view(),      name='admin-akun-aksi'),
+
+
 
     # ── API + user-facing konseling ──────────────────────────────────────
     path('konseling/',    include('konseling.urls')),
