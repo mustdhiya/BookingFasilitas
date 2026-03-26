@@ -766,17 +766,23 @@ class ExportCSVView(View):
             'Sertifikat Terbit', 'Tgl Daftar'
         ])
         for i, r in enumerate(qs.order_by('practicum__date', 'created_at'), 1):
+            student = r.student
+            # ── FIX: nim_nip (dengan underscore), bukan nimnip ───────────
+            nim = (
+                getattr(student, 'nim_nip',  None)
+                or getattr(student, 'nimnip', None)
+                or getattr(student, 'nim',    None)
+                or '-'
+            )
             writer.writerow([
                 i,
                 r.practicum.session_name,
                 r.practicum.get_type_display(),
                 r.practicum.date.strftime('%d/%m/%Y'),
-                r.student.get_full_name(),
-                # ── FIX 1: nim_nip bukan nimnip ──────────────────────────
-                getattr(r.student, 'nim_nip', None) or getattr(r.student, 'nimnip', None) or '-',
-                r.student.email,
+                student.get_full_name(),
+                nim,
+                student.email,
                 r.get_status_display(),
-                # ── FIX 2: safe access field yang mungkin belum ada ──────
                 getattr(r, 'attendance_percentage', '-'),
                 'Ya' if getattr(r, 'certificate_issued', False) else 'Tidak',
                 r.created_at.strftime('%d/%m/%Y %H:%M'),
@@ -813,39 +819,6 @@ class ExportCSVView(View):
                 ])
         return res
 
-
-    def _export_peserta(self, request, date_from, date_to, status):
-        qs = PracticumRegistration.objects.select_related(
-            'practicum__lecturer', 'practicum__room', 'student'
-        ).all()
-        if date_from:
-            qs = qs.filter(practicum__date__gte=date_from)
-        if date_to:
-            qs = qs.filter(practicum__date__lte=date_to)
-        if status:
-            qs = qs.filter(status=status)
-
-        res    = self._make_response('peserta_praktikum')
-        writer = csv.writer(res)
-        writer.writerow(['No', 'Nama Sesi', 'Tipe', 'Tanggal Jadwal',
-                        'Nama Mahasiswa', 'NIM/NIP', 'Email',
-                        'Status Registrasi', 'Kehadiran (%)',
-                        'Sertifikat Terbit', 'Tgl Daftar'])
-        for i, r in enumerate(qs.order_by('practicum__date', 'created_at'), 1):
-            writer.writerow([
-                i,
-                r.practicum.session_name,
-                r.practicum.get_type_display(),
-                r.practicum.date.strftime('%d/%m/%Y'),
-                r.student.get_full_name(),
-                r.student.nimnip or '-',
-                r.student.email,
-                r.get_status_display(),
-                r.attendance_percentage,      # field decimal di model
-                'Ya' if r.certificate_issued else 'Tidak',
-                r.created_at.strftime('%d/%m/%Y %H:%M'),
-            ])
-        return res
 
 
     # ------------------------------------------------------------------
