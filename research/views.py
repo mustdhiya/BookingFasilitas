@@ -761,24 +761,34 @@ class ExportCSVView(View):
         writer = csv.writer(res)
         writer.writerow([
             'No', 'Nama Sesi', 'Tipe', 'Tanggal Jadwal',
+            'Jam Mulai', 'Jam Selesai',          # ← baru
+            'Ruangan',                            # ← baru
             'Nama Mahasiswa', 'NIM/NIP', 'Email',
             'Status Registrasi', 'Kehadiran (%)',
             'Sertifikat Terbit', 'Tgl Daftar'
         ])
         for i, r in enumerate(qs.order_by('practicum__date', 'created_at'), 1):
             student = r.student
-            # ── FIX: nim_nip (dengan underscore), bukan nimnip ───────────
             nim = (
                 getattr(student, 'nim_nip',  None)
                 or getattr(student, 'nimnip', None)
                 or getattr(student, 'nim',    None)
                 or '-'
             )
+            # ── Safe access ruangan ───────────────────────────────────────
+            room_name = (
+                r.practicum.room.name
+                if r.practicum.room
+                else '-'
+            )
             writer.writerow([
                 i,
                 r.practicum.session_name,
                 r.practicum.get_type_display(),
                 r.practicum.date.strftime('%d/%m/%Y'),
+                r.practicum.start_time.strftime('%H:%M') if r.practicum.start_time else '-',  # ← baru
+                r.practicum.end_time.strftime('%H:%M')   if r.practicum.end_time   else '-',  # ← baru
+                room_name,                                                                      # ← baru
                 student.get_full_name(),
                 nim,
                 student.email,
@@ -788,7 +798,6 @@ class ExportCSVView(View):
                 r.created_at.strftime('%d/%m/%Y %H:%M'),
             ])
         return res
-
 
     # ------------------------------------------------------------------
     def _export_praktikum(self, request, date_from, date_to, status):
