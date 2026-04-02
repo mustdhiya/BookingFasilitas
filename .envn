@@ -1,0 +1,18 @@
+# Django Settings
+SECRET_KEY=+30l!2wg^zavnj9ggc384kp!yyep1t0)2-rz*ts7os#6gb5c9v
+DEBUG=True
+PRODUCTION_MODE=True
+ALLOWED_HOSTS=psylab-umkt.my.id,www.psylab-umkt.my.id,localhost,127.0.0.1
+
+# Database MySQL
+DB_NAME=must1341_psikologilab1_db
+DB_USER=must1341
+DB_PASSWORD=GdV1k38hD3@lE!
+DB_HOST=localhost
+DB_PORT=3306
+
+# Email
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_HOST_USER=psikologiumkt@gmail.com
+EMAIL_HOST_PASSWORD=Umkt1210-

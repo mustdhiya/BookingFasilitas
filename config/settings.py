@@ -16,6 +16,7 @@ ALLOWED_HOSTS = [
     'psylab-umkt.my.id',
     'www.psylab-umkt.my.id',
     'mail.psylab-umkt.my.id',
+    '202.10.44.34',
     '127.0.0.1',
     'localhost',
 ]
@@ -211,7 +212,8 @@ else:
 # ============================================
 if PRODUCTION_MODE:
     # Security Settings
-    SECURE_SSL_REDIRECT = True
+    SECURE_SSL_REDIRECT = False
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
