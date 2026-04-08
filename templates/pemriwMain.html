@@ -437,6 +437,19 @@
           submitBtn.innerHTML = orig;
       }
   }
+  
+
+/* ── Modal helpers ── */
+function openModal(id) {
+  const el = $(id);
+  el.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id) {
+  $(id).style.display = 'none';
+  document.body.style.overflow = '';
+}
+
 
   // ── Utility Functions ─────────────────────────────────────────────────
   function checkAvailability() {

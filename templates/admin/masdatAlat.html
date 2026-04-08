@@ -1113,45 +1113,63 @@ function _renderAdminRentalTable(data) {
     tbody.innerHTML = data.map(r => {
         const tType  = r.transaction_type || 'pinjam';
         const tLabel = TYPE_LABEL[tType] || tType;
-        let aksi = '';
+        let aksi = `<span style="color:#94a3b8;font-size:12px;">—</span>`;
+
         if (r.status === 'pending') {
-            aksi = `
-              <button onclick="openAdminAksiModal(${r.id},'approve')"
-                      class="inline-flex items-center gap-0.5 rounded-lg bg-emerald-500 hover:bg-emerald-600
-                             text-white text-xs font-medium px-2.5 py-1.5 transition">
-                <span class="material-icons text-sm">check</span>Setujui
-              </button>
-              <button onclick="openAdminAksiModal(${r.id},'decline')"
-                      class="inline-flex items-center gap-0.5 rounded-lg border border-rose-200
-                             dark:border-rose-800 bg-rose-50 dark:bg-rose-900/20
-                             hover:bg-rose-100 dark:hover:bg-rose-900/40
-                             text-rose-600 dark:text-rose-400 text-xs font-medium px-2.5 py-1.5 transition">
-                <span class="material-icons text-sm">close</span>Tolak
-              </button>`;
-        } else if (r.status === 'returning' || r.status === 'borrowed') {
-            aksi = `
-              <button onclick="openAdminAksiModal(${r.id},'return')"
-                      class="inline-flex items-center gap-0.5 rounded-lg bg-sky-500 hover:bg-sky-600
-                             text-white text-xs font-medium px-2.5 py-1.5 transition">
-                <span class="material-icons text-sm">assignment_return</span>Terima Kembali
-              </button>`;
+            aksi = `<button onclick="cancelRental(${r.id})" 
+                        class="btn btn-secondary btn-sm" style="gap:4px;color:#ef4444;">
+                        <span class="material-icons" style="font-size:14px;">cancel</span>Batal
+                    </button>`;
+
+        } else if (r.status === 'approved') {
+            if (tType === 'sewa') {
+                // Sewa approved: cek apakah sudah upload bukti
+                if (r.is_paid || r.has_payment_proof) {
+                    aksi = `<span style="display:inline-flex;align-items:center;gap:4px;
+                                      font-size:12px;color:#059669;font-weight:600;">
+                                <span class="material-icons" style="font-size:14px;">check_circle</span>
+                                Bukti Terkirim
+                            </span>`;
+                } else {
+                    aksi = `<button onclick="openAksiModal(${r.id},'uploadbukti')" 
+                                class="btn btn-warning btn-sm" style="gap:4px;">
+                                <span class="material-icons" style="font-size:14px;">upload</span>Bayar
+                            </button>`;
+                }
+            } else if (tType === 'pinjam') {
+                // Pinjam approved: tunggu admin serahkan fisik alat → tidak ada aksi user
+                aksi = `<span style="display:inline-flex;align-items:center;gap:4px;
+                                  font-size:12px;color:#0ea5e9;font-weight:500;">
+                            <span class="material-icons" style="font-size:13px;">hourglass_top</span>
+                            Menunggu Serah Terima
+                        </span>`;
+            } else {
+                // Beli approved
+                aksi = `<span style="display:inline-flex;align-items:center;gap:4px;
+                                  font-size:12px;color:#059669;font-weight:500;">
+                            <span class="material-icons" style="font-size:13px;">check_circle</span>
+                            Disetujui
+                        </span>`;
+            }
+
+        } else if (r.status === 'borrowed') {
+            aksi = `<button onclick="openAksiModal(${r.id},'kembalikan')" 
+                        class="btn btn-outline btn-sm" style="gap:4px;">
+                        <span class="material-icons" style="font-size:14px;">assignment_return</span>Kembalikan
+                    </button>`;
+
         } else if (r.status === 'overdue') {
-            aksi = `
-              <button onclick="openAdminAksiModal(${r.id},'return')"
-                      class="inline-flex items-center gap-0.5 rounded-lg bg-rose-500 hover:bg-rose-600
-                             text-white text-xs font-medium px-2.5 py-1.5 transition">
-                <span class="material-icons text-sm">assignment_return</span>Terima + Denda
-              </button>`;
-        } else if (r.status === 'approved' && tType === 'sewa') {
-            aksi = `
-              <button onclick="openAdminAksiModal(${r.id},'mark_borrowed')"
-                      class="inline-flex items-center gap-0.5 rounded-lg bg-blue-500 hover:bg-blue-600
-                             text-white text-xs font-medium px-2.5 py-1.5 transition">
-                <span class="material-icons text-sm">outbox</span>Keluarkan
-              </button>`;
-        } else {
-            aksi = `<span class="text-xs text-slate-400">—</span>`;
-        }
+            aksi = `<button onclick="openAksiModal(${r.id},'bayardenda')" 
+                        class="btn btn-danger btn-sm" style="gap:4px;">
+                        <span class="material-icons" style="font-size:14px;">payment</span>Bayar Denda
+                    </button>`;
+        } else if (r.status === 'payment_pending') {
+    aksi = `<span style="display:inline-flex;align-items:center;gap:4px;
+                       font-size:12px;color:#d97706;font-weight:500;">
+                <span class="material-icons" style="font-size:13px;">hourglass_top</span>
+                Menunggu Verifikasi
+            </span>`;
+          }
         return `
           <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
             <td class="px-4 py-3">

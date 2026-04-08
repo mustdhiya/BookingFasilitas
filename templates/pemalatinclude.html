@@ -1,183 +1,296 @@
-{# ===== CONTENT SECTION: PEMINJAMAN ALAT TES ===== #}
+{# ===== FILE: pemalatinclude.html ===== #}
+
+{# ── STYLES ── #}
+<style>
+  /* Tab aktif */
+  .tool-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    background: transparent;
+    color: #64748b;
+  }
+  .dark .tool-tab-btn { color: #94a3b8; }
+  .tool-tab-btn:hover:not(.active) {
+    background: rgba(13,147,177,0.07);
+    color: #0a7a96;
+  }
+  .tool-tab-btn.active {
+    background: #0D93B1;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(13,147,177,0.25);
+  }
+  .dark .tool-tab-btn.active {
+    background: #0a7a96;
+  }
+
+  /* Qty stepper */
+  .qty-stepper {
+    display: inline-flex;
+    align-items: center;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .dark .qty-stepper { border-color: #475569; }
+  .qty-stepper button {
+    padding: 4px 12px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #64748b;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s;
+    line-height: 1;
+  }
+  .qty-stepper button:hover { background: rgba(13,147,177,0.08); color: #0D93B1; }
+  .dark .qty-stepper button:hover { background: rgba(13,147,177,0.15); }
+  .qty-stepper span {
+    padding: 4px 14px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1f2937;
+    min-width: 2.5rem;
+    text-align: center;
+    border-left: 2px solid #e5e7eb;
+    border-right: 2px solid #e5e7eb;
+  }
+  .dark .qty-stepper span { color: #e2e8f0; border-color: #475569; }
+
+  /* Tool card thumbnail */
+  .tool-card-thumb {
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+  .tool-card-thumb img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+  .tool-card:hover .tool-card-thumb img { transform: scale(1.05); }
+
+  /* Modal overlay */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9990;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(3px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-container {
+    position: relative;
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    animation: slideDown 0.25s ease;
+  }
+  .modal-body-scroll {
+    overflow-y: auto;
+    flex: 1;
+    padding: 20px 24px;
+  }
+
+  /* Cart empty state */
+  .cart-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+    color: #94a3b8;
+    gap: 8px;
+  }
+
+  /* Table row hover */
+  #rental-table-body tr:hover td {
+    background: rgba(13,147,177,0.03);
+  }
+  .dark #rental-table-body tr:hover td {
+    background: rgba(13,147,177,0.06);
+  }
+</style>
+
+
+{# ===== SECTION: PEMINJAMAN ALAT TES ===== #}
 <div id="section-tool" class="module-section hidden space-y-6">
 
+  {# ── ALERT ── #}
+  <div id="alert-tool" class="hidden"></div>
+
+  {# ── HEADER ── #}
+  <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+    <div>
+      <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+        <span class="material-icons text-emerald-500">biotech</span>
+        Alat Tes Lab
+      </h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+        Pinjam, sewa, atau beli perlengkapan lab psikologi UMKT
+      </p>
+    </div>
+  </div>
+
   {# ── TAB NAVIGATION ── #}
-  <div class="flex gap-1 rounded-2xl bg-slate-100 dark:bg-slate-800 p-1.5 border border-slate-200 dark:border-slate-700">
-    <button type="button" onclick="switchToolTab('pinjam')"
-      id="tab-btn-pinjam"
-      class="tool-tab-btn flex-1 inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition
-             bg-white dark:bg-slate-700 text-primary-600 dark:text-primary-400 shadow-sm">
-      <span class="material-icons text-base">inventory_2</span>
-      <span class="hidden sm:inline">Peminjaman</span>
-      <span class="inline sm:hidden">Pinjam</span>
-      <span class="rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold px-1.5 py-0.5">Gratis</span>
+  <div class="flex gap-1.5 p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl w-fit shadow-soft">
+    <button id="tab-btn-pinjam" type="button" onclick="switchToolTab('pinjam')"
+      class="tool-tab-btn active">
+      <span class="material-icons" style="font-size:16px">inventory_2</span>
+      Peminjaman
+      <span class="badge badge-success" style="font-size:10px;padding:2px 8px">Gratis</span>
     </button>
-    <button type="button" onclick="switchToolTab('sewa')"
-      id="tab-btn-sewa"
-      class="tool-tab-btn flex-1 inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition
-             text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
-      <span class="material-icons text-base">paid</span>
-      <span class="hidden sm:inline">Penyewaan</span>
-      <span class="inline sm:hidden">Sewa</span>
-      <span class="rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400 text-[10px] font-bold px-1.5 py-0.5">Bayar</span>
+    <button id="tab-btn-sewa" type="button" onclick="switchToolTab('sewa')"
+      class="tool-tab-btn">
+      <span class="material-icons" style="font-size:16px">paid</span>
+      Penyewaan
+      <span class="badge badge-warning" style="font-size:10px;padding:2px 8px">Bayar</span>
     </button>
-    <button type="button" onclick="switchToolTab('beli')"
-      id="tab-btn-beli"
-      class="tool-tab-btn flex-1 inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition
-             text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
-      <span class="material-icons text-base">shopping_cart</span>
-      <span class="hidden sm:inline">Pembelian</span>
-      <span class="inline sm:hidden">Beli</span>
-      <span class="rounded-full bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-400 text-[10px] font-bold px-1.5 py-0.5">Consumable</span>
+    <button id="tab-btn-beli" type="button" onclick="switchToolTab('beli')"
+      class="tool-tab-btn">
+      <span class="material-icons" style="font-size:16px">shopping_cart</span>
+      Pembelian
+      <span class="badge badge-primary" style="font-size:10px;padding:2px 8px">Item</span>
     </button>
   </div>
 
-  {# ── ALERT GLOBAL ── #}
-  <div id="alert-tool" class="hidden rounded-xl px-4 py-3 text-sm border"></div>
-
-  {#  TAB 1: PEMINJAMAN (GRATIS)#}
-  <div id="tool-tab-pinjam" class="tool-tab-content space-y-6">
-    
-    {# Filter & Search #}
-    <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-4">
-      <div class="flex flex-col sm:flex-row gap-3">
-        <div class="relative flex-1">
-          <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-base">search</span>
-          <input type="text" id="search-pinjam" oninput="filterTools('pinjam')"
-            placeholder="Cari nama alat tes..."
-            class="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600
-                   bg-slate-50 dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-200
-                   focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition" />
+  {# ── TAB PINJAM ── #}
+  <div id="tool-tab-pinjam" class="tool-tab-content space-y-4">
+    {# Search & Filter #}
+    <div class="card">
+      <div class="card-body" style="padding: 14px 20px;">
+        <div class="flex flex-col sm:flex-row gap-3">
+          <div style="position:relative;flex:1;">
+            <span class="material-icons" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:18px;color:#94a3b8;pointer-events:none">search</span>
+            <input type="text" id="search-pinjam" oninput="renderToolCards('pinjam')"
+              placeholder="Cari nama alat tes..."
+              class="form-input" style="padding-left:40px;" />
+          </div>
+          <select id="filter-kategori-pinjam" onchange="renderToolCards('pinjam')"
+            class="form-input" style="width:auto;min-width:180px;">
+            <option value="">Semua Kategori</option>
+            <option value="inteligensi">Inteligensi</option>
+            <option value="kepribadian">Kepribadian</option>
+            <option value="minat">Minat &amp; Bakat</option>
+            <option value="klinis">Klinis</option>
+            <option value="lainnya">Lainnya</option>
+          </select>
         </div>
-        <select id="filter-kategori-pinjam" oninput="filterTools('pinjam')"
-          class="sm:w-52 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900
-                 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-200
-                 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition">
-          <option value="">Semua Kategori</option>
-          <option value="inteligensi">Tes Inteligensi</option>
-          <option value="inventory">Inventory / Kepribadian</option>
-          <option value="proyektif">Tes Proyektif</option>
-          <option value="minat_bakat">Minat & Bakat</option>
-          <option value="neuropsikologi">Neuropsikologi</option>
-        </select>
-        <select id="sort-pinjam" oninput="filterTools('pinjam')"
-          class="sm:w-44 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900
-                 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-200
-                 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition">
-          <option value="name">Urutkan: Nama</option>
-          <option value="available">Ketersediaan</option>
-          <option value="popular">Popularitas</option>
-        </select>
       </div>
     </div>
-
-    {# Card Grid — render dari JS #}
     <div id="grid-pinjam" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {# Populated by renderToolCards('pinjam') #}
-      <div class="col-span-full flex flex-col items-center justify-center py-16 text-slate-400 dark:text-slate-600">
-        <span class="material-icons text-5xl mb-3">science</span>
-        <p class="text-sm">Memuat daftar alat tes...</p>
-      </div>
+      <div style="grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:#94a3b8;">
+  <span class="material-icons" style="font-size:48px;opacity:0.3;margin-bottom:10px;">science</span>
+  <p style="font-size:13px;">Memuat daftar alat tes...</p>
+</div>
     </div>
   </div>
 
-  {#  TAB 2: PENYEWAAN (BAYAR)#}
-  <div id="tool-tab-sewa" class="tool-tab-content hidden space-y-6">
-
-    <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-4">
-      <div class="flex flex-col sm:flex-row gap-3">
-        <div class="relative flex-1">
-          <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-base">search</span>
-          <input type="text" id="search-sewa" oninput="filterTools('sewa')"
-            placeholder="Cari nama alat tes..."
-            class="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600
-                   bg-slate-50 dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-200
-                   focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition" />
+  {# ── TAB SEWA ── #}
+  <div id="tool-tab-sewa" class="tool-tab-content hidden space-y-4">
+    <div class="card">
+      <div class="card-body" style="padding: 14px 20px;">
+        <div class="flex flex-col sm:flex-row gap-3">
+          <div style="position:relative;flex:1;">
+            <span class="material-icons" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:18px;color:#94a3b8;pointer-events:none">search</span>
+            <input type="text" id="search-sewa" oninput="renderToolCards('sewa')"
+              placeholder="Cari nama alat tes..."
+              class="form-input" style="padding-left:40px;" />
+          </div>
+          <select id="filter-kategori-sewa" onchange="renderToolCards('sewa')"
+            class="form-input" style="width:auto;min-width:180px;">
+            <option value="">Semua Kategori</option>
+            <option value="inteligensi">Inteligensi</option>
+            <option value="kepribadian">Kepribadian</option>
+            <option value="minat">Minat &amp; Bakat</option>
+            <option value="klinis">Klinis</option>
+            <option value="lainnya">Lainnya</option>
+          </select>
         </div>
-        <select id="filter-kategori-sewa" oninput="filterTools('sewa')"
-          class="sm:w-52 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900
-                 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-200
-                 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition">
-          <option value="">Semua Kategori</option>
-          <option value="inteligensi">Tes Inteligensi</option>
-          <option value="inventory">Inventory / Kepribadian</option>
-          <option value="proyektif">Tes Proyektif</option>
-          <option value="minat_bakat">Minat & Bakat</option>
-          <option value="neuropsikologi">Neuropsikologi</option>
-        </select>
       </div>
     </div>
-
     <div id="grid-sewa" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      <div class="col-span-full flex flex-col items-center justify-center py-16 text-slate-400 dark:text-slate-600">
-        <span class="material-icons text-5xl mb-3">paid</span>
-        <p class="text-sm">Memuat daftar alat sewa...</p>
-      </div>
+      <div style="grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:#94a3b8;">
+  <span class="material-icons" style="font-size:48px;opacity:0.3;margin-bottom:10px;">paid</span>
+  <p style="font-size:13px;">Memuat daftar alat sewa...</p>
+</div>
     </div>
   </div>
 
-  {#  TAB 3: PEMBELIAN (CONSUMABLE)#}
-  <div id="tool-tab-beli" class="tool-tab-content hidden space-y-6">
-
-    <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-4">
-      <div class="flex flex-col sm:flex-row gap-3">
-        <div class="relative flex-1">
-          <span class="material-icons absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-base">search</span>
-          <input type="text" id="search-beli" oninput="filterTools('beli')"
-            placeholder="Cari nama item consumable..."
-            class="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600
-                   bg-slate-50 dark:bg-slate-900 text-sm text-slate-900 dark:text-slate-200
-                   focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition" />
+  {# ── TAB BELI ── #}
+  <div id="tool-tab-beli" class="tool-tab-content hidden space-y-4">
+    <div class="card">
+      <div class="card-body" style="padding: 14px 20px;">
+        <div style="position:relative;">
+          <span class="material-icons" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:18px;color:#94a3b8;pointer-events:none">search</span>
+          <input type="text" id="search-beli" oninput="renderToolCards('beli')"
+            placeholder="Cari item consumable..."
+            class="form-input" style="padding-left:40px;" />
         </div>
       </div>
     </div>
 
-    <div class="grid lg:grid-cols-[1fr_320px] gap-6 items-start">
-      {# Item grid #}
+    <div class="grid lg:grid-cols-[1fr_290px] gap-6 items-start">
+      {# Grid items #}
       <div id="grid-beli" class="grid sm:grid-cols-2 gap-4">
-        <div class="col-span-full flex flex-col items-center justify-center py-16 text-slate-400 dark:text-slate-600">
-          <span class="material-icons text-5xl mb-3">shopping_cart</span>
-          <p class="text-sm">Memuat daftar item consumable...</p>
-        </div>
+        <div style="grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:#94a3b8;">
+  <span class="material-icons" style="font-size:48px;opacity:0.3;margin-bottom:10px;">shopping_cart</span>
+  <p style="font-size:13px;">Memuat daftar item...</p>
+</div>
       </div>
 
-      {# Keranjang / Cart Panel #}
-      <div class="sticky top-24">
-        <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm p-5 space-y-4">
+      {# ── KERANJANG ── #}
+      <div class="card" style="position:sticky;top:88px;">
+        <div class="card-header">
           <div class="flex items-center justify-between">
-            <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-              <span class="material-icons text-base text-violet-600 dark:text-violet-400">shopping_cart</span>
+            <h4 class="font-semibold text-sm text-slate-800 dark:text-slate-100 flex items-center gap-2">
+              <span class="material-icons" style="font-size:18px;color:#8b5cf6">shopping_cart</span>
               Keranjang
             </h4>
-            <span id="cart-badge" class="rounded-full bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-400 text-xs font-bold px-2 py-0.5">0 item</span>
+            <span id="cart-badge" class="badge badge-primary">0 item</span>
           </div>
-
-          <div id="cart-items" class="space-y-2 min-h-[80px]">
-            <p class="text-xs text-slate-400 dark:text-slate-600 text-center py-6">Keranjang kosong</p>
+        </div>
+        <div class="card-body space-y-3">
+          <div id="cart-items">
+            <div class="cart-empty">
+              <span class="material-icons" style="font-size:36px;opacity:0.3">remove_shopping_cart</span>
+              <p style="font-size:12px">Keranjang masih kosong</p>
+            </div>
           </div>
-
-          <div class="border-t border-slate-100 dark:border-slate-700 pt-3 space-y-1.5 text-sm">
-            <div class="flex justify-between text-slate-600 dark:text-slate-400">
+          <div style="border-top:1px solid #e5e7eb;padding-top:12px;" class="dark:border-slate-700 space-y-1.5">
+            <div class="flex justify-between text-sm text-slate-500 dark:text-slate-400">
               <span>Subtotal</span>
-              <strong id="cart-subtotal" class="text-slate-900 dark:text-slate-100">Rp 0</strong>
+              <strong id="cart-subtotal" class="text-slate-700 dark:text-slate-200">Rp 0</strong>
             </div>
-            <div class="flex justify-between text-slate-600 dark:text-slate-400">
+            <div class="flex justify-between text-sm text-slate-500 dark:text-slate-400">
               <span>PPN 11%</span>
-              <strong id="cart-ppn" class="text-slate-900 dark:text-slate-100">Rp 0</strong>
+              <strong id="cart-ppn" class="text-slate-700 dark:text-slate-200">Rp 0</strong>
             </div>
-            <div class="flex justify-between font-semibold text-slate-900 dark:text-slate-100 pt-1 border-t border-slate-100 dark:border-slate-700">
-              <span>Total</span>
-              <strong id="cart-total" class="text-violet-600 dark:text-violet-400 text-base">Rp 0</strong>
+            <div class="flex justify-between font-bold text-sm" style="border-top:1px solid #e5e7eb;padding-top:10px;" >
+              <span class="text-slate-700 dark:text-slate-100">Total</span>
+              <strong id="cart-total" class="text-primary-600 dark:text-primary-400" style="font-size:15px">Rp 0</strong>
             </div>
           </div>
-
-          <button type="button" onclick="checkoutCart()"
-            id="btn-checkout"
-            disabled
-            class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-violet-500 dark:bg-violet-600
-                   hover:bg-violet-600 dark:hover:bg-violet-700 disabled:opacity-40 disabled:cursor-not-allowed
-                   text-white font-semibold text-sm px-4 py-2.5 shadow-md hover:shadow-lg transition">
-            <span class="material-icons text-base">shopping_cart_checkout</span>
+          <button onclick="checkoutCart()" id="btn-checkout" disabled
+            class="btn btn-primary" style="width:100%;justify-content:center;gap:6px;opacity:0.5;cursor:not-allowed;">
+            <span class="material-icons" style="font-size:16px">shopping_cart_checkout</span>
             Checkout
           </button>
         </div>
@@ -185,65 +298,62 @@
     </div>
   </div>
 
-  {#  SECTION BAWAH: PEMINJAMAN SAYA (AKTIF)#}
-  <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm overflow-hidden">
-    <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center gap-3">
-      <div class="flex-1">
-        <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-          <span class="material-icons text-base text-primary-600 dark:text-primary-400">assignment</span>
-          Peminjaman / Sewa / Beli Saya
-        </h3>
-        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Semua transaksi alat tes aktif dan riwayat terbaru</p>
-      </div>
-
-      {# Filter row #}
-      <div class="flex flex-wrap gap-2">
-        <select id="filter-status-rental"
-          onchange="filterMyRentals()"
-          class="rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900
-                 px-3 py-2 text-xs text-slate-700 dark:text-slate-300
-                 focus:border-primary-400 dark:focus:border-primary-500 transition">
-          <option value="">Semua Status</option>
-          <option value="pending">Pending Approval</option>
-          <option value="approved">Disetujui</option>
-          <option value="borrowed">Aktif / Dipinjam</option>
-          <option value="overdue">Terlambat</option>
-          <option value="returning">Diajukan Kembali</option>
-          <option value="returned">Selesai</option>
-        </select>
-        <select id="filter-type-rental"
-          onchange="filterMyRentals()"
-          class="rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900
-                 px-3 py-2 text-xs text-slate-700 dark:text-slate-300
-                 focus:border-primary-400 dark:focus:border-primary-500 transition">
-          <option value="">Semua Jenis</option>
-          <option value="pinjam">Peminjaman</option>
-          <option value="sewa">Penyewaan</option>
-          <option value="beli">Pembelian</option>
-        </select>
+  {# ── TABEL TRANSAKSI ── #}
+  <div class="card" style="overflow:hidden;">
+    <div class="card-header">
+      <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+        <div style="flex:1;">
+          <h3 class="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2"
+            style="font-size:15px;">
+            <span class="material-icons" style="font-size:18px;color:#0D93B1;">assignment</span>
+            Transaksi Saya
+          </h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400" style="margin-top:2px;">
+            Riwayat peminjaman, sewa, dan pembelian alat tes
+          </p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <select id="filter-status-rental" onchange="filterMyRentals()"
+            class="form-input" style="font-size:12px;padding:6px 12px;width:auto;">
+            <option value="">Semua Status</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Disetujui</option>
+            <option value="borrowed">Aktif</option>
+            <option value="overdue">Terlambat</option>
+            <option value="returning">Diajukan Kembali</option>
+            <option value="returned">Selesai</option>
+            <option value="declined">Ditolak</option>
+            <option value="cancelled">Dibatalkan</option>
+          </select>
+          <select id="filter-type-rental" onchange="filterMyRentals()"
+            class="form-input" style="font-size:12px;padding:6px 12px;width:auto;">
+            <option value="">Semua Jenis</option>
+            <option value="pinjam">Peminjaman</option>
+            <option value="sewa">Penyewaan</option>
+            <option value="beli">Pembelian</option>
+          </select>
+        </div>
       </div>
     </div>
-
-    {# Table #}
-    <div class="overflow-x-auto">
-      <table class="w-full text-sm">
-        <thead class="bg-slate-50 dark:bg-slate-900/50">
-          <tr class="text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-            <th class="px-6 py-3">Item</th>
-            <th class="px-4 py-3">Jenis</th>
-            <th class="px-4 py-3">Tgl Pinjam</th>
-            <th class="px-4 py-3">Tgl Kembali</th>
-            <th class="px-4 py-3">Status</th>
-            <th class="px-4 py-3">Denda</th>
-            <th class="px-4 py-3 text-right">Aksi</th>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead>
+          <tr style="background:#f8fafc;border-bottom:1px solid #e5e7eb;" class="dark:bg-slate-800/50 dark:border-slate-700">
+            <th style="padding:10px 20px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#64748b;">Item</th>
+            <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#64748b;">Jenis</th>
+            <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#64748b;">Tgl Mulai</th>
+            <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#64748b;">Tgl Selesai</th>
+            <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#64748b;">Status</th>
+            <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#64748b;">Denda</th>
+            <th style="padding:10px 20px;text-align:right;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#64748b;">Aksi</th>
           </tr>
         </thead>
-        <tbody id="rental-table-body" class="divide-y divide-slate-100 dark:divide-slate-700">
+        <tbody id="rental-table-body" style="divide-y: 1px solid #f1f5f9;">
           <tr>
-            <td colspan="7" class="px-6 py-12 text-center">
-              <div class="flex flex-col items-center gap-2 text-slate-400 dark:text-slate-600">
-                <span class="material-icons text-4xl">inbox</span>
-                <p class="text-sm">Belum ada data peminjaman</p>
+            <td colspan="7" style="padding:56px 20px;text-align:center;">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:10px;color:#94a3b8;">
+                <span class="material-icons" style="font-size:40px;opacity:0.35;">inbox</span>
+                <p style="font-size:13px;">Belum ada data transaksi</p>
               </div>
             </td>
           </tr>
@@ -254,63 +364,56 @@
 </div>
 
 
-{#MODAL: FORM PINJAM / SEWA#}
-<div id="modal-pinjamsewa" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
-  <div class="absolute inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm" onclick="closeModal('modal-pinjamsewa')"></div>
-  <div class="relative w-full max-w-lg bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden">
-    
-    {# Modal Header #}
-    <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div id="modal-icon-wrap" class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">
-          <span id="modal-icon" class="material-icons text-xl text-emerald-600 dark:text-emerald-400">inventory_2</span>
-        </div>
-        <div>
-          <p id="modal-title" class="text-base font-semibold text-slate-900 dark:text-slate-100">Pinjam Alat</p>
-          <p id="modal-subtitle" class="text-xs text-slate-500 dark:text-slate-400">Isi form berikut untuk mengajukan peminjaman</p>
-        </div>
-      </div>
-      <button onclick="closeModal('modal-pinjamsewa')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition">
-        <span class="material-icons">close</span>
-      </button>
-    </div>
-
-    {# Modal Body #}
-    <div class="px-6 py-5 space-y-4 max-h-[75vh] overflow-y-auto">
-
-      {# Info alat #}
-      <div class="rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-4 py-3 flex items-center gap-3">
-        <span class="material-icons text-2xl text-primary-500 dark:text-primary-400">science</span>
-        <div>
-          <p id="modal-tool-name" class="text-sm font-semibold text-slate-900 dark:text-slate-100">-</p>
-          <p id="modal-tool-meta" class="text-xs text-slate-500 dark:text-slate-400">-</p>
+{# ── MODAL: PINJAM / SEWA ── #}
+<div id="modal-pinjamsewa" class="modal-overlay">
+  <div class="modal-container">
+    <div class="card" style="overflow:hidden;display:flex;flex-direction:column;max-height:90vh;">
+      {# Header #}
+      <div class="card-header" style="flex-shrink:0;">
+        <div class="flex items-center gap-3">
+          <div id="modal-icon-wrap"
+            style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#d1fae5;">
+            <span id="modal-icon" class="material-icons" style="font-size:22px;color:#059669;">inventory_2</span>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <p id="modal-title" style="font-weight:700;font-size:15px;color:#1e293b;" class="dark:text-slate-100 truncate"></p>
+            <p id="modal-subtitle" style="font-size:11px;color:#64748b;" class="dark:text-slate-400 truncate"></p>
+          </div>
+          <button type="button" onclick="closeToolModal('modal-pinjamsewa')"
+            style="padding:6px;border-radius:8px;border:none;background:transparent;cursor:pointer;color:#94a3b8;flex-shrink:0;"
+            onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
+            <span class="material-icons" style="font-size:20px;display:block;">close</span>
+          </button>
         </div>
       </div>
 
-      <input type="hidden" id="modal-tool-id" />
-      <input type="hidden" id="modal-type" />
+      {# Scrollable body #}
+      <div class="modal-body-scroll space-y-4">
+        <input type="hidden" id="modal-tool-id" />
+        <input type="hidden" id="modal-type" />
 
-      {# Data Peminjam #}
-      <div class="space-y-1.5">
-        <label class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Data Peminjam</label>
+        {# Info alat #}
+        <div class="alert alert-info" style="border-radius:10px;">
+          <span class="material-icons" style="font-size:22px;flex-shrink:0;">science</span>
+          <div>
+            <p id="modal-tool-name" style="font-weight:600;font-size:13px;"></p>
+            <p id="modal-tool-meta" style="font-size:11px;opacity:0.75;margin-top:2px;"></p>
+          </div>
+        </div>
+
+        {# Instansi & Tujuan #}
         <div class="grid sm:grid-cols-2 gap-3">
-          <div class="space-y-1">
-            <label class="text-xs text-slate-600 dark:text-slate-400">Instansi <span class="text-rose-500">*</span></label>
-            <select id="modal-instansi" required
-              class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900
-                     px-3 py-2 text-sm text-slate-900 dark:text-slate-200
-                     focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition">
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Instansi <span style="color:#ef4444">*</span></label>
+            <select id="modal-instansi" required class="form-input">
               <option value="">-- Pilih --</option>
               <option value="umkt">UMKT</option>
               <option value="non_umkt">Non-UMKT</option>
             </select>
           </div>
-          <div class="space-y-1">
-            <label class="text-xs text-slate-600 dark:text-slate-400">Tujuan <span class="text-rose-500">*</span></label>
-            <select id="modal-purpose" required
-              class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900
-                     px-3 py-2 text-sm text-slate-900 dark:text-slate-200
-                     focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition">
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Tujuan <span style="color:#ef4444">*</span></label>
+            <select id="modal-purpose" required class="form-input">
               <option value="">-- Pilih Tujuan --</option>
               <option value="seleksi_dosen">Seleksi Dosen UMKT</option>
               <option value="seleksi_karyawan">Seleksi Karyawan Non-UMKT</option>
@@ -320,857 +423,925 @@
             </select>
           </div>
         </div>
-      </div>
 
-      {# Qty #}
-      <div class="space-y-1">
-        <label class="text-xs text-slate-600 dark:text-slate-400">Jumlah <span id="modal-unit-label" class="text-slate-400">(unit)</span> <span class="text-rose-500">*</span></label>
-        <input type="number" id="modal-qty" min="1" value="1" oninput="recalcModal()"
-          class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900
-                 px-4 py-2.5 text-sm text-slate-900 dark:text-slate-200
-                 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition" />
-        <p id="modal-stock-info" class="text-xs text-slate-500 dark:text-slate-400"></p>
-      </div>
-
-      {# Komponen #}
-      <div class="space-y-1.5">
-        <label class="text-xs text-slate-600 dark:text-slate-400">Komponen yang Dipinjam</label>
-        <div class="flex flex-wrap gap-x-5 gap-y-2 pt-1">
-          <label class="inline-flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" name="komponen" value="buku_tes" class="rounded border-slate-300 dark:border-slate-600 text-primary-600 dark:bg-slate-900" />
-            <span class="text-sm text-slate-700 dark:text-slate-300">Buku Tes</span>
+        {# Jumlah #}
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">
+            Jumlah
+            <span id="modal-unit-label" style="font-weight:400;color:#94a3b8;font-size:12px;"></span>
+            <span style="color:#ef4444"> *</span>
+            <span id="modal-stock-info" class="form-help" style="float:right;"></span>
           </label>
-          <label class="inline-flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" name="komponen" value="lj" class="rounded border-slate-300 dark:border-slate-600 text-primary-600 dark:bg-slate-900" />
-            <span class="text-sm text-slate-700 dark:text-slate-300">Lembar Jawaban (LJ)</span>
+          <input type="number" id="modal-qty" min="1" value="1" oninput="recalcModal()"
+            class="form-input" />
+        </div>
+
+        {# Komponen #}
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">Komponen yang Dipinjam</label>
+          <div class="flex flex-wrap gap-4" style="margin-top:6px;">
+            <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#374151;" class="dark:text-slate-300">
+              <input type="checkbox" name="komponen" value="buku_tes"
+                style="width:16px;height:16px;accent-color:#0D93B1;cursor:pointer;" />
+              Buku Tes
+            </label>
+            <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#374151;" class="dark:text-slate-300">
+              <input type="checkbox" name="komponen" value="lj"
+                style="width:16px;height:16px;accent-color:#0D93B1;cursor:pointer;" />
+              Lembar Jawaban (LJ)
+            </label>
+            <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#374151;" class="dark:text-slate-300">
+              <input type="checkbox" name="komponen" value="norma"
+                style="width:16px;height:16px;accent-color:#0D93B1;cursor:pointer;" />
+              Norma
+            </label>
+          </div>
+        </div>
+
+        {# Tanggal #}
+        <div class="grid sm:grid-cols-2 gap-3">
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Tanggal Mulai <span style="color:#ef4444">*</span></label>
+            <input type="date" id="modal-start" required oninput="recalcModal()" class="form-input" />
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Tanggal Selesai <span style="color:#ef4444">*</span></label>
+            <input type="date" id="modal-end" required oninput="recalcModal()" class="form-input" />
+          </div>
+        </div>
+        <p class="form-help flex items-center gap-1.5" style="margin-top:-6px;">
+          <span class="material-icons" style="font-size:14px;color:#0D93B1;">schedule</span>
+          Durasi: <strong id="modal-duration" style="color:#0D93B1;margin-left:2px;">—</strong>
+        </p>
+
+        {# Surat Kegiatan #}
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label">
+            Upload Surat Kegiatan <span style="color:#ef4444">*</span>
+            <span class="form-help" style="float:right;">PDF/JPG/PNG, maks. 2MB</span>
           </label>
-          <label class="inline-flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" name="komponen" value="norma" class="rounded border-slate-300 dark:border-slate-600 text-primary-600 dark:bg-slate-900" />
-            <span class="text-sm text-slate-700 dark:text-slate-300">Norma</span>
+          <input type="file" id="modal-letter" accept=".pdf,.jpg,.png" required
+            class="form-input" style="padding:6px 12px;cursor:pointer;" />
+        </div>
+
+        {# Surat Perjanjian (Sewa Only) #}
+        <div id="modal-agreement-wrap" class="hidden form-group" style="margin-bottom:0;">
+          <label class="form-label">
+            Surat Perjanjian <span style="color:#ef4444">*</span>
+            <a href="#" class="form-help" style="float:right;color:#0D93B1;text-decoration:none;display:inline-flex;align-items:center;gap:3px;"
+              onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+              <span class="material-icons" style="font-size:13px">download</span>Download Template
+            </a>
           </label>
+          <input type="file" id="modal-agreement" accept=".pdf"
+            class="form-input" style="padding:6px 12px;cursor:pointer;" />
+          <p class="form-help" style="margin-top:4px;">Upload surat yang sudah ditandatangani (PDF)</p>
         </div>
-      </div>
 
-      {# Tanggal #}
-      <div class="grid sm:grid-cols-2 gap-3">
-        <div class="space-y-1">
-          <label class="text-xs text-slate-600 dark:text-slate-400">Tanggal Mulai <span class="text-rose-500">*</span></label>
-          <input type="date" id="modal-start" required oninput="recalcModal()"
-            class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900
-                   px-3 py-2 text-sm text-slate-900 dark:text-slate-200
-                   focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition" />
+        {# Waktu Pembayaran (Sewa Only) #}
+        <div id="modal-payment-wrap" class="hidden form-group" style="margin-bottom:0;">
+          <label class="form-label">Waktu Pembayaran <span style="color:#ef4444">*</span></label>
+          <select id="modal-payment-time" class="form-input">
+            <option value="after">Sesudah Peminjaman</option>
+            <option value="before">Sebelum Peminjaman</option>
+          </select>
         </div>
-        <div class="space-y-1">
-          <label class="text-xs text-slate-600 dark:text-slate-400">Tanggal Selesai <span class="text-rose-500">*</span></label>
-          <input type="date" id="modal-end" required oninput="recalcModal()"
-            class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900
-                   px-3 py-2 text-sm text-slate-900 dark:text-slate-200
-                   focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition" />
+
+        {# Rincian Biaya (Sewa Only) #}
+        <div id="modal-cost-wrap" class="hidden alert alert-warning" style="border-radius:10px;flex-direction:column;align-items:stretch;gap:6px;">
+          <p style="font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Rincian Biaya</p>
+          <div class="flex justify-between" style="font-size:13px;">
+            <span id="modal-cost-label" style="opacity:0.75;">—</span>
+            <strong id="modal-cost-sub">Rp 0</strong>
+          </div>
+          <div class="flex justify-between" style="font-size:13px;opacity:0.7;">
+            <span>PPN 11%</span>
+            <strong id="modal-cost-ppn">Rp 0</strong>
+          </div>
+          <div class="flex justify-between font-bold" style="font-size:13px;border-top:1px solid rgba(217,119,6,0.3);padding-top:8px;margin-top:2px;">
+            <span>Total</span>
+            <strong id="modal-cost-total">Rp 0</strong>
+          </div>
         </div>
-      </div>
-      <p class="text-xs text-slate-500 dark:text-slate-400 -mt-2">
-        Durasi: <strong id="modal-duration" class="text-primary-600 dark:text-primary-400">-</strong>
-      </p>
 
-      {# Surat Kegiatan #}
-      <div class="space-y-1">
-        <label class="text-xs text-slate-600 dark:text-slate-400">Upload Surat Kegiatan <span class="text-rose-500">*</span></label>
-        <input type="file" id="modal-letter" accept=".pdf,.jpg,.png" required
-          class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900
-                 px-3 py-2 text-sm text-slate-900 dark:text-slate-200" />
-        <p class="text-xs text-slate-400 dark:text-slate-600">PDF, JPG, PNG — maks. 2MB</p>
-      </div>
-
-      {# Surat Perjanjian (Sewa Only) #}
-      <div id="modal-agreement-wrap" class="hidden space-y-1">
-        <label class="text-xs text-slate-600 dark:text-slate-400">Surat Perjanjian <span class="text-rose-500">*</span></label>
-        <a href="#" class="mb-2 inline-flex items-center gap-1.5 text-xs text-primary-600 dark:text-primary-400 hover:underline">
-          <span class="material-icons text-sm">download</span>Download Template Perjanjian
-        </a>
-        <input type="file" id="modal-agreement" accept=".pdf"
-          class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900
-                 px-3 py-2 text-sm text-slate-900 dark:text-slate-200" />
-        <p class="text-xs text-slate-400 dark:text-slate-600">Upload surat yang sudah ditandatangani (PDF)</p>
-      </div>
-
-      {# Waktu Pembayaran (Sewa Only) #}
-      <div id="modal-payment-wrap" class="hidden space-y-1">
-        <label class="text-xs text-slate-600 dark:text-slate-400">Waktu Pembayaran <span class="text-rose-500">*</span></label>
-        <select id="modal-payment-time"
-          class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900
-                 px-3 py-2 text-sm text-slate-900 dark:text-slate-200
-                 focus:border-primary-400 dark:focus:border-primary-500 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-900/50 transition">
-          <option value="after">Sesudah Peminjaman</option>
-          <option value="before">Sebelum Peminjaman</option>
-        </select>
-      </div>
-
-      {# Rincian Biaya (Sewa Only) #}
-      <div id="modal-cost-wrap" class="hidden rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 px-4 py-3 space-y-1.5 text-sm">
-        <p class="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase">Rincian Biaya Sewa</p>
-        <div class="flex justify-between text-slate-600 dark:text-slate-400">
-          <span id="modal-cost-label">Sewa (0 hari × Rp 0):</span>
-          <strong id="modal-cost-sub" class="text-slate-900 dark:text-slate-100">Rp 0</strong>
-        </div>
-        <div class="flex justify-between text-slate-600 dark:text-slate-400">
-          <span>PPN 11%:</span>
-          <strong id="modal-cost-ppn" class="text-slate-900 dark:text-slate-100">Rp 0</strong>
-        </div>
-        <div class="flex justify-between font-semibold pt-1 border-t border-amber-200 dark:border-amber-800">
-          <span class="text-slate-700 dark:text-slate-300">Total:</span>
-          <strong id="modal-cost-total" class="text-amber-600 dark:text-amber-400">Rp 0</strong>
-        </div>
-        <p class="text-xs text-slate-400 dark:text-slate-500">Pembayaran dilakukan setelah request disetujui admin.</p>
-      </div>
-
-      {# Konfirmasi #}
-      <div class="rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-4 py-3 space-y-2">
-        <p class="text-xs font-semibold text-slate-600 dark:text-slate-400">Konfirmasi Persetujuan</p>
-        <label class="inline-flex items-start gap-2 cursor-pointer">
-          <input type="checkbox" id="modal-confirm" class="mt-0.5 rounded border-slate-300 dark:border-slate-600 text-primary-600 dark:bg-slate-900" />
-          <span class="text-xs text-slate-600 dark:text-slate-400">
+        {# Konfirmasi #}
+        <label style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:10px;background:#f8fafc;border:1px solid #e5e7eb;cursor:pointer;"
+          class="dark:bg-slate-800 dark:border-slate-600">
+          <input type="checkbox" id="modal-confirm"
+            style="width:16px;height:16px;margin-top:1px;flex-shrink:0;accent-color:#0D93B1;cursor:pointer;" />
+          <span style="font-size:12px;color:#64748b;line-height:1.6;" class="dark:text-slate-400">
             Saya memahami bahwa alat harus dikembalikan tepat waktu.
-            Denda <strong class="text-rose-500 dark:text-rose-400">Rp 10.000/hari</strong> berlaku jika terlambat,
-            dan saya bertanggung jawab atas kerusakan alat.
+            Denda <strong style="color:#ef4444;">Rp 10.000/hari</strong> berlaku jika terlambat.
           </span>
         </label>
       </div>
-    </div>
 
-    {# Modal Footer #}
-    <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between gap-3">
-      <button onclick="closeModal('modal-pinjamsewa')"
-        class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 dark:border-slate-600
-               bg-white dark:bg-slate-700 hover:bg-slate-50 dark:hover:bg-slate-600
-               text-slate-700 dark:text-slate-300 font-medium text-sm px-5 py-2.5 transition">
-        Batal
-      </button>
-      <button type="button" onclick="submitPinjamSewa()"
-        id="btn-modal-submit"
-        class="inline-flex items-center gap-1.5 rounded-full bg-primary-500 dark:bg-primary-600
-               hover:bg-primary-600 dark:hover:bg-primary-700
-               text-white font-semibold text-sm px-5 py-2.5 shadow-md hover:shadow-lg transition">
-        <span class="material-icons text-base">send</span>
-        <span id="btn-modal-label">Ajukan Peminjaman</span>
-      </button>
-    </div>
-  </div>
-</div>
-
-
-{#MODAL: DETAIL / AKSI RENTAL (Kembalikan / Bayar Denda)#}
-<div id="modal-rental-aksi" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
-  <div class="absolute inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm" onclick="closeModal('modal-rental-aksi')"></div>
-  <div class="relative w-full max-w-md bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden">
-
-    <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
-      <p id="modal-aksi-title" class="text-base font-semibold text-slate-900 dark:text-slate-100">Ajukan Pengembalian</p>
-      <button onclick="closeModal('modal-rental-aksi')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition">
-        <span class="material-icons">close</span>
-      </button>
-    </div>
-
-    <div id="modal-aksi-body" class="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
-      {# Content injected by JS #}
-    </div>
-
-    <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-3">
-      <button onclick="closeModal('modal-rental-aksi')"
-        class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 dark:border-slate-600
-               bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium text-sm px-5 py-2.5 transition hover:bg-slate-50 dark:hover:bg-slate-600">
-        Batal
-      </button>
-      <button type="button" id="btn-aksi-submit" onclick="submitAksi()"
-        class="inline-flex items-center gap-1.5 rounded-full bg-primary-500 dark:bg-primary-600
-               hover:bg-primary-600 dark:hover:bg-primary-700
-               text-white font-semibold text-sm px-5 py-2.5 shadow-md transition">
-        <span class="material-icons text-base">check</span>
-        <span id="btn-aksi-label">Ajukan</span>
-      </button>
-    </div>
-  </div>
-</div>
-
-
-{#JAVASCRIPT#}
-<script>
-/* ── State ───────────────────────────────────────────────────────── */
-let toolsData   = [];   // [{id, code, name, category, item_type, stock, price_per_unit, unit}]
-let myRentals   = [];   // [{id, tool, transaction_type, status, date_start, date_end, fine_amount, ...}]
-let cartItems   = {};   // {tool_id: {tool, qty}}
-let activeToolTab = 'pinjam';
-let currentRentalId = null;
-
-const TODAY = new Date().toISOString().split('T')[0];
-
-/* ── Tab Switching ───────────────────────────────────────────────── */
-function switchToolTab(tab) {
-  activeToolTab = tab;
-  document.querySelectorAll('.tool-tab-content').forEach(el => el.classList.add('hidden'));
-  document.getElementById(`tool-tab-${tab}`).classList.remove('hidden');
-
-  document.querySelectorAll('.tool-tab-btn').forEach(btn => {
-    btn.classList.remove('bg-white', 'dark:bg-slate-700', 'text-primary-600', 'dark:text-primary-400', 'shadow-sm');
-    btn.classList.add('text-slate-500', 'dark:text-slate-400');
-  });
-  const active = document.getElementById(`tab-btn-${tab}`);
-  active.classList.add('bg-white', 'dark:bg-slate-700', 'text-primary-600', 'dark:text-primary-400', 'shadow-sm');
-  active.classList.remove('text-slate-500', 'dark:text-slate-400');
-}
-
-/* ── Load Data from API ──────────────────────────────────────────── */
-async function loadToolsData() {
-  try {
-    const res  = await fetch('/api/tools/list/?format=json', {
-      headers: { 'X-Requested-With': 'XMLHttpRequest' }
-    });
-    const data = await res.json();
-    toolsData  = data.results || data;
-    renderToolCards('pinjam');
-    renderToolCards('sewa');
-    renderToolCards('beli');
-  } catch (e) {
-    console.error('Gagal load tools:', e);
-  }
-}
-
-async function loadMyRentals() {
-  try {
-    const res  = await fetch('/api/tools/rentals/?format=json', {
-      headers: { 'X-Requested-With': 'XMLHttpRequest' }
-    });
-    const data = await res.json();
-    myRentals  = data.results || data;
-    renderRentalTable(myRentals);
-  } catch (e) {
-    console.error('Gagal load rentals:', e);
-  }
-}
-
-/* ── Render Tool Cards ───────────────────────────────────────────── */
-function renderToolCards(type) {
-  const searchVal = (document.getElementById(`search-${type}`)?.value || '').toLowerCase();
-  const katVal    = document.getElementById(`filter-kategori-${type}`)?.value || '';
-
-  let items = toolsData.filter(t => {
-    if (type === 'beli') return t.item_type === 'consumable';
-    return t.item_type === 'tool';
-  });
-
-  if (searchVal) items = items.filter(t => t.name.toLowerCase().includes(searchVal));
-  if (katVal)    items = items.filter(t => t.category === katVal);
-
-  const grid = document.getElementById(`grid-${type}`);
-  if (!grid) return;
-
-  if (!items.length) {
-    grid.innerHTML = `
-      <div class="col-span-full flex flex-col items-center justify-center py-16 text-slate-400 dark:text-slate-600">
-        <span class="material-icons text-5xl mb-3">search_off</span>
-        <p class="text-sm">Tidak ada alat ditemukan</p>
-      </div>`;
-    return;
-  }
-
-  if (type === 'beli') {
-    grid.innerHTML = items.map(t => renderConsumableCard(t)).join('');
-    return;
-  }
-
-  grid.innerHTML = items.map(t => renderToolCard(t, type)).join('');
-}
-
-function renderToolCard(t, type) {
-  const avail = t.stock;
-  const isSewa = type === 'sewa';
-  const badgeClass = avail > 0
-    ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400'
-    : 'bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-400';
-  const badgeText = avail > 0 ? `Tersedia: ${avail} unit` : 'Tidak Tersedia';
-  const btnDisabled = avail <= 0 ? 'opacity-40 cursor-not-allowed' : '';
-  const btnColor = isSewa
-    ? 'bg-amber-500 dark:bg-amber-600 hover:bg-amber-600 dark:hover:bg-amber-700'
-    : 'bg-emerald-500 dark:bg-emerald-600 hover:bg-emerald-600 dark:hover:bg-emerald-700';
-  const btnLabel = isSewa ? 'Sewa Sekarang' : 'Pinjam Sekarang';
-
-  return `
-    <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:shadow-md transition overflow-hidden group">
-      <div class="h-36 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 flex items-center justify-center">
-        ${t.photo
-          ? `<img src="${t.photo}" alt="${t.name}" class="h-full w-full object-cover" />`
-          : `<span class="material-icons text-5xl text-slate-300 dark:text-slate-600 group-hover:scale-110 transition">science</span>`}
-      </div>
-      <div class="p-4 space-y-3">
-        <div>
-          <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 leading-snug">${t.name}</p>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">${t.category_display || t.category}</p>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${badgeClass}">
-            <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
-            ${badgeText}
-          </span>
-          ${isSewa ? `<span class="text-xs font-semibold text-amber-600 dark:text-amber-400">Rp ${Number(t.price_per_unit).toLocaleString('id-ID')}/hari</span>` : ''}
-        </div>
-        <button type="button"
-          onclick="${avail > 0 ? `openModalPinjamSewa(${JSON.stringify(t).replace(/"/g, '&quot;')}, '${type}')` : ''}"
-          class="w-full inline-flex items-center justify-center gap-1.5 rounded-xl ${btnColor} ${btnDisabled}
-                 text-white font-semibold text-xs px-4 py-2 transition">
-          <span class="material-icons text-sm">${isSewa ? 'paid' : 'inventory_2'}</span>
-          ${btnLabel}
+      {# Footer #}
+      <div class="card-footer" style="flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+        <button type="button" onclick="closeToolModal('modal-pinjamsewa')"
+          class="btn btn-secondary" style="gap:6px;">
+          <span class="material-icons" style="font-size:16px">close</span> Batal
+        </button>
+        <button type="button" onclick="submitPinjamSewa()" id="btn-modal-submit"
+          class="btn btn-primary" style="gap:6px;">
+          <span class="material-icons" style="font-size:16px">send</span>
+          <span id="btn-modal-label">Ajukan</span>
         </button>
       </div>
-    </div>`;
-}
+    </div>
+  </div>
+  {# Backdrop click #}
+  <div style="position:absolute;inset:0;z-index:-1;" onclick="closeToolModal('modal-pinjamsewa')"></div>
+</div>
 
-function renderConsumableCard(t) {
-  const inCart = cartItems[t.id] ? cartItems[t.id].qty : 0;
-  return `
-    <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:shadow-md transition overflow-hidden">
-      <div class="h-28 bg-gradient-to-br from-violet-100 to-violet-200 dark:from-violet-900/30 dark:to-violet-800/30 flex items-center justify-center">
-        <span class="material-icons text-4xl text-violet-400 dark:text-violet-600">article</span>
-      </div>
-      <div class="p-4 space-y-3">
-        <div>
-          <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 leading-snug">${t.name}</p>
-          <p class="text-xs text-violet-600 dark:text-violet-400 font-semibold mt-0.5">
-            Rp ${Number(t.price_per_unit).toLocaleString('id-ID')}/${t.unit}
-          </p>
-          <p class="text-xs text-slate-500 dark:text-slate-400">Stok: ${t.stock} ${t.unit}</p>
-        </div>
-        <div class="flex items-center gap-2">
-          <div class="flex items-center gap-1 rounded-xl border border-slate-200 dark:border-slate-600 overflow-hidden">
-            <button type="button" onclick="changeCartQty(${t.id}, -1)"
-              class="px-2.5 py-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition text-sm font-bold">−</button>
-            <span id="cart-qty-${t.id}" class="px-3 py-1.5 text-sm font-semibold text-slate-900 dark:text-slate-100 min-w-[2rem] text-center">${inCart}</span>
-            <button type="button" onclick="changeCartQty(${t.id}, 1, ${t.stock})"
-              class="px-2.5 py-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition text-sm font-bold">+</button>
-          </div>
-          <button type="button" onclick="addToCart(${JSON.stringify(t).replace(/"/g, '&quot;')})"
-            class="flex-1 inline-flex items-center justify-center gap-1 rounded-xl bg-violet-500 dark:bg-violet-600
-                   hover:bg-violet-600 dark:hover:bg-violet-700 text-white font-semibold text-xs px-3 py-2 transition">
-            <span class="material-icons text-sm">add_shopping_cart</span>
-            Beli
+
+{# ── MODAL: AKSI RENTAL ── #}
+<div id="modal-rental-aksi" class="modal-overlay">
+  <div class="modal-container" style="max-width:440px;">
+    <div class="card" style="overflow:hidden;display:flex;flex-direction:column;max-height:90vh;">
+      <div class="card-header" style="flex-shrink:0;">
+        <div class="flex items-center justify-between">
+          <p id="modal-aksi-title" style="font-weight:700;font-size:15px;" class="text-slate-800 dark:text-slate-100"></p>
+          <button type="button" onclick="closeToolModal('modal-rental-aksi')"
+            style="padding:6px;border-radius:8px;border:none;background:transparent;cursor:pointer;color:#94a3b8;"
+            onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">
+            <span class="material-icons" style="font-size:20px;display:block;">close</span>
           </button>
         </div>
       </div>
-    </div>`;
-}
+      <div id="modal-aksi-body" class="modal-body-scroll space-y-4"></div>
+      <div class="card-footer" style="flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+        <button type="button" onclick="closeToolModal('modal-rental-aksi')"
+          class="btn btn-secondary" style="gap:6px;">
+          <span class="material-icons" style="font-size:16px">close</span> Batal
+        </button>
+        <button type="button" id="btn-aksi-submit" onclick="submitAksi()"
+          class="btn btn-primary" style="gap:6px;">
+          <span class="material-icons" style="font-size:16px">check</span>
+          <span id="btn-aksi-label">Ajukan</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div style="position:absolute;inset:0;z-index:-1;" onclick="closeToolModal('modal-rental-aksi')"></div>
+</div>
 
-/* ── Filter ──────────────────────────────────────────────────────── */
-function filterTools(type) {
-  renderToolCards(type);
-}
 
-/* ── Cart Logic ──────────────────────────────────────────────────── */
-function addToCart(tool) {
-  const qty = parseInt(document.getElementById(`cart-qty-${tool.id}`)?.textContent || '1');
-  if (qty <= 0) return;
-  if (cartItems[tool.id]) {
-    cartItems[tool.id].qty += qty;
-  } else {
-    cartItems[tool.id] = { tool, qty };
+{# ── JAVASCRIPT ── #}
+<script>
+(function() {
+  /* ── Helpers ── */
+  const TODAY = new Date().toISOString().split('T')[0];
+  const CSRF  = () => document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+  const rp    = n  => 'Rp ' + Number(n).toLocaleString('id-ID');
+  const $     = id => document.getElementById(id);
+
+  let toolsData       = [];
+  let myRentals       = [];
+  let cartItems       = {};
+  let currentRentalId = null;
+
+  /* ── Badge maps ── */
+  const TYPE_BADGE  = { pinjam:'badge-success', sewa:'badge-warning', beli:'badge-primary' };
+  const TYPE_LABEL  = { pinjam:'Pinjam', sewa:'Sewa', beli:'Beli' };
+  const STATUS_BADGE = {
+    pending:'badge-gray', approved:'badge-info', borrowed:'badge-success',
+    overdue:'badge-danger', returning:'badge-warning', returned:'badge-primary',
+    declined:'badge-danger', cancelled:'badge-gray',
+    payment_pending: 'badge-warning',   
+  };
+  const STATUS_LABEL = {
+    pending:'Pending', approved:'Disetujui', borrowed:'Aktif', overdue:'Terlambat',
+    returning:'Diajukan Kembali', returned:'Selesai', declined:'Ditolak', cancelled:'Dibatalkan',
+    payment_pending: 'Menunggu Verif Bayar',  
+  };
+
+  /* ── Modal ── */
+  window.closeToolModal = function(id) {
+    $(id).classList.remove('open');  // ← ini benar
+    document.body.style.overflow = '';
+};
+
+  function openToolModal(id) {
+    $(id).classList.add('open');
+    document.body.style.overflow = 'hidden';
   }
-  renderCart();
-}
-
-function changeCartQty(toolId, delta, maxStock = 9999) {
-  const el  = document.getElementById(`cart-qty-${toolId}`);
-  if (!el) return;
-  let val = parseInt(el.textContent) + delta;
-  if (val < 0) val = 0;
-  if (val > maxStock) val = maxStock;
-  el.textContent = val;
-}
-
-function removeFromCart(toolId) {
-  delete cartItems[toolId];
-  renderCart();
-  renderToolCards('beli');
-}
-
-function renderCart() {
-  const items = Object.values(cartItems);
-  const badge = document.getElementById('cart-badge');
-  const body  = document.getElementById('cart-items');
-  badge.textContent = `${items.length} item`;
-
-  if (!items.length) {
-    body.innerHTML = `<p class="text-xs text-slate-400 dark:text-slate-600 text-center py-6">Keranjang kosong</p>`;
-    updateCartTotals(0);
-    document.getElementById('btn-checkout').disabled = true;
-    return;
-  }
-
-  let subtotal = 0;
-  body.innerHTML = items.map(({ tool, qty }) => {
-    const line = tool.price_per_unit * qty;
-    subtotal += line;
-    return `
-      <div class="flex items-start justify-between gap-2 py-2 border-b border-slate-100 dark:border-slate-700 last:border-0">
-        <div class="flex-1 min-w-0">
-          <p class="text-xs font-medium text-slate-900 dark:text-slate-100 truncate">${tool.name}</p>
-          <p class="text-xs text-slate-400 dark:text-slate-500">${qty} ${tool.unit} × Rp ${Number(tool.price_per_unit).toLocaleString('id-ID')}</p>
-        </div>
-        <div class="flex items-center gap-1.5 flex-shrink-0">
-          <p class="text-xs font-semibold text-slate-700 dark:text-slate-300">Rp ${line.toLocaleString('id-ID')}</p>
-          <button onclick="removeFromCart(${tool.id})" class="text-rose-400 hover:text-rose-600 transition">
-            <span class="material-icons text-sm">close</span>
-          </button>
-        </div>
-      </div>`;
-  }).join('');
-
-  updateCartTotals(subtotal);
-  document.getElementById('btn-checkout').disabled = false;
-}
-
-function updateCartTotals(subtotal) {
-  const ppn   = Math.round(subtotal * 0.11);
-  const total = subtotal + ppn;
-  document.getElementById('cart-subtotal').textContent = `Rp ${subtotal.toLocaleString('id-ID')}`;
-  document.getElementById('cart-ppn').textContent      = `Rp ${ppn.toLocaleString('id-ID')}`;
-  document.getElementById('cart-total').textContent    = `Rp ${total.toLocaleString('id-ID')}`;
-}
-
-async function checkoutCart() {
-  const items = Object.values(cartItems);
-  if (!items.length) return;
-  // TODO: POST to /api/tools/rentals/ with transaction_type=beli per item
-  showAlert('alert-tool', `✅ Checkout berhasil! ${items.length} item diajukan. Invoice akan dikirim setelah admin approve.`, 'success');
-  cartItems = {};
-  renderCart();
-  renderToolCards('beli');
-}
-
-/* ── Open Pinjam/Sewa Modal ──────────────────────────────────────── */
-function openModalPinjamSewa(tool, type) {
-  const isSewa = type === 'sewa';
-  document.getElementById('modal-tool-id').value  = tool.id;
-  document.getElementById('modal-type').value     = type;
-  document.getElementById('modal-tool-name').textContent = tool.name;
-  document.getElementById('modal-tool-meta').textContent =
-    `${tool.category_display || tool.category} · Stok: ${tool.stock} ${tool.unit}`;
-  document.getElementById('modal-unit-label').textContent = `(${tool.unit})`;
-  document.getElementById('modal-stock-info').textContent = `Stok tersedia: ${tool.stock} ${tool.unit}`;
-  document.getElementById('modal-qty').max = tool.stock;
-
-  // Store price in data attr for recalc
-  document.getElementById('modal-qty').dataset.price = tool.price_per_unit;
-
-  // Sewa-specific fields
-  document.getElementById('modal-agreement-wrap').classList.toggle('hidden', !isSewa);
-  document.getElementById('modal-payment-wrap').classList.toggle('hidden', !isSewa);
-  document.getElementById('modal-cost-wrap').classList.toggle('hidden', !isSewa);
-
-  // Header styling
-  const iconWrap = document.getElementById('modal-icon-wrap');
-  const icon     = document.getElementById('modal-icon');
-  iconWrap.className = `w-10 h-10 rounded-xl flex items-center justify-center ${isSewa ? 'bg-amber-100 dark:bg-amber-900/50' : 'bg-emerald-100 dark:bg-emerald-900/50'}`;
-  icon.className     = `material-icons text-xl ${isSewa ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'}`;
-  icon.textContent   = isSewa ? 'paid' : 'inventory_2';
-
-  document.getElementById('modal-title').textContent    = isSewa ? 'Sewa Alat Tes' : 'Pinjam Alat Tes';
-  document.getElementById('modal-subtitle').textContent = isSewa
-    ? `Harga: Rp ${Number(tool.price_per_unit).toLocaleString('id-ID')}/hari`
-    : 'Peminjaman gratis, wajib dikembalikan tepat waktu';
-  document.getElementById('btn-modal-label').textContent = isSewa ? 'Ajukan Penyewaan' : 'Ajukan Peminjaman';
-
-  // Reset fields
-  document.getElementById('modal-start').value   = '';
-  document.getElementById('modal-end').value     = '';
-  document.getElementById('modal-duration').textContent = '-';
-  document.getElementById('modal-confirm').checked = false;
-  document.querySelectorAll('[name="komponen"]').forEach(c => c.checked = false);
-
-  // Set min date
-  document.getElementById('modal-start').min = TODAY;
-  document.getElementById('modal-end').min   = TODAY;
-
-  openModal('modal-pinjamsewa');
-}
-
-/* ── Recalculate Modal Biaya ─────────────────────────────────────── */
-function recalcModal() {
-  const start = document.getElementById('modal-start').value;
-  const end   = document.getElementById('modal-end').value;
-  const qty   = parseInt(document.getElementById('modal-qty').value) || 1;
-  const price = parseInt(document.getElementById('modal-qty').dataset.price) || 0;
-  const type  = document.getElementById('modal-type').value;
-
-  if (start) document.getElementById('modal-end').min = start;
-
-  if (start && end) {
-    const days = Math.ceil((new Date(end) - new Date(start)) / 86400000) + 1;
-    document.getElementById('modal-duration').textContent = `${days} hari`;
-
-    if (type === 'sewa' && price) {
-      const sub   = price * qty * days;
-      const ppn   = Math.round(sub * 0.11);
-      const total = sub + ppn;
-      document.getElementById('modal-cost-label').textContent  = `Sewa (${days} hari × ${qty} unit × Rp ${price.toLocaleString('id-ID')}):`;
-      document.getElementById('modal-cost-sub').textContent   = `Rp ${sub.toLocaleString('id-ID')}`;
-      document.getElementById('modal-cost-ppn').textContent   = `Rp ${ppn.toLocaleString('id-ID')}`;
-      document.getElementById('modal-cost-total').textContent = `Rp ${total.toLocaleString('id-ID')}`;
+  // ESC key close
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      closeToolModal('modal-pinjamsewa');
+      closeToolModal('modal-rental-aksi');
     }
-  }
-}
+  });
 
-/* ── Submit Pinjam/Sewa ──────────────────────────────────────────── */
-async function submitPinjamSewa() {
-  const toolId    = document.getElementById('modal-tool-id').value;
-  const type      = document.getElementById('modal-type').value;
-  const instansi  = document.getElementById('modal-instansi').value;
-  const purpose   = document.getElementById('modal-purpose').value;
-  const qty       = document.getElementById('modal-qty').value;
-  const start     = document.getElementById('modal-start').value;
-  const end       = document.getElementById('modal-end').value;
-  const confirmed = document.getElementById('modal-confirm').checked;
-  const letter    = document.getElementById('modal-letter').files[0];
-
-  if (!instansi || !purpose || !qty || !start || !end || !confirmed || !letter) {
-    showAlert('alert-tool', 'Lengkapi semua field yang wajib diisi dan centang persetujuan.', 'error');
-    return;
-  }
-
-  const komponen = [...document.querySelectorAll('[name="komponen"]:checked')].map(c => c.value);
-
-  const fd = new FormData();
-  fd.append('tool',             toolId);
-  fd.append('transaction_type', type);
-  fd.append('institution',      instansi);
-  fd.append('purpose',          purpose);
-  fd.append('quantity',         qty);
-  fd.append('date_start',       start);
-  fd.append('date_end',         end);
-  fd.append('components',       JSON.stringify(komponen));
-  fd.append('activity_letter',  letter);
-
-  if (type === 'sewa') {
-    const agreement   = document.getElementById('modal-agreement').files[0];
-    const paymentTime = document.getElementById('modal-payment-time').value;
-    if (agreement) fd.append('agreement_file', agreement);
-    fd.append('payment_time', paymentTime);
-  }
-
-  const btn = document.getElementById('btn-modal-submit');
-  const orig = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '<span class="material-icons text-base animate-spin">autorenew</span> Mengirim...';
-
-  try {
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    const res = await fetch('/api/tools/rentals/', {
-      method: 'POST',
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest',
-        'X-CSRFToken': csrfToken,
-      },
-      body: fd,
+  /* ── Tab ── */
+  window.switchToolTab = function(tab) {
+    document.querySelectorAll('.tool-tab-content').forEach(el => el.classList.add('hidden'));
+    $('tool-tab-' + tab)?.classList.remove('hidden');
+    document.querySelectorAll('.tool-tab-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.id === 'tab-btn-' + tab);
     });
-    const data = await res.json();
+  };
 
-    if (res.ok) {
-      closeModal('modal-pinjamsewa');
-      showAlert('alert-tool', `✅ Permohonan ${type === 'sewa' ? 'penyewaan' : 'peminjaman'} berhasil diajukan! Admin akan memproses dalam 1-3 hari kerja.`, 'success');
-      loadMyRentals();
-    } else {
-      const errMsg = Object.entries(data).map(([k, v]) => `${k}: ${Array.isArray(v) ? v[0] : v}`).join(' | ');
-      showAlert('alert-tool', `Gagal: ${errMsg}`, 'error');
-    }
-  } catch (e) {
-    showAlert('alert-tool', 'Terjadi kesalahan jaringan. Coba lagi.', 'error');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = orig;
-  }
-}
-
-/* ── Render Rental Table ─────────────────────────────────────────── */
-const TYPE_BADGE = {
-  pinjam: 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400',
-  sewa:   'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400',
-  beli:   'bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-400',
-};
-const STATUS_BADGE = {
-  pending:   'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300',
-  approved:  'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-400',
-  borrowed:  'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400',
-  overdue:   'bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-400',
-  returning: 'bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400',
-  returned:  'bg-sky-100 dark:bg-sky-900/50 text-sky-700 dark:text-sky-400',
-  declined:  'bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-400',
-  cancelled: 'bg-slate-100 dark:bg-slate-700 text-slate-400',
-};
-const STATUS_LABEL = {
-  pending:   'Pending', approved: 'Disetujui', borrowed: 'Aktif',
-  overdue:   'Terlambat', returning: 'Diajukan Kembali',
-  returned:  'Selesai', declined: 'Ditolak', cancelled: 'Dibatalkan',
-};
-
-function renderRentalTable(data) {
-  const tbody = document.getElementById('rental-table-body');
-  if (!data.length) {
-    tbody.innerHTML = `
-      <tr><td colspan="7" class="px-6 py-12 text-center">
-        <div class="flex flex-col items-center gap-2 text-slate-400 dark:text-slate-600">
-          <span class="material-icons text-4xl">inbox</span>
-          <p class="text-sm">Belum ada data peminjaman</p>
-        </div>
-      </td></tr>`;
-    return;
+  /* ── Alert ── */
+  function showAlertTool(msg, type = 'info') {
+    const el  = $('alert-tool');
+    const cls = { success:'alert-success', error:'alert-error', info:'alert-info', warning:'alert-warning' };
+    const ico = { success:'check_circle', error:'error', info:'info', warning:'warning' };
+    el.className = 'alert ' + (cls[type] || 'alert-info') + ' animate-slide-down';
+    el.innerHTML = `
+      <span class="material-icons" style="font-size:18px;flex-shrink:0;">${ico[type]||'info'}</span>
+      <p style="flex:1;font-size:13px;font-weight:500;">${msg}</p>
+      <button onclick="this.closest('.alert').classList.add('hidden')"
+        style="padding:2px;border-radius:6px;border:none;background:transparent;cursor:pointer;color:inherit;opacity:0.6;"
+        onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">
+        <span class="material-icons" style="font-size:16px;display:block;">close</span>
+      </button>`;
+    el.classList.remove('hidden');
+    setTimeout(() => el.classList.add('hidden'), 7000);
   }
 
-  tbody.innerHTML = data.map(r => {
-    const tType  = r.transaction_type || 'pinjam';
-    const tLabel = { pinjam: 'Pinjam', sewa: 'Sewa', beli: 'Beli' }[tType] || tType;
-    const fine   = r.fine_amount > 0
-      ? `<span class="text-rose-600 dark:text-rose-400 font-semibold">Rp ${Number(r.fine_amount).toLocaleString('id-ID')}</span>`
-      : '<span class="text-slate-400">-</span>';
-
-    // Action buttons
-    let aksi = '';
-    if (r.status === 'borrowed') {
-      aksi = `<button onclick="openAksiModal(${r.id}, 'kembalikan')" class="inline-flex items-center gap-1 rounded-lg bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 dark:hover:bg-primary-700 text-white text-xs font-medium px-3 py-1.5 transition">
-        <span class="material-icons text-sm">assignment_return</span>Kembalikan</button>`;
-    } else if (r.status === 'overdue') {
-      aksi = `<button onclick="openAksiModal(${r.id}, 'bayar_denda')" class="inline-flex items-center gap-1 rounded-lg bg-rose-500 dark:bg-rose-600 hover:bg-rose-600 dark:hover:bg-rose-700 text-white text-xs font-medium px-3 py-1.5 transition">
-        <span class="material-icons text-sm">payment</span>Bayar Denda</button>`;
-    } else if (r.status === 'pending') {
-      aksi = `<button onclick="cancelRental(${r.id})" class="inline-flex items-center gap-1 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-900/20 text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 text-xs font-medium px-3 py-1.5 transition">
-        <span class="material-icons text-sm">cancel</span>Batal</button>`;
-    } else if (r.status === 'approved' && tType === 'sewa') {
-      aksi = `<button onclick="openAksiModal(${r.id}, 'upload_bukti')" class="inline-flex items-center gap-1 rounded-lg bg-amber-500 dark:bg-amber-600 hover:bg-amber-600 dark:hover:bg-amber-700 text-white text-xs font-medium px-3 py-1.5 transition">
-        <span class="material-icons text-sm">upload</span>Bayar</button>`;
-    } else {
-      aksi = `<span class="text-xs text-slate-400">-</span>`;
-    }
-
-    return `
-      <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
-        <td class="px-6 py-3">
-          <div class="font-medium text-slate-900 dark:text-slate-100 text-sm">${r.tool_detail?.name || '-'}</div>
-          <div class="text-xs text-slate-400 dark:text-slate-500">${r.tool_detail?.code || ''}</div>
-        </td>
-        <td class="px-4 py-3">
-          <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${TYPE_BADGE[tType] || ''}">
-            ${tLabel}
-          </span>
-        </td>
-        <td class="px-4 py-3 text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap">${r.date_start || '-'}</td>
-        <td class="px-4 py-3 text-sm text-slate-600 dark:text-slate-400 whitespace-nowrap">${r.date_end || '-'}</td>
-        <td class="px-4 py-3">
-          <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_BADGE[r.status] || ''}">
-            ${STATUS_LABEL[r.status] || r.status}
-          </span>
-        </td>
-        <td class="px-4 py-3">${fine}</td>
-        <td class="px-4 py-3 text-right">${aksi}</td>
-      </tr>`;
-  }).join('');
-}
-
-function filterMyRentals() {
-  const statusF = document.getElementById('filter-status-rental').value;
-  const typeF   = document.getElementById('filter-type-rental').value;
-  let data = myRentals;
-  if (statusF) data = data.filter(r => r.status === statusF);
-  if (typeF)   data = data.filter(r => r.transaction_type === typeF);
-  renderRentalTable(data);
-}
-
-/* ── Aksi Modal (Kembalikan / Bayar Denda / Upload Bukti) ────────── */
-function openAksiModal(rentalId, aksi) {
-  currentRentalId = rentalId;
-  const rental    = myRentals.find(r => r.id === rentalId);
-  if (!rental) return;
-
-  const title = document.getElementById('modal-aksi-title');
-  const body  = document.getElementById('modal-aksi-body');
-  const btnLabel = document.getElementById('btn-aksi-label');
-
-  if (aksi === 'kembalikan') {
-    title.textContent   = 'Ajukan Pengembalian';
-    btnLabel.textContent = 'Ajukan Pengembalian';
-    body.innerHTML = `
-      <div class="rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4 space-y-1.5 text-sm">
-        <div class="flex justify-between"><span class="text-slate-500 dark:text-slate-400">Item:</span>
-          <strong class="text-slate-900 dark:text-slate-100">${rental.tool_detail?.name}</strong></div>
-        <div class="flex justify-between"><span class="text-slate-500 dark:text-slate-400">Tgl Kembali:</span>
-          <strong class="text-slate-900 dark:text-slate-100">${rental.date_end}</strong></div>
-      </div>
-      <div class="space-y-2">
-        <p class="text-xs font-semibold text-slate-600 dark:text-slate-400">Konfirmasi Kondisi Alat</p>
-        <label class="flex items-center gap-2 cursor-pointer">
-          <input type="checkbox" id="confirm-lengkap" class="rounded border-slate-300 text-primary-600" />
-          <span class="text-sm text-slate-700 dark:text-slate-300">Semua komponen lengkap</span>
-        </label>
-        <label class="flex items-center gap-2 cursor-pointer">
-          <input type="checkbox" id="confirm-baik" class="rounded border-slate-300 text-primary-600" />
-          <span class="text-sm text-slate-700 dark:text-slate-300">Alat dalam kondisi baik</span>
-        </label>
-        <label class="flex items-center gap-2 cursor-pointer">
-          <input type="checkbox" id="confirm-serah" class="rounded border-slate-300 text-primary-600" />
-          <span class="text-sm text-slate-700 dark:text-slate-300">Siap diserahkan ke admin</span>
-        </label>
-      </div>
-      <p class="text-xs text-slate-400 dark:text-slate-500">Admin akan scan QR saat menerima alat secara fisik.</p>`;
-
-  } else if (aksi === 'bayar_denda') {
-    title.textContent   = 'Bayar Denda Keterlambatan';
-    btnLabel.textContent = 'Upload & Submit';
-    body.innerHTML = `
-      <div class="rounded-xl bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 p-4 space-y-1.5 text-sm">
-        <div class="flex justify-between"><span class="text-slate-500 dark:text-slate-400">Item:</span>
-          <strong class="text-slate-900 dark:text-slate-100">${rental.tool_detail?.name}</strong></div>
-        <div class="flex justify-between"><span class="text-slate-500 dark:text-slate-400">Denda:</span>
-          <strong class="text-rose-600 dark:text-rose-400">Rp ${Number(rental.fine_amount).toLocaleString('id-ID')}</strong></div>
-      </div>
-      <div class="space-y-1.5">
-        <label class="text-xs text-slate-600 dark:text-slate-400">Upload Bukti Bayar <span class="text-rose-500">*</span></label>
-        <input type="file" id="fine-proof" accept=".jpg,.jpeg,.png,.pdf" required
-          class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-sm" />
-      </div>
-      <div class="rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-4 py-3 text-sm text-slate-600 dark:text-slate-400">
-        <p class="font-semibold text-slate-700 dark:text-slate-300 mb-1">Rekening Tujuan</p>
-        <p>Bank BCA — 123456789</p>
-        <p>a.n. Lab Psikologi UMKT</p>
-      </div>`;
-
-  } else if (aksi === 'upload_bukti') {
-    title.textContent   = 'Upload Bukti Pembayaran Sewa';
-    btnLabel.textContent = 'Upload & Submit';
-    body.innerHTML = `
-      <div class="rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4 text-sm space-y-1.5">
-        <div class="flex justify-between"><span class="text-slate-500 dark:text-slate-400">Item:</span>
-          <strong class="text-slate-900 dark:text-slate-100">${rental.tool_detail?.name}</strong></div>
-        <div class="flex justify-between"><span class="text-slate-500 dark:text-slate-400">Total:</span>
-          <strong class="text-amber-600 dark:text-amber-400">Rp ${Number(rental.total_cost).toLocaleString('id-ID')}</strong></div>
-      </div>
-      <div class="space-y-1.5">
-        <label class="text-xs text-slate-600 dark:text-slate-400">Upload Bukti Bayar <span class="text-rose-500">*</span></label>
-        <input type="file" id="payment-proof-file" accept=".jpg,.jpeg,.png,.pdf" required
-          class="w-full rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-sm" />
-        <p class="text-xs text-slate-400">JPG, PNG, PDF — maks. 2MB</p>
-      </div>
-      <div class="rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-4 py-3 text-sm text-slate-600 dark:text-slate-400">
-        <p class="font-semibold text-slate-700 dark:text-slate-300 mb-1">Rekening Tujuan</p>
-        <p>Bank BCA — 123456789</p>
-        <p>a.n. Lab Psikologi UMKT</p>
-      </div>`;
+  /* ── API ── */
+  async function apiFetch(url, opts = {}) {
+      const { headers: extraHeaders, ...restOpts } = opts;
+      const res = await fetch(url, {
+          headers: { 
+              'X-Requested-With': 'XMLHttpRequest', 
+              ...(extraHeaders || {}) 
+          },
+          ...restOpts,   // ← spread tanpa 'headers', jadi tidak tumpang tindih
+      });
+      const data = await res.json();
+      return { ok: res.ok, data };
   }
 
-  document.getElementById('btn-aksi-submit').dataset.aksi = aksi;
-  openModal('modal-rental-aksi');
-}
+  /* ── Load data ── */
+  async function loadToolsData() {
+    const { ok, data } = await apiFetch('/api/tools/list/');
+    if (!ok) return;
+    toolsData = data.results || data;
+    ['pinjam','sewa','beli'].forEach(window.renderToolCards);
+  }
 
-async function submitAksi() {
-  const aksi    = document.getElementById('btn-aksi-submit').dataset.aksi;
-  const csrfTok = document.querySelector('[name=csrfmiddlewaretoken]').value;
+  async function loadMyRentals() {
+    const { ok, data } = await apiFetch('/api/tools/rentals/my/');
+    if (!ok) return;
+    myRentals = data.results || data;
+    renderRentalTable(myRentals);
+  }
 
-  if (aksi === 'kembalikan') {
-    if (!document.getElementById('confirm-lengkap')?.checked ||
-        !document.getElementById('confirm-baik')?.checked ||
-        !document.getElementById('confirm-serah')?.checked) {
-      showAlert('alert-tool', 'Centang semua konfirmasi kondisi alat terlebih dahulu.', 'error');
+  /* ── Tool Cards ── */
+  window.renderToolCards = function(type) {
+    const search = ($('search-' + type)?.value || '').toLowerCase();
+    const kat    = $('filter-kategori-' + type)?.value || '';
+    const grid   = $('grid-' + type);
+    if (!grid) return;
+
+    let items = toolsData.filter(t => {
+      if (type === 'beli')   return t.item_type === 'consumable';
+      if (type === 'pinjam') return t.item_type === 'tool' && t.transaction_type === 'pinjam';
+      if (type === 'sewa')   return t.item_type === 'tool' && t.transaction_type === 'sewa';
+      return false;
+    });
+    if (search) items = items.filter(t => t.name.toLowerCase().includes(search));
+    if (kat)    items = items.filter(t => t.category === kat);
+
+    if (!items.length) {
+      grid.innerHTML = `
+        <div style="grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:#94a3b8;">
+          <span class="material-icons" style="font-size:48px;opacity:0.3;margin-bottom:10px;">search_off</span>
+          <p style="font-size:13px;">Tidak ada alat ditemukan</p>
+        </div>`;
       return;
     }
-    try {
-      const res = await fetch(`/api/tools/rentals/${currentRentalId}/request_return/`, {
-        method: 'POST',
-        headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': csrfTok }
-      });
-      if (res.ok) {
-        closeModal('modal-rental-aksi');
-        showAlert('alert-tool', '✅ Pengembalian berhasil diajukan. Admin akan memverifikasi secara fisik.', 'success');
-        loadMyRentals();
-      } else { showAlert('alert-tool', 'Gagal mengajukan pengembalian.', 'error'); }
-    } catch { showAlert('alert-tool', 'Kesalahan jaringan.', 'error'); }
+    grid.innerHTML = items.map(t =>
+      type === 'beli' ? renderConsumableCard(t) : renderToolCard(t, type)
+    ).join('');
+  };
 
-  } else if (aksi === 'bayar_denda') {
-    const file = document.getElementById('fine-proof')?.files[0];
-    if (!file) { showAlert('alert-tool', 'Pilih file bukti bayar.', 'error'); return; }
-    const fd = new FormData();
-    fd.append('fine_proof', file);
-    try {
-      const res = await fetch(`/api/tools/rentals/${currentRentalId}/upload_fine_proof/`, {
-        method: 'POST',
-        headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': csrfTok },
-        body: fd
-      });
-      if (res.ok) {
-        closeModal('modal-rental-aksi');
-        showAlert('alert-tool', '✅ Bukti bayar denda berhasil diupload. Admin akan memverifikasi.', 'success');
-        loadMyRentals();
-      } else { showAlert('alert-tool', 'Gagal upload bukti bayar.', 'error'); }
-    } catch { showAlert('alert-tool', 'Kesalahan jaringan.', 'error'); }
+  function renderToolCard(t, type) {
+    const isSewa = type === 'sewa';
+    const avail  = t.stock > 0;
+    const tj     = JSON.stringify(t).replace(/"/g, '&quot;');
 
-  } else if (aksi === 'upload_bukti') {
-    const file = document.getElementById('payment-proof-file')?.files[0];
-    if (!file) { showAlert('alert-tool', 'Pilih file bukti pembayaran.', 'error'); return; }
-    const fd = new FormData();
-    fd.append('payment_proof', file);
-    try {
-      const res = await fetch(`/api/tools/rentals/${currentRentalId}/upload_payment/`, {
-        method: 'POST',
-        headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': csrfTok },
-        body: fd
-      });
-      if (res.ok) {
-        closeModal('modal-rental-aksi');
-        showAlert('alert-tool', '✅ Bukti pembayaran berhasil diupload.', 'success');
-        loadMyRentals();
-      } else { showAlert('alert-tool', 'Gagal upload bukti.', 'error'); }
-    } catch { showAlert('alert-tool', 'Kesalahan jaringan.', 'error'); }
+    const accentBg    = isSewa ? '#f59e0b' : '#10b981';
+    const accentLight = isSewa ? '#fffbeb' : '#ecfdf5';
+    const accentIcon  = isSewa ? '#d97706' : '#059669';
+    const stockBadge  = avail
+      ? `<span class="badge badge-success" style="font-size:11px;"><span style="width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block;margin-right:4px;"></span>${t.stock} ${t.unit}</span>`
+      : `<span class="badge badge-danger" style="font-size:11px;">Stok habis</span>`;
+
+    return `
+      <div class="card tool-card" style="overflow:hidden;padding:0;">
+        <div class="tool-card-thumb" style="background:${accentLight};">
+          ${t.photo
+            ? `<img src="${t.photo}" alt="${t.name}">`
+            : `<span class="material-icons" style="font-size:56px;color:${accentIcon};opacity:0.25;">science</span>`}
+          ${isSewa
+            ? `<div style="position:absolute;top:10px;right:10px;">
+                 <span class="badge badge-warning" style="font-size:11px;font-weight:700;">${rp(t.price_per_unit)}/hr</span>
+               </div>`
+            : `<div style="position:absolute;top:10px;left:10px;">
+                 <span class="badge badge-success" style="font-size:10px;">GRATIS</span>
+               </div>`}
+        </div>
+        <div class="card-body" style="padding:14px 16px;display:flex;flex-direction:column;gap:8px;">
+          <div>
+            <h3 style="font-weight:600;font-size:14px;color:#1e293b;line-height:1.4;" class="dark:text-slate-100">${t.name}</h3>
+            <p style="font-size:11px;color:#94a3b8;margin-top:2px;">${t.category_display || t.category}</p>
+          </div>
+          <div class="flex items-center justify-between flex-wrap gap-1">
+            ${stockBadge}
+          </div>
+          <button type="button"
+            ${!avail ? 'disabled' : `onclick="openModalPinjamSewa(JSON.parse(this.dataset.tool),'${type}')"`}
+            data-tool="${tj}"
+            style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:8px 12px;border-radius:8px;font-size:13px;font-weight:600;border:none;cursor:${avail?'pointer':'not-allowed'};transition:all .2s;margin-top:4px;background:${avail?accentBg:'#e2e8f0'};color:${avail?'#fff':'#94a3b8'};"
+            onmouseover="if(!this.disabled)this.style.opacity='.88'"
+            onmouseout="this.style.opacity='1'">
+            <span class="material-icons" style="font-size:16px;">${isSewa ? 'paid' : 'inventory_2'}</span>
+            ${avail ? (isSewa ? 'Sewa Sekarang' : 'Pinjam Sekarang') : 'Stok Kosong'}
+          </button>
+        </div>
+      </div>`;
   }
-}
 
-async function cancelRental(rentalId) {
-  if (!confirm('Batalkan permohonan ini?')) return;
-  const csrfTok = document.querySelector('[name=csrfmiddlewaretoken]').value;
-  try {
-    const res = await fetch(`/api/tools/rentals/${rentalId}/cancel/`, {
-      method: 'POST',
-      headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': csrfTok }
-    });
-    if (res.ok) {
-      showAlert('alert-tool', '✅ Permohonan dibatalkan.', 'success');
-      loadMyRentals();
+  function renderConsumableCard(t) {
+    const inCart = cartItems[t.id]?.qty || 0;
+    const tj     = JSON.stringify(t).replace(/"/g, '&quot;');
+    return `
+      <div class="card" style="overflow:hidden;padding:0;">
+        <div class="tool-card-thumb" style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);height:110px;">
+          <span class="material-icons" style="font-size:44px;color:#8b5cf6;opacity:0.3;">article</span>
+        </div>
+        <div class="card-body" style="padding:14px 16px;display:flex;flex-direction:column;gap:8px;">
+          <div>
+            <h3 style="font-weight:600;font-size:14px;color:#1e293b;line-height:1.4;" class="dark:text-slate-100">${t.name}</h3>
+            <p style="font-size:12px;font-weight:700;color:#7c3aed;margin-top:2px;">${rp(t.price_per_unit)}/${t.unit}</p>
+            <p style="font-size:11px;color:#94a3b8;">Stok: ${t.stock} ${t.unit}</p>
+          </div>
+          <div class="flex items-center gap-2" style="margin-top:4px;">
+            <div class="qty-stepper">
+              <button onclick="changeCartQty(${t.id},-1)">−</button>
+              <span id="cart-qty-${t.id}">${inCart}</span>
+              <button onclick="changeCartQty(${t.id},1,${t.stock})">+</button>
+            </div>
+            <button onclick="addToCart(JSON.parse(this.dataset.tool))" data-tool="${tj}"
+              style="flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:7px 12px;border-radius:8px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:#7c3aed;color:#fff;transition:background .2s;"
+              onmouseover="this.style.background='#6d28d9'" onmouseout="this.style.background='#7c3aed'">
+              <span class="material-icons" style="font-size:15px;">add_shopping_cart</span>Tambah
+            </button>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  /* ── Cart ── */
+  window.addToCart = function(tool) {
+    const qty = parseInt($('cart-qty-' + tool.id)?.textContent || '1');
+    if (qty <= 0) return;
+    cartItems[tool.id] = { tool, qty: (cartItems[tool.id]?.qty || 0) + qty };
+    renderCart();
+  };
+
+  window.changeCartQty = function(toolId, delta, max = 9999) {
+    const el = $('cart-qty-' + toolId);
+    if (!el) return;
+    el.textContent = Math.min(Math.max(0, parseInt(el.textContent) + delta), max);
+  };
+
+  window.removeFromCart = function(toolId) {
+    delete cartItems[toolId];
+    renderCart();
+    window.renderToolCards('beli');
+  };
+
+  function renderCart() {
+    const items  = Object.values(cartItems);
+    const badge  = $('cart-badge');
+    const btn    = $('btn-checkout');
+    badge.textContent = items.length + ' item';
+
+    if (!items.length) {
+      $('cart-items').innerHTML = `
+        <div class="cart-empty">
+          <span class="material-icons" style="font-size:36px;opacity:.25">remove_shopping_cart</span>
+          <p style="font-size:12px">Keranjang masih kosong</p>
+        </div>`;
+      updateCartTotals(0);
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+      btn.style.cursor  = 'not-allowed';
+      return;
     }
-  } catch { showAlert('alert-tool', 'Gagal membatalkan.', 'error'); }
-}
 
-/* ── Modal Helpers ───────────────────────────────────────────────── */
-function openModal(id) {
-  const el = document.getElementById(id);
-  el.classList.remove('hidden');
-  el.classList.add('flex');
-  document.body.style.overflow = 'hidden';
-}
-function closeModal(id) {
-  const el = document.getElementById(id);
-  el.classList.add('hidden');
-  el.classList.remove('flex');
-  document.body.style.overflow = '';
-}
+    let subtotal = 0;
+    $('cart-items').innerHTML = items.map(({ tool, qty }) => {
+      const line = tool.price_per_unit * qty;
+      subtotal += line;
+      return `
+        <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid #f1f5f9;">
+          <div style="flex:1;min-width:0;">
+            <p style="font-size:12px;font-weight:600;color:#1e293b;" class="dark:text-slate-100 truncate">${tool.name}</p>
+            <p style="font-size:11px;color:#94a3b8;">${qty}× ${rp(tool.price_per_unit)}</p>
+          </div>
+          <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+            <span style="font-size:12px;font-weight:700;color:#374151;" class="dark:text-slate-200">${rp(line)}</span>
+            <button onclick="removeFromCart(${tool.id})"
+              style="padding:2px;border-radius:6px;border:none;background:transparent;cursor:pointer;color:#ef4444;transition:background .15s;"
+              onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='transparent'">
+              <span class="material-icons" style="font-size:15px;display:block;">close</span>
+            </button>
+          </div>
+        </div>`;
+    }).join('');
 
-/* ── Init saat section tool aktif ───────────────────────────────── */
-const _origSwitchModule = typeof switchModule === 'function' ? switchModule : null;
-document.addEventListener('DOMContentLoaded', () => {
-  const tab = new URLSearchParams(window.location.search).get('tab');
-  if (tab === 'tool') {
-    loadToolsData();
-    loadMyRentals();
+    updateCartTotals(subtotal);
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    btn.style.cursor  = 'pointer';
   }
-});
 
-// Lazy load saat user klik tab tool di module selector
-const _origApplyModule = window._applyModule;
-window._applyModule = function(moduleName) {
-  if (typeof _origApplyModule === 'function') _origApplyModule(moduleName);
-  if (moduleName === 'tool') {
-    loadToolsData();
-    loadMyRentals();
+  function updateCartTotals(sub) {
+    const ppn = Math.round(sub * 0.11);
+    $('cart-subtotal').textContent = rp(sub);
+    $('cart-ppn').textContent      = rp(ppn);
+    $('cart-total').textContent    = rp(sub + ppn);
+  }
+
+  window.checkoutCart = async function() {
+  const items = Object.values(cartItems);
+  if (!items.length) return;
+
+  const btn = $('btn-checkout');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="material-icons" style="font-size:16px;animation:spin .8s linear infinite">autorenew</span> Memproses...';
+
+  // Kirim setiap item satu per satu ke /api/tools/rentals/
+  const results = await Promise.allSettled(items.map(({ tool, qty }) => {
+    const fd = new FormData();
+    fd.append('tool',             tool.id);
+    fd.append('transaction_type', 'beli');
+    fd.append('institution',      'umkt');       // default, bisa dibuat modal pilihan
+    fd.append('purpose',          'lainnya');    // default
+    fd.append('quantity',         qty);
+    fd.append('date_start',       new Date().toISOString().split('T')[0]);
+    fd.append('date_end',         new Date().toISOString().split('T')[0]);
+    fd.append('payment_time',     'after');
+    fd.append('components',       JSON.stringify([]));
+
+    return fetch('/api/tools/rentals/', {
+      method:  'POST',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '',
+      },
+      body: fd,
+    }).then(r => r.json().then(data => ({ ok: r.ok, data, tool })));
+  }));
+
+  btn.disabled = false;
+  btn.innerHTML = '<span class="material-icons" style="font-size:16px">shopping_cart_checkout</span> Checkout';
+
+  const failed  = results.filter(r => r.status === 'rejected' || !r.value?.ok);
+  const success = results.filter(r => r.status === 'fulfilled' && r.value?.ok);
+
+  if (success.length) {
+    cartItems = {};
+    renderCart();
+    window.renderToolCards('beli');
+    loadMyRentals(); // refresh tabel Transaksi Saya
+    showAlertTool(`✅ ${success.length} item berhasil diajukan. Admin akan memverifikasi.`, 'success');
+  }
+
+  if (failed.length) {
+    const names = failed.map(r => r.value?.tool?.name || '?').join(', ');
+    showAlertTool(`⚠️ ${failed.length} item gagal: ${names}`, 'error');
   }
 };
+
+  /* ── Modal Pinjam/Sewa ── */
+  window.openModalPinjamSewa = function(tool, type) {
+    const isSewa = type === 'sewa';
+    $('modal-tool-id').value         = tool.id;
+    $('modal-type').value            = type;
+    $('modal-tool-name').textContent = tool.name;
+    $('modal-tool-meta').textContent = (tool.category_display || tool.category) + ' · Stok: ' + tool.stock + ' ' + tool.unit;
+    $('modal-unit-label').textContent = '(' + tool.unit + ')';
+    $('modal-stock-info').textContent = 'Tersedia: ' + tool.stock;
+    $('modal-qty').max               = tool.stock;
+    $('modal-qty').dataset.price     = tool.price_per_unit;
+
+    $('modal-agreement-wrap').classList.toggle('hidden', !isSewa);
+    $('modal-payment-wrap').classList.toggle('hidden', !isSewa);
+    $('modal-cost-wrap').classList.toggle('hidden', !isSewa);
+
+    const iw = $('modal-icon-wrap');
+    const ic = $('modal-icon');
+    iw.style.background = isSewa ? '#fef3c7' : '#d1fae5';
+    ic.style.color      = isSewa ? '#d97706' : '#059669';
+    ic.textContent      = isSewa ? 'paid' : 'inventory_2';
+
+    $('modal-title').textContent    = isSewa ? 'Sewa Alat Tes' : 'Pinjam Alat Tes';
+    $('modal-subtitle').textContent = isSewa ? rp(tool.price_per_unit) + '/hari' : 'Peminjaman gratis · wajib dikembalikan tepat waktu';
+    $('btn-modal-label').textContent = isSewa ? 'Ajukan Penyewaan' : 'Ajukan Peminjaman';
+
+    ['modal-start','modal-end'].forEach(id => { $(id).value = ''; $(id).min = TODAY; });
+    $('modal-duration').textContent = '—';
+    $('modal-confirm').checked = false;
+    document.querySelectorAll('[name="komponen"]').forEach(c => c.checked = false);
+
+    openToolModal('modal-pinjamsewa');
+  };
+
+  window.recalcModal = function() {
+    const start = $('modal-start').value;
+    const end   = $('modal-end').value;
+    const qty   = parseInt($('modal-qty').value) || 1;
+    const price = parseInt($('modal-qty').dataset.price) || 0;
+
+    if (start) $('modal-end').min = start;
+    if (!start || !end) return;
+
+    const days = Math.ceil((new Date(end) - new Date(start)) / 86400000) + 1;
+    $('modal-duration').textContent = days + ' hari';
+
+    if ($('modal-type').value === 'sewa' && price) {
+      const sub = price * qty * days;
+      const ppn = Math.round(sub * 0.11);
+      $('modal-cost-label').textContent = 'Sewa ' + days + ' hari × ' + qty + ' unit × ' + rp(price);
+      $('modal-cost-sub').textContent   = rp(sub);
+      $('modal-cost-ppn').textContent   = rp(ppn);
+      $('modal-cost-total').textContent = rp(sub + ppn);
+    }
+  };
+
+  window.submitPinjamSewa = async function() {
+    const type = $('modal-type').value;
+    const vals = {
+      toolId:    $('modal-tool-id').value,
+      instansi:  $('modal-instansi').value,
+      purpose:   $('modal-purpose').value,
+      qty:       $('modal-qty').value,
+      start:     $('modal-start').value,
+      end:       $('modal-end').value,
+      letter:    $('modal-letter').files[0],
+      confirmed: $('modal-confirm').checked,
+    };
+
+    if (!vals.toolId || !vals.instansi || !vals.purpose || !vals.qty || !vals.start || !vals.end || !vals.letter || !vals.confirmed) {
+      showAlertTool('Lengkapi semua field wajib dan centang persetujuan.', 'error');
+      return;
+    }
+
+    const fd = new FormData();
+    fd.append('tool',             vals.toolId);
+    fd.append('transaction_type', type);
+    fd.append('institution',      vals.instansi);
+    fd.append('purpose',          vals.purpose);
+    fd.append('quantity',         vals.qty);
+    fd.append('date_start',       vals.start);
+    fd.append('date_end',         vals.end);
+    fd.append('components', JSON.stringify(
+      [...document.querySelectorAll('[name="komponen"]:checked')].map(c => c.value)
+    ));
+    fd.append('activity_letter', vals.letter);
+
+    // Selalu kirim payment_time — 'after' sebagai default untuk pinjam
+    fd.append('payment_time', type === 'sewa'
+      ? $('modal-payment-time').value
+      : 'after'   // ← nilai default, backend harus ignore ini untuk type=pinjam
+    );
+
+    if (type === 'sewa') {
+      const ag = $('modal-agreement')?.files[0];
+      if (ag) fd.append('agreement_file', ag);
+    }
+
+    const btn     = $('btn-modal-submit');
+    btn.disabled  = true;
+    btn.innerHTML = '<span class="material-icons" style="font-size:16px;animation:spin .8s linear infinite">autorenew</span> Mengirim...';
+
+    const { ok, data } = await apiFetch('/api/tools/rentals/', {
+      method:  'POST',
+      headers: { 'X-CSRFToken': CSRF() },
+      body:    fd,
+    });
+
+    btn.disabled  = false;
+    btn.innerHTML = '<span class="material-icons" style="font-size:16px">send</span><span id="btn-modal-label">' + (type === 'sewa' ? 'Ajukan Penyewaan' : 'Ajukan Peminjaman') + '</span>';
+
+    if (ok) {
+      closeToolModal('modal-pinjamsewa');
+      showAlertTool('✅ Permohonan ' + (type === 'sewa' ? 'penyewaan' : 'peminjaman') + ' berhasil diajukan!', 'success');
+      loadMyRentals();
+    } else {
+      const errSrc   = data.errors || data;
+      const errLines = Object.entries(errSrc).map(([k, v]) => '<strong>' + k + '</strong>: ' + (Array.isArray(v) ? v[0] : v)).join('<br>');
+      showAlertTool('Gagal submit:<br>' + errLines, 'error');
+    }
+  };
+
+  /* ── Rental Table ── */
+  function renderRentalTable(data) {
+    
+    const tbody = $('rental-table-body');
+    if (!data || !data.length) {
+      tbody.innerHTML = `
+        <tr><td colspan="7" style="padding:56px 20px;text-align:center;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:10px;color:#94a3b8;">
+            <span class="material-icons" style="font-size:40px;opacity:.3;">inbox</span>
+            <p style="font-size:13px;">Belum ada data transaksi</p>
+          </div>
+        </td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = data.map(r => {
+        const tType = r.transaction_type || 'pinjam';
+        const fine  = r.fine_amount > 0
+            ? `<span class="badge badge-danger">${rp(r.fine_amount)}</span>`
+            : `<span style="color:#94a3b8;font-size:12px;">—</span>`;
+
+        // ── Tentukan tombol aksi ──────────────────────────────
+        let aksi = `<span style="color:#94a3b8;font-size:12px;">—</span>`;
+
+        switch (r.status) {
+            case 'pending':
+                aksi = `<button onclick="cancelRental(${r.id})"
+                            class="btn btn-secondary btn-sm" style="gap:4px;color:#ef4444;">
+                            <span class="material-icons" style="font-size:14px;">cancel</span>Batal
+                        </button>`;
+                break;
+
+            case 'approved':
+                if (tType === 'sewa' || tType === 'beli') {
+                    // Sewa & Beli: harus upload bukti bayar
+                    aksi = `<button onclick="openAksiModal(${r.id},'uploadbukti')"
+                                class="btn btn-warning btn-sm" style="gap:4px;">
+                                <span class="material-icons" style="font-size:14px;">upload</span>Upload Bayar
+                            </button>`;
+                } else if (tType === 'pinjam') {
+                    // Pinjam gratis: tunggu serah terima fisik dari admin
+                    aksi = `<span style="display:inline-flex;align-items:center;gap:4px;
+                                      font-size:12px;color:#0ea5e9;font-weight:500;">
+                                <span class="material-icons" style="font-size:13px;">hourglass_top</span>
+                                Menunggu Serah Terima
+                            </span>`;
+                }
+                break;
+
+            case 'payment_pending':
+                // Bukti sudah diupload, tunggu admin verifikasi
+                aksi = `<span style="display:inline-flex;align-items:center;gap:4px;
+                                  font-size:12px;color:#d97706;font-weight:500;">
+                            <span class="material-icons" style="font-size:13px;">hourglass_top</span>
+                            Menunggu Verifikasi
+                        </span>`;
+                break;
+
+            case 'borrowed':
+                aksi = `<button onclick="openAksiModal(${r.id},'kembalikan')"
+                            class="btn btn-outline btn-sm" style="gap:4px;">
+                            <span class="material-icons" style="font-size:14px;">assignment_return</span>Kembalikan
+                        </button>`;
+                break;
+
+            case 'overdue':
+                aksi = `<button onclick="openAksiModal(${r.id},'bayardenda')"
+                            class="btn btn-danger btn-sm" style="gap:4px;">
+                            <span class="material-icons" style="font-size:14px;">payment</span>Bayar Denda
+                        </button>`;
+                break;
+        }
+        // ── End aksi ──────────────────────────────────────────
+
+        return `
+            <tr style="border-bottom:1px solid #f1f5f9;" class="dark:border-slate-700">
+              <td style="padding:12px 20px;">
+                <p style="font-weight:600;font-size:13px;color:#1e293b;" class="dark:text-slate-100">${r.tool_detail?.name || '—'}</p>
+                <p style="font-size:11px;color:#94a3b8;">${r.tool_detail?.code || ''}</p>
+              </td>
+              <td style="padding:12px 16px;"><span class="badge ${TYPE_BADGE[tType]}">${TYPE_LABEL[tType]}</span></td>
+              <td style="padding:12px 16px;font-size:12px;color:#64748b;white-space:nowrap;">${r.date_start || '—'}</td>
+              <td style="padding:12px 16px;font-size:12px;color:#64748b;white-space:nowrap;">${r.date_end || '—'}</td>
+              <td style="padding:12px 16px;"><span class="badge ${STATUS_BADGE[r.status] || 'badge-gray'}">${STATUS_LABEL[r.status] || r.status}</span></td>
+              <td style="padding:12px 16px;">${fine}</td>
+              <td style="padding:12px 20px;text-align:right;">${aksi}</td>
+            </tr>`;
+    }).join('');
+  }
+
+  window.filterMyRentals = function() {
+    const sf = $('filter-status-rental').value;
+    const tf = $('filter-type-rental').value;
+    renderRentalTable(myRentals.filter(r =>
+      (!sf || r.status === sf) && (!tf || r.transaction_type === tf)
+    ));
+  };
+
+  /* ── Aksi Modal ── */
+  window.openAksiModal = function(rentalId, aksi) {
+    currentRentalId = rentalId;
+    const r = myRentals.find(r => r.id === rentalId);
+    if (!r) return;
+
+    const infoBox = (rows) => `
+      <div style="border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;" class="dark:border-slate-700">
+        ${rows.map(([lbl, val, bold]) =>
+          `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid #f1f5f9;font-size:13px;" class="dark:border-slate-700 last:border-0">
+             <span style="color:#64748b;">${lbl}</span>
+             <strong style="${bold ? 'color:'+bold+';' : ''}font-size:13px;">${val}</strong>
+           </div>`
+        ).join('')}
+      </div>`;
+
+    const fileInput = (id) => `
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">Bukti Bayar <span style="color:#ef4444">*</span></label>
+        <input type="file" id="${id}" accept=".jpg,.jpeg,.png,.pdf" class="form-input" style="padding:6px 12px;cursor:pointer;" />
+      </div>`;
+
+    const bankBox = `
+      <div class="alert alert-info" style="border-radius:10px;">
+        <span class="material-icons" style="font-size:18px;flex-shrink:0;">account_balance</span>
+        <div>
+          <p style="font-weight:600;font-size:12px;">Rekening Tujuan</p>
+          <p style="font-size:11px;opacity:.8;margin-top:2px;">Bank BCA 123456789 a.n. Lab Psikologi UMKT</p>
+        </div>
+      </div>`;
+
+    const configs = {
+      kembalikan: {
+        title: 'Ajukan Pengembalian',
+        label: 'Ajukan Pengembalian',
+        body: `
+          ${infoBox([
+            ['Item', r.tool_detail?.name || '—'],
+            ['Tgl Kembali', r.date_end || '—']
+          ])}
+          <div>
+            <p class="form-label" style="margin-bottom:8px;">Konfirmasi Kondisi Alat</p>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              ${[
+                ['confirm-lengkap','Semua komponen lengkap dan tidak ada yang hilang'],
+                ['confirm-baik','Alat dalam kondisi baik dan tidak rusak'],
+                ['confirm-serah','Siap diserahkan ke admin lab'],
+              ].map(([id, lbl]) => `
+                <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;font-size:13px;background:#f8fafc;border:1px solid #e5e7eb;" class="dark:bg-slate-800 dark:border-slate-600 dark:text-slate-300">
+                  <input type="checkbox" id="${id}" style="width:16px;height:16px;accent-color:#0D93B1;cursor:pointer;flex-shrink:0;">
+                  ${lbl}
+                </label>`).join('')}
+            </div>
+          </div>`,
+      },
+      bayardenda: {
+        title: 'Bayar Denda Keterlambatan',
+        label: 'Upload & Submit',
+        body: `
+          <div class="alert alert-error" style="border-radius:10px;flex-direction:column;gap:4px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="material-icons" style="font-size:20px;flex-shrink:0;">warning</span>
+              <p style="font-weight:600;font-size:13px;">Detail Denda</p>
+            </div>
+            ${infoBox([
+              ['Item', r.tool_detail?.name || '—'],
+              ['Total Denda', rp(r.fine_amount), '#ef4444'],
+            ])}
+          </div>
+          ${fileInput('fine-proof')}
+          ${bankBox}`,
+      },
+      uploadbukti: {
+        title: 'Upload Bukti Pembayaran Sewa',
+        label: 'Upload & Submit',
+        body: `
+          <div class="alert alert-warning" style="border-radius:10px;flex-direction:column;gap:4px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="material-icons" style="font-size:20px;flex-shrink:0;">receipt_long</span>
+              <p style="font-weight:600;font-size:13px;">Detail Pembayaran</p>
+            </div>
+            ${infoBox([
+              ['Item', r.tool_detail?.name || '—'],
+              ['Total Biaya', rp(r.total_cost), '#d97706'],
+            ])}
+          </div>
+          ${fileInput('payment-proof-file')}
+          ${bankBox}`,
+      },
+    };
+
+    const cfg = configs[aksi];
+    if (!cfg) return;
+    $('modal-aksi-title').textContent = cfg.title;
+    $('btn-aksi-label').textContent   = cfg.label;
+    $('modal-aksi-body').innerHTML    = cfg.body;
+    $('btn-aksi-submit').dataset.aksi = aksi;
+    openToolModal('modal-rental-aksi');
+  };
+
+  window.submitAksi = async function() {
+    const aksi = $('btn-aksi-submit').dataset.aksi;
+    const headers = { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': CSRF() };
+
+    const actions = {
+        kembalikan: async () => {
+            const allChecked = ['confirm-lengkap','confirm-baik','confirm-serah']
+                .every(id => $(id)?.checked);
+            if (!allChecked) {
+                showAlertTool('Centang semua konfirmasi kondisi alat.', 'error');
+                return null;
+            }
+            return apiFetch(`/api/tools/rentals/${currentRentalId}/request-return/`, {
+                method: 'POST', headers
+            });
+        },
+        bayardenda: async () => {
+            const file = $('fine-proof')?.files[0];
+            if (!file) { showAlertTool('Pilih file bukti bayar.', 'error'); return null; }
+            const fd = new FormData();
+            fd.append('fine_proof', file);
+            const res = await fetch(`/api/tools/rentals/${currentRentalId}/upload-fine-proof/`, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': CSRF() },
+                body: fd,
+            });
+            const data = await res.json().catch(() => ({}));
+            return { ok: res.ok, data };
+        },
+        uploadbukti: async () => {
+            const file = $('payment-proof-file')?.files[0];
+            if (!file) { showAlertTool('Pilih file bukti bayar.', 'error'); return null; }
+            const fd = new FormData();
+            fd.append('payment_proof', file);
+            const res = await fetch(`/api/tools/rentals/${currentRentalId}/upload-payment/`, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': CSRF() },
+                body: fd,
+            });
+            const data = await res.json().catch(() => ({}));
+            return { ok: res.ok, data };
+        },
+    };
+
+    const btn      = $('btn-aksi-submit');
+    const origText = $('btn-aksi-label').textContent;
+    btn.disabled   = true;
+    $('btn-aksi-label').textContent = 'Memproses...';
+
+    try {
+        const result = await actions[aksi]?.();
+
+        if (!result) return; // null = user cancel / validasi gagal
+
+        if (result.ok) {
+            // Tutup modal — paksa dengan 2 cara sekaligus
+            const modal = $('modal-rental-aksi');
+            modal.classList.remove('open');
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+
+            showAlertTool('✅ Berhasil diproses. Admin akan memverifikasi.', 'success');
+            await loadMyRentals();
+        } else {
+            const errMsg = result.data?.error || result.data?.detail || JSON.stringify(result.data);
+            showAlertTool('Gagal: ' + errMsg, 'error');
+        }
+    } catch(e) {
+        console.error('[submitAksi] exception:', e);
+        showAlertTool('Error tidak terduga: ' + e.message, 'error');
+    } finally {
+        btn.disabled = false;
+        $('btn-aksi-label').textContent = origText;
+    }
+};
+  window.cancelRental = async function(rentalId) {
+    if (!confirm('Batalkan permohonan ini?')) return;
+    const { ok } = await apiFetch('/api/tools/rentals/' + rentalId + '/cancel/', {
+      method:  'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': CSRF() },
+    });
+    if (ok) { showAlertTool('Permohonan dibatalkan.', 'success'); loadMyRentals(); }
+  };
+
+  /* ── Init & hook ke switchModule parent ── */
+  document.addEventListener('DOMContentLoaded', () => {
+    // Hook ke applyModule dari halaman utama
+    const origApply = window._applyModule;
+    window._applyModule = function(moduleName) {
+      origApply?.(moduleName);
+      if (moduleName === 'tool') {
+        loadToolsData();
+        loadMyRentals();
+      }
+    };
+
+    // Jika URL langsung buka ?tab=tool
+    if (new URLSearchParams(window.location.search).get('tab') === 'tool') {
+      loadToolsData();
+      loadMyRentals();
+    }
+  });
+
+})(); // IIFE — tidak polusi global scope
 </script>

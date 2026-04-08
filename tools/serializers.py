@@ -12,6 +12,13 @@ class ToolRentalSerializer(serializers.ModelSerializer):
     user_detail = serializers.SerializerMethodField()
     tool_detail = ToolSerializer(source='tool', read_only=True)
 
+    # Tambahkan ini — override field agar tidak required by default
+    payment_time = serializers.CharField(
+        required=False,
+        allow_blank=True,
+        default='after'
+    )
+
     class Meta:
         model = ToolRental
         fields = '__all__'
@@ -28,7 +35,7 @@ class ToolRentalSerializer(serializers.ModelSerializer):
         }
 
     def validate(self, data):
-        tool = data.get('tool')
+        tool     = data.get('tool')
         quantity = data.get('quantity')
 
         if tool and quantity and tool.stock < quantity:
@@ -37,10 +44,22 @@ class ToolRentalSerializer(serializers.ModelSerializer):
             )
 
         date_start = data.get('date_start')
-        date_end = data.get('date_end')
+        date_end   = data.get('date_end')
         if date_start and date_end and date_end < date_start:
             raise serializers.ValidationError(
                 'Tanggal kembali tidak boleh sebelum tanggal mulai.'
             )
+
+        # Validasi payment_time hanya wajib untuk sewa
+        transaction_type = data.get('transaction_type')
+        payment_time     = data.get('payment_time', '').strip()
+        if transaction_type == 'sewa' and not payment_time:
+            raise serializers.ValidationError({
+                'payment_time': 'Waktu pembayaran wajib diisi untuk penyewaan.'
+            })
+
+        # Untuk non-sewa, set default supaya model tidak complaint
+        if transaction_type != 'sewa':
+            data['payment_time'] = 'after'
 
         return data

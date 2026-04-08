@@ -60,14 +60,17 @@ class TestTool(TimeStampedModel):
 class ToolRental(TimeStampedModel):
     """Peminjaman alat tes — konsep harian"""
 
-    STATUS_CHOICES = (
-        ('pending',   'Pending'),
-        ('approved',  'Disetujui'),
-        ('borrowed',  'Dipinjam'),
-        ('returned',  'Dikembalikan'),
-        ('declined',  'Ditolak'),
-        ('cancelled', 'Dibatalkan'),
-    )
+    STATUS_CHOICES = [
+        ('pending',          'Menunggu Persetujuan'),
+        ('approved',         'Disetujui'),
+        ('payment_pending',  'Menunggu Verifikasi Bayar'), 
+        ('borrowed',         'Sedang Dipinjam'),
+        ('overdue',          'Terlambat'),
+        ('returning',        'Diajukan Kembali'),
+        ('returned',         'Selesai'),
+        ('declined',         'Ditolak'),
+        ('cancelled',        'Dibatalkan'),
+    ]
     TRANSACTION_TYPE_CHOICES = (
         ('pinjam', 'Peminjaman'),
         ('sewa',   'Penyewaan'),

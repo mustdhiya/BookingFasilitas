@@ -65,6 +65,7 @@ AUTHENTICATION_BACKENDS = [
 
 ROOT_URLCONF = 'config.urls'
 
+
 # ============================================
 # TEMPLATES CONFIGURATION
 # ============================================
@@ -195,23 +196,24 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # ============================================
 # EMAIL CONFIGURATION (Based on Production Mode)
 # ============================================
-if PRODUCTION_MODE:
-    # Production Email (SMTP Real)
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
-    EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
-    EMAIL_USE_TLS = True
-    EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+_email_override = config('EMAIL_BACKEND_OVERRIDE', default='')
+
+if PRODUCTION_MODE or _email_override == 'smtp':
+    EMAIL_BACKEND       = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST          = config('EMAIL_HOST', default='smtp.gmail.com')
+    EMAIL_PORT          = config('EMAIL_PORT', default=587, cast=int)
+    EMAIL_USE_TLS       = True
+    EMAIL_HOST_USER     = config('EMAIL_HOST_USER', default='')
     EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+    DEFAULT_FROM_EMAIL  = f'Lab Psikologi UMKT <{config("EMAIL_HOST_USER", default="")}>'
 else:
-    # Development Email (Console Backend - print to terminal)
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    DEFAULT_FROM_EMAIL = 'Lab Psikologi UMKT <noreply@localhost>'
 
 # ============================================
 # SECURITY SETTINGS (Production Only)
 # ============================================
 if PRODUCTION_MODE:
-    # Security Settings
     SECURE_SSL_REDIRECT = False
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SESSION_COOKIE_SECURE = True
@@ -219,9 +221,16 @@ if PRODUCTION_MODE:
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
-    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
+
+    # TAMBAHKAN INI — wajib untuk Django 4+ di balik reverse proxy
+    CSRF_TRUSTED_ORIGINS = [
+        'https://psylab-umkt.my.id',
+        'https://www.psylab-umkt.my.id',
+    ]
+    USE_X_FORWARDED_HOST = True
 
 # ============================================
 # CACHE & SESSION — OPTIMIZED UNTUK 300 USERS

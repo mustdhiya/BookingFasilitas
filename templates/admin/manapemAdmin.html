@@ -434,163 +434,246 @@
           </div>
 
           <div class="flex-1 min-w-0">
-            <div class="flex items-start justify-between mb-3">
-              <div class="flex-1">
-                <div class="flex items-center gap-2 mb-1">
-                  <h4 class="text-base font-semibold text-slate-900">
-                    {{ rental.user.get_full_name|default:rental.user.email }}
-                  </h4>
-                  <span class="text-xs text-slate-400">•</span>
-                  <span class="text-xs text-slate-500">#ALT-{{ rental.pk|stringformat:"04d" }}</span>
-                </div>
-                <p class="text-sm text-slate-600">
-                  {{ rental.get_institution_display }} • {{ rental.get_purpose_display }}
-                </p>
-              </div>
 
-              <div class="flex items-center gap-2 ml-4 flex-shrink-0">
-                {# Badge pembayaran #}
-                {% if rental.is_paid %}
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold
-                            bg-emerald-100 text-emerald-800 border border-emerald-300">
-                  <span class="material-icons text-xs mr-1">check</span>Lunas
-                </span>
-                {% else %}
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold
-                            bg-amber-100 text-amber-800 border border-amber-300">
-                  Belum Bayar
-                </span>
-                {% endif %}
+  {# ── Header: Nama + Badge ── #}
+  <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
+    <div class="min-w-0">
+      <div class="flex flex-wrap items-center gap-1.5 mb-1">
+        <h4 class="text-base font-semibold text-slate-900 truncate">
+          {{ rental.user.get_full_name|default:rental.user.email }}
+        </h4>
+        <span class="text-xs text-slate-400">•</span>
+        <span class="text-xs text-slate-500 font-mono">#ALT-{{ rental.pk|stringformat:"04d" }}</span>
+      </div>
+      <p class="text-sm text-slate-600 truncate">
+        {{ rental.get_institution_display }} • {{ rental.get_purpose_display }}
+      </p>
+    </div>
 
-                {# Badge status #}
-                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border
-                            {% if rental.status == 'pending' %}bg-amber-100 text-amber-800 border-amber-300
-                            {% elif rental.status == 'approved' %}bg-emerald-100 text-emerald-800 border-emerald-300
-                            {% elif rental.status == 'borrowed' %}bg-blue-100 text-blue-800 border-blue-300
-                            {% elif rental.status == 'returned' %}bg-slate-100 text-slate-700 border-slate-300
-                            {% else %}bg-rose-100 text-rose-800 border-rose-300{% endif %}">
-                  {% if rental.status == 'pending' %}
-                  <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5 animate-pulse"></span>Pending
-                  {% elif rental.status == 'approved' %}
-                  <span class="material-icons text-xs mr-1">check</span>Approved
-                  {% elif rental.status == 'borrowed' %}
-                  <span class="material-icons text-xs mr-1">schedule</span>Dipinjam
-                  {% elif rental.status == 'returned' %}
-                  <span class="material-icons text-xs mr-1">assignment_return</span>Dikembalikan
-                  {% else %}
-                  <span class="material-icons text-xs mr-1">close</span>Declined
-                  {% endif %}
-                </span>
-              </div>
-            </div>
+    {# Badges — wrap di mobile #}
+    <div class="flex flex-wrap items-center gap-1.5 flex-shrink-0">
+      {# Badge pembayaran #}
+      {% if rental.transaction_type != 'pinjam' %}
+        {% if rental.is_paid %}
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold
+                       bg-emerald-100 text-emerald-800 border border-emerald-300 whitespace-nowrap">
+            <span class="material-icons text-xs mr-1">check</span>Lunas
+          </span>
+        {% elif rental.status == 'payment_pending' %}
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold
+                       bg-amber-100 text-amber-800 border border-amber-300 whitespace-nowrap">
+            <span class="material-icons text-xs mr-1">hourglass_top</span>Verif Bayar
+          </span>
+        {% else %}
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold
+                       bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap">
+            Belum Bayar
+          </span>
+        {% endif %}
+      {% endif %}
 
-            {# Info Grid #}
-            <div class="grid sm:grid-cols-5 gap-3 mb-4 p-3 rounded-lg bg-white border border-slate-200">
-              <div class="flex items-center gap-2">
-                <span class="material-icons text-xs text-blue-400">science</span>
-                <div>
-                  <p class="text-xs text-slate-500">Alat Tes</p>
-                  <p class="text-sm font-semibold text-slate-900">{{ rental.tool.name }}</p>
-                </div>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="material-icons text-xs text-slate-400">numbers</span>
-                <div>
-                  <p class="text-xs text-slate-500">Jumlah</p>
-                  <p class="text-sm font-semibold text-slate-900">{{ rental.quantity }} {{ rental.tool.unit }}</p>
-                </div>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="material-icons text-xs text-slate-400">event</span>
-                <div>
-                  <p class="text-xs text-slate-500">Tgl Pinjam</p>
-                  <p class="text-sm font-semibold text-slate-900">{{ rental.date_start|date:"d M Y" }}</p>
-                </div>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="material-icons text-xs
-                            {% if rental.is_overdue %}text-rose-400{% else %}text-slate-400{% endif %}">
-                  event_repeat
-                </span>
-                <div>
-                  <p class="text-xs text-slate-500">Tgl Kembali</p>
-                  <p class="text-sm font-semibold
-                            {% if rental.is_overdue %}text-rose-600{% else %}text-slate-900{% endif %}">
-                    {{ rental.date_end|date:"d M Y" }}
-                  </p>
-                </div>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="material-icons text-xs text-slate-400">inventory</span>
-                <div>
-                  <p class="text-xs text-slate-500">Stok Sisa</p>
-                  <p class="text-sm font-semibold
-                            {% if rental.tool.stock < 5 %}text-amber-600{% else %}text-emerald-600{% endif %}">
-                    {{ rental.tool.stock }} {{ rental.tool.unit }}
-                  </p>
-                </div>
-              </div>
-            </div>
+      {# Badge status #}
+      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border whitespace-nowrap
+        {% if rental.status == 'pending' %}bg-amber-100 text-amber-800 border-amber-300
+        {% elif rental.status == 'approved' %}bg-emerald-100 text-emerald-800 border-emerald-300
+        {% elif rental.status == 'payment_pending' %}bg-orange-100 text-orange-800 border-orange-300
+        {% elif rental.status == 'borrowed' %}bg-blue-100 text-blue-800 border-blue-300
+        {% elif rental.status == 'returning' %}bg-purple-100 text-purple-800 border-purple-300
+        {% elif rental.status == 'returned' %}bg-slate-100 text-slate-700 border-slate-300
+        {% elif rental.status == 'overdue' %}bg-rose-100 text-rose-800 border-rose-300
+        {% else %}bg-rose-100 text-rose-800 border-rose-300{% endif %}">
+        {% if rental.status == 'pending' %}
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5 animate-pulse"></span>Pending
+        {% elif rental.status == 'approved' %}
+          <span class="material-icons text-xs mr-1">check</span>Approved
+        {% elif rental.status == 'payment_pending' %}
+          <span class="material-icons text-xs mr-1">receipt_long</span>Menunggu Verif
+        {% elif rental.status == 'borrowed' %}
+          <span class="material-icons text-xs mr-1">schedule</span>Dipinjam
+        {% elif rental.status == 'returning' %}
+          <span class="material-icons text-xs mr-1">assignment_return</span>Diajukan Kembali
+        {% elif rental.status == 'returned' %}
+          <span class="material-icons text-xs mr-1">check_circle</span>Selesai
+        {% elif rental.status == 'overdue' %}
+          <span class="material-icons text-xs mr-1">warning</span>Terlambat
+        {% else %}
+          <span class="material-icons text-xs mr-1">close</span>Ditolak
+        {% endif %}
+      </span>
+    </div>
+  </div>
 
-            {# Biaya #}
-            <div class="rounded-lg bg-blue-50 border border-blue-200 p-3 mb-3">
-              <p class="text-xs text-blue-600 mb-0.5">Total Biaya Peminjaman</p>
-              <p class="text-xl font-bold text-blue-900">Rp {{ rental.total_cost|floatformat:0 }}</p>
-              <p class="text-xs text-blue-600 mt-0.5">
-                @ Rp {{ rental.tool.price_per_unit|floatformat:0 }} × {{ rental.quantity }} {{ rental.tool.unit }}
-              </p>
-            </div>
+  {# ── Info Grid — 2 col mobile, 5 col sm+ ── #}
+  <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-3 mb-4 p-3 rounded-lg bg-white border border-slate-200">
+    <div class="flex items-center gap-2">
+      <span class="material-icons text-xs text-blue-400 flex-shrink-0">science</span>
+      <div class="min-w-0">
+        <p class="text-xs text-slate-500">Alat Tes</p>
+        <p class="text-sm font-semibold text-slate-900 truncate">{{ rental.tool.name }}</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="material-icons text-xs text-slate-400 flex-shrink-0">numbers</span>
+      <div>
+        <p class="text-xs text-slate-500">Jumlah</p>
+        <p class="text-sm font-semibold text-slate-900">{{ rental.quantity }} {{ rental.tool.unit }}</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="material-icons text-xs text-slate-400 flex-shrink-0">event</span>
+      <div>
+        <p class="text-xs text-slate-500">Tgl Pinjam</p>
+        <p class="text-sm font-semibold text-slate-900">{{ rental.date_start|date:"d M Y" }}</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="material-icons text-xs flex-shrink-0
+                   {% if rental.is_overdue %}text-rose-400{% else %}text-slate-400{% endif %}">
+        event_repeat
+      </span>
+      <div>
+        <p class="text-xs text-slate-500">Tgl Kembali</p>
+        <p class="text-sm font-semibold
+                  {% if rental.is_overdue %}text-rose-600{% else %}text-slate-900{% endif %}">
+          {{ rental.date_end|date:"d M Y" }}
+        </p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 col-span-2 sm:col-span-1">
+      <span class="material-icons text-xs text-slate-400 flex-shrink-0">inventory</span>
+      <div>
+        <p class="text-xs text-slate-500">Stok Sisa</p>
+        <p class="text-sm font-semibold
+                  {% if rental.tool.stock < 5 %}text-amber-600{% else %}text-emerald-600{% endif %}">
+          {{ rental.tool.stock }} {{ rental.tool.unit }}
+        </p>
+      </div>
+    </div>
+  </div>
 
-            {# Alert overdue #}
-            {% if rental.is_overdue %}
-            <div class="rounded-lg bg-rose-50 border border-rose-200 p-3 mb-3 flex items-center gap-2">
-              <span class="material-icons text-rose-600 text-lg">warning</span>
-              <div>
-                <p class="text-sm font-semibold text-rose-900">Jatuh Tempo Pengembalian!</p>
-                <p class="text-xs text-rose-700">
-                  Batas: {{ rental.date_end|date:"d M Y" }} ({{ rental.date_end|timesince }} lalu)
-                </p>
-              </div>
-            </div>
-            {% endif %}
+  {# ── Biaya ── #}
+  <div class="rounded-lg bg-blue-50 border border-blue-200 p-3 mb-3">
+    <p class="text-xs text-blue-600 mb-0.5">Total Biaya</p>
+    <p class="text-xl font-bold text-blue-900">Rp {{ rental.total_cost|floatformat:0 }}</p>
+    <p class="text-xs text-blue-600 mt-0.5">
+      @ Rp {{ rental.tool.price_per_unit|floatformat:0 }} × {{ rental.quantity }} {{ rental.tool.unit }}
+    </p>
+  </div>
 
-            {# Actions #}
-            <div class="flex items-center justify-between
-                        {% if rental.status != 'pending' %}opacity-0 group-hover:opacity-100 transition-opacity{% endif %}">
-              <span class="text-xs text-slate-400">Diajukan {{ rental.created_at|timesince }} lalu</span>
-              <div class="flex gap-2">
-                {% if rental.status == 'pending' %}
-                <button onclick="approveToolRental({{ rental.pk }})"
-                        id="btn-approve-tool-{{ rental.pk }}"
-                        class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500
-                              hover:bg-emerald-600 text-white font-semibold text-sm
-                              px-4 py-2 transition shadow-sm">
-                  <span class="material-icons text-sm">check</span>Approve
-                </button>
-                <button onclick="declineToolRental({{ rental.pk }}, '{{ rental.user.get_full_name|escapejs }}')"
-                        class="inline-flex items-center gap-1.5 rounded-lg bg-rose-500
-                              hover:bg-rose-600 text-white font-semibold text-sm
-                              px-4 py-2 transition shadow-sm">
-                  <span class="material-icons text-sm">close</span>Decline
-                </button>
-                {% elif rental.status == 'borrowed' %}
-                <button onclick="sendReminderReturn({{ rental.pk }})"
-                        class="inline-flex items-center gap-1.5 rounded-lg border border-amber-300
-                              bg-amber-50 hover:bg-amber-100 text-amber-700 font-medium
-                              text-sm px-4 py-2 transition">
-                  <span class="material-icons text-sm">notifications</span>Kirim Reminder
-                </button>
-                <button onclick="markToolReturned({{ rental.pk }})"
-                        class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500
-                              hover:bg-emerald-600 text-white font-semibold text-sm
-                              px-4 py-2 transition shadow-sm">
-                  <span class="material-icons text-sm">assignment_return</span>Mark Returned
-                </button>
-                {% endif %}
-              </div>
-            </div>
+  {# ── Overdue alert ── #}
+  {% if rental.is_overdue %}
+  <div class="rounded-lg bg-rose-50 border border-rose-200 p-3 mb-3 flex items-start gap-2">
+    <span class="material-icons text-rose-600 text-lg flex-shrink-0">warning</span>
+    <div>
+      <p class="text-sm font-semibold text-rose-900">Jatuh Tempo Pengembalian!</p>
+      <p class="text-xs text-rose-700">
+        Batas: {{ rental.date_end|date:"d M Y" }} ({{ rental.date_end|timesince }} lalu)
+      </p>
+    </div>
+  </div>
+  {% endif %}
 
-          </div>
+  {# ── Bukti bayar info jika payment_pending ── #}
+  {% if rental.status == 'payment_pending' and rental.payment_proof %}
+  <div class="rounded-lg bg-amber-50 border border-amber-200 p-3 mb-3 flex items-center gap-3">
+    <span class="material-icons text-amber-600 flex-shrink-0">receipt_long</span>
+    <div class="flex-1 min-w-0">
+      <p class="text-sm font-semibold text-amber-900">Bukti Bayar Masuk</p>
+      <a href="{{ rental.payment_proof.url }}" target="_blank"
+         class="text-xs text-blue-600 hover:underline break-all">
+        Lihat File Bukti →
+      </a>
+    </div>
+  </div>
+  {% endif %}
+
+  {# ── Actions ── #}
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-1">
+    <span class="text-xs text-slate-400 order-last sm:order-first">
+      Diajukan {{ rental.created_at|timesince }} lalu
+    </span>
+
+    <div class="flex flex-wrap gap-2">
+      {% if rental.status == 'pending' %}
+        <button id="btn-approve-tool-{{ rental.pk }}"
+                onclick="approveToolRental({{ rental.pk }})"
+                class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500
+                       hover:bg-emerald-600 text-white font-semibold text-sm px-3 py-1.5">
+          <span class="material-icons text-sm">check</span>Approve
+        </button>
+        <button onclick="declineToolRental({{ rental.pk }},'{{ rental.user.get_full_name }}')"
+                class="inline-flex items-center gap-1.5 rounded-lg bg-rose-500
+                       hover:bg-rose-600 text-white font-semibold text-sm px-3 py-1.5">
+          <span class="material-icons text-sm">close</span>Tolak
+        </button>
+
+      {% elif rental.status == 'payment_pending' %}
+        <a href="{{ rental.payment_proof.url }}" target="_blank"
+           class="inline-flex items-center gap-1.5 rounded-lg bg-slate-100
+                  hover:bg-slate-200 text-slate-700 font-semibold text-sm px-3 py-1.5">
+          <span class="material-icons text-sm">receipt_long</span>Lihat Bukti
+        </a>
+        <button onclick="verifyPayment({{ rental.pk }})"
+                class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500
+                       hover:bg-emerald-600 text-white font-semibold text-sm px-3 py-1.5">
+          <span class="material-icons text-sm">verified</span>Terima
+        </button>
+        <button onclick="rejectPayment({{ rental.pk }})"
+                class="inline-flex items-center gap-1.5 rounded-lg bg-rose-500
+                       hover:bg-rose-600 text-white font-semibold text-sm px-3 py-1.5">
+          <span class="material-icons text-sm">close</span>Tolak Bukti
+        </button>
+
+      {% elif rental.status == 'approved' %}
+        {% if rental.transaction_type == 'pinjam' %}
+          <button onclick="markToolBorrowed({{ rental.pk }})"
+                  class="inline-flex items-center gap-1.5 rounded-lg bg-blue-500
+                         hover:bg-blue-600 text-white font-semibold text-sm px-3 py-1.5">
+            <span class="material-icons text-sm">handshake</span>Tandai Dipinjam
+          </button>
+        {% else %}
+          <span class="text-sm text-amber-600 font-medium flex items-center gap-1">
+            <span class="material-icons text-sm">hourglass_top</span>
+            Menunggu Bukti Bayar
+          </span>
+        {% endif %}
+
+      {% elif rental.status == 'borrowed' %}
+        <button onclick="sendReminderReturn({{ rental.pk }})"
+                class="inline-flex items-center gap-1.5 rounded-lg bg-amber-400
+                       hover:bg-amber-500 text-white font-semibold text-sm px-3 py-1.5">
+          <span class="material-icons text-sm">notifications</span>Kirim Reminder
+        </button>
+
+      {% elif rental.status == 'returning' %}
+        <button onclick="markToolReturned({{ rental.pk }})"
+                class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500
+                       hover:bg-emerald-600 text-white font-semibold text-sm px-3 py-1.5">
+          <span class="material-icons text-sm">assignment_turned_in</span>Konfirmasi Kembali
+        </button>
+
+      {% elif rental.status == 'overdue' %}
+        <button onclick="markToolReturned({{ rental.pk }})"
+                class="inline-flex items-center gap-1.5 rounded-lg bg-rose-500
+                       hover:bg-rose-600 text-white font-semibold text-sm px-3 py-1.5">
+          <span class="material-icons text-sm">assignment_return</span>Terima Kembali
+        </button>
+
+      {% elif rental.status == 'returned' %}
+        <span class="text-sm text-slate-400 flex items-center gap-1">
+          <span class="material-icons text-sm">check_circle</span>Selesai
+        </span>
+
+      {% elif rental.status == 'declined' or rental.status == 'cancelled' %}
+        <span class="text-sm text-slate-400 flex items-center gap-1">
+          <span class="material-icons text-sm">cancel</span>
+          {% if rental.status == 'declined' %}Ditolak{% else %}Dibatalkan{% endif %}
+        </span>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
         </div>
       </div>
 
@@ -698,6 +781,7 @@ async function approveRoomBooking(bookingId) {
     }
 }
 
+
 // ── Decline Room Booking ─────────────────────────────────
 async function declineRoomBooking(bookingId) {
     const notes = prompt('Alasan penolakan (opsional):') ?? '';
@@ -758,10 +842,176 @@ function showToast(message, type = 'info') {
 
     setTimeout(() => toast.remove(), 3500);
 }
+// ── Approve Tool Rental ──────────────────────────────────
+async function approveToolRental(rentalId) {
+    if (!confirm('Approve peminjaman alat ini?')) return;
 
+    const btn = document.getElementById(`btn-approve-tool-${rentalId}`);
+    if (btn) { btn.disabled = true; btn.textContent = 'Memproses...'; }
+
+    try {
+        const res = await fetch(`/api/tools/rentals/${rentalId}/approve/`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+            showToast('✓ Peminjaman alat berhasil diapprove.', 'success');
+            setTimeout(() => location.reload(), 1200);
+        } else {
+            showToast(data.error || data.detail || 'Gagal approve.', 'error');
+            if (btn) { btn.disabled = false; btn.innerHTML = '<span class="material-icons text-sm">check</span>Approve'; }
+        }
+    } catch (err) {
+        showToast('Terjadi kesalahan jaringan.', 'error');
+        if (btn) { btn.disabled = false; btn.innerHTML = '<span class="material-icons text-sm">check</span>Approve'; }
+    }
+}
+
+// ── Decline Tool Rental ──────────────────────────────────
+async function declineToolRental(rentalId, userName) {
+    const notes = prompt(`Alasan penolakan untuk ${userName} (opsional):`);
+    if (notes === null) return; // user klik Cancel
+
+    try {
+        const res = await fetch(`/api/tools/rentals/${rentalId}/decline/`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ notes }),
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+            showToast('✗ Peminjaman alat berhasil ditolak.', 'warning');
+            setTimeout(() => location.reload(), 1200);
+        } else {
+            showToast(data.error || data.detail || 'Gagal decline.', 'error');
+        }
+    } catch (err) {
+        showToast('Terjadi kesalahan jaringan.', 'error');
+    }
+}
+
+// ── Mark Tool Returned ───────────────────────────────────
+async function markToolReturned(rentalId) {
+    if (!confirm('Konfirmasi alat sudah dikembalikan secara fisik?')) return;
+
+    try {
+        const res = await fetch(`/api/tools/rentals/${rentalId}/return/`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            },
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+            showToast(`✓ Alat dikembalikan. Stok baru: ${data.new_stock}`, 'success');
+            setTimeout(() => location.reload(), 1200);
+        } else {
+            showToast(data.error || 'Gagal memproses pengembalian.', 'error');
+        }
+    } catch (err) {
+        showToast('Terjadi kesalahan jaringan.', 'error');
+    }
+}
+
+// ── Send Reminder Return ─────────────────────────────────
+async function sendReminderReturn(rentalId) {
+    if (!confirm('Kirim email reminder ke peminjam?')) return;
+
+    const res = await fetch(`/api/tools/rentals/${rentalId}/send-reminder/`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+    });
+    const data = await res.json();
+    if (res.ok) {
+        showToast(`📧 Reminder dikirim ke ${data.sent_to}`, 'success');
+    } else {
+        showToast(data.error || 'Gagal kirim email.', 'error');
+    }
+}
+
+// ── Send Reminder Email (Room) ───────────────────────────
+async function sendReminderEmail(bookingId) {
+    showToast('📧 Reminder ruangan dikirim.', 'info');
+    // TODO: hubungkan ke endpoint email jika sudah ada
+}async function verifyPayment(rentalId) {
+    if (!confirm('Konfirmasi bukti pembayaran diterima?')) return;
+    const res = await fetch(`/api/tools/rentals/${rentalId}/verify-payment/`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+    });
+    const data = await res.json();
+    if (res.ok) {
+        showToast('✓ Pembayaran diverifikasi. Status → Dipinjam.', 'success');
+        setTimeout(() => location.reload(), 1200);
+    } else {
+        showToast(data.error || 'Gagal verifikasi.', 'error');
+    }
+}
+
+async function rejectPayment(rentalId) {
+    const notes = prompt('Alasan penolakan bukti bayar:') ?? '';
+    if (notes === null) return;
+    const res = await fetch(`/api/tools/rentals/${rentalId}/reject-payment/`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ notes }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+        showToast('✗ Bukti ditolak. User diminta upload ulang.', 'warning');
+        setTimeout(() => location.reload(), 1200);
+    } else {
+        showToast(data.error || 'Gagal.', 'error');
+    }
+}
+async function markToolBorrowed(rentalId) {
+    if (!confirm('Konfirmasi alat sudah diserahkan ke peminjam?')) return;
+    const res = await fetch(`/api/tools/rentals/${rentalId}/mark-borrowed/`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+    });
+    const data = await res.json();
+    if (res.ok) {
+        showToast('✓ Status diubah ke Dipinjam.', 'success');
+        setTimeout(() => location.reload(), 1200);
+    } else {
+        showToast(data.error || 'Gagal.', 'error');
+    }
+}
 // Expose ke global scope
-window.approveRoomBooking = approveRoomBooking;
-window.declineRoomBooking = declineRoomBooking;
+window.markToolBorrowed = markToolBorrowed;
+window.verifyPayment  = verifyPayment;
+window.rejectPayment  = rejectPayment;
+window.approveToolRental  = approveToolRental;
+window.declineToolRental  = declineToolRental;
+window.markToolReturned   = markToolReturned;
+window.sendReminderReturn = sendReminderReturn;
+window.sendReminderEmail  = sendReminderEmail;
 
 </script>
 {% endblock %}
