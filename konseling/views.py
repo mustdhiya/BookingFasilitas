@@ -112,7 +112,7 @@ class KonselingPageView(LoginRequiredMixin, TemplateView):
         ctx['min_date']       = (timezone.now().date() + timezone.timedelta(days=1)).isoformat()
         ctx['tarif']          = {
             'umkt':     'Hubungi Admin',
-            'non_umkt': 'Rp 175.000',
+            'non_umkt': 'Rp 200.000',
         }
         return ctx
 
