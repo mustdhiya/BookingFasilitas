@@ -2,18 +2,32 @@ from django.db import models
 from core.models import TimeStampedModel
 from accounts.models import User
 from research.models import Lecturer  # reuse dosen dari research
+from django.db import models
+from core.models import TimeStampedModel
+from accounts.models import User
+from research.models import Lecturer
+
 
 class InternshipPartner(TimeStampedModel):
+    """Master data mitra magang — CRUD admin."""
     name = models.CharField(max_length=200, verbose_name='Nama Instansi')
-    address = models.TextField(verbose_name='Alamat')
+    address = models.TextField(blank=True, verbose_name='Alamat')
     field = models.CharField(
         max_length=100,
+        blank=True,
         verbose_name='Bidang Magang',
         help_text='Psikologi Klinis, Industri, dll'
     )
     contact_person = models.CharField(max_length=150, blank=True, verbose_name='Kontak Person')
     phone = models.CharField(max_length=20, blank=True)
     email = models.EmailField(blank=True)
+
+    keterangan = models.TextField(
+        blank=True,
+        verbose_name='Keterangan',
+        help_text='Contoh: Magang berbayar/tidak berbayar, jam kerja, syarat khusus, dll'
+    )
+
     is_active = models.BooleanField(default=True)
 
     quota = models.PositiveIntegerField(
@@ -46,17 +60,18 @@ class InternshipPartner(TimeStampedModel):
     def quota_percentage(self):
         if self.quota == 0:
             return 0
+        if self.quota <= 0:
+            return 0
         return min(100, int((self.accepted_count / self.quota) * 100))
 
     @property
     def quota_status(self):
         if self.quota == 0:
             return 'unlimited'
-
         remaining = self.quota_remaining
         if remaining == 0:
             return 'full'
-        if remaining <= max(2, self.quota // 5):
+        if remaining <= 2:
             return 'limited'
         return 'available'
     

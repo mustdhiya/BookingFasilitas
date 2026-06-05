@@ -3,7 +3,6 @@
 
 {% block content %}
 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-  <!-- ── HEADER ───────────────────────────────────────────── -->
   <div class="mb-6">
     <div class="flex items-start justify-between gap-4 flex-wrap">
       <div>
@@ -23,12 +22,11 @@
     </div>
   </div>
 
-  <!-- ── STATUS AKTIF ─────────────────────────────────────── -->
   {% if my_active_request %}
   <div class="alert alert-info mb-5 flex items-center gap-3">
     <span class="material-icons-outlined mat-sm text-primary-500">info</span>
     <div class="flex-1 text-sm">
-      Magang aktif: <strong>{{ my_active_request.partner_name }}</strong>
+      Magang aktif: <strong>{{ my_active_request.partner_name|default:my_active_request.partner.name }}</strong>
       &mdash; {{ my_active_request.start_date }} s/d {{ my_active_request.end_date }}
     </div>
     <span class="badge
@@ -36,12 +34,11 @@
       {% elif my_active_request.status == 'approved' %}badge-success
       {% elif my_active_request.status == 'ongoing' %}badge-primary
       {% else %}badge-gray{% endif %}">
-      {{ my_active_request.status_display }}
+      {{ my_active_request.get_status_display }}
     </span>
   </div>
   {% endif %}
 
-  <!-- ── TABS ─────────────────────────────────────────────── -->
   <div class="flex gap-1 mb-6 border-b border-slate-200 dark:border-slate-700 overflow-x-auto">
     <button type="button"
             onclick="switchTab('pilih-mitra')"
@@ -71,9 +68,6 @@
     </button>
   </div>
 
-  <!-- ══════════════════════════════════ -->
-  <!-- TAB: PILIH MITRA -->
-  <!-- ══════════════════════════════════ -->
   <div id="tab-pilih-mitra" class="tab-content">
     {% if not my_active_request %}
       {% if partners %}
@@ -97,6 +91,17 @@
               {% endif %}
             </div>
           </div>
+
+          {% if partner.keterangan %}
+          <div class="rounded-xl bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800 p-3">
+            <p class="text-[11px] font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-300 mb-1">
+              Keterangan
+            </p>
+            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed line-clamp-3">
+              {{ partner.keterangan }}
+            </p>
+          </div>
+          {% endif %}
 
           <div class="rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700 p-3 space-y-2">
             <div class="flex items-center justify-between gap-2">
@@ -138,17 +143,22 @@
                   {% else %}bg-emerald-500{% endif %}"
                   style="width: {{ partner.quota_percentage }}%"></div>
               </div>
+              {% endif %}
 
               {% if partner.address %}
               <p class="text-xs text-slate-400 line-clamp-2">{{ partner.address }}</p>
-              {% endif %}
               {% endif %}
             </div>
           </div>
 
           <div class="mt-auto flex gap-2">
             <button type="button"
-                    onclick="openRegisterModal('{{ partner.id }}', '{{ partner.name|escapejs }}', '{{ partner.field|default:''|escapejs }}')"
+                    onclick="openRegisterModal(
+                      '{{ partner.id }}',
+                      '{{ partner.name|escapejs }}',
+                      '{{ partner.field|default:''|escapejs }}',
+                      '{{ partner.keterangan|default:''|escapejs }}'
+                    )"
                     class="btn btn-sm flex-1 quota-btn-{{ partner.id }}
                       {% if partner.quota_status == 'full' %}btn-secondary opacity-50 cursor-not-allowed
                       {% else %}btn-primary{% endif %}"
@@ -175,7 +185,7 @@
           <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Instansi tidak ada di daftar?</p>
           <p class="text-xs text-slate-400 mt-0.5">Isi data instansi secara manual untuk diajukan ke admin.</p>
         </div>
-        <button type="button" onclick="openRegisterModal(null, null, null)" class="btn btn-outline btn-sm flex-shrink-0">
+        <button type="button" onclick="openRegisterModal(null, null, null, null)" class="btn btn-outline btn-sm flex-shrink-0">
           <span class="material-icons-outlined mat-xs">edit_note</span>Daftar Manual
         </button>
       </div>
@@ -191,9 +201,6 @@
     {% endif %}
   </div>
 
-  <!-- ══════════════════════════════════ -->
-  <!-- TAB: REQUEST SAYA -->
-  <!-- ══════════════════════════════════ -->
   <div id="tab-request-saya" class="tab-content hidden">
     {% if my_requests %}
     <div class="space-y-4">
@@ -206,7 +213,15 @@
             </div>
 
             <div>
-              <p class="font-semibold text-sm text-slate-900 dark:text-slate-100">{{ req.partner_name }}</p>
+              <p class="font-semibold text-sm text-slate-900 dark:text-slate-100">
+    {% if req.partner_name %}
+        {{ req.partner_name }}
+    {% elif req.partner %}
+        {{ req.partner.name }}
+    {% else %}
+        Mitra belum tersedia
+    {% endif %}
+</p>
               <p class="text-xs text-blue-600 dark:text-blue-400">{{ req.partner_field|default:"Bidang belum tersedia" }}</p>
 
               <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
@@ -217,7 +232,7 @@
               <p class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
                 <span class="material-icons-outlined mat-xs">person</span>
                 {% if req.status == 'approved' or req.status == 'ongoing' or req.status == 'completed' %}
-                  {{ req.lecturer_name }}
+                  {{ req.lecturer.name }}
                 {% else %}
                   <span class="italic">Dirahasiakan hingga disetujui</span>
                 {% endif %}
@@ -260,9 +275,6 @@
     {% endif %}
   </div>
 
-  <!-- ══════════════════════════════════ -->
-  <!-- TAB: LOG AKTIVITAS -->
-  <!-- ══════════════════════════════════ -->
   <div id="tab-log-aktivitas" class="tab-content hidden">
     <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
       <div>
@@ -297,9 +309,7 @@
       </div>
 
       <div class="flex gap-3">
-        <button type="button" onclick="toggleLogForm()" class="btn btn-secondary">
-          Batal
-        </button>
+        <button type="button" onclick="toggleLogForm()" class="btn btn-secondary">Batal</button>
         <button type="button" id="submit-log-btn" onclick="submitNewLog()" class="btn btn-primary">
           <span class="material-icons-outlined mat-xs">add</span>Simpan Log
         </button>
@@ -355,9 +365,6 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════ -->
-<!-- MODAL: DAFTAR MAGANG -->
-<!-- ══════════════════════════════════════════ -->
 <div id="register-modal"
      class="fixed inset-0 z-50 hidden items-center justify-center p-4"
      role="dialog"
@@ -380,6 +387,7 @@
         <p class="text-xs text-slate-500 dark:text-slate-400">Mitra dipilih</p>
         <p class="font-semibold text-sm text-blue-900 dark:text-blue-100" id="modal-partner-name"></p>
         <p class="text-xs text-blue-600 dark:text-blue-400" id="modal-partner-field"></p>
+        <p id="modal-partner-keterangan" class="hidden mt-2 text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line"></p>
       </div>
 
       <div id="manual-partner-section">
@@ -452,9 +460,6 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════ -->
-<!-- MODAL: UPLOAD DOKUMEN -->
-<!-- ══════════════════════════════════════════ -->
 <div id="upload-modal"
      class="fixed inset-0 z-50 hidden items-center justify-center p-4"
      role="dialog"
@@ -496,11 +501,8 @@
 <script>
 (() => {
   const TAB_NAMES = ['pilih-mitra', 'request-saya', 'log-aktivitas'];
-  const QUOTA_POLL_INTERVAL = 30000;
-
   let selectedPartnerId = null;
   let uploadRequestId = null;
-  let quotaInterval = null;
   let lastFocusedElement = null;
 
   const $ = (selector, root = document) => root.querySelector(selector);
@@ -521,9 +523,7 @@
   function resetButtonLoading(button) {
     if (!button) return;
     button.disabled = false;
-    if (button.dataset.originalHtml) {
-      button.innerHTML = button.dataset.originalHtml;
-    }
+    if (button.dataset.originalHtml) button.innerHTML = button.dataset.originalHtml;
   }
 
   function showToast(type, message) {
@@ -546,18 +546,16 @@
         <span class="material-icons mat-xs">close</span>
       </button>
     `;
-
     $('button', t)?.addEventListener('click', () => t.remove());
     container.appendChild(t);
     setTimeout(() => t.remove(), 4000);
   }
 
-  function switchTab(name) {
+  window.switchTab = function(name) {
     $$('.tab-content').forEach(el => el.classList.add('hidden'));
     $$('.tab-btn').forEach(el => {
       el.classList.remove('active', 'border-primary-500', 'text-primary-600', 'dark:text-primary-400');
       el.classList.add('border-transparent');
-      el.setAttribute('aria-selected', 'false');
     });
 
     $(`#tab-${name}`)?.classList.remove('hidden');
@@ -566,45 +564,27 @@
     if (btn) {
       btn.classList.add('active', 'border-primary-500', 'text-primary-600', 'dark:text-primary-400');
       btn.classList.remove('border-transparent');
-      btn.setAttribute('aria-selected', 'true');
     }
 
     history.replaceState(null, '', `#${name}`);
-    handleQuotaPolling(name);
-  }
-
-  function handleQuotaPolling(activeTab) {
-    if (activeTab === 'pilih-mitra') {
-      pollQuota();
-      if (!quotaInterval) quotaInterval = setInterval(pollQuota, QUOTA_POLL_INTERVAL);
-    } else {
-      clearInterval(quotaInterval);
-      quotaInterval = null;
-    }
-  }
+  };
 
   function openModal(modalId, focusSelector = 'input, select, textarea, button') {
     const modal = document.getElementById(modalId);
     if (!modal) return;
-
     lastFocusedElement = document.activeElement;
     modal.classList.remove('hidden');
     modal.classList.add('flex');
     document.body.classList.add('overflow-hidden');
-
-    setTimeout(() => {
-      modal.querySelector(focusSelector)?.focus();
-    }, 50);
+    setTimeout(() => modal.querySelector(focusSelector)?.focus(), 50);
   }
 
   function closeModal(modalId) {
     const modal = document.getElementById(modalId);
     if (!modal) return;
-
     modal.classList.add('hidden');
     modal.classList.remove('flex');
     document.body.classList.remove('overflow-hidden');
-
     if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
       lastFocusedElement.focus();
     }
@@ -626,21 +606,35 @@
       if (el) el.value = '';
     });
     $('#modal-lecturer').value = '';
+    $('#modal-partner-keterangan').textContent = '';
+    $('#modal-partner-keterangan').classList.add('hidden');
   }
 
-  window.openRegisterModal = function(partnerId, partnerName, partnerField) {
+  window.openRegisterModal = function(partnerId, partnerName, partnerField, partnerKeterangan) {
     selectedPartnerId = partnerId;
     const preview = $('#modal-partner-preview');
     const manualSection = $('#manual-partner-section');
+    const ketEl = $('#modal-partner-keterangan');
 
     if (partnerId) {
       $('#modal-partner-name').textContent = partnerName || '-';
       $('#modal-partner-field').textContent = partnerField || '-';
+
+      if (partnerKeterangan && partnerKeterangan.trim() !== '') {
+        ketEl.textContent = partnerKeterangan;
+        ketEl.classList.remove('hidden');
+      } else {
+        ketEl.textContent = '';
+        ketEl.classList.add('hidden');
+      }
+
       preview.classList.remove('hidden');
       manualSection.classList.add('hidden');
     } else {
       preview.classList.add('hidden');
       manualSection.classList.remove('hidden');
+      ketEl.textContent = '';
+      ketEl.classList.add('hidden');
     }
 
     openModal('register-modal', '#modal-supervisor-name, #modal-partner-name-input');
@@ -780,7 +774,6 @@
   window.toggleLogForm = function() {
     const form = $('#add-log-form');
     if (!form) return;
-
     form.classList.toggle('hidden');
     if (!form.classList.contains('hidden')) {
       $('#log-date').valueAsDate = new Date();
@@ -820,57 +813,11 @@
       .then(data => {
         showToast('success', 'Log berhasil ditambahkan.');
         toggleLogForm();
-
         ['log-date', 'log-topic', 'log-notes', 'log-attachment'].forEach(id => {
           const el = document.getElementById(id);
           if (el) el.value = '';
         });
-
-        $('#logs-empty')?.remove();
-
-        let list = $('#logs-list');
-        if (!list) {
-          list = document.createElement('div');
-          list.id = 'logs-list';
-          list.className = 'space-y-3';
-          $('#tab-log-aktivitas').appendChild(list);
-        }
-
-        const num = list.querySelectorAll('.log-card').length + 1;
-        const card = document.createElement('div');
-        card.className = 'log-card card p-4';
-        card.dataset.logId = data.id;
-        card.innerHTML = `
-          <div class="flex items-start gap-3">
-            <div class="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
-              <span class="material-icons-outlined text-blue-600 mat-sm">event_note</span>
-            </div>
-            <div class="flex-1">
-              <div class="flex items-start justify-between gap-2">
-                <div>
-                  <p class="font-semibold text-sm text-slate-800 dark:text-slate-200">${data.topic}</p>
-                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-1">
-                    <span class="material-icons-outlined mat-xs">calendar_today</span>${data.date}
-                  </p>
-                </div>
-                <div class="flex items-center gap-2 flex-shrink-0">
-                  <span class="badge badge-primary text-xs">Log #${num}</span>
-                  <button type="button"
-                          onclick="deleteLog(${data.id})"
-                          class="p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 transition-colors"
-                          aria-label="Hapus log">
-                    <span class="material-icons-outlined mat-xs">delete</span>
-                  </button>
-                </div>
-              </div>
-              ${data.notes ? `<p class="mt-2 text-xs text-slate-600 dark:text-slate-400 p-2.5 bg-slate-50 dark:bg-slate-700/50 rounded-lg">${data.notes}</p>` : ''}
-            </div>
-          </div>
-        `;
-        list.prepend(card);
-
-        const counter = $('#log-counter');
-        if (counter) counter.textContent = parseInt(counter.textContent || 0, 10) + 1;
+        window.location.reload();
       })
       .catch(err => {
         showToast('error', err.message || 'Gagal menyimpan log.');
@@ -893,121 +840,26 @@
       .then(() => {
         document.querySelector(`[data-log-id="${id}"]`)?.remove();
         showToast('success', 'Log dihapus.');
-
-        const counter = $('#log-counter');
-        if (counter) {
-          const nextCount = Math.max(0, parseInt(counter.textContent || 0, 10) - 1);
-          counter.textContent = nextCount;
-        }
-
-        if (!$('#logs-list')?.children.length) {
-          const empty = document.createElement('div');
-          empty.id = 'logs-empty';
-          empty.className = 'card p-12 text-center';
-          empty.innerHTML = `
-            <span class="material-icons-outlined mat-xl text-slate-300 dark:text-slate-600">event_note</span>
-            <p class="font-medium text-slate-500 dark:text-slate-400 mt-3">Belum ada log aktivitas</p>
-            <p class="text-sm text-slate-400 dark:text-slate-500 mt-1">Tambahkan log pertama untuk mulai mendokumentasikan kegiatan magang.</p>
-          `;
-          $('#tab-log-aktivitas').appendChild(empty);
-        }
       })
       .catch(err => {
         showToast('error', err.message || 'Gagal menghapus log.');
       });
   };
 
-  function updateQuotaUI(partner) {
-    const wrapper = document.getElementById(`quota-${partner.id}`);
-    if (!wrapper || partner.quota_remaining === null) return;
-
-    const acceptedEl = wrapper.querySelector('.quota-accepted');
-    if (acceptedEl) acceptedEl.textContent = partner.accepted_count;
-
-    const remainingEls = document.querySelectorAll(`#partner-card-${partner.id} .quota-remaining-num`);
-    remainingEls.forEach(el => el.textContent = partner.quota_remaining);
-
-    const bar = wrapper.querySelector('.quota-bar');
-    if (bar) {
-      bar.style.width = `${partner.quota_percentage}%`;
-      bar.classList.remove('bg-red-500', 'bg-amber-400', 'bg-emerald-500');
-      if (partner.quota_status === 'full') bar.classList.add('bg-red-500');
-      else if (partner.quota_status === 'limited') bar.classList.add('bg-amber-400');
-      else bar.classList.add('bg-emerald-500');
-    }
-
-    const badge = document.querySelector(`#partner-card-${partner.id} .quota-badge`);
-    if (badge) {
-      badge.classList.remove('badge-danger', 'badge-warning', 'badge-success');
-      if (partner.quota_status === 'full') {
-        badge.classList.add('badge-danger');
-        badge.textContent = 'Penuh';
-      } else if (partner.quota_status === 'limited') {
-        badge.classList.add('badge-warning');
-        badge.innerHTML = `Sisa <span class="quota-remaining-num">${partner.quota_remaining}</span>`;
-      } else {
-        badge.classList.add('badge-success');
-        badge.innerHTML = `Tersedia <span class="quota-remaining-num">${partner.quota_remaining}</span>`;
-      }
-    }
-
-    const btn = document.querySelector(`.quota-btn-${partner.id}`);
-    if (btn) {
-      if (partner.quota_status === 'full') {
-        btn.disabled = true;
-        btn.classList.remove('btn-primary');
-        btn.classList.add('btn-secondary', 'opacity-50', 'cursor-not-allowed');
-        btn.innerHTML = '<span class="material-icons-outlined mat-xs">block</span>Kuota Penuh';
-      } else {
-        btn.disabled = false;
-        btn.classList.add('btn-primary');
-        btn.classList.remove('btn-secondary', 'opacity-50', 'cursor-not-allowed');
-        btn.innerHTML = '<span class="material-icons-outlined mat-xs">send</span>Daftar';
-      }
-    }
-  }
-
-  function pollQuota() {
-    fetch('/api/internship/partners/quota/', {
-      headers: { 'X-CSRFToken': getCookie('csrftoken') }
-    })
-      .then(response => response.json())
-      .then(data => {
-        (data.partners || []).forEach(updateQuotaUI);
-        const indicator = $('#quota-last-update');
-        if (indicator) {
-          indicator.textContent = `Kuota diperbarui ${new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`;
-        }
-      })
-      .catch(() => {});
-  }
-
-  function initModalBackdropAndEscape() {
-    ['register-modal', 'upload-modal'].forEach(id => {
-      const modal = document.getElementById(id);
-      if (!modal) return;
-
-      modal.addEventListener('click', function(e) {
-        if (e.target === modal) {
-          if (id === 'register-modal') closeRegisterModal();
-          if (id === 'upload-modal') closeUploadModal();
-        }
-      });
+  ['register-modal', 'upload-modal'].forEach(id => {
+    document.getElementById(id)?.addEventListener('click', function(e) {
+      if (e.target === this) closeModal(id);
     });
+  });
 
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        if (!$('#register-modal')?.classList.contains('hidden')) closeRegisterModal();
-        if (!$('#upload-modal')?.classList.contains('hidden')) closeUploadModal();
-      }
-    });
-  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      closeRegisterModal();
+      closeUploadModal();
+    }
+  });
 
-  window.switchTab = switchTab;
-
-  document.addEventListener('DOMContentLoaded', function() {
-    initModalBackdropAndEscape();
-
+  document.addEventListener('DOMContentLoaded', () => {
     const hash = window.location.hash.replace('#', '');
     if (TAB_NAMES.includes(hash)) switchTab(hash);
     else switchTab('pilih-mitra');

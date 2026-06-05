@@ -141,6 +141,7 @@ class PartnerCreateView(AdminRequiredMixin, View):
             contact_person = body.get('contact_person', ''),
             phone          = body.get('phone', ''),
             email          = body.get('email', ''),
+            keterangan     = body.get('keterangan', ''),
             quota          = int(body.get('quota', 0)),
         )
         return JsonResponse({
@@ -154,11 +155,18 @@ class PartnerEditView(AdminRequiredMixin, View):
     def get(self, request, pk):
         p = get_object_or_404(InternshipPartner, pk=pk)
         return JsonResponse({
-            'id': p.pk, 'name': p.name, 'field': p.field,
-            'address': p.address, 'contact_person': p.contact_person,
-            'phone': p.phone, 'email': p.email,
-            'quota': p.quota, 'is_active': p.is_active,
+            'id': p.pk,
+            'name': p.name,
+            'field': p.field,
+            'address': p.address,
+            'contact_person': p.contact_person,
+            'phone': p.phone,
+            'email': p.email,
+            'keterangan': p.keterangan,
+            'quota': p.quota,
+            'is_active': p.is_active,
         })
+
 
     def post(self, request, pk):
         partner = get_object_or_404(InternshipPartner, pk=pk)
@@ -174,6 +182,7 @@ class PartnerEditView(AdminRequiredMixin, View):
         partner.phone          = body.get('phone', partner.phone)
         partner.email          = body.get('email', partner.email)
         partner.quota          = int(body.get('quota', partner.quota))
+        partner.keterangan     = body.get('keterangan', partner.keterangan)
         partner.save()
         return JsonResponse({'status': 'ok'})
 

@@ -66,8 +66,45 @@
           <p class="text-xs text-slate-400">{{ req.student.email }}</p>
         </td>
         <td class="px-4 py-3">
-          <p class="text-slate-800 dark:text-slate-200">{{ req.partner_name|default:req.partner }}</p>
-          <p class="text-xs text-slate-400">{{ req.partner_field }}</p>
+          <div>
+  <p class="font-semibold text-sm text-slate-900 dark:text-slate-100">
+    {% if req.partner_name %}
+      {{ req.partner_name }}
+    {% elif req.partner %}
+      {{ req.partner.name }}
+    {% else %}
+      Mitra belum tersedia
+    {% endif %}
+  </p>
+
+  <p class="text-xs text-blue-600 dark:text-blue-400">
+    {% if req.partner_field %}
+      {{ req.partner_field }}
+    {% elif req.partner and req.partner.field %}
+      {{ req.partner.field }}
+    {% else %}
+      Bidang belum tersedia
+    {% endif %}
+  </p>
+
+  <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
+    <span class="material-icons-outlined mat-xs">calendar_today</span>
+    {{ req.start_date }} — {{ req.end_date }}
+  </p>
+
+  <p class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+    <span class="material-icons-outlined mat-xs">person</span>
+    {% if req.status == 'approved' or req.status == 'ongoing' or req.status == 'completed' %}
+      {% if req.lecturer %}
+        {{ req.lecturer.name }}
+      {% else %}
+        <span class="italic">Dosen belum ditentukan</span>
+      {% endif %}
+    {% else %}
+      <span class="italic">Dirahasiakan hingga disetujui</span>
+    {% endif %}
+  </p>
+</div>
         </td>
         <td class="px-4 py-3 text-xs text-slate-500">{{ req.lecturer.name }}</td>
         <td class="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">

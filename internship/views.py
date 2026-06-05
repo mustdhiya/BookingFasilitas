@@ -7,43 +7,57 @@ from django.shortcuts import render, get_object_or_404
 from .models import InternshipRequest, InternshipLog, InternshipPartner
 from research.models import Lecturer
 
+from django.views.generic import View
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import render
+from .models import InternshipRequest, InternshipLog, InternshipPartner
+from research.models import Lecturer
+
 
 class InternshipListView(LoginRequiredMixin, View):
     def get(self, request):
         user = request.user
-        partners_qs = InternshipPartner.objects.filter(is_active=True)
+        partners_qs = InternshipPartner.objects.filter(is_active=True).order_by('name')
 
-        # Sertakan info kuota di setiap partner
         partners_data = []
         for p in partners_qs:
             partners_data.append({
-                'id':             p.id,
-                'name':           p.name,
-                'field':          p.field,
+                'id': p.id,
+                'name': p.name,
+                'field': p.field,
+                'address': p.address,
                 'contact_person': p.contact_person,
-                'phone':          p.phone,
-                'quota':          p.quota,
-                'quota_remaining': p.quota_remaining,   # None = unlimited
-                'quota_status':   p.quota_status,       # full/limited/available/unlimited
+                'phone': p.phone,
+                'email': p.email,
+                'keterangan': p.keterangan,
+                'quota': p.quota,
+                'quota_remaining': p.quota_remaining,
+                'quota_status': p.quota_status,
                 'accepted_count': p.accepted_count,
                 'quota_percentage': p.quota_percentage,
             })
 
-        ctx = {
-            'partners':            partners_data,
-            'my_requests':         InternshipRequest.objects.filter(student=user).select_related('lecturer', 'partner'),
-            'my_active_request':   InternshipRequest.objects.filter(
-                                       student=user, status__in=['pending', 'approved', 'ongoing']
-                                   ).first(),
-            'internship_logs':     InternshipLog.objects.filter(
-                                       request__student=user,
-                                       request__status__in=['approved', 'ongoing', 'completed']
-                                   ).select_related('request').order_by('-date'),
-            'lecturers':           Lecturer.objects.filter(is_active=True),
-        }
-        ctx['my_requests'] = InternshipRequest.objects.filter(
-            student=request.user
+        my_requests = InternshipRequest.objects.filter(
+            student=user
         ).select_related('lecturer', 'partner').order_by('-created_at')
+
+        my_active_request = InternshipRequest.objects.filter(
+            student=user,
+            status__in=['pending', 'approved', 'ongoing']
+        ).select_related('lecturer', 'partner').first()
+
+        internship_logs = InternshipLog.objects.filter(
+            request__student=user,
+            request__status__in=['approved', 'ongoing', 'completed']
+        ).select_related('request').order_by('-date')
+
+        ctx = {
+            'partners': partners_data,
+            'my_requests': my_requests,
+            'my_active_request': my_active_request,
+            'internship_logs': internship_logs,
+            'lecturers': Lecturer.objects.filter(is_active=True).order_by('name'),
+        }
         return render(request, 'internship/list.html', ctx)
 
 
