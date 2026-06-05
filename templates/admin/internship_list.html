@@ -1,0 +1,373 @@
+{% extends "admin_shell.html" %}
+{% block page_title %}Magang — Admin{% endblock %}
+{% block page_heading %}Manajemen Magang{% endblock %}
+{% block page_subtitle %}Kelola pendaftaran dan mitra magang mahasiswa.{% endblock %}
+
+{% block admin_content %}
+<div class="flex items-center justify-end mb-4">
+  <a href="{% url 'admin-partner-list' %}"
+     class="btn btn-outline btn-sm">
+    <span class="material-icons-outlined mat-xs">domain</span>
+    Mitra Magang
+  </a>
+</div>
+{# ── KPI Mini ── #}
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+  {% with s=internship_stats %}
+  <div class="card p-4 text-center">
+    <p class="text-2xl font-bold text-amber-500">{{ s.pending }}</p>
+    <p class="text-xs text-slate-500 mt-0.5">Menunggu</p>
+  </div>
+  <div class="card p-4 text-center">
+    <p class="text-2xl font-bold text-primary-600">{{ s.ongoing }}</p>
+    <p class="text-xs text-slate-500 mt-0.5">Aktif</p>
+  </div>
+  <div class="card p-4 text-center">
+    <p class="text-2xl font-bold text-emerald-600">{{ s.completed }}</p>
+    <p class="text-xs text-slate-500 mt-0.5">Selesai</p>
+  </div>
+  <a href="{% url 'admin-partner-list' %}" class="card p-4 text-center hover:shadow-md transition-shadow">
+    <p class="text-2xl font-bold text-indigo-600">{{ s.partners }}</p>
+    <p class="text-xs text-slate-500 mt-0.5">Mitra Aktif</p>
+  </a>
+  {% endwith %}
+</div>
+
+{# ── Filter Tab Status ── #}
+<div class="flex gap-1 mb-4 border-b border-slate-200 dark:border-slate-700 overflow-x-auto">
+  {% for val, label in status_tabs %}
+  <a href="?status={{ val }}"
+     class="px-4 py-2.5 text-sm font-medium whitespace-nowrap border-b-2 -mb-px transition-colors
+       {% if status_filter == val %}border-primary-500 text-primary-600 dark:text-primary-400
+       {% else %}border-transparent text-slate-500 hover:text-slate-700{% endif %}">
+    {{ label }}
+  </a>
+  {% endfor %}
+</div>
+
+{# ── Tabel Pendaftaran ── #}
+<div class="card overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700">
+      <tr>
+        <th class="px-4 py-3 text-left font-medium text-slate-500 text-xs">Mahasiswa</th>
+        <th class="px-4 py-3 text-left font-medium text-slate-500 text-xs">Instansi</th>
+        <th class="px-4 py-3 text-left font-medium text-slate-500 text-xs">Dosen</th>
+        <th class="px-4 py-3 text-left font-medium text-slate-500 text-xs">Periode</th>
+        <th class="px-4 py-3 text-left font-medium text-slate-500 text-xs">Status</th>
+        <th class="px-4 py-3 text-left font-medium text-slate-500 text-xs">Aksi</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+      {% for req in internship_list %}
+      <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors" id="row-{{ req.id }}">
+        <td class="px-4 py-3">
+          <p class="font-medium text-slate-900 dark:text-slate-100">{{ req.student.get_full_name }}</p>
+          <p class="text-xs text-slate-400">{{ req.student.email }}</p>
+        </td>
+        <td class="px-4 py-3">
+          <p class="text-slate-800 dark:text-slate-200">{{ req.partner_name|default:req.partner }}</p>
+          <p class="text-xs text-slate-400">{{ req.partner_field }}</p>
+        </td>
+        <td class="px-4 py-3 text-xs text-slate-500">{{ req.lecturer.name }}</td>
+        <td class="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">
+          {{ req.start_date }} — {{ req.end_date }}
+        </td>
+        <td class="px-4 py-3">
+          <span class="badge
+            {% if req.status == 'pending' %}badge-warning
+            {% elif req.status == 'approved' %}badge-success
+            {% elif req.status == 'ongoing' %}badge-primary
+            {% elif req.status == 'completed' %}badge-gray
+            {% elif req.status == 'rejected' %}badge-danger{% endif %}">
+            {{ req.get_status_display }}
+          </span>
+        </td>
+        <td class="px-4 py-3">
+          <div class="flex gap-2 flex-wrap">
+            <button onclick="openInternshipDetail({{ req.id }})"
+                    class="btn btn-xs btn-outline">
+              <span class="material-icons-outlined mat-xs">visibility</span>Detail
+            </button>
+
+            {% if req.status == 'pending' %}
+            <button onclick="approveInternship({{ req.id }})"
+                    class="btn btn-xs btn-success">
+              <span class="material-icons-outlined mat-xs">check</span>Setujui
+            </button>
+            <button onclick="rejectInternship({{ req.id }})"
+                    class="btn btn-xs btn-danger">
+              <span class="material-icons-outlined mat-xs">close</span>Tolak
+            </button>
+            {% endif %}
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6" class="px-4 py-12 text-center text-slate-400">
+          <span class="material-icons-outlined mat-xl block mb-2">business_center</span>
+          Tidak ada data magang
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{# ── Modal Detail Magang ── #}
+<div id="internship-detail-modal"
+     class="fixed inset-0 z-50 hidden items-center justify-center p-4"
+     style="background:rgba(0,0,0,0.5);backdrop-filter:blur(4px)">
+  <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto animate-slide-up">
+    
+    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700 sticky top-0 bg-white dark:bg-slate-800 z-10">
+      <h3 class="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+        <span class="material-icons-outlined mat-sm text-indigo-500">business_center</span>
+        Detail Pendaftaran Magang
+      </h3>
+      <button onclick="closeInternshipDetail()" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">
+        <span class="material-icons mat-sm text-slate-400">close</span>
+      </button>
+    </div>
+
+    <div id="internship-detail-body" class="p-6">
+      <div class="text-sm text-slate-500">Memuat detail...</div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentInternshipId = null;
+
+function getCookie(name) {
+  const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+  return v ? v[2] : '';
+}
+
+function badgeClass(status) {
+  if (status === 'pending') return 'badge-warning';
+  if (status === 'approved') return 'badge-success';
+  if (status === 'ongoing') return 'badge-primary';
+  if (status === 'completed') return 'badge-gray';
+  if (status === 'rejected') return 'badge-danger';
+  return 'badge-gray';
+}
+
+function openInternshipDetail(id) {
+  currentInternshipId = id;
+  const modal = document.getElementById('internship-detail-modal');
+  const body = document.getElementById('internship-detail-body');
+
+  body.innerHTML = `<div class="text-sm text-slate-500">Memuat detail...</div>`;
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+
+  fetch(`/admin-panel/internship/${id}/detail/`)
+    .then(r => r.json())
+    .then(res => {
+      if (res.status !== 'ok') {
+        body.innerHTML = `<div class="text-sm text-red-500">Gagal memuat detail.</div>`;
+        return;
+      }
+
+      const d = res.data;
+      const canApprove = d.status === 'pending';
+
+      body.innerHTML = `
+        <div class="space-y-6">
+          <div class="flex items-start justify-between gap-3 flex-wrap">
+            <div>
+              <p class="text-lg font-bold text-slate-900 dark:text-slate-100">${d.student_name}</p>
+              <p class="text-sm text-slate-500 dark:text-slate-400">${d.student_email}</p>
+            </div>
+            <span class="badge ${badgeClass(d.status)}">${d.status_display}</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="card p-4 border border-slate-200 dark:border-slate-700 rounded-xl">
+              <p class="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-3">Data Mitra</p>
+              <div class="space-y-2 text-sm">
+                <div>
+                  <p class="text-slate-400 text-xs">Instansi</p>
+                  <p class="font-medium text-slate-800 dark:text-slate-100">${d.partner_name || '-'}</p>
+                </div>
+                <div>
+                  <p class="text-slate-400 text-xs">Bidang</p>
+                  <p class="text-slate-700 dark:text-slate-300">${d.partner_field || '-'}</p>
+                </div>
+                <div>
+                  <p class="text-slate-400 text-xs">Alamat</p>
+                  <p class="text-slate-700 dark:text-slate-300">${d.partner_address || '-'}</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="card p-4 border border-slate-200 dark:border-slate-700 rounded-xl">
+              <p class="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-3">Pembimbing & Periode</p>
+              <div class="space-y-2 text-sm">
+                <div>
+                  <p class="text-slate-400 text-xs">Dosen Pembimbing</p>
+                  <p class="font-medium text-slate-800 dark:text-slate-100">${d.lecturer_name || '-'}</p>
+                </div>
+                <div>
+                  <p class="text-slate-400 text-xs">Supervisor</p>
+                  <p class="text-slate-700 dark:text-slate-300">${d.supervisor_name || '-'}</p>
+                </div>
+                <div>
+                  <p class="text-slate-400 text-xs">No. HP Supervisor</p>
+                  <p class="text-slate-700 dark:text-slate-300">${d.supervisor_phone || '-'}</p>
+                </div>
+                <div>
+                  <p class="text-slate-400 text-xs">Periode</p>
+                  <p class="text-slate-700 dark:text-slate-300">${d.start_date} — ${d.end_date}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card p-4 border border-slate-200 dark:border-slate-700 rounded-xl">
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-3">Dokumen</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+              <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-700/40">
+                <p class="text-slate-400 text-xs mb-1">Surat Pengantar</p>
+                ${d.intro_letter_url
+                  ? `<a href="${d.intro_letter_url}" target="_blank" class="text-primary-600 dark:text-primary-400 font-medium">Lihat Dokumen</a>`
+                  : `<span class="text-slate-500">Belum ada</span>`}
+              </div>
+              <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-700/40">
+                <p class="text-slate-400 text-xs mb-1">Laporan Akhir</p>
+                ${d.final_report_url
+                  ? `<a href="${d.final_report_url}" target="_blank" class="text-primary-600 dark:text-primary-400 font-medium">Lihat Dokumen</a>`
+                  : `<span class="text-slate-500">Belum ada</span>`}
+              </div>
+              <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-700/40">
+                <p class="text-slate-400 text-xs mb-1">Penilaian Supervisor</p>
+                ${d.assessment_url
+                  ? `<a href="${d.assessment_url}" target="_blank" class="text-primary-600 dark:text-primary-400 font-medium">Lihat Dokumen</a>`
+                  : `<span class="text-slate-500">Belum ada</span>`}
+              </div>
+            </div>
+          </div>
+
+          <div class="card p-4 border border-slate-200 dark:border-slate-700 rounded-xl">
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-3">Approval</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+              <div>
+                <p class="text-slate-400 text-xs">Status</p>
+                <p class="font-medium text-slate-800 dark:text-slate-100">${d.status_display}</p>
+              </div>
+              <div>
+                <p class="text-slate-400 text-xs">Disetujui Oleh</p>
+                <p class="text-slate-700 dark:text-slate-300">${d.approved_by || '-'}</p>
+              </div>
+              <div>
+                <p class="text-slate-400 text-xs">Waktu Approval</p>
+                <p class="text-slate-700 dark:text-slate-300">${d.approved_at || '-'}</p>
+              </div>
+              <div>
+                <p class="text-slate-400 text-xs">Diajukan Pada</p>
+                <p class="text-slate-700 dark:text-slate-300">${d.created_at || '-'}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card p-4 border border-slate-200 dark:border-slate-700 rounded-xl">
+            <div class="flex items-center justify-between mb-3">
+              <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">Log Aktivitas</p>
+              <span class="badge badge-primary">${d.logs.length} log</span>
+            </div>
+
+            ${
+              d.logs.length
+              ? `<div class="space-y-3">
+                  ${d.logs.map((log, idx) => `
+                    <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-700/40">
+                      <div class="flex items-start justify-between gap-3">
+                        <div>
+                          <p class="font-medium text-slate-800 dark:text-slate-100">${log.topic}</p>
+                          <p class="text-xs text-slate-400 mt-0.5">${log.date}</p>
+                        </div>
+                        <span class="badge badge-gray text-[10px]">#${idx + 1}</span>
+                      </div>
+                      ${log.notes ? `<p class="text-sm text-slate-600 dark:text-slate-300 mt-2">${log.notes}</p>` : ''}
+                      ${log.attachment_url ? `<a href="${log.attachment_url}" target="_blank" class="inline-block mt-2 text-xs text-primary-600 dark:text-primary-400">Lihat Lampiran</a>` : ''}
+                    </div>
+                  `).join('')}
+                </div>`
+              : `<div class="text-sm text-slate-500">Belum ada log aktivitas.</div>`
+            }
+          </div>
+
+          <div class="flex justify-end gap-3 pt-2">
+            <button onclick="closeInternshipDetail()" class="btn btn-secondary">
+              Tutup
+            </button>
+            ${canApprove ? `
+              <button onclick="rejectInternship(${d.id}, true)" class="btn btn-danger">
+                <span class="material-icons-outlined mat-xs">close</span>Tolak
+              </button>
+              <button onclick="approveInternship(${d.id}, true)" class="btn btn-success">
+                <span class="material-icons-outlined mat-xs">check</span>Setujui
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    })
+    .catch(() => {
+      body.innerHTML = `<div class="text-sm text-red-500">Terjadi kesalahan saat memuat detail.</div>`;
+    });
+}
+
+function closeInternshipDetail() {
+  const modal = document.getElementById('internship-detail-modal');
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+  currentInternshipId = null;
+}
+
+function approveInternship(id, fromModal = false) {
+  if (!confirm('Setujui pendaftaran magang ini?')) return;
+  fetch(`/admin-panel/internship/${id}/approve/`, {
+    method: 'POST',
+    headers: {'X-CSRFToken': getCookie('csrftoken')}
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.status === 'ok') {
+      showToast('success', data.message);
+      if (fromModal) closeInternshipDetail();
+      location.reload();
+    } else {
+      showToast('error', data.message || 'Gagal menyetujui.');
+    }
+  })
+  .catch(() => showToast('error', 'Terjadi kesalahan.'));
+}
+
+function rejectInternship(id, fromModal = false) {
+  if (!confirm('Tolak pendaftaran magang ini?')) return;
+  fetch(`/admin-panel/internship/${id}/reject/`, {
+    method: 'POST',
+    headers: {'X-CSRFToken': getCookie('csrftoken')}
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.status === 'ok') {
+      showToast('success', 'Pendaftaran ditolak.');
+      if (fromModal) closeInternshipDetail();
+      location.reload();
+    } else {
+      showToast('error', data.message || 'Gagal menolak.');
+    }
+  })
+  .catch(() => showToast('error', 'Terjadi kesalahan.'));
+}
+
+document.getElementById('internship-detail-modal')?.addEventListener('click', function(e) {
+  if (e.target === this) closeInternshipDetail();
+});
+</script>
+{% endblock %}

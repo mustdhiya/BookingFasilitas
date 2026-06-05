@@ -69,8 +69,7 @@ urlpatterns = [
     path('admin-panel/master/',                AdminMasterView.as_view(),        name='admin_master'),
     path('admin-panel/akun/',                  AdminAkunView.as_view(),          name='admin_akun'),
     path('admin-panel/akun/<int:pk>/aksi/',    AdminAkunAksiView.as_view(),      name='admin-akun-aksi'),
-
-
+    path('admin-panel/internship/', include('internship.admin_urls')),
 
     # ── API + user-facing konseling ──────────────────────────────────────
     path('konseling/',    include('konseling.urls')),

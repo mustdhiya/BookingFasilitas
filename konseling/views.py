@@ -9,6 +9,8 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.db.models import Avg, Count, Q
 import json
+
+from internship.models import InternshipPartner, InternshipRequest
 from .models import KonselingSession
 from accounts.models import User
 from practicum.models import Practicum
@@ -360,7 +362,14 @@ class AdminMasterView(AdminOnlyMixin, TemplateView):
             borrow_count=Count('rentals', filter=~Q(rentals__status='cancelled'))
         ).order_by('code')
         ctx['low_stock_count']   = TestTool.objects.filter(stock__lte=10, is_active=True).count()
+        ctx['internship_stats'] = {
+            'pending':   InternshipRequest.objects.filter(status='pending').count(),
+            'ongoing':   InternshipRequest.objects.filter(status__in=['approved', 'ongoing']).count(),
+            'completed': InternshipRequest.objects.filter(status='completed').count(),
+            'partners':  InternshipPartner.objects.filter(is_active=True).count(),
+        }
         return ctx
+
 
 class AdminPanelView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     template_name = 'admin.html'
@@ -376,30 +385,27 @@ class AdminPanelView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         today = timezone.localdate()
+        PER_PAGE = 10
 
-        # ── Filter params ───────────────────────────────────────────
         room_status = self.request.GET.get('room_status', 'all')
         room_filter = self.request.GET.get('room_filter', '')
         room_date   = self.request.GET.get('room_date', '')
         room_search = self.request.GET.get('room_search', '')
         room_page   = int(self.request.GET.get('room_page', 1))
 
-        tool_status = self.request.GET.get('tool_status', 'all')
-        tool_search = self.request.GET.get('tool_search', '')
-        tool_page   = int(self.request.GET.get('tool_page', 1))
+        tool_status    = self.request.GET.get('tool_status', 'all')
+        tool_search    = self.request.GET.get('tool_search', '')
+        tool_page      = int(self.request.GET.get('tool_page', 1))
         tool_filter_id = self.request.GET.get('tool_filter_id', '')
-        PER_PAGE = 10
 
-        # ── Queryset ruangan ─────────────────────────────────────────
-        room_qs = RoomBooking.objects.select_related('room', 'user', 'approved_by') \
-                             .order_by('-date_start', '-created_at')
+        internship_status = self.request.GET.get('internship_status', 'all')
+        internship_search = self.request.GET.get('internship_search', '')
+        internship_page   = int(self.request.GET.get('internship_page', 1))
+
+        room_qs = RoomBooking.objects.select_related('room', 'user', 'approved_by').order_by('-date_start', '-created_at')
 
         if room_status == 'ongoing':
-            room_qs = room_qs.filter(
-                status='approved',
-                date_start__lte=today,
-                date_end__gte=today,
-            )
+            room_qs = room_qs.filter(status='approved', date_start__lte=today, date_end__gte=today)
         elif room_status != 'all':
             room_qs = room_qs.filter(status=room_status)
 
@@ -410,72 +416,121 @@ class AdminPanelView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
         if room_search:
             room_qs = room_qs.filter(
                 Q(user__first_name__icontains=room_search) |
-                Q(user__last_name__icontains=room_search)  |
-                Q(user__email__icontains=room_search)      |
+                Q(user__last_name__icontains=room_search) |
+                Q(user__email__icontains=room_search) |
                 Q(room__name__icontains=room_search)
             )
 
         ctx['peminjaman_stats'] = {
-            'pending':     RoomBooking.objects.filter(status='pending').count(),
-            'approved':    RoomBooking.objects.filter(status='approved').count(),
-            'ongoing':     RoomBooking.objects.filter(
-                               status='approved',
-                               date_start__lte=today,
-                               date_end__gte=today,
-                           ).count(),
+            'pending': RoomBooking.objects.filter(status='pending').count(),
+            'approved': RoomBooking.objects.filter(status='approved').count(),
+            'ongoing': RoomBooking.objects.filter(
+                status='approved',
+                date_start__lte=today,
+                date_end__gte=today,
+            ).count(),
             'total_month': RoomBooking.objects.filter(
-                               date_start__year=today.year,
-                               date_start__month=today.month,
-                           ).count(),
+                date_start__year=today.year,
+                date_start__month=today.month,
+            ).count(),
         }
-
+        
         from django.core.paginator import Paginator
+        from internship.models import InternshipPartner, InternshipRequest, InternshipLog
+
         room_paginator = Paginator(room_qs, PER_PAGE)
         ctx['room_bookings_page'] = room_paginator.get_page(room_page)
-        ctx['room_paginator']     = room_paginator
+        ctx['room_paginator'] = room_paginator
 
-        # ── Queryset alat ────────────────────────────────────────────
-        tool_qs = ToolRental.objects.select_related('tool', 'user', 'approved_by') \
-                            .order_by('-date_start', '-created_at')
+        tool_qs = ToolRental.objects.select_related('tool', 'user', 'approved_by').order_by('-date_start', '-created_at')
 
         if tool_status != 'all':
             tool_qs = tool_qs.filter(status=tool_status)
         if tool_search:
             tool_qs = tool_qs.filter(
                 Q(user__first_name__icontains=tool_search) |
-                Q(user__last_name__icontains=tool_search)  |
-                Q(user__email__icontains=tool_search)      |
+                Q(user__last_name__icontains=tool_search) |
+                Q(user__email__icontains=tool_search) |
                 Q(tool__name__icontains=tool_search)
             )
         if tool_filter_id:
             tool_qs = tool_qs.filter(tool_id=tool_filter_id)
 
         ctx['tool_stats'] = {
-            'pending':  ToolRental.objects.filter(status='pending').count(),
+            'pending': ToolRental.objects.filter(status='pending').count(),
             'approved': ToolRental.objects.filter(status='approved').count(),
             'borrowed': ToolRental.objects.filter(status='borrowed').count(),
-            'overdue':  ToolRental.objects.filter(
-                            status='borrowed', date_end__lt=today
-                        ).count(),
+            'overdue': ToolRental.objects.filter(status='borrowed', date_end__lt=today).count(),
         }
 
         tool_paginator = Paginator(tool_qs, PER_PAGE)
         ctx['tool_rentals_page'] = tool_paginator.get_page(tool_page)
-        ctx['tool_paginator']    = tool_paginator
+        ctx['tool_paginator'] = tool_paginator
+
+        internship_partner_qs = InternshipPartner.objects.annotate(
+            active_interns=Count(
+                'internshiprequest',
+                filter=Q(internshiprequest__status__in=['approved', 'ongoing'])
+            ),
+            total_requests=Count('internshiprequest')
+        ).order_by('name')
+
+        internship_request_qs = InternshipRequest.objects.select_related(
+            'student', 'partner', 'lecturer', 'approved_by'
+        ).order_by('-created_at')
+
+        if internship_status != 'all':
+            internship_request_qs = internship_request_qs.filter(status=internship_status)
+
+        if internship_search:
+            internship_request_qs = internship_request_qs.filter(
+                Q(student__first_name__icontains=internship_search) |
+                Q(student__last_name__icontains=internship_search) |
+                Q(student__email__icontains=internship_search) |
+                Q(partner__name__icontains=internship_search) |
+                Q(partner_name__icontains=internship_search)
+            )
+
+        internship_paginator = Paginator(internship_request_qs, PER_PAGE)
+        ctx['internship_requests_page'] = internship_paginator.get_page(internship_page)
+        ctx['internship_paginator'] = internship_paginator
+
+        ctx['internship_partners'] = internship_partner_qs
+        ctx['internship_stats'] = {
+            'partners': InternshipPartner.objects.filter(is_active=True).count(),
+            'pending': InternshipRequest.objects.filter(status='pending').count(),
+            'approved': InternshipRequest.objects.filter(status='approved').count(),
+            'ongoing': InternshipRequest.objects.filter(status='ongoing').count(),
+            'completed': InternshipRequest.objects.filter(status='completed').count(),
+        }
+        ctx['internship_status_tabs'] = [
+            ('all', 'Semua'),
+            ('pending', 'Pending'),
+            ('approved', 'Disetujui'),
+            ('ongoing', 'Berjalan'),
+            ('completed', 'Selesai'),
+            ('rejected', 'Ditolak'),
+        ]
+        ctx['internship_filter_active'] = {
+            'status': internship_status,
+            'search': internship_search,
+        }
 
         ctx['room_list'] = Room.objects.filter(is_active=True).order_by('code')
         ctx['tool_list'] = TestTool.objects.filter(is_active=True).order_by('code')
 
         ctx['room_filter_active'] = {
-            'status': room_status, 'room': room_filter,
-            'date': room_date,     'search': room_search,
+            'status': room_status,
+            'room': room_filter,
+            'date': room_date,
+            'search': room_search,
         }
         ctx['tool_filter_active'] = {
-            'status': tool_status, 'search': tool_search,
+            'status': tool_status,
+            'search': tool_search,
             'tool_id': tool_filter_id,
         }
 
-        # ── Data lainnya (konseling, akun, practicum, dll) ───────────
         ctx['lecturer_list'] = Lecturer.objects.prefetch_related('research_titles').order_by('name')
         ctx['practicum_list'] = Practicum.objects.select_related('lecturer', 'room').order_by('-date')
         ctx['research_request_list'] = ResearchRequest.objects.select_related(
@@ -486,49 +541,63 @@ class AdminPanelView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
             'pending': ResearchRequest.objects.filter(status='pending').count()
         }
         ctx['request_status_tabs'] = [
-            ('all', 'Semua'), ('pending', 'Pending'),
-            ('approved', 'Disetujui'), ('rejected', 'Ditolak'),
+            ('all', 'Semua'),
+            ('pending', 'Pending'),
+            ('approved', 'Disetujui'),
+            ('rejected', 'Ditolak'),
         ]
 
         ctx['active_room_count'] = Room.objects.filter(is_active=True).count()
 
         ctx['sesi_list'] = KonselingSession.objects.select_related('user').order_by('-created_at')
         ctx['stats'] = {
-            'pending':  KonselingSession.objects.filter(status='pending').count(),
+            'pending': KonselingSession.objects.filter(status='pending').count(),
             'approved': KonselingSession.objects.filter(status='approved').count(),
-            'done':     KonselingSession.objects.filter(status='done').count(),
+            'done': KonselingSession.objects.filter(status='done').count(),
             'rejected': KonselingSession.objects.filter(status='rejected').count(),
-            'total':    KonselingSession.objects.count(),
+            'total': KonselingSession.objects.count(),
         }
         ctx['status_tabs'] = [
-            ('all', 'Semua'), ('pending', 'Menunggu'), ('approved', 'Disetujui'),
-            ('done', 'Selesai'), ('rejected', 'Ditolak'), ('cancelled', 'Dibatalkan'),
+            ('all', 'Semua'),
+            ('pending', 'Menunggu'),
+            ('approved', 'Disetujui'),
+            ('done', 'Selesai'),
+            ('rejected', 'Ditolak'),
+            ('cancelled', 'Dibatalkan'),
         ]
         ctx['status_filter'] = 'all'
         ctx['dosen_list'] = Lecturer.objects.filter(is_active=True).order_by('name')
 
         ctx['akun_stats'] = {
-            'pending':  User.objects.exclude(is_superuser=True).filter(is_active=False, is_verified=False).count(),
-            'active':   User.objects.exclude(is_superuser=True).filter(is_active=True, is_verified=True).count(),
+            'pending': User.objects.exclude(is_superuser=True).filter(is_active=False, is_verified=False).count(),
+            'active': User.objects.exclude(is_superuser=True).filter(is_active=True, is_verified=True).count(),
             'inactive': User.objects.exclude(is_superuser=True).filter(is_active=False, is_verified=True).count(),
-            'total':    User.objects.exclude(is_superuser=True).count(),
+            'total': User.objects.exclude(is_superuser=True).count(),
         }
         ctx['akun_status_filter'] = 'all'
         ctx['akun_status_tabs'] = [
-            ('all', 'Semua'), ('pending', 'Menunggu Verifikasi'),
-            ('active', 'Aktif & Terverifikasi'), ('rejected', 'Nonaktif'),
+            ('all', 'Semua'),
+            ('pending', 'Menunggu Verifikasi'),
+            ('active', 'Aktif & Terverifikasi'),
+            ('rejected', 'Nonaktif'),
         ]
-        ctx['user_list'] = User.objects.exclude(is_superuser=True) \
-                              .select_related('verified_by').order_by('-created_at')
-        
+        ctx['user_list'] = User.objects.exclude(is_superuser=True).select_related('verified_by').order_by('-created_at')
+
         ctx['alat_list'] = TestTool.objects.annotate(
             borrow_count=Count('rentals', filter=~Q(rentals__status='cancelled'))
         ).order_by('code')
+        ctx['internship_stats'] = {
+            'pending':   InternshipRequest.objects.filter(status='pending').count(),
+            'ongoing':   InternshipRequest.objects.filter(status__in=['approved', 'ongoing']).count(),
+            'completed': InternshipRequest.objects.filter(status='completed').count(),
+            'partners':  InternshipPartner.objects.filter(is_active=True).count(),
+        }
         ctx['low_stock_count'] = TestTool.objects.filter(stock__lte=10, is_active=True).count()
-        ctx['lecturerlist'] = ctx['lecturer_list']           # ← tanpa underscore
-        ctx['roomlist']     = Room.objects.filter(is_active=True).order_by('name')
+        ctx['lecturerlist'] = ctx['lecturer_list']
+        ctx['roomlist'] = Room.objects.filter(is_active=True).order_by('name')
 
-        return ctx 
+        return ctx
+
 
 class AdminKonselingListView(AdminRequiredMixin, ListView):
     model               = KonselingSession

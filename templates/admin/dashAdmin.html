@@ -7,232 +7,304 @@
 
 {% block admin_content %}
 
-{# ── KPI Cards ── #}
-<div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+{# ── KPI Cards ───────────────────────────────────────────── #}
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6 gap-4 mb-6">
 
   {# Peminjaman Pending #}
   <a href="{% url 'admin_peminjaman' %}"
      class="group rounded-2xl border border-rose-200 dark:border-rose-800
-            bg-gradient-to-br from-rose-50 to-white
-            dark:from-rose-900/20 dark:to-slate-800
-            p-5 hover:shadow-md hover:border-rose-300 transition-all">
-    <div class="flex items-center justify-between mb-3">
-      <div class="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-900/40
-                  flex items-center justify-center">
-        <span class="material-icons text-rose-600 dark:text-rose-400 text-xl">assignment</span>
+            bg-white dark:bg-slate-800 p-5 shadow-sm hover:shadow-md
+            hover:-translate-y-0.5 transition-all">
+    <div class="flex items-start justify-between gap-3">
+      <div class="w-11 h-11 rounded-xl bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center flex-shrink-0">
+        <span class="material-icons-outlined text-rose-600 dark:text-rose-400 text-[20px]">assignment</span>
       </div>
       {% if stats.peminjaman_pending %}
-      <span class="text-[10px] font-bold bg-rose-500 text-white px-2 py-0.5 rounded-full">
+      <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold
+                   bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300">
         Perlu Aksi
       </span>
       {% endif %}
     </div>
-    <p class="text-3xl font-bold text-rose-600 dark:text-rose-400">
-      {{ stats.peminjaman_pending|default:0 }}
-    </p>
-    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium uppercase tracking-wide">
-      Peminjaman Pending
-    </p>
+
+    <div class="mt-4">
+      <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+        Peminjaman Pending
+      </p>
+      <p class="mt-2 text-3xl font-bold text-slate-900 dark:text-slate-100">
+        {{ stats.peminjaman_pending|default:0 }}
+      </p>
+      <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+        Menunggu verifikasi admin.
+      </p>
+    </div>
+  </a>
+
+  {# Magang #}
+  <a href="{% url 'admin-internship-list' %}"
+     class="group rounded-2xl border border-indigo-200 dark:border-indigo-800
+            bg-white dark:bg-slate-800 p-5 shadow-sm hover:shadow-md
+            hover:-translate-y-0.5 transition-all">
+    <div class="flex items-start justify-between gap-3">
+      <div class="w-11 h-11 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center flex-shrink-0">
+        <span class="material-icons-outlined text-indigo-600 dark:text-indigo-400 text-[20px]">business_center</span>
+      </div>
+      {% if internship_stats.pending %}
+      <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold
+                   bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
+        {{ internship_stats.pending }} Pending
+      </span>
+      {% endif %}
+    </div>
+
+    <div class="mt-4">
+      <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+        Magang Aktif
+      </p>
+      <p class="mt-2 text-3xl font-bold text-slate-900 dark:text-slate-100">
+        {{ internship_stats.ongoing|default:0 }}
+      </p>
+      <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+        Mitra aktif: {{ internship_stats.partners|default:0 }}
+      </p>
+    </div>
   </a>
 
   {# Konseling Pending #}
   <a href="{% url 'admin_konseling' %}"
      class="group rounded-2xl border border-primary-200 dark:border-primary-800
-            bg-gradient-to-br from-primary-50 to-white
-            dark:from-primary-900/20 dark:to-slate-800
-            p-5 hover:shadow-md hover:border-primary-300 transition-all">
-    <div class="flex items-center justify-between mb-3">
-      <div class="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-900/40
-                  flex items-center justify-center">
-        <span class="material-icons text-primary-600 dark:text-primary-400 text-xl">psychology</span>
+            bg-white dark:bg-slate-800 p-5 shadow-sm hover:shadow-md
+            hover:-translate-y-0.5 transition-all">
+    <div class="flex items-start justify-between gap-3">
+      <div class="w-11 h-11 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
+        <span class="material-icons-outlined text-primary-600 dark:text-primary-400 text-[20px]">psychology</span>
       </div>
       {% if stats.konseling_pending %}
-      <span class="text-[10px] font-bold bg-primary-500 text-white px-2 py-0.5 rounded-full">
+      <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold
+                   bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">
         Perlu Aksi
       </span>
       {% endif %}
     </div>
-    <p class="text-3xl font-bold text-primary-600 dark:text-primary-400">
-      {{ stats.konseling_pending|default:0 }}
-    </p>
-    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium uppercase tracking-wide">
-      Konseling Pending
-    </p>
+
+    <div class="mt-4">
+      <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+        Konseling Pending
+      </p>
+      <p class="mt-2 text-3xl font-bold text-slate-900 dark:text-slate-100">
+        {{ stats.konseling_pending|default:0 }}
+      </p>
+      <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+        Menunggu review dan penjadwalan.
+      </p>
+    </div>
   </a>
 
   {# Penelitian Pending #}
   <a href="{% url 'admin_praktikum' %}"
      class="group rounded-2xl border border-emerald-200 dark:border-emerald-800
-            bg-gradient-to-br from-emerald-50 to-white
-            dark:from-emerald-900/20 dark:to-slate-800
-            p-5 hover:shadow-md hover:border-emerald-300 transition-all">
-    <div class="flex items-center justify-between mb-3">
-      <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/40
-                  flex items-center justify-center">
-        <span class="material-icons text-emerald-600 dark:text-emerald-400 text-xl">school</span>
+            bg-white dark:bg-slate-800 p-5 shadow-sm hover:shadow-md
+            hover:-translate-y-0.5 transition-all">
+    <div class="flex items-start justify-between gap-3">
+      <div class="w-11 h-11 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0">
+        <span class="material-icons-outlined text-emerald-600 dark:text-emerald-400 text-[20px]">school</span>
       </div>
       {% if stats.penelitian_pending %}
-      <span class="text-[10px] font-bold bg-emerald-500 text-white px-2 py-0.5 rounded-full">
+      <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold
+                   bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
         Perlu Aksi
       </span>
       {% endif %}
     </div>
-    <p class="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
-      {{ stats.penelitian_pending|default:0 }}
-    </p>
-    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium uppercase tracking-wide">
-      Penelitian Pending
-    </p>
+
+    <div class="mt-4">
+      <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+        Penelitian Pending
+      </p>
+      <p class="mt-2 text-3xl font-bold text-slate-900 dark:text-slate-100">
+        {{ stats.penelitian_pending|default:0 }}
+      </p>
+      <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+        Pengajuan penelitian belum diproses.
+      </p>
+    </div>
   </a>
 
   {# Akun Pending #}
   <a href="{% url 'admin_akun' %}"
      class="group rounded-2xl border border-blue-200 dark:border-blue-800
-            bg-gradient-to-br from-blue-50 to-white
-            dark:from-blue-900/20 dark:to-slate-800
-            p-5 hover:shadow-md hover:border-blue-300 transition-all">
-    <div class="flex items-center justify-between mb-3">
-      <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/40
-                  flex items-center justify-center">
-        <span class="material-icons text-blue-600 dark:text-blue-400 text-xl">manage_accounts</span>
+            bg-white dark:bg-slate-800 p-5 shadow-sm hover:shadow-md
+            hover:-translate-y-0.5 transition-all">
+    <div class="flex items-start justify-between gap-3">
+      <div class="w-11 h-11 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+        <span class="material-icons-outlined text-blue-600 dark:text-blue-400 text-[20px]">manage_accounts</span>
       </div>
       {% if stats.akun_pending %}
-      <span class="text-[10px] font-bold bg-blue-500 text-white px-2 py-0.5 rounded-full">
+      <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold
+                   bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
         Perlu Aksi
       </span>
       {% endif %}
     </div>
-    <p class="text-3xl font-bold text-blue-600 dark:text-blue-400">
-      {{ stats.akun_pending|default:0 }}
-    </p>
-    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium uppercase tracking-wide">
-      Akun Pending
-    </p>
+
+    <div class="mt-4">
+      <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+        Akun Pending
+      </p>
+      <p class="mt-2 text-3xl font-bold text-slate-900 dark:text-slate-100">
+        {{ stats.akun_pending|default:0 }}
+      </p>
+      <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+        Menunggu verifikasi pengguna baru.
+      </p>
+    </div>
   </a>
 
   {# Alat Pending #}
   <a href="{% url 'admin_peminjaman' %}"
      class="group rounded-2xl border border-amber-200 dark:border-amber-800
-            bg-gradient-to-br from-amber-50 to-white
-            dark:from-amber-900/20 dark:to-slate-800
-            p-5 hover:shadow-md hover:border-amber-300 transition-all">
-    <div class="flex items-center justify-between mb-3">
-      <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/40
-                  flex items-center justify-center">
-        <span class="material-icons text-amber-600 dark:text-amber-400 text-xl">build</span>
+            bg-white dark:bg-slate-800 p-5 shadow-sm hover:shadow-md
+            hover:-translate-y-0.5 transition-all">
+    <div class="flex items-start justify-between gap-3">
+      <div class="w-11 h-11 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
+        <span class="material-icons-outlined text-amber-600 dark:text-amber-400 text-[20px]">build</span>
       </div>
       {% if stats.tool_pending %}
-      <span class="text-[10px] font-bold bg-amber-500 text-white px-2 py-0.5 rounded-full">
+      <span class="inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold
+                   bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
         Perlu Aksi
       </span>
       {% endif %}
     </div>
-    <p class="text-3xl font-bold text-amber-600 dark:text-amber-400">
-      {{ stats.tool_pending|default:0 }}
-    </p>
-    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium uppercase tracking-wide">
-      Alat Pending
-    </p>
+
+    <div class="mt-4">
+      <p class="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+        Alat Pending
+      </p>
+      <p class="mt-2 text-3xl font-bold text-slate-900 dark:text-slate-100">
+        {{ stats.tool_pending|default:0 }}
+      </p>
+      <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+        Permintaan alat belum diproses.
+      </p>
+    </div>
   </a>
 
 </div>
 
-{# ── Preview Tables ── #}
-<div class="grid lg:grid-cols-2 gap-6">
+{# ── Preview Tables ─────────────────────────────────────── #}
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
 
-  {# Recent Peminjaman #}
-  <div class="rounded-2xl border border-slate-200 dark:border-slate-700
-              bg-white dark:bg-slate-800 shadow-sm overflow-hidden">
-    <div class="flex items-center justify-between px-5 py-4
-                border-b border-slate-100 dark:border-slate-700">
-      <h3 class="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-        <span class="material-icons text-rose-500 text-base">assignment</span>
-        Peminjaman Terbaru
-      </h3>
+  {# Peminjaman Terbaru #}
+  <section class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm overflow-hidden">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-700">
+      <div>
+        <h3 class="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+          <span class="material-icons-outlined text-rose-500 text-[18px]">assignment</span>
+          Peminjaman Terbaru
+        </h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          Aktivitas peminjaman ruangan terbaru.
+        </p>
+      </div>
       <a href="{% url 'admin_peminjaman' %}"
-         class="text-xs text-primary-600 dark:text-primary-400
-                hover:underline font-medium">
-        Lihat Semua →
+         class="inline-flex items-center gap-1 text-xs font-medium text-primary-600 dark:text-primary-400 hover:underline">
+        Lihat Semua
+        <span class="material-icons-outlined text-sm">arrow_forward</span>
       </a>
     </div>
+
     <div class="divide-y divide-slate-100 dark:divide-slate-700">
       {% for b in recent_bookings %}
-      <div class="flex items-center justify-between px-5 py-3">
-        <div class="min-w-0 flex-1 mr-3">
-          <p class="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
-            {{ b.user.get_full_name }}
-          </p>
-          <p class="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1 mt-0.5">
-            <span class="material-icons text-[10px]">meeting_room</span>
-            {{ b.room.name }} · {{ b.date_start|date:"d M Y" }}
-          </p>
+      <div class="px-5 py-4">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0 flex-1">
+            <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
+              {{ b.user.get_full_name }}
+            </p>
+            <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
+              <span class="inline-flex items-center gap-1">
+                <span class="material-icons-outlined text-[14px]">meeting_room</span>
+                {{ b.room.name }}
+              </span>
+              <span class="inline-flex items-center gap-1">
+                <span class="material-icons-outlined text-[14px]">calendar_today</span>
+                {{ b.date_start|date:"d M Y" }}
+              </span>
+            </div>
+          </div>
+
+          <span class="inline-flex flex-shrink-0 items-center rounded-full px-2.5 py-1 text-[11px] font-semibold
+            {% if b.status == 'pending' %}bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300
+            {% elif b.status == 'approved' %}bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300
+            {% elif b.status == 'rejected' %}bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300
+            {% else %}bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300{% endif %}">
+            {{ b.get_status_display }}
+          </span>
         </div>
-        <span class="flex-shrink-0 text-xs px-2.5 py-1 rounded-full font-semibold
-          {% if b.status == 'pending' %}bg-amber-100 text-amber-700 border border-amber-200
-          {% elif b.status == 'approved' %}bg-emerald-100 text-emerald-700 border border-emerald-200
-          {% elif b.status == 'rejected' %}bg-red-100 text-red-700 border border-red-200
-          {% else %}bg-slate-100 text-slate-500 border border-slate-200{% endif %}">
-          {{ b.get_status_display }}
-        </span>
       </div>
       {% empty %}
-      <div class="flex flex-col items-center py-12 text-slate-400 dark:text-slate-500">
-        <span class="material-icons-outlined text-4xl mb-2 text-slate-300 dark:text-slate-600">
-          event_busy
-        </span>
-        <p class="text-sm">Tidak ada peminjaman</p>
+      <div class="flex flex-col items-center justify-center py-12 text-center">
+        <span class="material-icons-outlined text-4xl text-slate-300 dark:text-slate-600">event_busy</span>
+        <p class="mt-3 text-sm font-medium text-slate-500 dark:text-slate-400">Tidak ada peminjaman</p>
+        <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">Data terbaru akan muncul di sini.</p>
       </div>
       {% endfor %}
     </div>
-  </div>
+  </section>
 
-  {# Recent Konseling #}
-  <div class="rounded-2xl border border-slate-200 dark:border-slate-700
-              bg-white dark:bg-slate-800 shadow-sm overflow-hidden">
-    <div class="flex items-center justify-between px-5 py-4
-                border-b border-slate-100 dark:border-slate-700">
-      <h3 class="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-        <span class="material-icons text-primary-500 text-base">psychology</span>
-        Konseling Pending
-      </h3>
+  {# Konseling Pending #}
+  <section class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm overflow-hidden">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-700">
+      <div>
+        <h3 class="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+          <span class="material-icons-outlined text-primary-500 text-[18px]">psychology</span>
+          Konseling Pending
+        </h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          Pengajuan konseling yang menunggu review.
+        </p>
+      </div>
       <a href="{% url 'admin_konseling' %}"
-         class="text-xs text-primary-600 dark:text-primary-400
-                hover:underline font-medium">
-        Lihat Semua →
+         class="inline-flex items-center gap-1 text-xs font-medium text-primary-600 dark:text-primary-400 hover:underline">
+        Lihat Semua
+        <span class="material-icons-outlined text-sm">arrow_forward</span>
       </a>
     </div>
+
     <div class="divide-y divide-slate-100 dark:divide-slate-700">
       {% for s in recent_konseling %}
-      <div class="flex items-center justify-between px-5 py-3">
-        <div class="min-w-0 flex-1 mr-3">
-          <p class="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
-            {{ s.user.get_full_name }}
-          </p>
-          <p class="text-xs text-slate-400 dark:text-slate-500 line-clamp-1 mt-0.5">
-            {{ s.keluhan|truncatechars:50 }}
-          </p>
+      <div class="px-5 py-4">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0 flex-1">
+            <p class="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
+              {{ s.user.get_full_name }}
+            </p>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
+              {{ s.keluhan|truncatechars:80 }}
+            </p>
+          </div>
+
+          <a href="{% url 'admin_konseling' %}?pk={{ s.pk }}"
+             class="inline-flex flex-shrink-0 items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium
+                    text-primary-700 dark:text-primary-300
+                    bg-primary-50 dark:bg-primary-900/20
+                    border border-primary-200 dark:border-primary-700
+                    hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors">
+            <span class="material-icons-outlined text-[14px]">visibility</span>
+            Review
+          </a>
         </div>
-        <a href="{% url 'admin_konseling' %}?pk={{ s.pk }}"
-           class="flex-shrink-0 inline-flex items-center gap-1 text-xs font-medium
-                  text-primary-600 dark:text-primary-400
-                  bg-primary-50 dark:bg-primary-900/20
-                  hover:bg-primary-100 dark:hover:bg-primary-900/40
-                  border border-primary-200 dark:border-primary-700
-                  rounded-lg px-2.5 py-1 transition">
-          <span class="material-icons text-xs">visibility</span>
-          Review
-        </a>
       </div>
       {% empty %}
-      <div class="flex flex-col items-center py-12 text-slate-400 dark:text-slate-500">
-        <span class="material-icons-outlined text-4xl mb-2 text-slate-300 dark:text-slate-600">
-          check_circle
-        </span>
-        <p class="text-sm">Tidak ada konseling pending</p>
+      <div class="flex flex-col items-center justify-center py-12 text-center">
+        <span class="material-icons-outlined text-4xl text-slate-300 dark:text-slate-600">check_circle</span>
+        <p class="mt-3 text-sm font-medium text-slate-500 dark:text-slate-400">Tidak ada konseling pending</p>
+        <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">Semua pengajuan sudah diproses.</p>
       </div>
       {% endfor %}
     </div>
-  </div>
+  </section>
 
 </div>
 

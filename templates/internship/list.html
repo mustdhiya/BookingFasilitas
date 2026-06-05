@@ -2,109 +2,192 @@
 {% block title %}Magang — Lab Psikologi UMKT{% endblock %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
-  <!-- ── HEADER ── -->
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- ── HEADER ───────────────────────────────────────────── -->
   <div class="mb-6">
-    <h1 class="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-      <span class="material-icons-outlined text-blue-500">business_center</span>
-      Magang
-    </h1>
-    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-      Daftarkan magang, catat aktivitas harian, dan kelola dokumen kamu.
-    </p>
+    <div class="flex items-start justify-between gap-4 flex-wrap">
+      <div>
+        <h1 class="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+          <span class="material-icons-outlined text-blue-500">business_center</span>
+          Magang
+        </h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          Daftarkan magang, pantau kuota mitra, catat aktivitas harian, dan kelola dokumen kamu.
+        </p>
+      </div>
+
+      <div class="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
+        <span class="material-icons-outlined mat-xs">bolt</span>
+        <span id="quota-last-update">Kuota diperbarui otomatis</span>
+      </div>
+    </div>
   </div>
 
-  <!-- STATUS AKTIF -->
-{% if my_active_request %}
-<div class="alert alert-info mb-5 flex items-center gap-3">
-  <span class="material-icons-outlined mat-sm text-primary-500">info</span>
-  <div class="flex-1 text-sm">
-    Magang aktif: <strong>{{ my_active_request.partner_name }}</strong>
-    &mdash; {{ my_active_request.start_date }} s/d {{ my_active_request.end_date }}
+  <!-- ── STATUS AKTIF ─────────────────────────────────────── -->
+  {% if my_active_request %}
+  <div class="alert alert-info mb-5 flex items-center gap-3">
+    <span class="material-icons-outlined mat-sm text-primary-500">info</span>
+    <div class="flex-1 text-sm">
+      Magang aktif: <strong>{{ my_active_request.partner_name }}</strong>
+      &mdash; {{ my_active_request.start_date }} s/d {{ my_active_request.end_date }}
+    </div>
+    <span class="badge
+      {% if my_active_request.status == 'pending' %}badge-warning
+      {% elif my_active_request.status == 'approved' %}badge-success
+      {% elif my_active_request.status == 'ongoing' %}badge-primary
+      {% else %}badge-gray{% endif %}">
+      {{ my_active_request.status_display }}
+    </span>
   </div>
-  <span class="badge
-    {% if my_active_request.status == 'pending' %}badge-warning
-    {% elif my_active_request.status == 'approved' %}badge-success
-    {% elif my_active_request.status == 'ongoing' %}badge-primary
-    {% else %}badge-gray{% endif %}">
-    {{ my_active_request.status_display }}
-  </span>
-</div>
-{% endif %}
+  {% endif %}
 
+  <!-- ── TABS ─────────────────────────────────────────────── -->
+  <div class="flex gap-1 mb-6 border-b border-slate-200 dark:border-slate-700 overflow-x-auto">
+    <button type="button"
+            onclick="switchTab('pilih-mitra')"
+            data-tab="pilih-mitra"
+            class="tab-btn active px-4 py-2.5 text-sm font-medium whitespace-nowrap text-slate-600 dark:text-slate-300 border-b-2 border-transparent -mb-px transition-colors">
+      <span class="material-icons-outlined mat-xs mr-1">domain</span>Pilih Mitra
+    </button>
 
-  <!-- ── TABS ── -->
-<div class="flex gap-1 mb-6 border-b border-slate-200 dark:border-slate-700">
-  <button onclick="switchTab('pilih-mitra')" data-tab="pilih-mitra"
-          class="tab-btn active px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300 border-b-2 border-transparent -mb-px transition-colors">
-    <span class="material-icons-outlined mat-xs mr-1">domain</span>Pilih Mitra
-  </button>
-  <button onclick="switchTab('request-saya')" data-tab="request-saya"
-          class="tab-btn px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300 border-b-2 border-transparent -mb-px transition-colors">
-    <span class="material-icons-outlined mat-xs mr-1">assignment</span>Request Saya
-    {% if my_requests.count %}<span class="badge badge-primary ml-1">{{ my_requests.count }}</span>{% endif %}
-  </button>
-  <button onclick="switchTab('log-aktivitas')" data-tab="log-aktivitas"
-          class="tab-btn px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300 border-b-2 border-transparent -mb-px transition-colors">
-    <span class="material-icons-outlined mat-xs mr-1">event_note</span>Log Aktivitas
-  </button>
-</div>
+    <button type="button"
+            onclick="switchTab('request-saya')"
+            data-tab="request-saya"
+            class="tab-btn px-4 py-2.5 text-sm font-medium whitespace-nowrap text-slate-600 dark:text-slate-300 border-b-2 border-transparent -mb-px transition-colors">
+      <span class="material-icons-outlined mat-xs mr-1">assignment</span>Request Saya
+      {% if my_requests %}
+      <span class="badge badge-primary ml-1">{{ my_requests|length }}</span>
+      {% endif %}
+    </button>
+
+    <button type="button"
+            onclick="switchTab('log-aktivitas')"
+            data-tab="log-aktivitas"
+            class="tab-btn px-4 py-2.5 text-sm font-medium whitespace-nowrap text-slate-600 dark:text-slate-300 border-b-2 border-transparent -mb-px transition-colors">
+      <span class="material-icons-outlined mat-xs mr-1">event_note</span>Log Aktivitas
+      {% if internship_logs %}
+      <span class="badge badge-primary ml-1" id="log-counter">{{ internship_logs|length }}</span>
+      {% endif %}
+    </button>
+  </div>
 
   <!-- ══════════════════════════════════ -->
   <!-- TAB: PILIH MITRA -->
   <!-- ══════════════════════════════════ -->
-  <div id="tab-pilih-mitra" class="tab-content active">
-
+  <div id="tab-pilih-mitra" class="tab-content">
     {% if not my_active_request %}
-    <!-- Daftar mitra -->
-    {% if partners %}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-      {% for partner in partners %}
-      <div class="card p-4 flex flex-col gap-3">
-        <div class="flex items-start gap-3">
+      {% if partners %}
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-5">
+        {% for partner in partners %}
+        <div class="card p-4 flex flex-col gap-4 hover:shadow-md transition-shadow" id="partner-card-{{ partner.id }}">
+          <div class="flex items-start gap-3">
             <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
-            <span class="material-icons-outlined text-blue-600 mat-sm">domain</span>
+              <span class="material-icons-outlined text-blue-600 mat-sm">domain</span>
             </div>
+
             <div class="flex-1 min-w-0">
-            <p class="font-semibold text-sm text-slate-900 dark:text-slate-100 truncate">{{ partner.name }}</p>
-            <p class="text-xs text-blue-600 dark:text-blue-400">{{ partner.field }}</p>
-            {% if partner.contact_person %}
-            <p class="text-xs text-slate-400 mt-0.5 truncate">
+              <p class="font-semibold text-sm text-slate-900 dark:text-slate-100 truncate">{{ partner.name }}</p>
+              <p class="text-xs text-blue-600 dark:text-blue-400">{{ partner.field|default:"Bidang belum diatur" }}</p>
+              {% if partner.contact_person %}
+              <p class="text-xs text-slate-400 mt-0.5 truncate">
                 {{ partner.contact_person }}{% if partner.phone %} · {{ partner.phone }}{% endif %}
-            </p>
-            {% endif %}
+              </p>
+              {% else %}
+              <p class="text-xs text-slate-400 mt-0.5 truncate">Kontak akan diinformasikan setelah disetujui</p>
+              {% endif %}
             </div>
-        </div>
-        <button onclick="openRegisterModal('{{ partner.id }}','{{ partner.name }}','{{ partner.field }}')"
-                class="btn btn-primary btn-sm w-full mt-auto">
-            <span class="material-icons-outlined mat-xs">send</span>Daftar
-        </button>
+          </div>
+
+          <div class="rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700 p-3 space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Status kuota</span>
+
+              {% if partner.quota == 0 %}
+                <span class="badge badge-gray text-[10px]">Tidak dibatasi</span>
+              {% elif partner.quota_status == 'full' %}
+                <span class="badge badge-danger text-[10px] quota-badge">Penuh</span>
+              {% elif partner.quota_status == 'limited' %}
+                <span class="badge badge-warning text-[10px] quota-badge">
+                  Sisa <span class="quota-remaining-num">{{ partner.quota_remaining }}</span>
+                </span>
+              {% else %}
+                <span class="badge badge-success text-[10px] quota-badge">
+                  Tersedia <span class="quota-remaining-num">{{ partner.quota_remaining }}</span>
+                </span>
+              {% endif %}
+            </div>
+
+            <div class="quota-block" id="quota-{{ partner.id }}">
+              {% if partner.quota == 0 %}
+              <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                <span class="material-icons-outlined mat-xs">all_inclusive</span>
+                <span>Kuota tidak dibatasi</span>
+              </div>
+              {% else %}
+              <div class="flex items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400">
+                <span>
+                  Terisi: <span class="quota-accepted font-semibold text-slate-700 dark:text-slate-200">{{ partner.accepted_count }}</span>/{{ partner.quota }}
+                </span>
+                <span>{{ partner.quota_percentage }}%</span>
+              </div>
+
+              <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+                <div class="quota-bar h-full rounded-full transition-all duration-500
+                  {% if partner.quota_status == 'full' %}bg-red-500
+                  {% elif partner.quota_status == 'limited' %}bg-amber-400
+                  {% else %}bg-emerald-500{% endif %}"
+                  style="width: {{ partner.quota_percentage }}%"></div>
+              </div>
+
+              {% if partner.address %}
+              <p class="text-xs text-slate-400 line-clamp-2">{{ partner.address }}</p>
+              {% endif %}
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="mt-auto flex gap-2">
+            <button type="button"
+                    onclick="openRegisterModal('{{ partner.id }}', '{{ partner.name|escapejs }}', '{{ partner.field|default:''|escapejs }}')"
+                    class="btn btn-sm flex-1 quota-btn-{{ partner.id }}
+                      {% if partner.quota_status == 'full' %}btn-secondary opacity-50 cursor-not-allowed
+                      {% else %}btn-primary{% endif %}"
+                    {% if partner.quota_status == 'full' %}disabled{% endif %}>
+              <span class="material-icons-outlined mat-xs">
+                {% if partner.quota_status == 'full' %}block{% else %}send{% endif %}
+              </span>
+              {% if partner.quota_status == 'full' %}Kuota Penuh{% else %}Daftar{% endif %}
+            </button>
+          </div>
         </div>
         {% endfor %}
-    </div>
-    {% endif %}
-
-    <!-- Daftar manual -->
-    <div class="card p-4 border-dashed border-2 border-slate-200 dark:border-slate-700 flex items-center justify-between gap-4">
-      <div>
-        <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Instansi tidak ada di daftar?</p>
-        <p class="text-xs text-slate-400 mt-0.5">Isi data instansi secara manual</p>
       </div>
-      <button onclick="openRegisterModal(null,null,null)" class="btn btn-outline btn-sm flex-shrink-0">
-        <span class="material-icons-outlined mat-xs">edit_note</span>Daftar Manual
-      </button>
-    </div>
+      {% else %}
+      <div class="card p-12 text-center">
+        <span class="material-icons-outlined mat-xl text-slate-300 dark:text-slate-600">domain_disabled</span>
+        <p class="font-medium text-slate-500 dark:text-slate-400 mt-3">Belum ada mitra aktif</p>
+        <p class="text-sm text-slate-400 dark:text-slate-500 mt-1">Admin belum menambahkan mitra magang yang tersedia.</p>
+      </div>
+      {% endif %}
 
+      <div class="card p-4 border-dashed border-2 border-slate-200 dark:border-slate-700 flex items-center justify-between gap-4">
+        <div>
+          <p class="text-sm font-medium text-slate-700 dark:text-slate-300">Instansi tidak ada di daftar?</p>
+          <p class="text-xs text-slate-400 mt-0.5">Isi data instansi secara manual untuk diajukan ke admin.</p>
+        </div>
+        <button type="button" onclick="openRegisterModal(null, null, null)" class="btn btn-outline btn-sm flex-shrink-0">
+          <span class="material-icons-outlined mat-xs">edit_note</span>Daftar Manual
+        </button>
+      </div>
     {% else %}
-    <div class="card p-10 text-center">
-      <span class="material-icons-outlined mat-xl text-slate-300 dark:text-slate-600">business_center</span>
-      <p class="font-medium text-slate-500 dark:text-slate-400 mt-3">Kamu sudah memiliki magang aktif</p>
-      <p class="text-sm text-slate-400 dark:text-slate-500 mt-1">Selesaikan magang aktif sebelum mendaftar yang baru.</p>
-      <button onclick="switchTab('request-saya')" class="btn btn-outline btn-sm mt-4">
-        Lihat Detail Magang
-      </button>
-    </div>
+      <div class="card p-10 text-center">
+        <span class="material-icons-outlined mat-xl text-slate-300 dark:text-slate-600">business_center</span>
+        <p class="font-medium text-slate-500 dark:text-slate-400 mt-3">Kamu sudah memiliki magang aktif</p>
+        <p class="text-sm text-slate-400 dark:text-slate-500 mt-1">Selesaikan magang aktif sebelum mendaftar yang baru.</p>
+        <button type="button" onclick="switchTab('request-saya')" class="btn btn-outline btn-sm mt-4">
+          Lihat Detail Magang
+        </button>
+      </div>
     {% endif %}
   </div>
 
@@ -115,58 +198,62 @@
     {% if my_requests %}
     <div class="space-y-4">
       {% for req in my_requests %}
-    <div class="card p-5">
-    <div class="flex items-start justify-between gap-3 flex-wrap">
-        <div class="flex items-start gap-3">
-        <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
-            <span class="material-icons-outlined text-blue-600 mat-sm">business_center</span>
-        </div>
-        <div>
-            <p class="font-semibold text-sm text-slate-900 dark:text-slate-100">{{ req.partner_name }}</p>
-            <p class="text-xs text-blue-600 dark:text-blue-400">{{ req.partner_field }}</p>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
-            <span class="material-icons-outlined mat-xs">calendar_today</span>
-            {{ req.start_date }} — {{ req.end_date }}
-            </p>
-            <p class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
-            <span class="material-icons-outlined mat-xs">person</span>
-            {% if req.status == 'approved' or req.status == 'ongoing' or req.status == 'completed' %}
-                {{ req.lecturer_name }}
-            {% else %}
-                <span class="italic">dirahasiakan hingga disetujui</span>
-            {% endif %}
-            </p>
-        </div>
-        </div>
-        <span class="badge flex-shrink-0
-        {% if req.status == 'pending' %}badge-warning
-        {% elif req.status == 'approved' %}badge-success
-        {% elif req.status == 'ongoing' %}badge-primary
-        {% elif req.status == 'completed' %}badge-gray
-        {% elif req.status == 'rejected' %}badge-danger{% endif %}">
-        {{ req.status_display }}
-        </span>
-    </div>
+      <div class="card p-5">
+        <div class="flex items-start justify-between gap-3 flex-wrap">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+              <span class="material-icons-outlined text-blue-600 mat-sm">business_center</span>
+            </div>
 
-    {% if req.status == 'approved' or req.status == 'ongoing' %}
-    <div class="mt-3 flex gap-2 flex-wrap">
-        <button onclick="switchTab('log-aktivitas')" class="btn btn-sm btn-outline">
-        <span class="material-icons-outlined mat-xs">event_note</span>Log Aktivitas
-        </button>
-        <button onclick="openUploadModal({{ req.id }})" class="btn btn-sm btn-secondary">
-        <span class="material-icons-outlined mat-xs">upload_file</span>Upload Dokumen
-        </button>
-    </div>
-    {% endif %}
-    </div>
-    {% endfor %}
-    </div>
+            <div>
+              <p class="font-semibold text-sm text-slate-900 dark:text-slate-100">{{ req.partner_name }}</p>
+              <p class="text-xs text-blue-600 dark:text-blue-400">{{ req.partner_field|default:"Bidang belum tersedia" }}</p>
 
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
+                <span class="material-icons-outlined mat-xs">calendar_today</span>
+                {{ req.start_date }} — {{ req.end_date }}
+              </p>
+
+              <p class="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                <span class="material-icons-outlined mat-xs">person</span>
+                {% if req.status == 'approved' or req.status == 'ongoing' or req.status == 'completed' %}
+                  {{ req.lecturer_name }}
+                {% else %}
+                  <span class="italic">Dirahasiakan hingga disetujui</span>
+                {% endif %}
+              </p>
+            </div>
+          </div>
+
+          <span class="badge flex-shrink-0
+            {% if req.status == 'pending' %}badge-warning
+            {% elif req.status == 'approved' %}badge-success
+            {% elif req.status == 'ongoing' %}badge-primary
+            {% elif req.status == 'completed' %}badge-gray
+            {% elif req.status == 'rejected' %}badge-danger
+            {% else %}badge-gray{% endif %}">
+            {{ req.get_status_display }}
+          </span>
+        </div>
+
+        {% if req.status == 'approved' or req.status == 'ongoing' %}
+        <div class="mt-3 flex gap-2 flex-wrap">
+          <button type="button" onclick="switchTab('log-aktivitas')" class="btn btn-sm btn-outline">
+            <span class="material-icons-outlined mat-xs">event_note</span>Log Aktivitas
+          </button>
+          <button type="button" onclick="openUploadModal({{ req.id }})" class="btn btn-sm btn-secondary">
+            <span class="material-icons-outlined mat-xs">upload_file</span>Upload Dokumen
+          </button>
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
     {% else %}
     <div class="card p-12 text-center">
       <span class="material-icons-outlined mat-xl text-slate-300 dark:text-slate-600">assignment</span>
       <p class="font-medium text-slate-500 dark:text-slate-400 mt-3">Belum ada pendaftaran magang</p>
-      <button onclick="switchTab('pilih-mitra')" class="btn btn-primary btn-sm mt-4">
+      <button type="button" onclick="switchTab('pilih-mitra')" class="btn btn-primary btn-sm mt-4">
         <span class="material-icons-outlined mat-xs">domain</span>Pilih Mitra
       </button>
     </div>
@@ -177,40 +264,95 @@
   <!-- TAB: LOG AKTIVITAS -->
   <!-- ══════════════════════════════════ -->
   <div id="tab-log-aktivitas" class="tab-content hidden">
-
-    {% for log in internship_logs %}
-<div class="log-card card p-4" data-log-id="{{ log.id }}">
-  <div class="flex items-start gap-3">
-    <div class="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
-      <span class="material-icons-outlined text-blue-600 mat-sm">event_note</span>
+    <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
+      <div>
+        <h2 class="text-sm font-semibold text-slate-900 dark:text-slate-100">Log Aktivitas Harian</h2>
+        <p class="text-xs text-slate-500 dark:text-slate-400">Catat aktivitas penting selama magang berlangsung.</p>
+      </div>
+      <button type="button" onclick="toggleLogForm()" class="btn btn-primary btn-sm">
+        <span class="material-icons-outlined mat-xs">add</span>Tambah Log
+      </button>
     </div>
-    <div class="flex-1">
-      <div class="flex items-start justify-between gap-2">
-        <div>
-          <p class="font-semibold text-sm text-slate-800 dark:text-slate-200">{{ log.topic }}</p>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-1">
-            <span class="material-icons-outlined mat-xs">calendar_today</span>{{ log.date }}
-          </p>
+
+    <div id="add-log-form" class="hidden card p-4 mb-4 space-y-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="form-group">
+          <label for="log-date" class="form-label">Tanggal <span class="text-red-500">*</span></label>
+          <input type="date" id="log-date" class="form-input">
         </div>
-        <div class="flex items-center gap-2 flex-shrink-0">
-          <span class="badge badge-primary text-xs">Log #{{ forloop.counter }}</span>
-          <button onclick="deleteLog({{ log.id }})"
-                  class="p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 transition-colors">
-            <span class="material-icons-outlined mat-xs">delete</span>
-          </button>
+        <div class="form-group">
+          <label for="log-topic" class="form-label">Kegiatan <span class="text-red-500">*</span></label>
+          <input type="text" id="log-topic" class="form-input" placeholder="Contoh: Observasi pasien">
         </div>
       </div>
-      {% if log.notes %}
-      <p class="mt-2 text-xs text-slate-600 dark:text-slate-400 p-2.5 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
-        {{ log.notes }}
-      </p>
-      {% endif %}
-    </div>
-  </div>
-</div>
-{% endfor %}
-  </div>
 
+      <div class="form-group">
+        <label for="log-notes" class="form-label">Deskripsi</label>
+        <textarea id="log-notes" class="form-input min-h-[110px]" placeholder="Tulis ringkasan kegiatan hari ini"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="log-attachment" class="form-label">Lampiran</label>
+        <input type="file" id="log-attachment" class="form-input text-sm" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+      </div>
+
+      <div class="flex gap-3">
+        <button type="button" onclick="toggleLogForm()" class="btn btn-secondary">
+          Batal
+        </button>
+        <button type="button" id="submit-log-btn" onclick="submitNewLog()" class="btn btn-primary">
+          <span class="material-icons-outlined mat-xs">add</span>Simpan Log
+        </button>
+      </div>
+    </div>
+
+    {% if internship_logs %}
+    <div id="logs-list" class="space-y-3">
+      {% for log in internship_logs %}
+      <div class="log-card card p-4" data-log-id="{{ log.id }}">
+        <div class="flex items-start gap-3">
+          <div class="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+            <span class="material-icons-outlined text-blue-600 mat-sm">event_note</span>
+          </div>
+
+          <div class="flex-1">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <p class="font-semibold text-sm text-slate-800 dark:text-slate-200">{{ log.topic }}</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-1">
+                  <span class="material-icons-outlined mat-xs">calendar_today</span>{{ log.date }}
+                </p>
+              </div>
+
+              <div class="flex items-center gap-2 flex-shrink-0">
+                <span class="badge badge-primary text-xs">Log #{{ forloop.counter }}</span>
+                <button type="button"
+                        onclick="deleteLog({{ log.id }})"
+                        class="p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 transition-colors"
+                        aria-label="Hapus log">
+                  <span class="material-icons-outlined mat-xs">delete</span>
+                </button>
+              </div>
+            </div>
+
+            {% if log.notes %}
+            <p class="mt-2 text-xs text-slate-600 dark:text-slate-400 p-2.5 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+              {{ log.notes }}
+            </p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div id="logs-empty" class="card p-12 text-center">
+      <span class="material-icons-outlined mat-xl text-slate-300 dark:text-slate-600">event_note</span>
+      <p class="font-medium text-slate-500 dark:text-slate-400 mt-3">Belum ada log aktivitas</p>
+      <p class="text-sm text-slate-400 dark:text-slate-500 mt-1">Tambahkan log pertama untuk mulai mendokumentasikan kegiatan magang.</p>
+    </div>
+    {% endif %}
+  </div>
 </div>
 
 <!-- ══════════════════════════════════════════ -->
@@ -218,61 +360,59 @@
 <!-- ══════════════════════════════════════════ -->
 <div id="register-modal"
      class="fixed inset-0 z-50 hidden items-center justify-center p-4"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="register-modal-title"
      style="background:rgba(0,0,0,0.5);backdrop-filter:blur(4px)">
   <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-slide-up">
-
     <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700 sticky top-0 bg-white dark:bg-slate-800 z-10">
-      <h3 class="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+      <h3 id="register-modal-title" class="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
         <span class="material-icons-outlined mat-sm text-blue-500">business_center</span>
         Daftar Magang
       </h3>
-      <button onclick="closeRegisterModal()" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">
+      <button type="button" onclick="closeRegisterModal()" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700" aria-label="Tutup modal">
         <span class="material-icons mat-sm text-slate-400">close</span>
       </button>
     </div>
 
     <div class="p-6 space-y-4">
-
-      <!-- Preview mitra terpilih -->
       <div id="modal-partner-preview" class="hidden p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
         <p class="text-xs text-slate-500 dark:text-slate-400">Mitra dipilih</p>
         <p class="font-semibold text-sm text-blue-900 dark:text-blue-100" id="modal-partner-name"></p>
         <p class="text-xs text-blue-600 dark:text-blue-400" id="modal-partner-field"></p>
       </div>
 
-      <!-- Input manual instansi -->
       <div id="manual-partner-section">
         <div class="form-group">
-          <label class="form-label">Nama Instansi <span class="text-red-500">*</span></label>
+          <label for="modal-partner-name-input" class="form-label">Nama Instansi <span class="text-red-500">*</span></label>
           <input type="text" id="modal-partner-name-input" class="form-input" placeholder="Nama tempat magang">
         </div>
-        <div class="grid grid-cols-2 gap-3">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div class="form-group">
-            <label class="form-label">Bidang / Divisi</label>
-            <input type="text" id="modal-partner-field-input" class="form-input" placeholder="cth: Psikologi Klinis">
+            <label for="modal-partner-field-input" class="form-label">Bidang / Divisi</label>
+            <input type="text" id="modal-partner-field-input" class="form-input" placeholder="Contoh: Psikologi Klinis">
           </div>
           <div class="form-group">
-            <label class="form-label">Alamat</label>
+            <label for="modal-partner-address" class="form-label">Alamat</label>
             <input type="text" id="modal-partner-address" class="form-input" placeholder="Alamat instansi">
           </div>
         </div>
       </div>
 
-      <!-- Supervisor -->
-      <div class="grid grid-cols-2 gap-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div class="form-group">
-          <label class="form-label">Nama Supervisor <span class="text-red-500">*</span></label>
+          <label for="modal-supervisor-name" class="form-label">Nama Supervisor <span class="text-red-500">*</span></label>
           <input type="text" id="modal-supervisor-name" class="form-input" placeholder="Nama supervisor">
         </div>
         <div class="form-group">
-          <label class="form-label">No. HP Supervisor <span class="text-red-500">*</span></label>
+          <label for="modal-supervisor-phone" class="form-label">No. HP Supervisor <span class="text-red-500">*</span></label>
           <input type="tel" id="modal-supervisor-phone" class="form-input" placeholder="08xxxxxxxxxx">
         </div>
       </div>
 
-      <!-- Dosen + Periode -->
       <div class="form-group">
-        <label class="form-label">Dosen Pembimbing <span class="text-red-500">*</span></label>
+        <label for="modal-lecturer" class="form-label">Dosen Pembimbing <span class="text-red-500">*</span></label>
         <select id="modal-lecturer" class="form-input">
           <option value="">-- Pilih Dosen --</option>
           {% for lecturer in lecturers %}
@@ -280,19 +420,20 @@
           {% endfor %}
         </select>
       </div>
-      <div class="grid grid-cols-2 gap-3">
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div class="form-group">
-          <label class="form-label">Tanggal Mulai <span class="text-red-500">*</span></label>
+          <label for="modal-start-date" class="form-label">Tanggal Mulai <span class="text-red-500">*</span></label>
           <input type="date" id="modal-start-date" class="form-input">
         </div>
         <div class="form-group">
-          <label class="form-label">Tanggal Selesai <span class="text-red-500">*</span></label>
+          <label for="modal-end-date" class="form-label">Tanggal Selesai <span class="text-red-500">*</span></label>
           <input type="date" id="modal-end-date" class="form-input">
         </div>
       </div>
 
       <div class="form-group">
-        <label class="form-label">Surat Pengantar <span class="text-slate-400 font-normal text-xs">(opsional)</span></label>
+        <label for="modal-intro-letter" class="form-label">Surat Pengantar <span class="text-slate-400 font-normal text-xs">(opsional)</span></label>
         <input type="file" id="modal-intro-letter" class="form-input text-sm" accept=".pdf,.doc,.docx">
       </div>
 
@@ -302,8 +443,8 @@
       </p>
 
       <div class="flex gap-3 pt-1">
-        <button onclick="closeRegisterModal()" class="btn btn-secondary flex-1">Batal</button>
-        <button onclick="submitRegister()" id="submit-register-btn" class="btn btn-primary flex-1">
+        <button type="button" onclick="closeRegisterModal()" class="btn btn-secondary flex-1">Batal</button>
+        <button type="button" onclick="submitRegister()" id="submit-register-btn" class="btn btn-primary flex-1">
           <span class="material-icons-outlined mat-xs">send</span>Kirim
         </button>
       </div>
@@ -316,29 +457,33 @@
 <!-- ══════════════════════════════════════════ -->
 <div id="upload-modal"
      class="fixed inset-0 z-50 hidden items-center justify-center p-4"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="upload-modal-title"
      style="background:rgba(0,0,0,0.5);backdrop-filter:blur(4px)">
   <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md animate-slide-up">
     <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700">
-      <h3 class="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+      <h3 id="upload-modal-title" class="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
         <span class="material-icons-outlined mat-sm text-blue-500">upload_file</span>
         Upload Dokumen
       </h3>
-      <button onclick="closeUploadModal()" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">
+      <button type="button" onclick="closeUploadModal()" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700" aria-label="Tutup modal">
         <span class="material-icons mat-sm text-slate-400">close</span>
       </button>
     </div>
+
     <div class="p-6 space-y-4">
       <div class="form-group">
-        <label class="form-label">Laporan Akhir</label>
+        <label for="upload-final-report" class="form-label">Laporan Akhir</label>
         <input type="file" id="upload-final-report" class="form-input text-sm" accept=".pdf,.doc,.docx">
       </div>
       <div class="form-group">
-        <label class="form-label">Penilaian Supervisor</label>
+        <label for="upload-assessment" class="form-label">Penilaian Supervisor</label>
         <input type="file" id="upload-assessment" class="form-input text-sm" accept=".pdf,.doc,.docx,.jpg,.png">
       </div>
       <div class="flex gap-3">
-        <button onclick="closeUploadModal()" class="btn btn-secondary flex-1">Batal</button>
-        <button onclick="submitUpload()" id="submit-upload-btn" class="btn btn-primary flex-1">
+        <button type="button" onclick="closeUploadModal()" class="btn btn-secondary flex-1">Batal</button>
+        <button type="button" onclick="submitUpload()" id="submit-upload-btn" class="btn btn-primary flex-1">
           <span class="material-icons-outlined mat-xs">upload</span>Upload
         </button>
       </div>
@@ -349,297 +494,524 @@
 
 {% block extra_js %}
 <script>
-// ── Tab System ──
-function switchTab(name) {
-  document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-  document.querySelectorAll('.tab-btn').forEach(el => {
-    el.classList.remove('active','border-primary-500','text-primary-600','dark:text-primary-400');
-    el.classList.add('border-transparent');
-  });
-  document.getElementById('tab-' + name)?.classList.remove('hidden');
-  const btn = document.querySelector(`[data-tab="${name}"]`);
-  if (btn) {
-    btn.classList.add('active','border-primary-500','text-primary-600','dark:text-primary-400');
-    btn.classList.remove('border-transparent');
+(() => {
+  const TAB_NAMES = ['pilih-mitra', 'request-saya', 'log-aktivitas'];
+  const QUOTA_POLL_INTERVAL = 30000;
+
+  let selectedPartnerId = null;
+  let uploadRequestId = null;
+  let quotaInterval = null;
+  let lastFocusedElement = null;
+
+  const $ = (selector, root = document) => root.querySelector(selector);
+  const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
+
+  function getCookie(name) {
+    const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+    return v ? v[2] : '';
   }
-  history.replaceState(null, '', '#' + name);
-}
 
-window.addEventListener('DOMContentLoaded', () => {
-  const hash = window.location.hash.replace('#','');
-  if (['pilih-mitra','request-saya','log-aktivitas'].includes(hash)) switchTab(hash);
-  else switchTab('pilih-mitra');
-});
-
-// ── Modal Register ──
-let selectedPartnerId = null;
-
-function openRegisterModal(partnerId, partnerName, partnerField) {
-  selectedPartnerId = partnerId;
-  const preview  = document.getElementById('modal-partner-preview');
-  const manualEl = document.getElementById('manual-partner-section');
-  if (partnerId) {
-    document.getElementById('modal-partner-name').textContent  = partnerName;
-    document.getElementById('modal-partner-field').textContent = partnerField;
-    preview.classList.remove('hidden');
-    manualEl.classList.add('hidden');
-  } else {
-    preview.classList.add('hidden');
-    manualEl.classList.remove('hidden');
+  function setButtonLoading(button, loadingText, icon = 'hourglass_top') {
+    if (!button) return;
+    button.disabled = true;
+    button.dataset.originalHtml = button.innerHTML;
+    button.innerHTML = `<span class="material-icons-outlined mat-xs animate-pulse">${icon}</span>${loadingText}`;
   }
-  const modal = document.getElementById('register-modal');
-  modal.classList.remove('hidden');
-  modal.classList.add('flex');
-}
 
-function closeRegisterModal() {
-  const modal = document.getElementById('register-modal');
-  modal.classList.add('hidden');
-  modal.classList.remove('flex');
-  selectedPartnerId = null;
-  ['modal-partner-name-input','modal-partner-field-input','modal-partner-address',
-   'modal-supervisor-name','modal-supervisor-phone','modal-intro-letter',
-   'modal-start-date','modal-end-date']
-    .forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
-  document.getElementById('modal-lecturer').value = '';
-}
-
-function submitRegister() {
-//   const lecturerId  = document.getElementById('modal-lecturer').value;
-//   const startDate   = document.getElementById('modal-start-date').value;
-//   const endDate     = document.getElementById('modal-end-date').value;
-//   const supervisor  = document.getElementById('modal-supervisor-name').value.trim();
-//   const supPhone    = document.getElementById('modal-supervisor-phone').value.trim();
-
-//   if (!lecturerId || !startDate || !endDate || !supervisor || !supPhone) {
-//     showToast('error','Semua field wajib diisi!'); return;
-//   }
-//   if (new Date(endDate) <= new Date(startDate)) {
-//     showToast('error','Tanggal selesai harus setelah tanggal mulai!'); return;
-//   }
-
-//   const btn = document.getElementById('submit-register-btn');
-//   btn.disabled = true;
-//   btn.innerHTML = '<div class="spinner-ring w-4 h-4 border-2"></div> Mengirim...';
-
-//   const fd = new FormData();
-//   if (selectedPartnerId) {
-//     fd.append('partner', selectedPartnerId);
-//   } else {
-//     const pName = document.getElementById('modal-partner-name-input').value.trim();
-//     if (!pName) { showToast('error','Nama instansi wajib diisi!'); btn.disabled=false; btn.innerHTML='<span class="material-icons-outlined mat-xs">send</span>Kirim'; return; }
-//     fd.append('partner_name',    pName);
-//     fd.append('partner_field',   document.getElementById('modal-partner-field-input').value.trim());
-//     fd.append('partner_address', document.getElementById('modal-partner-address').value.trim());
-//   }
-//   fd.append('lecturer',         lecturerId);
-//   fd.append('start_date',       startDate);
-//   fd.append('end_date',         endDate);
-//   fd.append('supervisor_name',  supervisor);
-//   fd.append('supervisor_phone', supPhone);
-//   const introFile = document.getElementById('modal-intro-letter').files[0];
-//   if (introFile) fd.append('intro_letter', introFile);
-
-//   fetch('/api/internship/requests/', {
-//     method: 'POST', headers: {'X-CSRFToken': getCookie('csrftoken')}, body: fd,
-//   })
-//   .then(r => r.json())
-//   .then(data => {
-//     if (data.status === 'ok') {
-//       showToast('success','Pendaftaran berhasil dikirim!');
-//       closeRegisterModal();
-//       setTimeout(() => location.reload(), 1000);
-//     } else {
-//       showToast('error', data.message || 'Gagal mendaftar.');
-//     }
-//   })
-//   .catch(() => showToast('error','Terjadi kesalahan jaringan.'))
-//   .finally(() => {
-//     btn.disabled = false;
-//     btn.innerHTML = '<span class="material-icons-outlined mat-xs">send</span>Kirim';
-//   });
-
-showToast('info', 'Tertarik? Ini masih coming soon hihii');
-  return;
-}
-
-document.getElementById('register-modal')?.addEventListener('click', function(e) {
-  if (e.target === this) closeRegisterModal();
-});
-
-// ── Modal Upload ──
-let uploadRequestId = null;
-
-function openUploadModal(reqId) {
-  uploadRequestId = reqId;
-  const modal = document.getElementById('upload-modal');
-  modal.classList.remove('hidden');
-  modal.classList.add('flex');
-}
-
-function closeUploadModal() {
-  const modal = document.getElementById('upload-modal');
-  modal.classList.add('hidden');
-  modal.classList.remove('flex');
-  uploadRequestId = null;
-}
-
-function submitUpload() {
-  const finalReport = document.getElementById('upload-final-report').files[0];
-  const assessment  = document.getElementById('upload-assessment').files[0];
-  if (!finalReport && !assessment) { showToast('error','Pilih setidaknya satu dokumen!'); return; }
-
-  const fd = new FormData();
-  fd.append('request_id', uploadRequestId);
-  if (finalReport) fd.append('final_report', finalReport);
-  if (assessment)  fd.append('assessment',   assessment);
-
-  fetch('/api/internship/upload/', {
-    method: 'POST', headers: {'X-CSRFToken': getCookie('csrftoken')}, body: fd,
-  })
-  .then(r => r.json())
-  .then(data => {
-    if (data.status === 'ok') {
-      showToast('success','Dokumen berhasil diupload!');
-      closeUploadModal();
-      setTimeout(() => location.reload(), 800);
-    } else {
-      showToast('error', data.message || 'Gagal upload.');
+  function resetButtonLoading(button) {
+    if (!button) return;
+    button.disabled = false;
+    if (button.dataset.originalHtml) {
+      button.innerHTML = button.dataset.originalHtml;
     }
-  })
-  .catch(() => showToast('error','Terjadi kesalahan.'));
-}
-
-document.getElementById('upload-modal')?.addEventListener('click', function(e) {
-  if (e.target === this) closeUploadModal();
-});
-
-// ── Log Aktivitas ──
-function toggleLogForm() {
-  const form = document.getElementById('add-log-form');
-  if (!form) return;
-  form.classList.toggle('hidden');
-  if (!form.classList.contains('hidden')) {
-    document.getElementById('log-date').valueAsDate = new Date();
-    document.getElementById('log-topic').focus();
   }
-}
 
-function submitNewLog() {
-  const date  = document.getElementById('log-date').value;
-  const topic = document.getElementById('log-topic').value.trim();
-  if (!date || !topic) { showToast('error','Tanggal dan kegiatan wajib diisi!'); return; }
+  function showToast(type, message) {
+    const container = $('#toast-container');
+    if (!container) return;
 
-  const btn = document.getElementById('submit-log-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<div class="spinner-ring w-4 h-4 border-2"></div> Menyimpan...';
+    const icons = {
+      success: 'check_circle',
+      error: 'error',
+      info: 'info',
+      warning: 'warning'
+    };
 
-  const fd = new FormData();
-  fd.append('date',  date);
-  fd.append('topic', topic);
-  fd.append('notes', document.getElementById('log-notes').value);
-  const file = document.getElementById('log-attachment')?.files[0];
-  if (file) fd.append('attachment', file);
+    const t = document.createElement('div');
+    t.className = `toast toast-${type}`;
+    t.innerHTML = `
+      <span class="material-icons mat-sm flex-shrink-0">${icons[type] || 'info'}</span>
+      <p class="flex-1">${message}</p>
+      <button type="button" aria-label="Tutup notifikasi">
+        <span class="material-icons mat-xs">close</span>
+      </button>
+    `;
 
-  fetch('/api/internship/logs/create/', {
-    method: 'POST', headers: {'X-CSRFToken': getCookie('csrftoken')}, body: fd,
-  })
-  .then(r => r.json())
-  .then(data => {
-    if (data.status === 'ok') {
-      showToast('success','Log berhasil ditambahkan!');
-      toggleLogForm();
-      ['log-date','log-topic','log-notes','log-attachment']
-        .forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+    $('button', t)?.addEventListener('click', () => t.remove());
+    container.appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  }
 
-      document.getElementById('logs-empty')?.remove();
+  function switchTab(name) {
+    $$('.tab-content').forEach(el => el.classList.add('hidden'));
+    $$('.tab-btn').forEach(el => {
+      el.classList.remove('active', 'border-primary-500', 'text-primary-600', 'dark:text-primary-400');
+      el.classList.add('border-transparent');
+      el.setAttribute('aria-selected', 'false');
+    });
 
-      let list = document.getElementById('logs-list');
-      if (!list) {
-        list = document.createElement('div');
-        list.id = 'logs-list'; list.className = 'space-y-3';
-        document.getElementById('tab-log-aktivitas').appendChild(list);
+    $(`#tab-${name}`)?.classList.remove('hidden');
+
+    const btn = $(`[data-tab="${name}"]`);
+    if (btn) {
+      btn.classList.add('active', 'border-primary-500', 'text-primary-600', 'dark:text-primary-400');
+      btn.classList.remove('border-transparent');
+      btn.setAttribute('aria-selected', 'true');
+    }
+
+    history.replaceState(null, '', `#${name}`);
+    handleQuotaPolling(name);
+  }
+
+  function handleQuotaPolling(activeTab) {
+    if (activeTab === 'pilih-mitra') {
+      pollQuota();
+      if (!quotaInterval) quotaInterval = setInterval(pollQuota, QUOTA_POLL_INTERVAL);
+    } else {
+      clearInterval(quotaInterval);
+      quotaInterval = null;
+    }
+  }
+
+  function openModal(modalId, focusSelector = 'input, select, textarea, button') {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+
+    lastFocusedElement = document.activeElement;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.body.classList.add('overflow-hidden');
+
+    setTimeout(() => {
+      modal.querySelector(focusSelector)?.focus();
+    }, 50);
+  }
+
+  function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.body.classList.remove('overflow-hidden');
+
+    if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
+      lastFocusedElement.focus();
+    }
+  }
+
+  function resetRegisterForm() {
+    selectedPartnerId = null;
+    [
+      'modal-partner-name-input',
+      'modal-partner-field-input',
+      'modal-partner-address',
+      'modal-supervisor-name',
+      'modal-supervisor-phone',
+      'modal-intro-letter',
+      'modal-start-date',
+      'modal-end-date'
+    ].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    $('#modal-lecturer').value = '';
+  }
+
+  window.openRegisterModal = function(partnerId, partnerName, partnerField) {
+    selectedPartnerId = partnerId;
+    const preview = $('#modal-partner-preview');
+    const manualSection = $('#manual-partner-section');
+
+    if (partnerId) {
+      $('#modal-partner-name').textContent = partnerName || '-';
+      $('#modal-partner-field').textContent = partnerField || '-';
+      preview.classList.remove('hidden');
+      manualSection.classList.add('hidden');
+    } else {
+      preview.classList.add('hidden');
+      manualSection.classList.remove('hidden');
+    }
+
+    openModal('register-modal', '#modal-supervisor-name, #modal-partner-name-input');
+  };
+
+  window.closeRegisterModal = function() {
+    closeModal('register-modal');
+    resetRegisterForm();
+  };
+
+  function validateRegisterForm() {
+    const lecturerId = $('#modal-lecturer').value;
+    const startDate = $('#modal-start-date').value;
+    const endDate = $('#modal-end-date').value;
+    const supervisor = $('#modal-supervisor-name').value.trim();
+    const supervisorPhone = $('#modal-supervisor-phone').value.trim();
+
+    if (!lecturerId || !startDate || !endDate || !supervisor || !supervisorPhone) {
+      showToast('error', 'Semua field wajib harus diisi.');
+      return false;
+    }
+
+    if (new Date(endDate) <= new Date(startDate)) {
+      showToast('error', 'Tanggal selesai harus setelah tanggal mulai.');
+      return false;
+    }
+
+    if (!selectedPartnerId) {
+      const partnerName = $('#modal-partner-name-input').value.trim();
+      if (!partnerName) {
+        showToast('error', 'Nama instansi wajib diisi untuk pendaftaran manual.');
+        return false;
       }
+    }
 
-      const num = list.querySelectorAll('.log-card').length + 1;
-      const card = document.createElement('div');
-      card.className = 'log-card card p-4';
-      card.dataset.logId = data.id;
-      card.innerHTML = `
-        <div class="flex items-start gap-3">
-          <div class="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
-            <span class="material-icons-outlined text-blue-600 mat-sm">event_note</span>
-          </div>
-          <div class="flex-1">
-            <div class="flex items-start justify-between gap-2">
-              <div>
-                <p class="font-semibold text-sm text-slate-800 dark:text-slate-200">${data.topic}</p>
-                <p class="text-xs text-slate-500 mt-0.5 flex items-center gap-1">
-                  <span class="material-icons-outlined mat-xs">calendar_today</span>${data.date}
-                </p>
-              </div>
-              <div class="flex items-center gap-2 flex-shrink-0">
-                <span class="badge badge-primary text-xs">Log #${num}</span>
-                <button onclick="deleteLog(${data.id})"
-                        class="p-1 rounded hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors">
-                  <span class="material-icons-outlined mat-xs">delete</span>
-                </button>
-              </div>
-            </div>
-            ${data.notes ? `<p class="mt-2 text-xs text-slate-600 dark:text-slate-400 p-2.5 bg-slate-50 dark:bg-slate-700/50 rounded-lg">${data.notes}</p>` : ''}
-          </div>
-        </div>`;
-      list.appendChild(card);
+    return true;
+  }
 
-      const ctr = document.getElementById('log-counter');
-      if (ctr) ctr.textContent = parseInt(ctr.textContent||0) + 1;
+  window.submitRegister = function() {
+    if (!validateRegisterForm()) return;
+
+    const btn = $('#submit-register-btn');
+    setButtonLoading(btn, 'Mengirim...');
+
+    const fd = new FormData();
+
+    if (selectedPartnerId) {
+      fd.append('partner', selectedPartnerId);
     } else {
-      showToast('error', data.message || 'Gagal menyimpan log.');
+      fd.append('partner_name', $('#modal-partner-name-input').value.trim());
+      fd.append('partner_field', $('#modal-partner-field-input').value.trim());
+      fd.append('partner_address', $('#modal-partner-address').value.trim());
     }
-  })
-  .catch(() => showToast('error','Terjadi kesalahan jaringan.'))
-  .finally(() => {
-    btn.disabled = false;
-    btn.innerHTML = '<span class="material-icons-outlined mat-xs">add</span>Simpan Log';
-  });
-}
 
-function deleteLog(id) {
-  if (!confirm('Hapus log aktivitas ini?')) return;
-  fetch(`/api/internship/logs/${id}/delete/`, {
-    method: 'POST', headers: {'X-CSRFToken': getCookie('csrftoken')}
-  })
-  .then(r => r.json())
-  .then(data => {
-    if (data.status === 'ok') {
-      document.querySelector(`[data-log-id="${id}"]`)?.remove();
-      showToast('success','Log dihapus.');
-      const ctr = document.getElementById('log-counter');
-      if (ctr) ctr.textContent = Math.max(0, parseInt(ctr.textContent)-1);
+    fd.append('lecturer', $('#modal-lecturer').value);
+    fd.append('start_date', $('#modal-start-date').value);
+    fd.append('end_date', $('#modal-end-date').value);
+    fd.append('supervisor_name', $('#modal-supervisor-name').value.trim());
+    fd.append('supervisor_phone', $('#modal-supervisor-phone').value.trim());
+
+    const introFile = $('#modal-intro-letter').files[0];
+    if (introFile) fd.append('intro_letter', introFile);
+
+    fetch('/api/internship/requests/', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCookie('csrftoken') },
+      body: fd,
+    })
+      .then(async response => {
+        const data = await response.json();
+        if (!response.ok) throw data;
+        return data;
+      })
+      .then(data => {
+        showToast('success', data.message || 'Pendaftaran berhasil dikirim.');
+        closeRegisterModal();
+        setTimeout(() => window.location.reload(), 900);
+      })
+      .catch(err => {
+        showToast('error', err.message || 'Gagal mengirim pendaftaran.');
+      })
+      .finally(() => resetButtonLoading(btn));
+  };
+
+  window.openUploadModal = function(reqId) {
+    uploadRequestId = reqId;
+    openModal('upload-modal', '#upload-final-report');
+  };
+
+  window.closeUploadModal = function() {
+    closeModal('upload-modal');
+    uploadRequestId = null;
+    ['upload-final-report', 'upload-assessment'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+  };
+
+  window.submitUpload = function() {
+    const finalReport = $('#upload-final-report').files[0];
+    const assessment = $('#upload-assessment').files[0];
+
+    if (!finalReport && !assessment) {
+      showToast('error', 'Pilih setidaknya satu dokumen.');
+      return;
     }
+
+    const btn = $('#submit-upload-btn');
+    setButtonLoading(btn, 'Mengunggah...');
+
+    const fd = new FormData();
+    fd.append('request_id', uploadRequestId);
+    if (finalReport) fd.append('final_report', finalReport);
+    if (assessment) fd.append('assessment', assessment);
+
+    fetch('/api/internship/upload/', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCookie('csrftoken') },
+      body: fd,
+    })
+      .then(async response => {
+        const data = await response.json();
+        if (!response.ok) throw data;
+        return data;
+      })
+      .then(data => {
+        showToast('success', data.message || 'Dokumen berhasil diupload.');
+        closeUploadModal();
+        setTimeout(() => window.location.reload(), 800);
+      })
+      .catch(err => {
+        showToast('error', err.message || 'Gagal upload dokumen.');
+      })
+      .finally(() => resetButtonLoading(btn));
+  };
+
+  window.toggleLogForm = function() {
+    const form = $('#add-log-form');
+    if (!form) return;
+
+    form.classList.toggle('hidden');
+    if (!form.classList.contains('hidden')) {
+      $('#log-date').valueAsDate = new Date();
+      $('#log-topic').focus();
+    }
+  };
+
+  window.submitNewLog = function() {
+    const date = $('#log-date').value;
+    const topic = $('#log-topic').value.trim();
+
+    if (!date || !topic) {
+      showToast('error', 'Tanggal dan kegiatan wajib diisi.');
+      return;
+    }
+
+    const btn = $('#submit-log-btn');
+    setButtonLoading(btn, 'Menyimpan...');
+
+    const fd = new FormData();
+    fd.append('date', date);
+    fd.append('topic', topic);
+    fd.append('notes', $('#log-notes').value);
+    const file = $('#log-attachment')?.files[0];
+    if (file) fd.append('attachment', file);
+
+    fetch('/api/internship/logs/create/', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCookie('csrftoken') },
+      body: fd,
+    })
+      .then(async response => {
+        const data = await response.json();
+        if (!response.ok) throw data;
+        return data;
+      })
+      .then(data => {
+        showToast('success', 'Log berhasil ditambahkan.');
+        toggleLogForm();
+
+        ['log-date', 'log-topic', 'log-notes', 'log-attachment'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.value = '';
+        });
+
+        $('#logs-empty')?.remove();
+
+        let list = $('#logs-list');
+        if (!list) {
+          list = document.createElement('div');
+          list.id = 'logs-list';
+          list.className = 'space-y-3';
+          $('#tab-log-aktivitas').appendChild(list);
+        }
+
+        const num = list.querySelectorAll('.log-card').length + 1;
+        const card = document.createElement('div');
+        card.className = 'log-card card p-4';
+        card.dataset.logId = data.id;
+        card.innerHTML = `
+          <div class="flex items-start gap-3">
+            <div class="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+              <span class="material-icons-outlined text-blue-600 mat-sm">event_note</span>
+            </div>
+            <div class="flex-1">
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <p class="font-semibold text-sm text-slate-800 dark:text-slate-200">${data.topic}</p>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-1">
+                    <span class="material-icons-outlined mat-xs">calendar_today</span>${data.date}
+                  </p>
+                </div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                  <span class="badge badge-primary text-xs">Log #${num}</span>
+                  <button type="button"
+                          onclick="deleteLog(${data.id})"
+                          class="p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-400 hover:text-red-500 transition-colors"
+                          aria-label="Hapus log">
+                    <span class="material-icons-outlined mat-xs">delete</span>
+                  </button>
+                </div>
+              </div>
+              ${data.notes ? `<p class="mt-2 text-xs text-slate-600 dark:text-slate-400 p-2.5 bg-slate-50 dark:bg-slate-700/50 rounded-lg">${data.notes}</p>` : ''}
+            </div>
+          </div>
+        `;
+        list.prepend(card);
+
+        const counter = $('#log-counter');
+        if (counter) counter.textContent = parseInt(counter.textContent || 0, 10) + 1;
+      })
+      .catch(err => {
+        showToast('error', err.message || 'Gagal menyimpan log.');
+      })
+      .finally(() => resetButtonLoading(btn));
+  };
+
+  window.deleteLog = function(id) {
+    if (!confirm('Hapus log aktivitas ini?')) return;
+
+    fetch(`/api/internship/logs/${id}/delete/`, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCookie('csrftoken') }
+    })
+      .then(async response => {
+        const data = await response.json();
+        if (!response.ok) throw data;
+        return data;
+      })
+      .then(() => {
+        document.querySelector(`[data-log-id="${id}"]`)?.remove();
+        showToast('success', 'Log dihapus.');
+
+        const counter = $('#log-counter');
+        if (counter) {
+          const nextCount = Math.max(0, parseInt(counter.textContent || 0, 10) - 1);
+          counter.textContent = nextCount;
+        }
+
+        if (!$('#logs-list')?.children.length) {
+          const empty = document.createElement('div');
+          empty.id = 'logs-empty';
+          empty.className = 'card p-12 text-center';
+          empty.innerHTML = `
+            <span class="material-icons-outlined mat-xl text-slate-300 dark:text-slate-600">event_note</span>
+            <p class="font-medium text-slate-500 dark:text-slate-400 mt-3">Belum ada log aktivitas</p>
+            <p class="text-sm text-slate-400 dark:text-slate-500 mt-1">Tambahkan log pertama untuk mulai mendokumentasikan kegiatan magang.</p>
+          `;
+          $('#tab-log-aktivitas').appendChild(empty);
+        }
+      })
+      .catch(err => {
+        showToast('error', err.message || 'Gagal menghapus log.');
+      });
+  };
+
+  function updateQuotaUI(partner) {
+    const wrapper = document.getElementById(`quota-${partner.id}`);
+    if (!wrapper || partner.quota_remaining === null) return;
+
+    const acceptedEl = wrapper.querySelector('.quota-accepted');
+    if (acceptedEl) acceptedEl.textContent = partner.accepted_count;
+
+    const remainingEls = document.querySelectorAll(`#partner-card-${partner.id} .quota-remaining-num`);
+    remainingEls.forEach(el => el.textContent = partner.quota_remaining);
+
+    const bar = wrapper.querySelector('.quota-bar');
+    if (bar) {
+      bar.style.width = `${partner.quota_percentage}%`;
+      bar.classList.remove('bg-red-500', 'bg-amber-400', 'bg-emerald-500');
+      if (partner.quota_status === 'full') bar.classList.add('bg-red-500');
+      else if (partner.quota_status === 'limited') bar.classList.add('bg-amber-400');
+      else bar.classList.add('bg-emerald-500');
+    }
+
+    const badge = document.querySelector(`#partner-card-${partner.id} .quota-badge`);
+    if (badge) {
+      badge.classList.remove('badge-danger', 'badge-warning', 'badge-success');
+      if (partner.quota_status === 'full') {
+        badge.classList.add('badge-danger');
+        badge.textContent = 'Penuh';
+      } else if (partner.quota_status === 'limited') {
+        badge.classList.add('badge-warning');
+        badge.innerHTML = `Sisa <span class="quota-remaining-num">${partner.quota_remaining}</span>`;
+      } else {
+        badge.classList.add('badge-success');
+        badge.innerHTML = `Tersedia <span class="quota-remaining-num">${partner.quota_remaining}</span>`;
+      }
+    }
+
+    const btn = document.querySelector(`.quota-btn-${partner.id}`);
+    if (btn) {
+      if (partner.quota_status === 'full') {
+        btn.disabled = true;
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-secondary', 'opacity-50', 'cursor-not-allowed');
+        btn.innerHTML = '<span class="material-icons-outlined mat-xs">block</span>Kuota Penuh';
+      } else {
+        btn.disabled = false;
+        btn.classList.add('btn-primary');
+        btn.classList.remove('btn-secondary', 'opacity-50', 'cursor-not-allowed');
+        btn.innerHTML = '<span class="material-icons-outlined mat-xs">send</span>Daftar';
+      }
+    }
+  }
+
+  function pollQuota() {
+    fetch('/api/internship/partners/quota/', {
+      headers: { 'X-CSRFToken': getCookie('csrftoken') }
+    })
+      .then(response => response.json())
+      .then(data => {
+        (data.partners || []).forEach(updateQuotaUI);
+        const indicator = $('#quota-last-update');
+        if (indicator) {
+          indicator.textContent = `Kuota diperbarui ${new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`;
+        }
+      })
+      .catch(() => {});
+  }
+
+  function initModalBackdropAndEscape() {
+    ['register-modal', 'upload-modal'].forEach(id => {
+      const modal = document.getElementById(id);
+      if (!modal) return;
+
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          if (id === 'register-modal') closeRegisterModal();
+          if (id === 'upload-modal') closeUploadModal();
+        }
+      });
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        if (!$('#register-modal')?.classList.contains('hidden')) closeRegisterModal();
+        if (!$('#upload-modal')?.classList.contains('hidden')) closeUploadModal();
+      }
+    });
+  }
+
+  window.switchTab = switchTab;
+
+  document.addEventListener('DOMContentLoaded', function() {
+    initModalBackdropAndEscape();
+
+    const hash = window.location.hash.replace('#', '');
+    if (TAB_NAMES.includes(hash)) switchTab(hash);
+    else switchTab('pilih-mitra');
   });
-}
-
-function getCookie(name) {
-  const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
-  return v ? v[2] : '';
-}
-
-function showToast(type, message) {
-  const container = document.getElementById('toast-container');
-  if (!container) return;
-  const t = document.createElement('div');
-  t.className = `toast toast-${type}`;
-  t.innerHTML = `
-    <span class="material-icons mat-sm flex-shrink-0">
-      ${type==='success'?'check_circle':type==='error'?'error':'warning'}
-    </span>
-    <p class="flex-1">${message}</p>
-    <button onclick="this.parentElement.remove()">
-      <span class="material-icons mat-xs">close</span>
-    </button>`;
-  container.appendChild(t);
-  setTimeout(() => t.remove(), 4000);
-}
+})();
 </script>
 {% endblock %}

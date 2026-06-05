@@ -4,11 +4,10 @@ from accounts.models import User
 from research.models import Lecturer  # reuse dosen dari research
 
 class InternshipPartner(TimeStampedModel):
-    """Master data mitra magang — CRUD admin."""
     name = models.CharField(max_length=200, verbose_name='Nama Instansi')
     address = models.TextField(verbose_name='Alamat')
     field = models.CharField(
-        max_length=100, 
+        max_length=100,
         verbose_name='Bidang Magang',
         help_text='Psikologi Klinis, Industri, dll'
     )
@@ -16,6 +15,12 @@ class InternshipPartner(TimeStampedModel):
     phone = models.CharField(max_length=20, blank=True)
     email = models.EmailField(blank=True)
     is_active = models.BooleanField(default=True)
+
+    quota = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Kuota',
+        help_text='0 = tidak dibatasi'
+    )
 
     class Meta:
         ordering = ['name']
@@ -25,6 +30,36 @@ class InternshipPartner(TimeStampedModel):
     def __str__(self):
         return self.name
 
+    @property
+    def accepted_count(self):
+        return self.internshiprequest_set.filter(
+            status__in=['approved', 'ongoing']
+        ).count()
+
+    @property
+    def quota_remaining(self):
+        if self.quota == 0:
+            return None
+        return max(0, self.quota - self.accepted_count)
+
+    @property
+    def quota_percentage(self):
+        if self.quota == 0:
+            return 0
+        return min(100, int((self.accepted_count / self.quota) * 100))
+
+    @property
+    def quota_status(self):
+        if self.quota == 0:
+            return 'unlimited'
+
+        remaining = self.quota_remaining
+        if remaining == 0:
+            return 'full'
+        if remaining <= max(2, self.quota // 5):
+            return 'limited'
+        return 'available'
+    
 class InternshipRequest(TimeStampedModel):
     """Pendaftaran magang mahasiswa."""
     STATUS_CHOICES = (
