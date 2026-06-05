@@ -170,7 +170,17 @@ class LoginPageView(View):
             success=True,
         )
 
-        auth_login(request, user)               # ← hanya 1x, duplikat dihapus
+        auth_login(request, user)
+
+        if not request.session.session_key:
+            request.session.save()
+
+        enforce_user_session_limit(
+            user=user,
+            current_session_key=request.session.session_key,
+            ip_address=ip_address,
+            user_agent=ua_string,
+        )
 
         if not remember:
             request.session.set_expiry(0)
@@ -272,10 +282,16 @@ class RegisterPageView(View):
 # ─────────────────────────────────────────────────────────────────────────────
 class LogoutView(View):
     def post(self, request):
+        from .models import UserSession
+        if request.session.session_key:
+            UserSession.objects.filter(session_key=request.session.session_key).delete()
         auth_logout(request)
         return redirect('login')
 
     def get(self, request):
+        from .models import UserSession
+        if request.session.session_key:
+            UserSession.objects.filter(session_key=request.session.session_key).delete()
         auth_logout(request)
         return redirect('login')
 
@@ -629,3 +645,32 @@ def login_history_view(request):
     history    = LoginHistory.objects.filter(user=request.user)[:5]
     serializer = LoginHistorySerializer(history, many=True)
     return Response(serializer.data)
+
+
+from django.contrib.sessions.models import Session
+from django.utils import timezone
+from .models import UserSession
+
+MAX_ACTIVE_DEVICES = 2   # ubah jadi 1 kalau mau single-device
+
+def enforce_user_session_limit(user, current_session_key, ip_address='', user_agent=''):
+    UserSession.objects.update_or_create(
+        session_key=current_session_key,
+        defaults={
+            'user': user,
+            'ip_address': ip_address,
+            'user_agent': user_agent[:500],
+            'last_seen_at': timezone.now(),
+        }
+    )
+
+    active_sessions = UserSession.objects.filter(user=user).order_by('-last_seen_at', '-created_at')
+
+    if active_sessions.count() <= MAX_ACTIVE_DEVICES:
+        return
+
+    sessions_to_remove = active_sessions[MAX_ACTIVE_DEVICES:]
+
+    for item in sessions_to_remove:
+        Session.objects.filter(session_key=item.session_key).delete()
+        item.delete()
