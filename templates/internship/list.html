@@ -420,13 +420,15 @@
       </div>
 
       <div class="form-group">
-        <label for="modal-lecturer" class="form-label">Dosen Pembimbing <span class="text-red-500">*</span></label>
+        <label for="modal-lecturer" class="form-label">
+          Dosen Pembimbing <span class="text-red-500">*</span>
+        </label>
         <select id="modal-lecturer" class="form-input">
           <option value="">-- Pilih Dosen --</option>
+          <option value="none">Belum Ada / Belum Ditentukan</option>  {# ← tambahkan ini #}
           {% for lecturer in lecturers %}
           <option value="{{ lecturer.id }}">{{ lecturer.name }}</option>
           {% endfor %}
-          <option value="Belum Ada">Belum Ada</option>
         </select>
       </div>
 
@@ -653,6 +655,7 @@
     const supervisor = $('#modal-supervisor-name').value.trim();
     const supervisorPhone = $('#modal-supervisor-phone').value.trim();
 
+    // lecturerId '' (belum dipilih) tidak valid, tapi 'none' valid
     if (!lecturerId || !startDate || !endDate || !supervisor || !supervisorPhone) {
       showToast('error', 'Semua field wajib harus diisi.');
       return false;
@@ -673,7 +676,6 @@
 
     return true;
   }
-
   window.submitRegister = function() {
     if (!validateRegisterForm()) return;
 
@@ -690,7 +692,10 @@
       fd.append('partner_address', $('#modal-partner-address').value.trim());
     }
 
-    fd.append('lecturer', $('#modal-lecturer').value);
+    // ← Perubahan ada di sini
+    const lecturerVal = $('#modal-lecturer').value;
+    fd.append('lecturer', lecturerVal === 'none' ? '' : lecturerVal);
+
     fd.append('start_date', $('#modal-start-date').value);
     fd.append('end_date', $('#modal-end-date').value);
     fd.append('supervisor_name', $('#modal-supervisor-name').value.trim());

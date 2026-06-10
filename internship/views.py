@@ -87,39 +87,60 @@ class InternshipCreateView(LoginRequiredMixin, View):
         if InternshipRequest.objects.filter(
             student=user, status__in=['pending', 'approved', 'ongoing']
         ).exists():
-            return JsonResponse({'status': 'error', 'message': 'Kamu sudah punya magang aktif.'}, status=400)
+            return JsonResponse(
+                {'status': 'error', 'message': 'Kamu sudah punya magang aktif.'},
+                status=400
+            )
 
         partner_id = request.POST.get('partner')
+        partner = None
+
         if partner_id:
             partner = get_object_or_404(InternshipPartner, id=partner_id, is_active=True)
-            # Cek kuota saat submit (double-check server-side)
             if partner.quota > 0 and partner.quota_remaining == 0:
-                return JsonResponse({'status': 'error', 'message': 'Kuota mitra ini sudah penuh.'}, status=400)
+                return JsonResponse(
+                    {'status': 'error', 'message': 'Kuota mitra ini sudah penuh.'},
+                    status=400
+                )
 
-        lecturer_id  = request.POST.get('lecturer')
+        lecturer_id = request.POST.get('lecturer', '').strip() or None
         partner_name = request.POST.get('partner_name', '').strip()
-        start_date   = request.POST.get('start_date')
-        end_date     = request.POST.get('end_date')
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+        supervisor_name = request.POST.get('supervisor_name', '').strip()
+        supervisor_phone = request.POST.get('supervisor_phone', '').strip()
 
-        if not lecturer_id or not start_date or not end_date:
-            return JsonResponse({'status': 'error', 'message': 'Field wajib belum lengkap.'}, status=400)
+        if not start_date or not end_date or not supervisor_name or not supervisor_phone:
+            return JsonResponse(
+                {'status': 'error', 'message': 'Field wajib belum lengkap.'},
+                status=400
+            )
+
         if not partner_id and not partner_name:
-            return JsonResponse({'status': 'error', 'message': 'Pilih mitra atau isi nama instansi.'}, status=400)
+            return JsonResponse(
+                {'status': 'error', 'message': 'Pilih mitra atau isi nama instansi.'},
+                status=400
+            )
 
         req = InternshipRequest.objects.create(
-            student          = user,
-            lecturer_id      = lecturer_id,
-            partner_id       = partner_id or None,
-            partner_name     = partner_name if not partner_id else '',
-            partner_address  = request.POST.get('partner_address', ''),
-            partner_field    = request.POST.get('partner_field', ''),
-            supervisor_name  = request.POST.get('supervisor_name', ''),
-            supervisor_phone = request.POST.get('supervisor_phone', ''),
-            start_date       = start_date,
-            end_date         = end_date,
-            intro_letter     = request.FILES.get('intro_letter'),
+            student=user,
+            lecturer_id=lecturer_id,
+            partner_id=partner_id or None,
+            partner_name=partner_name if not partner_id else '',
+            partner_address=request.POST.get('partner_address', ''),
+            partner_field=request.POST.get('partner_field', ''),
+            supervisor_name=supervisor_name,
+            supervisor_phone=supervisor_phone,
+            start_date=start_date,
+            end_date=end_date,
+            intro_letter=request.FILES.get('intro_letter'),
         )
-        return JsonResponse({'status': 'ok', 'id': req.id, 'message': 'Pendaftaran berhasil dikirim!'})
+
+        return JsonResponse({
+            'status': 'ok',
+            'id': req.id,
+            'message': 'Pendaftaran berhasil dikirim!'
+        })
 
 
 class InternshipLogCreateView(LoginRequiredMixin, View):

@@ -114,7 +114,9 @@ class InternshipRequest(TimeStampedModel):
     
     lecturer = models.ForeignKey(
         Lecturer,
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
         related_name='internships',
         verbose_name='Dosen Pembimbing'
     )
